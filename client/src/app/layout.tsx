@@ -1,16 +1,44 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import "./globals.css";
+import "./resources/css/globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+
+const playfairDisplayRegular = localFont({
+  src: "./resources/fonts/PlayfairDisplay-Regular.woff",
+  variable: "--ff-pl-regular",
+  weight: "400",
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const playfairDisplayMedium = localFont({
+  src: "./resources/fonts/PlayfairDisplay-Medium.woff",
+  variable: "--ff-pl-medium",
+  weight: "500",
+});
+const playfairDisplaySemibold = localFont({
+  src: "./resources/fonts/PlayfairDisplay-Semibold.woff",
+  variable: "--ff-pl-semibold",
+  weight: "600",
+});
+const playfairDisplayBold = localFont({
+  src: "./resources/fonts/PlayfairDisplay-Bold.woff",
+  variable: "--ff-pl-bold",
+  weight: "700",
+});
+
+// Roboto font definitions
+const robotoRegular = localFont({
+  src: "./resources/fonts/Roboto-Regular.woff",
+  variable: "--ff-ro-regular",
+  weight: "400",
+});
+const robotoMedium = localFont({
+  src: "./resources/fonts/Roboto-Medium.woff",
+  variable: "--ff-ro-medium",
+  weight: "500",
+});
+const robotoBold = localFont({
+  src: "./resources/fonts/Roboto-Bold.woff",
+  variable: "--ff-ro-bold",
+  weight: "700",
 });
 
 export const metadata: Metadata = {
@@ -26,7 +54,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${playfairDisplayRegular.variable} ${playfairDisplayMedium.variable} ${playfairDisplaySemibold.variable} ${playfairDisplayBold.variable} ${robotoRegular.variable} ${robotoMedium.variable} ${robotoBold.variable} antialiased`}
       >
         {children}
       </body>
