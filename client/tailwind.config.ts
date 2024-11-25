@@ -29,7 +29,9 @@ export default {
       height: {
         header: "var(--header-height)",
         input: "var(--input-height)",
+        btn: "var(--btn-height)",
       },
+
       spacing: {
         container: "var(--pd-container)",
         section: "var(--pd-section)",
@@ -37,6 +39,9 @@ export default {
       },
       gap: {
         gutter: "var(--gutter)",
+      },
+      margin: {
+        header: "var(--header-height)",
       },
       fontSize: {
         h1: "var(--fs-h1)",
