@@ -1,42 +1,42 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import "./resources/css/globals.css";
-
+import "../resources/css/globals.css";
+import MainLayout from "@/app/layouts/MainLayout";
 
 const playfairDisplayRegular = localFont({
-  src: "./resources/fonts/PlayfairDisplay-Regular.woff",
+  src: "../resources/fonts/PlayfairDisplay-Regular.woff",
   variable: "--ff-pl-regular",
   weight: "400",
 });
 const playfairDisplayMedium = localFont({
-  src: "./resources/fonts/PlayfairDisplay-Medium.woff",
+  src: "../resources/fonts/PlayfairDisplay-Medium.woff",
   variable: "--ff-pl-medium",
   weight: "500",
 });
 const playfairDisplaySemibold = localFont({
-  src: "./resources/fonts/PlayfairDisplay-Semibold.woff",
+  src: "../resources/fonts/PlayfairDisplay-Semibold.woff",
   variable: "--ff-pl-semibold",
   weight: "600",
 });
 const playfairDisplayBold = localFont({
-  src: "./resources/fonts/PlayfairDisplay-Bold.woff",
+  src: "../resources/fonts/PlayfairDisplay-Bold.woff",
   variable: "--ff-pl-bold",
   weight: "700",
 });
 
 // Roboto font definitions
 const robotoRegular = localFont({
-  src: "./resources/fonts/Roboto-Regular.woff",
+  src: "../resources/fonts/Roboto-Regular.woff",
   variable: "--ff-ro-regular",
   weight: "400",
 });
 const robotoMedium = localFont({
-  src: "./resources/fonts/Roboto-Medium.woff",
+  src: "../resources/fonts/Roboto-Medium.woff",
   variable: "--ff-ro-medium",
   weight: "500",
 });
 const robotoBold = localFont({
-  src: "./resources/fonts/Roboto-Bold.woff",
+  src: "../resources/fonts/Roboto-Bold.woff",
   variable: "--ff-ro-bold",
   weight: "700",
 });
@@ -56,7 +56,7 @@ export default function RootLayout({
       <body
         className={`${playfairDisplayRegular.variable} ${playfairDisplayMedium.variable} ${playfairDisplaySemibold.variable} ${playfairDisplayBold.variable} ${robotoRegular.variable} ${robotoMedium.variable} ${robotoBold.variable} antialiased`}
       >
-        {children}
+        <MainLayout>{children}</MainLayout>
       </body>
     </html>
   );
