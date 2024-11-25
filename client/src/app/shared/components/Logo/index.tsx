@@ -1,5 +1,7 @@
+import { ROUTES } from "@/app/constants/routes";
 import clsx from "clsx";
 import { AppleIcon } from "lucide-react";
+import Link from "next/link";
 import React from "react";
 
 type LogoPropsType = {
@@ -9,9 +11,9 @@ type LogoPropsType = {
 
 const Logo = ({ renderLogo, classes }: LogoPropsType) => {
   return (
-    <div className={clsx("logo", classes)}>
+    <Link href={ROUTES.HOME} className={clsx("logo", classes)}>
       {renderLogo ? renderLogo : <AppleIcon />}
-    </div>
+    </Link>
   );
 };
 

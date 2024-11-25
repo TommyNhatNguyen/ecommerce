@@ -48,10 +48,38 @@ Navbar.Item = ({
   dropDownList,
 }: NavbarItemPropsType) => {
   const [showDropDown, setShowDropDown] = useState(false);
-  const handleShowDropDown = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleShowDropDown = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setShowDropDown(!showDropDown);
   };
+  if (dropDownList) {
+    return (
+      <button
+        className={clsx(
+          "navbar__item flex h-full items-center justify-center font-playright-semibold text-navlink text-green-300",
+          dropDownList && "relative flex items-end gap-1",
+          classes,
+        )}
+        onClick={handleShowDropDown}
+      >
+        {children}
+        {dropDownList && (
+          <>
+            <Navbar.Dropdown showDropDown={showDropDown}>
+              {dropDownList.map((item, index) => (
+                <Navbar.DropdownItem key={item?.id || index} link={item.link}>
+                  {item.children}
+                </Navbar.DropdownItem>
+              ))}
+            </Navbar.Dropdown>
+            <ChevronDown
+              className={clsx("duration-300", showDropDown && "rotate-180")}
+            />
+          </>
+        )}
+      </button>
+    );
+  }
   return (
     <Link
       href={link}
@@ -60,23 +88,8 @@ Navbar.Item = ({
         dropDownList && "relative flex items-end gap-1",
         classes,
       )}
-      onClick={dropDownList && handleShowDropDown}
     >
       {children}
-      {dropDownList && (
-        <>
-          <Navbar.Dropdown showDropDown={showDropDown}>
-            {dropDownList.map((item, index) => (
-              <Navbar.DropdownItem key={item?.id || index} link={item.link}>
-                {item.children}
-              </Navbar.DropdownItem>
-            ))}
-          </Navbar.Dropdown>
-          <ChevronDown
-            className={clsx("duration-300", showDropDown && "rotate-180")}
-          />
-        </>
-      )}
     </Link>
   );
 };
@@ -112,7 +125,7 @@ Navbar.DropdownItem = ({
       href={link}
       className={clsx(
         "navbar__dropdown-item",
-        "whitespace-nowrap text-nowrap font-roboto-medium",
+        "whitespace-nowrap text-nowrap text-left font-roboto-medium",
         classes,
       )}
     >

@@ -19,14 +19,21 @@ export default {
         "gray-300": "var(--gray-300)",
         "gray-400": "var(--gray-400)",
         "bg-primary": "var(--bg-primary-color)",
+        "bg-primary-70": "var(--bg-primary-color-70)",
+        "bg-primary-60": "var(--bg-primary-color-60)",
         "bg-secondary": "var(--bg-secondary-color)",
+        error: "var(--error-color)",
+        warning: "var(--warning-color)",
+        success: "var(--success-color)",
       },
       height: {
         header: "var(--header-height)",
+        input: "var(--input-height)",
       },
       spacing: {
         container: "var(--pd-container)",
         section: "var(--pd-section)",
+        header: "var(--header-height)",
       },
       gap: {
         gutter: "var(--gutter)",
