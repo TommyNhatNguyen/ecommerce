@@ -13,28 +13,28 @@ const products = [
     imgUrl: mockProductImage,
     name: "Product 1",
     price: 100,
-    link: "/product-1",
+    link: ROUTES.PRODUCT_DETAIL,
     beforeDiscountedPrice: 250,
   },
   {
     imgUrl: mockProductImage,
     name: "Product 2",
     price: 150,
-    link: "/product-2",
+    link: ROUTES.PRODUCT_DETAIL,
     beforeDiscountedPrice: 250,
   },
   {
     imgUrl: mockProductImage,
     name: "Product 3",
     price: 200,
-    link: "/product-3",
+    link: ROUTES.PRODUCT_DETAIL,
     beforeDiscountedPrice: 250,
   },
   {
     imgUrl: mockProductImage,
     name: "Product 4",
     price: 250,
-    link: "/product-4",
+    link: ROUTES.PRODUCT_DETAIL,
     beforeDiscountedPrice: 500,
   },
 ];
@@ -75,7 +75,10 @@ const ProductSection = (props: Props) => {
         </Titlegroup>
         <div className="product__group`">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div className="product__group-list mt-[36px] flex items-center justify-between gap-gutter">
+            <div
+              key={index}
+              className="product__group-list mt-[36px] flex items-center justify-between gap-gutter"
+            >
               {products.map((product) => (
                 <CardProduct
                   key={product.name}

@@ -50,8 +50,7 @@ const CategorySection = (props: Props) => {
         </Titlegroup>
         <div
           className={clsx(
-            "category__list mt-[68px] grid grid-flow-dense",
-            `grid-cols-${categories.length / 2}`,
+            "category__list mt-[68px] grid grid-flow-row-dense grid-cols-4",
             "gap-gutter",
           )}
         >

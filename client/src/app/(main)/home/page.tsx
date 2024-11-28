@@ -1,4 +1,3 @@
-import BannerSection from "@/app/(main)/home/(components)/BannerSection";
 import BlogSection from "@/app/(main)/home/(components)/BlogSection";
 import CategorySection from "@/app/(main)/home/(components)/CategorySection";
 import FAQSection from "@/app/(main)/home/(components)/FAQSection";
@@ -20,7 +19,6 @@ const HomePage = (props: Props) => {
       <HighlightSection />
       <BlogSection />
       <FAQSection />
-      <BannerSection />
     </main>
   );
 };

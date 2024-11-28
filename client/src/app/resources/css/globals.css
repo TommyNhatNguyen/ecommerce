@@ -33,17 +33,30 @@ html {
 body {
   height: 100%;
   width: 100%;
-  max-width: var(--max-width-page);
+  /* max-width: var(--max-width-page); */
   margin: auto;
   background: var(--bg-primary-color);
   color: var(--green-300);
   font-family: var(--ff-ro-regular);
   font-size: var(--fs-body-text);
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--gray-100);
+    border-radius: 10px;
+  }
 }
 
 .container {
   height: 100%;
-  width: 100%;
+  width: 100;
   max-width: var(--max-width-container);
   padding-left: var(--pd-container);
   padding-right: var(--pd-container);

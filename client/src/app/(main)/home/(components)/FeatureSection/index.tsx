@@ -6,6 +6,7 @@ import Titlegroup from "@/app/shared/components/Titlegroup";
 import { PlusCircle } from "lucide-react";
 import React from "react";
 import mockProductImage from "../../../../resources/images/homepage/product-1.jpg";
+import { ROUTES } from "@/app/constants/routes";
 type Props = {};
 
 const products = [
@@ -13,28 +14,28 @@ const products = [
     imgUrl: mockProductImage,
     name: "Product 1",
     price: 100,
-    link: "/product-1",
+    link: ROUTES.PRODUCT_DETAIL,
     beforeDiscountedPrice: 250,
   },
   {
     imgUrl: mockProductImage,
     name: "Product 2",
     price: 150,
-    link: "/product-2",
+    link: ROUTES.PRODUCT_DETAIL,
     beforeDiscountedPrice: 250,
   },
   {
     imgUrl: mockProductImage,
     name: "Product 3",
     price: 200,
-    link: "/product-3",
+    link: ROUTES.PRODUCT_DETAIL,
     beforeDiscountedPrice: 250,
   },
   {
     imgUrl: mockProductImage,
     name: "Product 4",
     price: 250,
-    link: "/product-4",
+    link: ROUTES.PRODUCT_DETAIL,
     beforeDiscountedPrice: 500,
   },
 ];

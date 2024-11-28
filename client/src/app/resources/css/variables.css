@@ -24,9 +24,12 @@
   --bg-secondary-color: rgb(240, 226, 182);
 
   /* New Status Colors */
-  --error-color: rgb(179, 57, 57); /* Muted Red for Errors */
-  --warning-color: rgb(255, 191, 0); /* Muted Yellow for Warnings */
-  --success-color: rgb(63, 78, 79); /* Matching Green for Success */
+  --error-color: rgb(179, 57, 57);
+  /* Muted Red for Errors */
+  --warning-color: rgb(255, 191, 0);
+  /* Muted Yellow for Warnings */
+  --success-color: rgb(63, 78, 79);
+  /* Matching Green for Success */
 
   /* Fonts */
   --fs-h1: 4.8rem;
