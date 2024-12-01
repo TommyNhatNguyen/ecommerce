@@ -52,7 +52,7 @@ const Collection = (props: Props) => {
           <Form.Group
             classes="h-input rounded-[42px] w-full border-green-300  flex items-center justify-between pl-[20px] pr-[10px] py-[10px] hover:border-green-100 duration-300 focus-within:border-green-100 gap-[8px]"
             renderIcon={() => (
-              <Button className="from__group-icon flex aspect-square h-[40px] items-center justify-center rounded-full bg-green-300 duration-300 hover:bg-green-200">
+              <Button variant="icon">
                 <Search className="text-white" width={18} height={18} />
               </Button>
             )}
@@ -80,7 +80,7 @@ const Collection = (props: Props) => {
                   key={product.name}
                   {...product}
                   renderAction={() => (
-                    <Button onClick={() => _onAddToCart(product)}>
+                    <Button variant="vanilla" onClick={() => _onAddToCart(product)}>
                       <PlusCircle width={24} height={24} />
                     </Button>
                   )}
@@ -96,7 +96,8 @@ const Collection = (props: Props) => {
           </div>
           <Button
             onClick={_onLoadMore}
-            classes="mx-auto mt-[26px] h-btn px-[24px] text-center text-white text-primary-btn rounded-[64px] bg-pink-200 hover:bg-pink-100 duration-300 flex items-center justify-center gap-2"
+            variant="primary"
+            classes="mx-auto mt-[26px]"
           >
             <span className="h-full content-center text-nowrap">Load More</span>
             <ChevronRightIcon

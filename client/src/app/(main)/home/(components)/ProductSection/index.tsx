@@ -59,10 +59,7 @@ const ProductSection = (props: Props) => {
               quis pulvinar.
             </Titlegroup.Description>
           </Titlegroup.Info>
-          <ButtonWithLink
-            link={ROUTES.PRODUCTS}
-            classes="h-btn px-[24px] text-center text-white text-primary-btn rounded-[64px] bg-pink-200 hover:bg-pink-100 duration-300 flex items-center justify-center gap-2"
-          >
+          <ButtonWithLink link={ROUTES.PRODUCTS}>
             <span className="h-full content-center text-nowrap">
               View All Products
             </span>
@@ -84,7 +81,10 @@ const ProductSection = (props: Props) => {
                   key={product.name}
                   {...product}
                   renderAction={() => (
-                    <Button onClick={() => _onAddToCart(product)}>
+                    <Button
+                      onClick={() => _onAddToCart(product)}
+                      variant="vanilla"
+                    >
                       <PlusCircle width={24} height={24} />
                     </Button>
                   )}

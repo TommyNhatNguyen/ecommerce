@@ -64,7 +64,7 @@ const FeatureSection = (props: Props) => {
               key={product.name}
               {...product}
               renderAction={() => (
-                <Button onClick={() => _onAddToCart(product)}>
+                <Button onClick={() => _onAddToCart(product)} variant="vanilla">
                   <PlusCircle width={24} height={24} />
                 </Button>
               )}

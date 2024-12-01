@@ -15,9 +15,10 @@ const Dropdown = ({ title, children, classes }: DropdownPropsType) => {
     setIsShowDropdown(!isShowDropdown);
   };
   return (
-    <div className={clsx("dropdown w-full", classes)}>
+    <div className={clsx("dropdown", classes)}>
       <Button
-        classes="dropdown__title btn flex w-full items-center justify-between gap-gutter font-roboto-medium text-body-big"
+        variant="vanilla"
+        classes="px-0 justify-between"
         onClick={_onHandleDropdown}
       >
         <div className="dropdown__title-text">{title}</div>

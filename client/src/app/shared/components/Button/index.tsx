@@ -1,15 +1,52 @@
 import clsx from "clsx";
 import Link, { LinkProps } from "next/link";
 import React from "react";
+import { twMerge } from "tailwind-merge";
 
 type ButtonPropsType = {
   children: React.ReactNode;
   classes?: string;
+  variant?: "primary" | "secondary" | "vanilla" | "icon" | "accent-1";
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-const Button = ({ children, classes, ...props }: ButtonPropsType) => {
+const baseClasses =
+  "h-btn px-[24px] text-center text-primary-btn rounded-[64px] duration-300 flex items-center justify-center gap-2";
+
+const Button = ({
+  children,
+  classes,
+  variant = "primary",
+  ...props
+}: ButtonPropsType) => {
+  let variantClasses = "";
+  switch (variant) {
+    case "primary":
+      variantClasses = "bg-pink-200 hover:bg-pink-100 text-white";
+      break;
+    case "secondary":
+      variantClasses = "bg-gray-200 hover:bg-gray-100 text-white";
+      break;
+    case "accent-1":
+      variantClasses = "bg-green-300 hover:bg-green-200 text-white";
+      break;
+    case "vanilla":
+      variantClasses = "";
+      break;
+    case "icon":
+      variantClasses =
+        "flex aspect-square items-center justify-center rounded-full bg-green-300 duration-300 hover:bg-green-200 h-full px-0 text-white";
+      break;
+    default:
+      break;
+  }
   return (
-    <button className={clsx("btn --general", classes)} {...props}>
+    <button
+      className={clsx(
+        "btn --general",
+        twMerge(baseClasses, variantClasses, classes),
+      )}
+      {...props}
+    >
       {children}
     </button>
   );
@@ -29,7 +66,7 @@ const withLink = (
   classes?: string,
 ) => {
   return (
-    <Link className={clsx("link-wrapper", classes)} href={link}>
+    <Link className={twMerge("link-wrapper text-white", classes)} href={link}>
       {Component}
     </Link>
   );

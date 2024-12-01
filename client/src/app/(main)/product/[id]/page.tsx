@@ -8,15 +8,9 @@ type Props = {};
 const ProductDetailPage = (props: Props) => {
   return (
     <main id="product-detail" className="product-detail py-section">
-      <section className="product-detail__detail">
-        <Detail />
-      </section>
-      <section className="product-detail__reviews">
-        <Reviews />
-      </section>
-      <section className="similar-section">
-        <SimilarCardComponent />
-      </section>
+      <Detail />
+      <Reviews />
+      <SimilarCardComponent />
     </main>
   );
 };

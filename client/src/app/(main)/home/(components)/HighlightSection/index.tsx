@@ -19,14 +19,15 @@ const HighlightSection = (props: Props) => {
           backgroundAttachment: "fixed",
         }}
       >
-        <div className="highlight__banner-info bg-bg-primary-70 absolute left-[50%] top-[50%] flex w-full max-w-[80%] -translate-x-[50%] -translate-y-[50%] items-start justify-between gap-gutter rounded-2xl p-[32px] shadow-md backdrop-blur-md">
+        <div className="highlight__banner-info absolute left-[50%] top-[50%] flex w-full max-w-[80%] -translate-x-[50%] -translate-y-[50%] items-start justify-between gap-gutter rounded-2xl bg-bg-primary-70 p-[32px] shadow-md backdrop-blur-md">
           <div className="titlegroup flex-1">
             <h2 className="titlegroup__title font-playright-bold text-h2 text-green-200">
               Have a Look at Our Unique Selling Proportions
             </h2>
             <ButtonWithLink
               link={ROUTES.PRODUCTS}
-              classes="h-btn px-[24px] text-center text-white text-primary-btn rounded-[64px] bg-gray-200 hover:bg-gray-100 duration-300 flex items-center justify-center gap-2 mt-[30px]"
+              classes="mt-[30px]"
+              variant="secondary"
             >
               <span className="h-full content-center text-nowrap">
                 Read more
