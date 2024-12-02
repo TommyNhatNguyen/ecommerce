@@ -35,9 +35,7 @@ type TableCellPropsType = {
 
 const Table = ({ children }: TablePropsType) => {
   return (
-    <table className="h-full w-full border-collapse overflow-hidden rounded-lg">
-      {children}
-    </table>
+    <table className="h-full w-full border-collapse bg-white">{children}</table>
   );
 };
 
@@ -50,17 +48,12 @@ Table.Head = ({ children }: TableHeadPropsType) => {
 };
 
 Table.Body = ({ children }: TableBodyPropsType) => {
-  return <tbody>{children}</tbody>;
+  return <tbody className="rounded-[10px] overflow-hidden">{children}</tbody>;
 };
 
 Table.Footer = ({ children, classes }: TableFooterPropsType) => {
   return (
-    <tfoot
-      className={twMerge(
-        "border-green-300 border-solid border",
-        classes,
-      )}
-    >
+    <tfoot className={twMerge("border border-solid border-green-300", classes)}>
       {children}
     </tfoot>
   );
@@ -92,7 +85,7 @@ Table.Cell = ({
       return (
         <th
           className={twMerge(
-            "content-center px-[16px] text-center font-roboto-medium text-bg-primary",
+            "content-center p-[16px] text-center font-roboto-medium text-bg-primary",
             classes,
           )}
           {...props}
@@ -105,7 +98,7 @@ Table.Cell = ({
       return (
         <td
           className={twMerge(
-            "content-center px-[16px] text-center",
+            "content-center p-[16px] text-center",
             typeof data === "number" ? "text-right" : "text-center",
             classes,
           )}

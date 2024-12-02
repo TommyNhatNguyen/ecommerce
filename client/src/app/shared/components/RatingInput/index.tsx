@@ -2,17 +2,22 @@ import Button from "@/app/shared/components/Button";
 import clsx from "clsx";
 import { Star } from "lucide-react";
 import React from "react";
+import { twMerge } from "tailwind-merge";
 
 type RatingInputPropsType = {
   handleSelectStar: (index: number) => void;
   currentRating: number;
   clickable?: boolean;
+  itemClasses?: string;
+  wrapperClasses?: string;
 };
 
 const RatingInput = ({
   currentRating,
   handleSelectStar,
   clickable = true,
+  itemClasses,
+  wrapperClasses,
 }: RatingInputPropsType) => {
   const handleClick = (
     e: React.MouseEvent<HTMLButtonElement>,
@@ -23,9 +28,9 @@ const RatingInput = ({
   };
 
   return (
-    <ul className="stars flex items-center gap-2">
+    <ul className={twMerge("stars flex items-center gap-2", wrapperClasses)}>
       {[...Array(5)].map((_, starPosition) => (
-        <li key={starPosition}>
+        <li key={starPosition} className={itemClasses}>
           <Button
             variant="vanilla"
             classes="h-fit px-0"

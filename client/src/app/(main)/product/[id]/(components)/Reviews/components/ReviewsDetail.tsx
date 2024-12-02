@@ -26,43 +26,40 @@ const ReviewsDetail = () => {
         <Form classes="border-bg-primary border border-solid rounded-[14px] p-[30px] flex items-start gap-gutter">
           <Avatar imgSrc={avatarImg.src} />
           <div className="flex-1">
-            <Form.Group classes="h-[140px] rounded-[14px] border-bg-primary overflow-hidden">
-              <Form.Input
-                renderInput={() => (
-                  <Textarea
-                    placeholder="Write your review here..."
-                    className="h-full w-full resize-none bg-transparent p-[20px] font-roboto-regular text-bg-primary duration-300 placeholder:text-bg-primary focus:outline-none"
-                    onChange={handleChangeReview}
-                  />
-                )}
-              />
-            </Form.Group>
-            <Form.Group classes="flex items-center justify-between gap-gutter border-none mt-[30px]">
-              <Form.Group
-                label="Your Ratings:"
-                classes="border-none flex items-center gap-[8px] text-bg-secondary font-roboto-medium"
-              >
-                <Form.Input
-                  renderInput={() => (
-                    <RatingInput
-                      handleSelectStar={handleSelectStar}
-                      currentRating={rating}
-                    />
-                  )}
+            <Form.Input
+              wrapperClasses="h-[140px] rounded-[14px] border-bg-primary overflow-hidden"
+              renderInput={() => (
+                <Textarea
+                  placeholder="Write your review here..."
+                  className="h-full w-full resize-none bg-transparent p-[20px] font-roboto-regular text-bg-primary duration-300 placeholder:text-bg-primary focus:outline-none"
+                  onChange={handleChangeReview}
                 />
-              </Form.Group>
-              <Button variant="secondary" onClick={handleSubmitReview}>
-                <span>Submit</span>
-                <ChevronRight />
-              </Button>
-            </Form.Group>
+              )}
+            />
+            <Form.Input
+              wrapperClasses="flex items-center justify-between gap-gutter border-none mt-[30px]"
+              renderInput={() => (
+                <div className="flex items-center gap-[8px]">
+                  <RatingInput
+                    handleSelectStar={handleSelectStar}
+                    currentRating={rating}
+                    clickable={true}
+                    itemClasses="text-bg-secondary"
+                  />
+                  <Button variant="secondary" onClick={handleSubmitReview}>
+                    <span>Submit</span>
+                    <ChevronRight />
+                  </Button>
+                </div>
+              )}
+            />
           </div>
         </Form>
       </div>
       <ul className="content_reviews-list h-ful mt-[40px] flex max-h-[600px] min-h-[500px] flex-col gap-[32px] overflow-y-scroll rounded-[14px] border border-solid border-bg-primary p-[30px]">
         {Array.from({ length: 10 }).map((index) => {
           return (
-            <li className="flex items-start gap-gutter">
+            <li key={index} className="flex items-start gap-gutter">
               <Avatar imgSrc={avatarImg.src} />
               <div className="flex-1">
                 <div>

@@ -49,16 +49,16 @@ const Collection = (props: Props) => {
           Our Collection Of Products
         </h1>
         <Form className="mt-[32px] w-full">
-          <Form.Group
-            classes="h-input rounded-[42px] w-full border-green-300  flex items-center justify-between pl-[20px] pr-[10px] py-[10px] hover:border-green-100 duration-300 focus-within:border-green-100 gap-[8px]"
+          <Form.Input
+            wrapperClasses="h-input rounded-[42px] w-full border-green-300  flex items-center justify-between pl-[20px] pr-[10px] py-[10px] hover:border-green-100 duration-300 focus-within:border-green-100 gap-[8px]"
             renderIcon={() => (
               <Button variant="icon">
                 <Search className="text-white" width={18} height={18} />
               </Button>
             )}
+            placeholder="Search An Item"
           >
-            <Form.Input placeholder="Search An Item" />
-          </Form.Group>
+          </Form.Input>
         </Form>
       </div>
       <div className="product-page__content-list mt-[32px]">

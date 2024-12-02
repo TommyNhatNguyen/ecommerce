@@ -1,3 +1,4 @@
+"use client";
 import Products from "@/app/(main)/cart/(components)/Products";
 import Total from "@/app/(main)/cart/(components)/Total";
 import { ROUTES } from "@/app/constants/routes";
@@ -7,6 +8,7 @@ import SimilarCardComponent from "@/app/shared/components/SimilarCardComponent";
 import Table from "@/app/shared/components/Table";
 import { X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { twMerge } from "tailwind-merge";
 import mockProductImage from "@/app/resources/images/homepage/product-2.jpg";
@@ -42,12 +44,18 @@ const products = [
   },
 ];
 const CartPage = (props: CartPagePropsType) => {
+  const router = useRouter();
+  const handleCheckout = () => {
+    console.log("checkout");
+    router.push(ROUTES.CHECKOUT);
+  };
+  const totalProps = { handleCheckout };
   return (
     <main id="cart" className="cart pt-section">
       <Container>
         <section className="cart-wrapper grid h-full w-full grid-cols-[1.4fr,1fr] items-start justify-between gap-gutter">
           <Products />
-          <Total />
+          <Total {...totalProps} />
         </section>
       </Container>
       <SimilarCardComponent

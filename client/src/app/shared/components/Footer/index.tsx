@@ -44,8 +44,10 @@ const Footer = () => {
                 Subscribe to our Newsletter
               </h3>
               <Form className="mx-auto mt-[16px] max-w-[344px]">
-                <Form.Group
-                  classes="h-input rounded-[42px] bg-black/15 flex items-center justify-between pl-[20px] pr-[10px] py-[10px] border-black/15 hover:border-black/70 duration-300 focus-within:border-black/70 gap-[8px]"
+                <Form.Input
+                  inputClasses="text-white placeholder:text-white"
+                  wrapperClasses="h-input rounded-[42px] border-white/50 flex items-center justify-between pl-[20px] pr-[10px] py-[10px] hover:border-bg-gray-100 duration-300 focus-within:border-bg-gray-100 gap-[8px]"
+                  placeholder="Search An Item"
                   renderIcon={() => (
                     <Button className="from__group-icon flex aspect-square h-[40px] items-center justify-center rounded-full bg-green-300 duration-300 hover:bg-green-200">
                       <ChevronRight
@@ -55,12 +57,7 @@ const Footer = () => {
                       />
                     </Button>
                   )}
-                >
-                  <Form.Input
-                    classes="text-white placeholder:text-white"
-                    placeholder="Search An Item"
-                  />
-                </Form.Group>
+                />
               </Form>
               <div className="social mt-[16px] flex w-full justify-center gap-4">
                 <a

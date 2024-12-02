@@ -27,16 +27,15 @@ const Hero = () => {
             elit. Nulla fringilla nunc in molestie feugiat
           </p>
           <Form className="mx-auto mt-[32px] max-w-[344px]">
-            <Form.Group
-              classes="h-input rounded-[42px] border-bg-secondary bg-bg-primary-60 flex items-center justify-between pl-[20px] pr-[10px] py-[10px] hover:border-bg-primary-70 duration-300 focus-within:border-bg-primary-70 gap-[8px]"
+            <Form.Input
+              wrapperClasses="h-input rounded-[42px] border-bg-secondary bg-bg-primary-60 flex items-center justify-between pl-[20px] pr-[10px] py-[10px] hover:border-bg-primary-70 duration-300 focus-within:border-bg-primary-70 gap-[8px]"
               renderIcon={() => (
                 <Button className="from__group-icon flex aspect-square h-[40px] items-center justify-center rounded-full bg-green-300 duration-300 hover:bg-green-200">
                   <Search className="text-white" width={18} height={18} />
                 </Button>
               )}
-            >
-              <Form.Input placeholder="Search An Item" />
-            </Form.Group>
+              placeholder="Search An Item"
+            />
           </Form>
         </div>
       </div>

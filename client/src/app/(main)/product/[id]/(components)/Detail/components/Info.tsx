@@ -69,45 +69,44 @@ const Info = (props: Props) => {
             recusandae eveniet qui quia obcaecati harum. Vitae quod atque
             reprehenderit.
           </p>
-          <ul className="ml-[4px] list-inside list-disc mt-[16px]">
+          <ul className="ml-[4px] mt-[16px] list-inside list-disc">
             <li>Lorem ipsum dolor sit amet, consectetuer adipi scing elit</li>
             <li>Lorem ipsum dolor sit amet, consectetuer adipi scing elit</li>
             <li>Lorem ipsum dolor sit amet, consectetuer adipi scing elit</li>
           </ul>
         </div>
         <div className="actionsgroup mt-[30px]">
-          <div className="actionsgroup__quantity">
-            <Form.Group classes="border-none flex items-center gap-gutter w-full">
-              <div className="flex w-full max-w-fit flex-shrink-0 items-center rounded-full bg-white">
-                <Button
-                  variant="vanilla"
-                  onClick={_onQuantityDecrease}
-                  classes="hover:bg-green-300 hover:text-white duration-300"
-                >
-                  -
-                </Button>
-                <Form.Input
-                  type="number"
-                  value={quantity}
-                  classes="text-center w-[50px]"
-                  onChange={_onQuantityChange}
-                />
-                <Button
-                  variant="vanilla"
-                  onClick={_onQuantityIncrease}
-                  classes="hover:bg-green-300 hover:text-white duration-300"
-                >
-                  +
-                </Button>
-              </div>
+          <div className="actionsgroup__quantity flex items-center gap-gutter">
+            <div className="flex w-full max-w-fit flex-shrink-0 items-center rounded-full bg-white">
               <Button
-                variant="primary"
-                classes="btn-addcart flex-1 font-roboto-medium"
+                variant="vanilla"
+                onClick={_onQuantityDecrease}
+                classes="hover:bg-green-300 hover:text-white duration-300"
               >
-                <ShoppingCart />
-                Add to Cart
+                -
               </Button>
-            </Form.Group>
+              <Form.Input
+                type="number"
+                value={quantity}
+                inputClasses="text-center w-[50px]"
+                wrapperClasses="border-none"
+                onChange={_onQuantityChange}
+              />
+              <Button
+                variant="vanilla"
+                onClick={_onQuantityIncrease}
+                classes="hover:bg-green-300 hover:text-white duration-300"
+              >
+                +
+              </Button>
+            </div>
+            <Button
+              variant="primary"
+              classes="btn-addcart flex-1 font-roboto-medium"
+            >
+              <ShoppingCart />
+              Add to Cart
+            </Button>
           </div>
           <Button
             variant="accent-1"
@@ -121,8 +120,8 @@ const Info = (props: Props) => {
             <Truck />
             <span>Free Shipping on orders over $50</span>
           </div>
-          <div className="shipping__item flex items-center gap-[8px] mt-[12px]">
-            <Package/>
+          <div className="shipping__item mt-[12px] flex items-center gap-[8px]">
+            <Package />
             <span>Delivers in: 3-7 Working Days Shipping & Return</span>
           </div>
         </div>

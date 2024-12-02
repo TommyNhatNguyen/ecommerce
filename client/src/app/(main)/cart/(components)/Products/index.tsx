@@ -1,5 +1,4 @@
 import { ROUTES } from "@/app/constants/routes";
-
 import Button from "@/app/shared/components/Button";
 import Table from "@/app/shared/components/Table";
 import { X } from "lucide-react";
