@@ -17,9 +17,10 @@ const Cta = ({ classes }: Props) => {
   return (
     <div className={clsx("cta flex items-center gap-4", classes)}>
       <ButtonWithLink
+        variant="vanilla"
         onClick={_onShowAuthenModal}
         link={ROUTES.AUTHEN}
-        classes="cta__login font-roboto-medium text-body-text"
+        classes="cta__login font-roboto-medium text-body-text text-green-300 hover:text-green-100"
       >
         Login/Register
       </ButtonWithLink>

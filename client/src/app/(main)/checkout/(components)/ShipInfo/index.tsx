@@ -3,9 +3,14 @@ import Form from "@/app/shared/components/Form";
 import Table from "@/app/shared/components/Table";
 import React from "react";
 
-type Props = {};
+type ShipInfoPropsType = {
+  handlePayment: () => void;
+};
 
-const ShipInfo = (props: Props) => {
+const ShipInfo = ({ handlePayment }: ShipInfoPropsType) => {
+  const _onPayment = () => {
+    handlePayment();
+  };
   return (
     <section className="ship-info">
       <Table>
@@ -89,7 +94,9 @@ const ShipInfo = (props: Props) => {
         </Table.Body>
         <Table.Footer classes="border-none">
           <Table.Cell type="cell">
-            <Button variant="accent-1">Proceed to Payment</Button>
+            <Button variant="accent-1" onClick={_onPayment}>
+              Proceed to Payment
+            </Button>
           </Table.Cell>
         </Table.Footer>
       </Table>

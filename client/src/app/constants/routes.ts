@@ -10,4 +10,6 @@ export const ROUTES = {
   PROFILE: "/profile",
   AUTHEN: "/authen",
   CHECKOUT: "/checkout",
+  COMPLETE: "/complete",
+  ORDER: "/order",
 };

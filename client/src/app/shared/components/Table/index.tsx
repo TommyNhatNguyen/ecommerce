@@ -4,6 +4,7 @@ import { twMerge } from "tailwind-merge";
 
 type TablePropsType = {
   children: ReactNode;
+  classes?: string;
 };
 
 type TableHeadPropsType = {
@@ -12,6 +13,7 @@ type TableHeadPropsType = {
 
 type TableBodyPropsType = {
   children: ReactNode;
+  classes?: string;
 };
 
 type TableFooterPropsType = {
@@ -33,9 +35,9 @@ type TableCellPropsType = {
   colSpan?: number;
 } & React.HTMLAttributes<HTMLTableCellElement>;
 
-const Table = ({ children }: TablePropsType) => {
+const Table = ({ children, classes }: TablePropsType) => {
   return (
-    <table className="h-full w-full border-collapse bg-white">{children}</table>
+    <table className={twMerge("h-full w-full border-collapse bg-white", classes)}>{children}</table>
   );
 };
 
@@ -47,8 +49,14 @@ Table.Head = ({ children }: TableHeadPropsType) => {
   );
 };
 
-Table.Body = ({ children }: TableBodyPropsType) => {
-  return <tbody className="rounded-[10px] overflow-hidden">{children}</tbody>;
+Table.Body = ({ children, classes }: TableBodyPropsType) => {
+  return (
+    <tbody
+      className={twMerge("rounded-[10px] overflow-hidden", classes)}
+    >
+      {children}
+    </tbody>
+  );
 };
 
 Table.Footer = ({ children, classes }: TableFooterPropsType) => {
