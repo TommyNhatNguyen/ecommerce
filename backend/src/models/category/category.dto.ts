@@ -15,5 +15,13 @@ export const CategoryUpdateDTOSchema = z.object({
   description: z.string().optional(),
 });
 
+export const CategoryConditionDTOSchema = z.object({
+  name: z.string().optional(),
+  id: z.string().uuid().optional(),
+});
+
 export type CategoryCreateDTOSchema = z.infer<typeof CategoryCreateDTOSchema>;
 export type CategoryUpdateDTOSchema = z.infer<typeof CategoryUpdateDTOSchema>;
+export type CategoryConditionDTOSchema = z.infer<
+  typeof CategoryConditionDTOSchema
+>;

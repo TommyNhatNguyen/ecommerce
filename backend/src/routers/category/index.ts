@@ -17,14 +17,14 @@ function setupCategoryRouter(sequelize: Sequelize) {
   );
   const categoryUseCase = new CategoryUseCase(categoryRepository);
   const categoryHttpService = new CategoryHttpService(categoryUseCase);
-  // router.get('/categories', listCategoriesApi)
-  // router.get('/categories/:id', getCategoryByIdApi)
+  router.get('/categories', categoryHttpService.listCategory.bind(categoryHttpService))
+  router.get('/categories/:id', categoryHttpService.getCategory.bind(categoryHttpService))
   router.post(
     '/categories',
     categoryHttpService.createNewCategory.bind(categoryHttpService)
   );
-  // router.put('/categories/:id', updateCategoryApi)
-  // router.delete('/categories/:id', deleteCategoryApi)
+  router.put('/categories/:id', categoryHttpService.updateCategory.bind(categoryHttpService))
+  router.delete('/categories/:id', categoryHttpService.deleteCategory.bind(categoryHttpService))
   return router;
 }
 

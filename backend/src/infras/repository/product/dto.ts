@@ -1,7 +1,5 @@
 import { ModelStatus } from 'src/share/models/base-model';
-import { DataTypes, Model } from 'sequelize';
-import { Sequelize } from 'sequelize';
-import { sequelize } from 'src/share/sequelize';
+import { DataTypes, Model, Sequelize } from 'sequelize';
 
 export class ProductPersistence extends Model {
   declare id: string;

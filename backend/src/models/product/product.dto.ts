@@ -9,6 +9,7 @@ export const ProductCreateDTOSchema = z.object({
     .default(() => uuidv7()),
   name: z.string(),
   price: z.number().nonnegative().min(0),
+  categoryIds: z.array(z.string().uuid()).optional(),
 });
 
 export const ProductUpdateDTOSchema = z.object({
@@ -23,7 +24,9 @@ export const ProductUpdateDTOSchema = z.object({
 export const ProductConditionDTOSchema = z.object({
   id: z.string().uuid().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
-  price: z.number().nonnegative().min(0).optional().default(0),
+  price: z.number().nonnegative().min(0).optional(),
+  name: z.string().optional(),
+  categoryId: z.string().uuid().optional(),
 });
 
 export type ProductCreateDTOSchema = z.infer<typeof ProductCreateDTOSchema>;

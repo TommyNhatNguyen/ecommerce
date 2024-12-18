@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ModelStatus } from 'src/share/models/base-model';
+import { CategorySchema } from '@models/category/category.model';
 
 export const ProductSchema = z.object({
   id: z.string().uuid(),
@@ -12,3 +13,4 @@ export const ProductSchema = z.object({
 });
 
 export type Product = z.infer<typeof ProductSchema>;
+
