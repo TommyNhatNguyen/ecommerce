@@ -33,13 +33,11 @@ export class ProductUseCase implements IProductUseCase {
     // filter by categoryIds
     if (categoryIds && categoryIds?.length > 0) {
       const products = data.data.filter((product) => {
-        return product.category?.some((item) =>
-          categoryIds.includes(item.id)
-        );
+        return product.category?.some((item) => categoryIds.includes(item.id));
       });
       data.data = products;
     }
-    
+
     return data;
   }
   async getProductById(id: string): Promise<Product | null> {
@@ -52,8 +50,8 @@ export class ProductUseCase implements IProductUseCase {
       ...data,
       id: newId,
       status: ModelStatus.ACTIVE,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      created_at: new Date(),
+      updated_at: new Date(),
     };
 
     return await this.repository.insert(product);

@@ -14,7 +14,6 @@ export const ProductCreateDTOSchema = z.object({
   name: z.string(),
   price: z.number().nonnegative().min(0),
   categoryIds: z.array(z.string().uuid()).optional(),
-
 });
 
 export const ProductUpdateDTOSchema = z.object({
@@ -22,8 +21,8 @@ export const ProductUpdateDTOSchema = z.object({
   description: z.string().optional(),
   price: z.number().nonnegative().min(0).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
-  createdAt: z.date().optional(),
-  updatedAt: z.date().optional(),
+  created_at: z.date().optional(),
+  updated_at: z.date().optional(),
 });
 
 export const ProductConditionDTOSchema = z.object({

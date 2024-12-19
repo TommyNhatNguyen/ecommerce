@@ -1,4 +1,8 @@
-import { CategoryConditionDTOSchema, CategoryCreateDTOSchema, CategoryUpdateDTOSchema } from '@models/category/category.dto';
+import {
+  CategoryConditionDTOSchema,
+  CategoryCreateDTOSchema,
+  CategoryUpdateDTOSchema,
+} from '@models/category/category.dto';
 import {
   ICategoryRepository,
   ICategoryUseCase,
@@ -9,13 +13,16 @@ import { PagingDTO, Meta } from 'src/share/models/paging';
 import { v7 as uuidv7 } from 'uuid';
 export class CategoryUseCase implements ICategoryUseCase {
   constructor(private readonly repository: ICategoryRepository) {}
-  async updateCategory(id: string, data: CategoryUpdateDTOSchema): Promise<Category> {
-    const category = await this.repository.update(id, data)
-    return category
+  async updateCategory(
+    id: string,
+    data: CategoryUpdateDTOSchema
+  ): Promise<Category> {
+    const category = await this.repository.update(id, data);
+    return category;
   }
   async deleteCategory(id: string): Promise<boolean> {
-    await this.repository.delete(id)
-    return true
+    await this.repository.delete(id);
+    return true;
   }
   async getCategory(id: string): Promise<Category | null> {
     return await this.repository.get(id);
@@ -32,8 +39,8 @@ export class CategoryUseCase implements ICategoryUseCase {
       ...data,
       id: newId,
       status: ModelStatus.ACTIVE,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      created_at: new Date(),
+      updated_at: new Date(),
     };
     try {
       const result = await this.repository.insert(category);

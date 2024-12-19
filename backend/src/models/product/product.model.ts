@@ -9,8 +9,8 @@ export const ProductSchema = z.object({
   description: z.string().optional(),
   price: z.number().nonnegative().min(0),
   status: z.nativeEnum(ModelStatus),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  created_at: z.date(),
+  updated_at: z.date(),
   [categoryModelName]: z.array(CategorySchema).optional(),
 });
 

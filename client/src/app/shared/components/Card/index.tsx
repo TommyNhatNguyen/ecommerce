@@ -98,7 +98,7 @@ type CardBlogProps = Omit<
   userAvatarUrl: string | StaticImageData;
   blogTitle: string;
   authorName: string;
-  createdAt: string;
+  created_at: string;
 };
 
 export const CardBlog = ({
@@ -107,7 +107,7 @@ export const CardBlog = ({
   imgUrl,
   userAvatarUrl,
   authorName,
-  createdAt,
+  created_at,
   blogTitle,
   link,
   renderAction,
@@ -161,7 +161,7 @@ export const CardBlog = ({
             {authorName}
           </span>
           <span>-</span>
-          <span className="info__author-date text-body-sub">{createdAt}</span>
+          <span className="info__author-date text-body-sub">{created_at}</span>
         </div>
         <div className="info__title mt-[20px]">
           <Link href={link} className="font-roboto-medium text-body-big">

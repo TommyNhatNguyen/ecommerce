@@ -3,10 +3,12 @@ import { config } from 'dotenv';
 import { sequelize } from 'src/share/sequelize';
 import { setupProductRouter } from 'src/routers/product';
 import setupCategoryRouter from 'src/routers/category';
-import { categoryModelName, CategoryPersistence } from 'src/infras/repository/category/dto';
+import {
+  categoryModelName,
+  CategoryPersistence,
+} from 'src/infras/repository/category/dto';
 import {
   productCategoryModelName,
-  ProductCategoryPersistence,
   productModelName,
   ProductPersistence,
 } from 'src/infras/repository/product/dto';

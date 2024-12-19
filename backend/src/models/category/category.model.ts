@@ -6,8 +6,8 @@ export const CategorySchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   status: z.nativeEnum(ModelStatus),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  created_at: z.date(),
+  updated_at: z.date(),
 });
 
 export type Category = z.infer<typeof CategorySchema>;

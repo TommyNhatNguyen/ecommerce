@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "nhatvai123",
+    "database": "candle",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "postgres",
+    "password": "nhatvai123",
+    "database": "candle",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "postgres",
+    "password": "nhatvai123",
+    "database": "candle",
+    "host": "localhost",
+    "dialect": "postgres"
+  }
+}

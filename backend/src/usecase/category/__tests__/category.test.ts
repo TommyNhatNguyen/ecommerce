@@ -30,8 +30,8 @@ describe('CategoryUseCase', () => {
       ...categoryData,
       id: expect.any(String),
       status: ModelStatus.ACTIVE,
-      createdAt: expect.any(Date),
-      updatedAt: expect.any(Date),
+      created_at: expect.any(Date),
+      updated_at: expect.any(Date),
     };
 
     mockRepository.insert.mockResolvedValue(expectedCategory);

@@ -16,12 +16,16 @@ export class ProductHttpService {
       res.status(400).json({ error: error.message });
       return;
     }
-
-    const result = await this.productUseCase.createNewProduct(data);
-    res.status(200).json({
-      message: 'Product created successfully',
-      data: result,
-    });
+    try {
+      const result = await this.productUseCase.createNewProduct(data);
+      res.status(200).json({
+        message: 'Product created successfully',
+        data: result,
+      });
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
+      return;
+    }
   }
 
   async updateProduct(req: Request, res: Response) {
@@ -37,18 +41,21 @@ export class ProductHttpService {
       return;
     }
 
-    const product = await this.productUseCase.getProductById(id);
-    if (!product) {
-      res.status(404).json({ error: 'Product not found' });
+    try {
+      const product = await this.productUseCase.getProductById(id);
+      if (!product) {
+        res.status(404).json({ error: 'Product not found' });
+        return;
+      }
+      const result = await this.productUseCase.updateProduct(id, data);
+      res.status(200).json({
+        message: 'Product updated successfully',
+        data: result,
+      });
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
       return;
     }
-
-    const result = await this.productUseCase.updateProduct(id, data);
-    console.log(result);
-    res.status(200).json({
-      message: 'Product updated successfully',
-      data: result,
-    });
   }
 
   async deleteProduct(req: Request, res: Response) {
@@ -57,16 +64,22 @@ export class ProductHttpService {
       res.status(400).json({ error: 'Id is required' });
       return;
     }
-    const product = await this.productUseCase.getProductById(id);
-    if (!product) {
-      res.status(404).json({ error: 'Product not found' });
+
+    try {
+      const product = await this.productUseCase.getProductById(id);
+      if (!product) {
+        res.status(404).json({ error: 'Product not found' });
+        return;
+      }
+      const result = await this.productUseCase.deleteProduct(id);
+      res.status(200).json({
+        message: 'Product deleted successfully',
+        data: result,
+      });
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
       return;
     }
-    const result = await this.productUseCase.deleteProduct(id);
-    res.status(200).json({
-      message: 'Product deleted successfully',
-      data: result,
-    });
   }
 
   async getProducts(req: Request, res: Response) {
@@ -75,9 +88,15 @@ export class ProductHttpService {
       data: paging,
       error: pagingError,
     } = PagingDTOSchema.safeParse(req.query);
-    const { success: conditionSuccess, data: condition, error: conditionError } = ProductConditionDTOSchema.safeParse(req.query);
+    const {
+      success: conditionSuccess,
+      data: condition,
+      error: conditionError,
+    } = ProductConditionDTOSchema.safeParse(req.query);
     if (!pagingSuccess || !conditionSuccess) {
-      res.status(400).json({ error: pagingError?.message || conditionError?.message });
+      res
+        .status(400)
+        .json({ error: pagingError?.message || conditionError?.message });
       return;
     }
 
@@ -99,14 +118,19 @@ export class ProductHttpService {
       res.status(400).json({ error: 'Id is required' });
       return;
     }
-    const result = await this.productUseCase.getProductById(id);
-    if (!result) {
-      res.status(404).json({ error: 'Product not found' });
+    try {
+      const result = await this.productUseCase.getProductById(id);
+      if (!result) {
+        res.status(404).json({ error: 'Product not found' });
+        return;
+      }
+      res.status(200).json({
+        message: 'Product fetched successfully',
+        data: result,
+      });
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
       return;
     }
-    res.status(200).json({
-      message: 'Product fetched successfully',
-      data: result,
-    });
   }
 }

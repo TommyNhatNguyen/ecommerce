@@ -14,7 +14,7 @@ const blogs = [
   {
     blogTitle: "Blog 1",
     authorName: "John Doe",
-    createdAt: "2021-01-01",
+    created_at: "2021-01-01",
     userAvatarUrl: mockUserAvatar,
     link: ROUTES.BLOG,
     imgUrl: mockBlogImage,
@@ -22,7 +22,7 @@ const blogs = [
   {
     blogTitle: "Blog 2",
     authorName: "Jane Smith",
-    createdAt: "2021-02-15",
+    created_at: "2021-02-15",
     userAvatarUrl: mockUserAvatar,
     link: ROUTES.BLOG,
     imgUrl: mockBlogImage,
@@ -30,7 +30,7 @@ const blogs = [
   {
     blogTitle: "Blog 3",
     authorName: "Alice Johnson",
-    createdAt: "2021-03-10",
+    created_at: "2021-03-10",
     userAvatarUrl: mockUserAvatar,
     link: ROUTES.BLOG,
     imgUrl: mockBlogImage,
@@ -38,7 +38,7 @@ const blogs = [
   {
     blogTitle: "Blog 4",
     authorName: "Bob Brown",
-    createdAt: "2021-04-20",
+    created_at: "2021-04-20",
     userAvatarUrl: mockUserAvatar,
     link: ROUTES.BLOG,
     imgUrl: mockBlogImage,
