@@ -4,6 +4,7 @@ import {
   CategoryUpdateDTOSchema,
 } from '@models/category/category.dto';
 import { Category } from '@models/category/category.model';
+import { ListResponse } from 'src/share/models/base-model';
 import { Meta, PagingDTO } from 'src/share/models/paging';
 
 export interface ICategoryUseCase {
@@ -14,7 +15,7 @@ export interface ICategoryUseCase {
   listCategory(
     paging: PagingDTO,
     condition: CategoryConditionDTOSchema
-  ): Promise<{ data: Category[]; meta: Meta }>;
+  ): Promise<ListResponse<Category[]>>;
 }
 
 export interface ICategoryRepository
@@ -26,7 +27,7 @@ export interface IQueryRepository {
   list(
     paging: PagingDTO,
     condition: CategoryConditionDTOSchema
-  ): Promise<{ data: Category[]; meta: Meta }>;
+  ): Promise<ListResponse<Category[]>>;
 }
 
 export interface ICommandRepository {

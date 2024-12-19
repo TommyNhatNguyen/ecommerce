@@ -4,7 +4,7 @@ import { ModelStatus } from 'src/share/models/base-model';
 
 export class CategoryPersistence extends Model {}
 
-export const categoryModelName = 'Category';
+export const categoryModelName = 'category';
 
 export const categoryInit = (sequelize: Sequelize) => {
   CategoryPersistence.init(

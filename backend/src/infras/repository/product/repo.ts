@@ -8,8 +8,11 @@ import { Product } from '@models/product/product.model';
 import { Meta, PagingDTO } from 'src/share/models/paging';
 import { Sequelize } from 'sequelize';
 import { Model } from 'sequelize';
-import { CategoryPersistence } from 'src/infras/repository/category/dto';
+import { categoryModelName, CategoryPersistence } from 'src/infras/repository/category/dto';
 import { attribute } from '@sequelize/core/_non-semver-use-at-your-own-risk_/expression-builders/attribute.js';
+import { BaseOrder, BaseSortBy, ListResponse, ModelStatus } from 'src/share/models/base-model';
+import { Op } from 'sequelize';
+import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
 // implement cho ORM
 export class PostgresProductRepository implements IProductRepository {
   constructor(
@@ -25,18 +28,45 @@ export class PostgresProductRepository implements IProductRepository {
   async list(
     condition: ProductConditionDTOSchema,
     paging: PagingDTO
-  ): Promise<{ data: Product[]; meta: Meta }> {
+  ): Promise<ListResponse<Product[]>> {
     const { page, limit } = paging;
+    let where: any = {};
+    const order = condition?.order || BaseOrder.DESC;
+    const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
+    if (condition.maxPrice) {
+      where.price = {
+        [Op.lte]: condition.maxPrice,
+      };
+    }
+    if (condition.minPrice) {
+      where.price = {
+        ...where.price,
+        [Op.gte]: condition.minPrice,
+      };
+    }
+    if (condition.name) {
+      where.name = {
+        [Op.iLike]: condition.name,
+      };
+    }
+    if (condition.status) {
+      where.status = condition.status;
+    }
     const { rows, count } = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({
-      where: condition,
+      where,
       limit,
       offset: (page - 1) * limit,
-      order: [['updated_at', 'DESC']],
+      order: [[sortBy, order]],
+      distinct: true,
       include: {
         model: CategoryPersistence,
-        attributes: ['id', 'name', 'description'],
+        as: categoryModelName,
+        required: true,
+        attributes: {
+          exclude: EXCLUDE_ATTRIBUTES,
+        },
         through: {
           attributes: [],
         },

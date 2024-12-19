@@ -4,12 +4,13 @@ import {
   ProductUpdateDTOSchema,
 } from '@models/product/product.dto';
 import { Product } from '@models/product/product.model';
+import { ListResponse } from 'src/share/models/base-model';
 import { Meta, PagingDTO } from 'src/share/models/paging';
 export interface IProductUseCase {
   createNewProduct(data: ProductCreateDTOSchema): Promise<Product>;
   updateProduct(id: string, data: ProductUpdateDTOSchema): Promise<Product>;
   deleteProduct(id: string): Promise<boolean>;
-  getProducts(condition: ProductConditionDTOSchema, paging: PagingDTO): Promise<{data: Product[], meta: Meta}>;
+  getProducts(condition: ProductConditionDTOSchema, paging: PagingDTO): Promise<ListResponse<Product[]>>;
   getProductById(id: string): Promise<Product | null>;
 }
 
@@ -22,7 +23,7 @@ export interface IQueryRepository {
   list(
     condition: ProductConditionDTOSchema,
     paging: PagingDTO
-  ): Promise<{data: Product[], meta: Meta}>;
+  ): Promise<ListResponse<Product[]>>;
 }
 
 export interface ICommandRepository {

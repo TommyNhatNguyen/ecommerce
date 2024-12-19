@@ -3,8 +3,13 @@ import { config } from 'dotenv';
 import { sequelize } from 'src/share/sequelize';
 import { setupProductRouter } from 'src/routers/product';
 import setupCategoryRouter from 'src/routers/category';
-import { CategoryPersistence } from 'src/infras/repository/category/dto';
-import { ProductPersistence } from 'src/infras/repository/product/dto';
+import { categoryModelName, CategoryPersistence } from 'src/infras/repository/category/dto';
+import {
+  productCategoryModelName,
+  ProductCategoryPersistence,
+  productModelName,
+  ProductPersistence,
+} from 'src/infras/repository/product/dto';
 config();
 
 (async () => {
@@ -25,14 +30,17 @@ app.use('/v1', setupProductRouter(sequelize));
 app.use('/v1', setupCategoryRouter(sequelize));
 
 ProductPersistence.belongsToMany(CategoryPersistence, {
-  through: 'products_categories',
+  through: productCategoryModelName,
   foreignKey: 'product_id',
   otherKey: 'category_id',
+  as: categoryModelName.toLowerCase(),
 });
+
 CategoryPersistence.belongsToMany(ProductPersistence, {
-  through: 'products_categories',
+  through: productCategoryModelName,
   foreignKey: 'category_id',
   otherKey: 'product_id',
+  as: productModelName.toLowerCase(),
 });
 
 app.listen(port, () => {

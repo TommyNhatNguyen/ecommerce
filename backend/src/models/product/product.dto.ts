@@ -1,4 +1,8 @@
-import { ModelStatus } from 'src/share/models/base-model';
+import {
+  BaseSortBy,
+  ModelStatus,
+  BaseOrder,
+} from 'src/share/models/base-model';
 import { z } from 'zod';
 import { v7 as uuidv7 } from 'uuid';
 
@@ -10,6 +14,7 @@ export const ProductCreateDTOSchema = z.object({
   name: z.string(),
   price: z.number().nonnegative().min(0),
   categoryIds: z.array(z.string().uuid()).optional(),
+
 });
 
 export const ProductUpdateDTOSchema = z.object({
@@ -22,11 +27,13 @@ export const ProductUpdateDTOSchema = z.object({
 });
 
 export const ProductConditionDTOSchema = z.object({
-  id: z.string().uuid().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
-  price: z.number().nonnegative().min(0).optional(),
+  minPrice: z.union([z.number().nonnegative().min(0), z.string()]).optional(),
+  maxPrice: z.union([z.number().nonnegative().min(0), z.string()]).optional(),
   name: z.string().optional(),
-  categoryId: z.string().uuid().optional(),
+  categoryIds: z.array(z.string().uuid()).optional(),
+  order: z.nativeEnum(BaseOrder).optional(),
+  sortBy: z.nativeEnum(BaseSortBy).optional(),
 });
 
 export type ProductCreateDTOSchema = z.infer<typeof ProductCreateDTOSchema>;

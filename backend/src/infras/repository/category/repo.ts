@@ -6,6 +6,7 @@ import {
 import { ICategoryRepository } from '@models/category/category.interface';
 import { Category } from '@models/category/category.model';
 import { Sequelize } from 'sequelize';
+import { ListResponse } from 'src/share/models/base-model';
 import { Meta, PagingDTO } from 'src/share/models/paging';
 
 class PostgresCategoryRepository implements ICategoryRepository {
@@ -21,7 +22,7 @@ class PostgresCategoryRepository implements ICategoryRepository {
   async list(
     paging: PagingDTO,
     condition: CategoryConditionDTOSchema
-  ): Promise<{ data: Category[]; meta: Meta }> {
+  ): Promise<ListResponse<Category[]>> {
     const { page, limit } = paging;
     const { rows, count } = await this.sequelize.models[
       this.modelName
