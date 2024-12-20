@@ -24,8 +24,11 @@ export class CategoryUseCase implements ICategoryUseCase {
     await this.repository.delete(id);
     return true;
   }
-  async getCategory(id: string): Promise<Category | null> {
-    return await this.repository.get(id);
+  async getCategory(
+    id: string,
+    condition: CategoryConditionDTOSchema
+  ): Promise<Category | null> {
+    return await this.repository.get(id, condition);
   }
   async listCategory(
     paging: PagingDTO,

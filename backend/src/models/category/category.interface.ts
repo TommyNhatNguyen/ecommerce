@@ -11,7 +11,10 @@ export interface ICategoryUseCase {
   createCategory(data: CategoryCreateDTOSchema): Promise<Category>;
   updateCategory(id: string, data: CategoryUpdateDTOSchema): Promise<Category>;
   deleteCategory(id: string): Promise<boolean>;
-  getCategory(id: string): Promise<Category | null>;
+  getCategory(
+    id: string,
+    condition?: CategoryConditionDTOSchema
+  ): Promise<Category | null>;
   listCategory(
     paging: PagingDTO,
     condition: CategoryConditionDTOSchema
@@ -23,7 +26,7 @@ export interface ICategoryRepository
     ICommandRepository {}
 
 export interface IQueryRepository {
-  get(id: string): Promise<Category | null>;
+  get(id: string, condition: CategoryConditionDTOSchema): Promise<Category | null>;
   list(
     paging: PagingDTO,
     condition: CategoryConditionDTOSchema

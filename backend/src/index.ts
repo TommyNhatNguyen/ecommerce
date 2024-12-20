@@ -9,9 +9,15 @@ import {
 } from 'src/infras/repository/category/dto';
 import {
   productCategoryModelName,
+  productDiscountModelName,
   productModelName,
   ProductPersistence,
 } from 'src/infras/repository/product/dto';
+import { setupDiscountRouter } from 'src/routers/discount';
+import {
+  discountModelName,
+  DiscountPersistence,
+} from 'src/infras/repository/discount/dto';
 config();
 
 (async () => {
@@ -30,6 +36,7 @@ app.use(express.json());
 
 app.use('/v1', setupProductRouter(sequelize));
 app.use('/v1', setupCategoryRouter(sequelize));
+app.use('/v1', setupDiscountRouter(sequelize));
 
 ProductPersistence.belongsToMany(CategoryPersistence, {
   through: productCategoryModelName,
@@ -41,6 +48,20 @@ ProductPersistence.belongsToMany(CategoryPersistence, {
 CategoryPersistence.belongsToMany(ProductPersistence, {
   through: productCategoryModelName,
   foreignKey: 'category_id',
+  otherKey: 'product_id',
+  as: productModelName.toLowerCase(),
+});
+
+ProductPersistence.belongsToMany(DiscountPersistence, {
+  through: productDiscountModelName,
+  foreignKey: 'product_id',
+  otherKey: 'discount_id',
+  as: discountModelName.toLowerCase(),
+});
+
+DiscountPersistence.belongsToMany(ProductPersistence, {
+  through: productDiscountModelName,
+  foreignKey: 'discount_id',
   otherKey: 'product_id',
   as: productModelName.toLowerCase(),
 });

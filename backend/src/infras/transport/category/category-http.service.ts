@@ -70,12 +70,24 @@ export class CategoryHttpService {
   }
   async getCategory(req: Request, res: Response) {
     const { id } = req.params;
-    const category = await this.useCase.getCategory(id);
-    if (!category) {
-      res.status(404).json({ message: 'Category not found' });
+    const { success, data, error } = CategoryConditionDTOSchema.safeParse(
+      req.body
+    );
+    if (!success) {
+      res.status(400).json({ message: error?.message });
       return;
     }
-    res.status(200).json({ message: 'Category found', data: category });
+    try {
+      const category = await this.useCase.getCategory(id, data);
+      if (!category) {
+        res.status(404).json({ message: 'Category not found' });
+        return;
+      }
+      res.status(200).json({ message: 'Category found', data: category });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get category' });
+      return;
+    }
   }
   async listCategory(req: Request, res: Response) {
     const {
@@ -83,17 +95,26 @@ export class CategoryHttpService {
       data: pagingData,
       error: pagingError,
     } = PagingDTOSchema.safeParse(req.body);
-    const filterData = CategoryConditionDTOSchema.parse(req.body);
-    if (!pagingSuccess) {
+    const {
+      success: conditionSuccess,
+      data: conditionData,
+      error: conditionError,
+    } = CategoryConditionDTOSchema.safeParse(req.body);
+    if (!pagingSuccess || !conditionSuccess) {
       res.status(400).json({ message: pagingError?.message });
       return;
     }
-
-    const { limit, page } = pagingData;
-    const categories = await this.useCase.listCategory(
-      { limit, page },
-      filterData
-    );
-    res.status(200).json({ message: 'Categories found', data: categories });
+    try {
+      console.log(conditionData);
+      const categories = await this.useCase.listCategory(
+        pagingData,
+        conditionData
+      );
+      console.log(categories);
+      res.status(200).json({ message: 'Categories found', data: categories });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to list categories' });
+      return;
+    }
   }
 }

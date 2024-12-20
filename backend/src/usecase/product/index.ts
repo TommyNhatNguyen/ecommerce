@@ -28,20 +28,11 @@ export class ProductUseCase implements IProductUseCase {
     condition: ProductConditionDTOSchema,
     paging: PagingDTO
   ): Promise<ListResponse<Product[]>> {
-    const { categoryIds } = condition;
     const data = await this.repository.list(condition, paging);
-    // filter by categoryIds
-    if (categoryIds && categoryIds?.length > 0) {
-      const products = data.data.filter((product) => {
-        return product.category?.some((item) => categoryIds.includes(item.id));
-      });
-      data.data = products;
-    }
-
     return data;
   }
-  async getProductById(id: string): Promise<Product | null> {
-    return await this.repository.get(id);
+  async getProductById(id: string, condition: ProductConditionDTOSchema): Promise<Product | null> {
+    return await this.repository.get(id, condition);
   }
 
   async createNewProduct(data: ProductCreateDTOSchema): Promise<Product> {

@@ -18,7 +18,6 @@ export enum BaseOrder {
 
 export enum BaseSortBy {
   NAME = 'name',
-  PRICE = 'price',
   CREATED_AT = 'created_at',
   UPDATED_AT = 'updated_at',
 }

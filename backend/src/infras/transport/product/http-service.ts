@@ -114,12 +114,17 @@ export class ProductHttpService {
 
   async getProductById(req: Request, res: Response) {
     const { id } = req.params;
-    if (!id) {
+    const {
+      success: conditionSuccess,
+      data: condition,
+      error: conditionError,
+    } = ProductConditionDTOSchema.safeParse(req.query);
+    if (!id || !conditionSuccess) {
       res.status(400).json({ error: 'Id is required' });
       return;
     }
     try {
-      const result = await this.productUseCase.getProductById(id);
+      const result = await this.productUseCase.getProductById(id, condition);
       if (!result) {
         res.status(404).json({ error: 'Product not found' });
         return;

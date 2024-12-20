@@ -39,19 +39,20 @@ export function init(sequelize: Sequelize) {
   );
 }
 
-export class ProductCategoryPersistence extends Model {
-  declare id: string;
-  declare product_id: string;
-  declare category_id: string;
-  declare status: ModelStatus;
-}
-
 /**
  * ------------------------------------------------------------
  * JUNCTION TABLES
  * ------------------------------------------------------------
  */
 export const productCategoryModelName = 'productcategory';
+export class ProductCategoryPersistence extends Model {
+  declare id: string;
+  declare product_id: string;
+  declare category_id: string;
+  declare status: ModelStatus;
+  declare created_at: Date;
+  declare updated_at: Date;
+}
 
 export function initProductCategory(sequelize: Sequelize) {
   ProductCategoryPersistence.init(
@@ -79,6 +80,47 @@ export function initProductCategory(sequelize: Sequelize) {
       tableName: 'products_categories',
       timestamps: false,
       modelName: productCategoryModelName,
+    }
+  );
+}
+
+export const productDiscountModelName = 'productdiscount';
+
+export class ProductDiscountPersistence extends Model {
+  declare id: string;
+  declare product_id: string;
+  declare discount_id: string;
+  declare status: ModelStatus;
+  declare created_at: Date;
+  declare updated_at: Date;
+}
+
+export function initProductDiscount(sequelize: Sequelize) {
+  ProductDiscountPersistence.init(
+    {
+      product_id: { type: DataTypes.STRING, allowNull: false },
+      discount_id: { type: DataTypes.STRING, allowNull: false },
+      status: {
+        type: DataTypes.ENUM(...Object.values(ModelStatus)),
+        allowNull: false,
+        defaultValue: ModelStatus.ACTIVE,
+      },
+      created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+    },
+    {
+      sequelize,
+      tableName: 'products_discounts',
+      timestamps: false,
+      modelName: productDiscountModelName,
     }
   );
 }

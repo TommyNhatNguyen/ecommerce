@@ -11,7 +11,7 @@ export interface IProductUseCase {
   updateProduct(id: string, data: ProductUpdateDTOSchema): Promise<Product>;
   deleteProduct(id: string): Promise<boolean>;
   getProducts(condition: ProductConditionDTOSchema, paging: PagingDTO): Promise<ListResponse<Product[]>>;
-  getProductById(id: string): Promise<Product | null>;
+  getProductById(id: string, condition?: ProductConditionDTOSchema): Promise<Product | null>;
 }
 
 export interface IProductRepository
@@ -19,7 +19,7 @@ export interface IProductRepository
     ICommandRepository {}
 
 export interface IQueryRepository {
-  get(id: string): Promise<Product | null>;
+  get(id: string, condition: ProductConditionDTOSchema): Promise<Product | null>;
   list(
     condition: ProductConditionDTOSchema,
     paging: PagingDTO
