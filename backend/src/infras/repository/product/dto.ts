@@ -124,3 +124,85 @@ export function initProductDiscount(sequelize: Sequelize) {
     }
   );
 }
+
+export const productVariantModelName = 'productvariant';
+
+export class ProductVariantPersistence extends Model {
+  declare id: string;
+  declare product_id: string;
+  declare variant_id: string;
+  declare status: ModelStatus;
+  declare created_at: Date;
+  declare updated_at: Date;
+}
+
+export function initProductVariant(sequelize: Sequelize) {
+  ProductVariantPersistence.init(
+    {
+      product_id: { type: DataTypes.STRING, allowNull: false },
+      variant_id: { type: DataTypes.STRING, allowNull: false },
+      status: {
+        type: DataTypes.ENUM(...Object.values(ModelStatus)),
+        allowNull: false,
+        defaultValue: ModelStatus.ACTIVE,
+      },
+      created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+    },
+    {
+      sequelize,
+      tableName: 'products_variants',
+      timestamps: false,
+      modelName: productVariantModelName,
+    }
+  );
+}
+
+export const productImageModelName = 'productimage';
+
+export class ProductImagePersistence extends Model {
+  declare id: string;
+  declare product_id: string;
+  declare image_id: string;
+  declare status: ModelStatus;
+  declare created_at: Date;
+  declare updated_at: Date;
+}
+
+export function initProductImage(sequelize: Sequelize) {
+  ProductImagePersistence.init(
+    {
+      product_id: { type: DataTypes.STRING, allowNull: false },
+      image_id: { type: DataTypes.STRING, allowNull: false },
+      status: {
+        type: DataTypes.ENUM(...Object.values(ModelStatus)),
+        allowNull: false,
+        defaultValue: ModelStatus.ACTIVE,
+      },
+      created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+    },
+    {
+      sequelize,
+      tableName: 'products_images',
+      timestamps: false,
+      modelName: productImageModelName,
+    }
+  );
+}

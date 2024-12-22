@@ -6,7 +6,7 @@ import {
 } from '@models/product/product.dto';
 import { Product } from '@models/product/product.model';
 import { PagingDTO } from 'src/share/models/paging';
-import { Sequelize, Op } from 'sequelize';
+import { Sequelize, Op, Model } from 'sequelize';
 import {
   categoryModelName,
   CategoryPersistence,
@@ -21,11 +21,14 @@ import {
   productCategoryModelName,
   productDiscountModelName,
   ProductDiscountPersistence,
+  productModelName,
 } from 'src/infras/repository/product/dto';
 import {
   discountModelName,
   DiscountPersistence,
 } from 'src/infras/repository/discount/dto';
+import { variantModelName, VariantPersistence } from 'src/infras/repository/variant/dto';
+import { imageModelName, ImagePersistence } from 'src/infras/repository/image/dto';
 
 export class PostgresProductRepository implements IProductRepository {
   constructor(
@@ -50,6 +53,22 @@ export class PostgresProductRepository implements IProductRepository {
       include.push({
         model: CategoryPersistence,
         as: categoryModelName,
+        attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        through: { attributes: [] },
+      });
+    }
+    if (condition?.includeVariant) {
+      include.push({
+        model: VariantPersistence,
+        as: variantModelName,
+        attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        through: { attributes: [] },
+      });
+    }
+    if (condition?.includeImage) {
+      include.push({
+        model: ImagePersistence,
+        as: imageModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
       });
@@ -92,7 +111,22 @@ export class PostgresProductRepository implements IProductRepository {
         through: { attributes: [] },
       });
     }
-
+    if (condition.includeVariant) {
+      include.push({
+        model: VariantPersistence,
+        as: variantModelName,
+        attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        through: { attributes: [] },
+      });
+    }
+    if (condition.includeImage) {
+      include.push({
+        model: ImagePersistence,
+        as: imageModelName,
+        attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        through: { attributes: [] },
+      });
+    }
     const { rows: productRows, count: countRows } = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({
@@ -119,7 +153,7 @@ export class PostgresProductRepository implements IProductRepository {
   }
 
   async insert(data: ProductCreateDTOSchema): Promise<Product> {
-    const { categoryIds, discountIds, ...rest } = data;
+    const { categoryIds, discountIds, variantIds, imageIds, ...rest } = data;
     const result = await this.sequelize.models[this.modelName].create(data, {
       include: [
         {
@@ -129,34 +163,66 @@ export class PostgresProductRepository implements IProductRepository {
           through: { attributes: [] },
         },
         {
-          model: ProductDiscountPersistence,
-          as: productDiscountModelName,
+          model: DiscountPersistence,
+          as: discountModelName,
+          attributes: { exclude: EXCLUDE_ATTRIBUTES },
+          through: { attributes: [] },
+        },
+        {
+          model: VariantPersistence,
+          as: variantModelName,
+          attributes: { exclude: EXCLUDE_ATTRIBUTES },
+          through: { attributes: [] },
+        },
+        {
+          model: ImagePersistence,
+          as: imageModelName,
           attributes: { exclude: EXCLUDE_ATTRIBUTES },
           through: { attributes: [] },
         },
       ],
       returning: true,
     });
-
-    const insertedProduct = result.dataValues;
+    const createdProduct: any = await this.sequelize.models[
+      productModelName
+    ].findByPk(rest.id);
     if (categoryIds) {
-      await this.sequelize.models[productCategoryModelName].bulkCreate(
-        categoryIds.map((id) => ({ product_id: rest.id, category_id: id }))
-      );
+      await createdProduct.setCategory(categoryIds);
     }
     if (discountIds) {
-      await this.sequelize.models[productDiscountModelName].bulkCreate(
-        discountIds.map((id) => ({ product_id: rest.id, discount_id: id }))
-      );
+      await createdProduct.setDiscount(discountIds);
     }
-    return insertedProduct as Product;
+    if (variantIds) {
+      await createdProduct.setVariant(variantIds);
+    }
+    if (imageIds) {
+      await createdProduct.setImage(imageIds);
+    }
+    return result.dataValues as Product;
   }
 
   async update(id: string, data: ProductUpdateDTOSchema): Promise<Product> {
-    const result = await this.sequelize.models[this.modelName].update(data, {
+    const { categoryIds, discountIds, variantIds, imageIds, ...rest } = data;
+    const result = await this.sequelize.models[this.modelName].update(rest, {
       where: { id },
       returning: true,
     });
+    const updatedProduct: any = await this.sequelize.models[
+      productModelName
+    ].findByPk(id);
+    if (typeof categoryIds === 'object') {
+      await updatedProduct.setCategory(categoryIds);
+    }
+    if (typeof discountIds === 'object') {
+      await updatedProduct.setDiscount(discountIds);
+    }
+    if (typeof variantIds === 'object') {
+      await updatedProduct.setVariant(variantIds);
+    }
+    if (typeof imageIds === 'object') {
+      console.log(imageIds);
+      await updatedProduct.setImage(imageIds);
+    }
     return result[1][0].dataValues;
   }
 

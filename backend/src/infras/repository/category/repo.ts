@@ -27,21 +27,22 @@ class PostgresCategoryRepository implements ICategoryRepository {
     id: string,
     condition: CategoryConditionDTOSchema
   ): Promise<Category | null> {
-    const include: any = {};
-    if (condition.include_products) {
-      include.model = ProductPersistence;
-      include.as = productModelName;
-      include.attributes = {
-        exclude: EXCLUDE_ATTRIBUTES,
-      };
-      include.through = {
-        attributes: [],
-      };
+    const include: any = [];
+    if (condition?.include_products) {
+      include.push({
+        model: ProductPersistence,
+        as: productModelName,
+        attributes: {
+          exclude: EXCLUDE_ATTRIBUTES,
+        },
+        through: {
+          attributes: [],
+        },
+      });
     }
     const data = await this.sequelize.models[this.modelName].findByPk(id, {
       include: include,
     });
-    console.log(data);
     return data ? data.dataValues : null;
   }
   async list(
@@ -70,7 +71,7 @@ class PostgresCategoryRepository implements ICategoryRepository {
         [Op.gte]: condition.updated_at,
       };
     }
-    if (condition.include_products) {
+    if (condition?.include_products) {
       const { rows, count } = await this.sequelize.models[
         this.modelName
       ].findAndCountAll({
@@ -109,7 +110,7 @@ class PostgresCategoryRepository implements ICategoryRepository {
         order: [[sortBy, order]],
       });
       return {
-        data: rows as unknown as Category[],
+        data: rows.map((row) => row.dataValues),
         meta: {
           limit,
           total_count: count,
@@ -130,7 +131,7 @@ class PostgresCategoryRepository implements ICategoryRepository {
       where: { id },
       returning: true,
     });
-    return result[1][0].dataValues as Category;
+    return result[1][0].dataValues;
   }
   async delete(id: string): Promise<boolean> {
     await this.sequelize.models[this.modelName].destroy({ where: { id } });

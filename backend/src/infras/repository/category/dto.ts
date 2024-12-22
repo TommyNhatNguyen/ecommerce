@@ -1,4 +1,5 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
+import { imageModelName, ImagePersistence } from 'src/infras/repository/image/dto';
 import { ProductPersistence } from 'src/infras/repository/product/dto';
 import { ModelStatus } from 'src/share/models/base-model';
 
@@ -23,6 +24,14 @@ export const categoryInit = (sequelize: Sequelize) => {
       description: {
         type: DataTypes.STRING,
         allowNull: true,
+      },
+      image_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+          model: `${imageModelName}s`,
+          key: 'id',
+        },
       },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),

@@ -15,6 +15,8 @@ export const ProductCreateDTOSchema = z.object({
   price: z.number().nonnegative().min(0),
   categoryIds: z.array(z.string().uuid()).optional(),
   discountIds: z.array(z.string().uuid()).optional(),
+  variantIds: z.array(z.string().uuid()).optional(),
+  imageIds: z.array(z.string().uuid()).optional(),
 });
 
 export const ProductUpdateDTOSchema = z.object({
@@ -24,6 +26,10 @@ export const ProductUpdateDTOSchema = z.object({
   status: z.nativeEnum(ModelStatus).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
+  categoryIds: z.array(z.string().uuid()).optional(),
+  discountIds: z.array(z.string().uuid()).optional(),
+  variantIds: z.array(z.string().uuid()).optional(),
+  imageIds: z.array(z.string().uuid()).optional(),
 });
 
 export const ProductConditionDTOSchema = z.object({
@@ -34,8 +40,26 @@ export const ProductConditionDTOSchema = z.object({
   categoryIds: z.array(z.string().uuid()).optional(),
   order: z.nativeEnum(BaseOrder).optional(),
   sortBy: z.nativeEnum(BaseSortBy).optional(),
-  includeDiscount: z.string().refine((value) => value === 'true' || value === 'false').transform((value) => value === 'true').optional(),
-  includeCategory: z.string().refine((value) => value === 'true' || value === 'false').transform((value) => value === 'true').optional(),
+  includeDiscount: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  includeCategory: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  includeVariant: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  includeImage: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
 });
 
 export type ProductCreateDTOSchema = z.infer<typeof ProductCreateDTOSchema>;

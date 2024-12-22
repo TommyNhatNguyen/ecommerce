@@ -10,14 +10,26 @@ import {
 import {
   productCategoryModelName,
   productDiscountModelName,
+  productImageModelName,
   productModelName,
   ProductPersistence,
+  productVariantModelName,
 } from 'src/infras/repository/product/dto';
 import { setupDiscountRouter } from 'src/routers/discount';
 import {
   discountModelName,
   DiscountPersistence,
 } from 'src/infras/repository/discount/dto';
+import { setupVariantRouter } from 'src/routers/variant';
+import {
+  variantModelName,
+  VariantPersistence,
+} from 'src/infras/repository/variant/dto';
+import { setupImageRouter } from 'src/routers/image';
+import {
+  imageModelName,
+  ImagePersistence,
+} from 'src/infras/repository/image/dto';
 config();
 
 (async () => {
@@ -37,7 +49,8 @@ app.use(express.json());
 app.use('/v1', setupProductRouter(sequelize));
 app.use('/v1', setupCategoryRouter(sequelize));
 app.use('/v1', setupDiscountRouter(sequelize));
-
+app.use('/v1', setupVariantRouter(sequelize));
+app.use('/v1', setupImageRouter(sequelize));
 ProductPersistence.belongsToMany(CategoryPersistence, {
   through: productCategoryModelName,
   foreignKey: 'product_id',
@@ -64,6 +77,42 @@ DiscountPersistence.belongsToMany(ProductPersistence, {
   foreignKey: 'discount_id',
   otherKey: 'product_id',
   as: productModelName.toLowerCase(),
+});
+
+ProductPersistence.belongsToMany(VariantPersistence, {
+  through: productVariantModelName,
+  foreignKey: 'product_id',
+  otherKey: 'variant_id',
+  as: variantModelName.toLowerCase(),
+});
+
+VariantPersistence.belongsToMany(ProductPersistence, {
+  through: productVariantModelName,
+  foreignKey: 'variant_id',
+  otherKey: 'product_id',
+  as: productModelName.toLowerCase(),
+});
+
+ProductPersistence.belongsToMany(ImagePersistence, {
+  through: productImageModelName,
+  foreignKey: 'product_id',
+  otherKey: 'image_id',
+  as: imageModelName.toLowerCase(),
+});
+
+ImagePersistence.belongsToMany(ProductPersistence, {
+  through: productImageModelName,
+  foreignKey: 'image_id',
+  otherKey: 'product_id',
+  as: productModelName.toLowerCase(),
+});
+
+CategoryPersistence.belongsTo(ImagePersistence, {
+  foreignKey: 'image_id',
+});
+
+ImagePersistence.hasOne(CategoryPersistence, {
+  foreignKey: 'image_id',
 });
 
 app.listen(port, () => {

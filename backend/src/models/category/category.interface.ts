@@ -26,7 +26,10 @@ export interface ICategoryRepository
     ICommandRepository {}
 
 export interface IQueryRepository {
-  get(id: string, condition: CategoryConditionDTOSchema): Promise<Category | null>;
+  get(
+    id: string,
+    condition: CategoryConditionDTOSchema
+  ): Promise<Category | null>;
   list(
     paging: PagingDTO,
     condition: CategoryConditionDTOSchema
