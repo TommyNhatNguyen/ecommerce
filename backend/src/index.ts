@@ -30,6 +30,11 @@ import {
   imageModelName,
   ImagePersistence,
 } from 'src/infras/repository/image/dto';
+import { setupInventoryRouter } from 'src/routers/inventory';
+import {
+  inventoryModelName,
+  InventoryPersistence,
+} from 'src/infras/repository/inventory/dto';
 config();
 
 (async () => {
@@ -51,6 +56,7 @@ app.use('/v1', setupCategoryRouter(sequelize));
 app.use('/v1', setupDiscountRouter(sequelize));
 app.use('/v1', setupVariantRouter(sequelize));
 app.use('/v1', setupImageRouter(sequelize));
+app.use('/v1', setupInventoryRouter(sequelize));
 ProductPersistence.belongsToMany(CategoryPersistence, {
   through: productCategoryModelName,
   foreignKey: 'product_id',
@@ -105,6 +111,14 @@ ImagePersistence.belongsToMany(ProductPersistence, {
   foreignKey: 'image_id',
   otherKey: 'product_id',
   as: productModelName.toLowerCase(),
+});
+
+ProductPersistence.hasOne(InventoryPersistence, {
+  foreignKey: 'product_id',
+});
+
+InventoryPersistence.belongsTo(ProductPersistence, {
+  foreignKey: 'product_id',
 });
 
 CategoryPersistence.belongsTo(ImagePersistence, {

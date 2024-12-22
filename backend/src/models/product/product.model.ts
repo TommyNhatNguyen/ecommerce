@@ -4,6 +4,10 @@ import { CategorySchema } from '@models/category/category.model';
 import { categoryModelName } from 'src/infras/repository/category/dto';
 import { discountModelName } from 'src/infras/repository/discount/dto';
 import { DiscountSchema } from '@models/discount/discount.model';
+import { imageModelName } from 'src/infras/repository/image/dto';
+import { ImageSchema } from '@models/image/image.model';
+import { inventoryModelName } from 'src/infras/repository/inventory/dto';
+import { InventorySchema } from '@models/inventory/inventory.model';
 
 export const ProductSchema = z.object({
   id: z.string().uuid(),
@@ -15,6 +19,8 @@ export const ProductSchema = z.object({
   updated_at: z.date(),
   [categoryModelName]: z.array(CategorySchema).optional(),
   [discountModelName]: z.array(DiscountSchema).optional(),
+  [imageModelName]: z.array(ImageSchema).optional(),
+  [inventoryModelName]: z.object({ ...InventorySchema.shape }).optional(),
 });
 
 export type Product = z.infer<typeof ProductSchema>;

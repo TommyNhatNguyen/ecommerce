@@ -27,8 +27,19 @@ import {
   discountModelName,
   DiscountPersistence,
 } from 'src/infras/repository/discount/dto';
-import { variantModelName, VariantPersistence } from 'src/infras/repository/variant/dto';
-import { imageModelName, ImagePersistence } from 'src/infras/repository/image/dto';
+import {
+  variantModelName,
+  VariantPersistence,
+} from 'src/infras/repository/variant/dto';
+import {
+  imageModelName,
+  ImagePersistence,
+} from 'src/infras/repository/image/dto';
+import {
+  inventoryModelName,
+  InventoryPersistence,
+} from 'src/infras/repository/inventory/dto';
+import { attribute } from '@sequelize/core/_non-semver-use-at-your-own-risk_/expression-builders/attribute.js';
 
 export class PostgresProductRepository implements IProductRepository {
   constructor(
@@ -40,7 +51,13 @@ export class PostgresProductRepository implements IProductRepository {
     id: string,
     condition?: ProductConditionDTOSchema
   ): Promise<Product | null> {
-    const include: any[] = [];
+    const include: any[] = [
+      {
+        model: InventoryPersistence,
+        as: inventoryModelName,
+        attributes: ['quantity'],
+      },
+    ];
     if (condition?.includeDiscount) {
       include.push({
         model: DiscountPersistence,
@@ -93,8 +110,13 @@ export class PostgresProductRepository implements IProductRepository {
       where.price = { ...where.price, [Op.gte]: condition.minPrice };
     if (condition.name) where.name = { [Op.iLike]: condition.name };
     if (condition.status) where.status = condition.status;
-
-    const include: any[] = [];
+    const include: any[] = [
+      {
+        model: InventoryPersistence,
+        as: inventoryModelName,
+        attributes: ['quantity'],
+      },
+    ];
     if (condition.includeDiscount) {
       include.push({
         model: DiscountPersistence,
@@ -137,7 +159,6 @@ export class PostgresProductRepository implements IProductRepository {
       distinct: true,
       include,
     });
-
     const rows = productRows.map((row) => row.dataValues);
     const count = countRows;
 
@@ -153,39 +174,36 @@ export class PostgresProductRepository implements IProductRepository {
   }
 
   async insert(data: ProductCreateDTOSchema): Promise<Product> {
-    const { categoryIds, discountIds, variantIds, imageIds, ...rest } = data;
-    const result = await this.sequelize.models[this.modelName].create(data, {
+    const {
+      categoryIds,
+      discountIds,
+      variantIds,
+      imageIds,
+      quantity,
+      ...rest
+    } = data;
+    const payload = { ...data, [inventoryModelName]: { quantity } };
+    const result = await this.sequelize.models[this.modelName].create(payload, {
       include: [
         {
-          model: CategoryPersistence,
-          as: categoryModelName,
-          attributes: { exclude: EXCLUDE_ATTRIBUTES },
-          through: { attributes: [] },
-        },
-        {
-          model: DiscountPersistence,
-          as: discountModelName,
-          attributes: { exclude: EXCLUDE_ATTRIBUTES },
-          through: { attributes: [] },
-        },
-        {
-          model: VariantPersistence,
-          as: variantModelName,
-          attributes: { exclude: EXCLUDE_ATTRIBUTES },
-          through: { attributes: [] },
-        },
-        {
-          model: ImagePersistence,
-          as: imageModelName,
-          attributes: { exclude: EXCLUDE_ATTRIBUTES },
-          through: { attributes: [] },
+          model: InventoryPersistence,
+          as: inventoryModelName,
+          attributes: ['quantity'],
         },
       ],
       returning: true,
     });
     const createdProduct: any = await this.sequelize.models[
       productModelName
-    ].findByPk(rest.id);
+    ].findByPk(rest.id, {
+      include: [
+        {
+          model: InventoryPersistence,
+          as: inventoryModelName,
+          attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        },
+      ],
+    });
     if (categoryIds) {
       await createdProduct.setCategory(categoryIds);
     }
@@ -202,7 +220,14 @@ export class PostgresProductRepository implements IProductRepository {
   }
 
   async update(id: string, data: ProductUpdateDTOSchema): Promise<Product> {
-    const { categoryIds, discountIds, variantIds, imageIds, ...rest } = data;
+    const {
+      categoryIds,
+      discountIds,
+      variantIds,
+      imageIds,
+      quantity,
+      ...rest
+    } = data;
     const result = await this.sequelize.models[this.modelName].update(rest, {
       where: { id },
       returning: true,
@@ -220,8 +245,11 @@ export class PostgresProductRepository implements IProductRepository {
       await updatedProduct.setVariant(variantIds);
     }
     if (typeof imageIds === 'object') {
-      console.log(imageIds);
       await updatedProduct.setImage(imageIds);
+    }
+    if (typeof quantity === 'number') {
+      const inventory = await updatedProduct.getInventory();
+      await inventory.update({ quantity: quantity });
     }
     return result[1][0].dataValues;
   }

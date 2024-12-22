@@ -31,20 +31,14 @@ export class ProductUseCase implements IProductUseCase {
     const data = await this.repository.list(condition, paging);
     return data;
   }
-  async getProductById(id: string, condition: ProductConditionDTOSchema): Promise<Product | null> {
+  async getProductById(
+    id: string,
+    condition: ProductConditionDTOSchema
+  ): Promise<Product | null> {
     return await this.repository.get(id, condition);
   }
 
   async createNewProduct(data: ProductCreateDTOSchema): Promise<Product> {
-    const newId = uuidv7();
-    const product: Product = {
-      ...data,
-      id: newId,
-      status: ModelStatus.ACTIVE,
-      created_at: new Date(),
-      updated_at: new Date(),
-    };
-
-    return await this.repository.insert(product);
+    return await this.repository.insert(data);
   }
 }

@@ -17,6 +17,7 @@ export const ProductCreateDTOSchema = z.object({
   discountIds: z.array(z.string().uuid()).optional(),
   variantIds: z.array(z.string().uuid()).optional(),
   imageIds: z.array(z.string().uuid()).optional(),
+  quantity: z.number().nonnegative().min(0).optional(),
 });
 
 export const ProductUpdateDTOSchema = z.object({
@@ -30,6 +31,7 @@ export const ProductUpdateDTOSchema = z.object({
   discountIds: z.array(z.string().uuid()).optional(),
   variantIds: z.array(z.string().uuid()).optional(),
   imageIds: z.array(z.string().uuid()).optional(),
+  quantity: z.number().nonnegative().min(0).optional(),
 });
 
 export const ProductConditionDTOSchema = z.object({

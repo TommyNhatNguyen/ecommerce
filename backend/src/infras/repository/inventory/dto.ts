@@ -1,10 +1,10 @@
 import { Sequelize } from 'sequelize';
 import { DataTypes, Model } from 'sequelize';
+import { productModelName } from 'src/infras/repository/product/dto';
 import { ModelStatus } from 'src/share/models/base-model';
-
+import { v7 as uuidv7 } from 'uuid';
 export class InventoryPersistence extends Model {
   declare id: string;
-  declare product_id: string;
   declare quantity: number;
   declare status: ModelStatus;
 }
@@ -19,8 +19,8 @@ export const inventoryInit = (sequelize: Sequelize) => {
         primaryKey: true,
         unique: true,
         allowNull: false,
+        defaultValue: () => uuidv7(),
       },
-      product_id: { type: DataTypes.STRING, allowNull: false },
       quantity: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -32,13 +32,21 @@ export const inventoryInit = (sequelize: Sequelize) => {
         allowNull: false,
         defaultValue: ModelStatus.ACTIVE,
       },
+      created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: new Date(),
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: new Date(),
+      },
     },
     {
       sequelize,
       tableName: 'inventories',
-      timestamps: true,
-      createdAt: 'created_at',
-      updatedAt: 'updated_at',
+      timestamps: false,
       modelName: inventoryModelName,
     }
   );
