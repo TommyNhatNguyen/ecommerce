@@ -40,6 +40,10 @@ import {
   InventoryPersistence,
 } from 'src/infras/repository/inventory/dto';
 import { attribute } from '@sequelize/core/_non-semver-use-at-your-own-risk_/expression-builders/attribute.js';
+import {
+  reviewModelName,
+  ReviewPersistence,
+} from 'src/infras/repository/review/dto';
 
 export class PostgresProductRepository implements IProductRepository {
   constructor(
@@ -88,6 +92,13 @@ export class PostgresProductRepository implements IProductRepository {
         as: imageModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
+      });
+    }
+    if (condition?.includeReview) {
+      include.push({
+        model: ReviewPersistence,
+        as: reviewModelName,
+        attributes: { exclude: EXCLUDE_ATTRIBUTES },
       });
     }
     const data = await this.sequelize.models[this.modelName].findByPk(id, {
@@ -147,6 +158,13 @@ export class PostgresProductRepository implements IProductRepository {
         as: imageModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
+      });
+    }
+    if (condition.includeReview) {
+      include.push({
+        model: ReviewPersistence,
+        as: reviewModelName,
+        attributes: { exclude: [...EXCLUDE_ATTRIBUTES, 'product_id', 'id'] },
       });
     }
     const { rows: productRows, count: countRows } = await this.sequelize.models[

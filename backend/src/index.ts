@@ -35,6 +35,9 @@ import {
   inventoryModelName,
   InventoryPersistence,
 } from 'src/infras/repository/inventory/dto';
+import { reviewModelName } from 'src/infras/repository/review/dto';
+import { setupReviewRouter } from 'src/routers/review';
+import { ReviewPersistence } from 'src/infras/repository/review/dto';
 config();
 
 (async () => {
@@ -57,6 +60,7 @@ app.use('/v1', setupDiscountRouter(sequelize));
 app.use('/v1', setupVariantRouter(sequelize));
 app.use('/v1', setupImageRouter(sequelize));
 app.use('/v1', setupInventoryRouter(sequelize));
+app.use('/v1', setupReviewRouter(sequelize));
 ProductPersistence.belongsToMany(CategoryPersistence, {
   through: productCategoryModelName,
   foreignKey: 'product_id',
@@ -110,6 +114,16 @@ ImagePersistence.belongsToMany(ProductPersistence, {
   through: productImageModelName,
   foreignKey: 'image_id',
   otherKey: 'product_id',
+  as: productModelName.toLowerCase(),
+});
+
+ProductPersistence.hasMany(ReviewPersistence, {
+  foreignKey: 'product_id',
+  as: reviewModelName.toLowerCase(),
+});
+
+ReviewPersistence.belongsTo(ProductPersistence, {
+  foreignKey: 'product_id',
   as: productModelName.toLowerCase(),
 });
 

@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { DataTypes, Model } from 'sequelize';
 import { ModelStatus } from 'src/share/models/base-model';
-
+import { v7 as uuidv7 } from 'uuid';
 export class ReviewPersistence extends Model {
   declare id: string;
   declare customer_id: string;
@@ -20,6 +20,7 @@ export const reviewInit = (sequelize: Sequelize) => {
         primaryKey: true,
         unique: true,
         allowNull: false,
+        defaultValue: () => uuidv7(),
       },
       customer_id: { type: DataTypes.STRING, allowNull: false },
       rating: {

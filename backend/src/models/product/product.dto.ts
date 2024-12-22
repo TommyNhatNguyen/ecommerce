@@ -62,6 +62,11 @@ export const ProductConditionDTOSchema = z.object({
     .refine((value) => value === 'true' || value === 'false')
     .transform((value) => value === 'true')
     .optional(),
+  includeReview: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
 });
 
 export type ProductCreateDTOSchema = z.infer<typeof ProductCreateDTOSchema>;
