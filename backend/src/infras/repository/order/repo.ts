@@ -23,6 +23,8 @@ import {
   customerModelName,
   CustomerPersistence,
 } from 'src/infras/repository/customer/dto';
+import { shippingModelName, ShippingPersistence } from 'src/infras/repository/shipping/dto';
+import { paymentModelName, PaymentPersistence } from 'src/infras/repository/payment/dto';
 
 export class PostgresOrderRepository implements IOrderRepository {
   constructor(
@@ -35,6 +37,11 @@ export class PostgresOrderRepository implements IOrderRepository {
         {
           model: CustomerPersistence,
           as: customerModelName,
+          attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+        },
+        {
+          model: ShippingPersistence,
+          as: shippingModelName,
           attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
         },
         {
@@ -75,6 +82,16 @@ export class PostgresOrderRepository implements IOrderRepository {
         {
           model: CustomerPersistence,
           as: customerModelName,
+          attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+        },
+        {
+          model: ShippingPersistence,
+          as: shippingModelName,
+          attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+        },
+        {
+          model: PaymentPersistence,
+          as: paymentModelName,
           attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
         },
         {

@@ -45,6 +45,14 @@ import { setupOrderRouter } from 'src/routers/order';
 import { setupCustomerRouter } from 'src/routers/customer';
 import { customerModelName } from 'src/infras/repository/customer/dto';
 import { CustomerPersistence } from 'src/infras/repository/customer/dto';
+import { setupShippingRouter } from 'src/routers/shipping';
+import { ShippingPersistence } from 'src/infras/repository/shipping/dto';
+import { shippingModelName } from 'src/infras/repository/shipping/dto';
+import { setupPaymentRouter } from 'src/routers/payment';
+import {
+  paymentModelName,
+  PaymentPersistence,
+} from 'src/infras/repository/payment/dto';
 config();
 
 (async () => {
@@ -70,7 +78,8 @@ app.use('/v1', setupInventoryRouter(sequelize));
 app.use('/v1', setupReviewRouter(sequelize));
 app.use('/v1', setupOrderRouter(sequelize));
 app.use('/v1', setupCustomerRouter(sequelize));
-
+app.use('/v1', setupShippingRouter(sequelize));
+app.use('/v1', setupPaymentRouter(sequelize));
 ProductPersistence.belongsToMany(CategoryPersistence, {
   through: productCategoryModelName,
   foreignKey: 'product_id',
@@ -153,6 +162,26 @@ OrderPersistence.belongsTo(CustomerPersistence, {
 
 CustomerPersistence.hasMany(OrderPersistence, {
   foreignKey: 'customer_id',
+  as: orderModelName.toLowerCase(),
+});
+
+OrderPersistence.belongsTo(ShippingPersistence, {
+  foreignKey: 'shipping_method_id',
+  as: shippingModelName.toLowerCase(),
+});
+
+ShippingPersistence.hasOne(OrderPersistence, {
+  foreignKey: 'shipping_method_id',
+  as: orderModelName.toLowerCase(),
+});
+
+OrderPersistence.belongsTo(PaymentPersistence, {
+  foreignKey: 'payment_method_id',
+  as: paymentModelName.toLowerCase(),
+});
+
+PaymentPersistence.hasOne(OrderPersistence, {
+  foreignKey: 'payment_method_id',
   as: orderModelName.toLowerCase(),
 });
 
