@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { DataTypes, Model } from 'sequelize';
 import { ModelStatus } from 'src/share/models/base-model';
-
+import { v7 as uuidv7 } from 'uuid';
 export class CustomerPersistence extends Model {
   declare id: string;
   declare name: string;
@@ -21,16 +21,11 @@ export const customerInit = (sequelize: Sequelize) => {
         primaryKey: true,
         unique: true,
         allowNull: false,
+        defaultValue: () => uuidv7(),
       },
-      first_name: { type: DataTypes.STRING, allowNull: false },
-      last_name: { type: DataTypes.STRING, allowNull: true },
-      full_name: {
-        type: DataTypes.VIRTUAL,
-        get() {
-          return `${this.get('first_name')} ${this.get('last_name')}`;
-        },
-      },
-      email: { type: DataTypes.STRING, allowNull: false, unique: true },
+      first_name: { type: DataTypes.STRING, allowNull: true },
+      last_name: { type: DataTypes.STRING, allowNull: false },
+      email: { type: DataTypes.STRING, allowNull: true, unique: true },
       phone: { type: DataTypes.STRING, allowNull: false, unique: true },
       address: { type: DataTypes.STRING, allowNull: true },
       city_id: { type: DataTypes.STRING, allowNull: true },

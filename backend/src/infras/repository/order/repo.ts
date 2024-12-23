@@ -19,6 +19,10 @@ import {
   discountModelName,
   DiscountPersistence,
 } from 'src/infras/repository/discount/dto';
+import {
+  customerModelName,
+  CustomerPersistence,
+} from 'src/infras/repository/customer/dto';
 
 export class PostgresOrderRepository implements IOrderRepository {
   constructor(
@@ -28,6 +32,11 @@ export class PostgresOrderRepository implements IOrderRepository {
   async getById(id: string, condition: OrderConditionDTO): Promise<Order> {
     const order = await this.sequelize.models[this.modelName].findByPk(id, {
       include: [
+        {
+          model: CustomerPersistence,
+          as: customerModelName,
+          attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+        },
         {
           model: ProductPersistence,
           as: productModelName,
@@ -63,6 +72,11 @@ export class PostgresOrderRepository implements IOrderRepository {
       limit,
       offset: (page - 1) * limit,
       include: [
+        {
+          model: CustomerPersistence,
+          as: customerModelName,
+          attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+        },
         {
           model: ProductPersistence,
           as: productModelName,
@@ -124,10 +138,24 @@ export class PostgresOrderRepository implements IOrderRepository {
     }
   }
   async update(id: string, data: OrderUpdateDTO): Promise<Order> {
-    const order = await this.sequelize.models[this.modelName].update(data, {
-      where: { id },
-      returning: true,
-    });
+    const { product_orders, ...rest } = data;
+    const payload = {
+      ...rest,
+      product: product_orders?.map((item) => ({
+        id: item.product_id,
+        [productOrderModelName]: {
+          quantity: item.quantity,
+          subtotal: item.subtotal,
+        },
+      })),
+    };
+    const order: any = await this.sequelize.models[this.modelName].update(
+      payload,
+      {
+        where: { id },
+        returning: true,
+      }
+    );
     return order[1][0].dataValues;
   }
   async delete(id: string): Promise<boolean> {

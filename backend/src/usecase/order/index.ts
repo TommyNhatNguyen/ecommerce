@@ -57,11 +57,6 @@ export class OrderUseCase implements IOrderUseCase {
     if (totalPriceInput !== total_price) {
       return null as any;
     }
-    console.log(
-      productFoundList.map((item) =>
-        item.discount?.map((item) => item.discount_percentage)
-      )
-    );
     return await this.orderRepository.create(data);
   }
   async update(id: string, data: OrderUpdateDTO): Promise<Order> {

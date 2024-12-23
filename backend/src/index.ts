@@ -42,6 +42,9 @@ import { ReviewPersistence } from 'src/infras/repository/review/dto';
 import { orderModelName } from 'src/infras/repository/order/dto';
 import { OrderPersistence } from 'src/infras/repository/order/dto';
 import { setupOrderRouter } from 'src/routers/order';
+import { setupCustomerRouter } from 'src/routers/customer';
+import { customerModelName } from 'src/infras/repository/customer/dto';
+import { CustomerPersistence } from 'src/infras/repository/customer/dto';
 config();
 
 (async () => {
@@ -66,6 +69,7 @@ app.use('/v1', setupImageRouter(sequelize));
 app.use('/v1', setupInventoryRouter(sequelize));
 app.use('/v1', setupReviewRouter(sequelize));
 app.use('/v1', setupOrderRouter(sequelize));
+app.use('/v1', setupCustomerRouter(sequelize));
 
 ProductPersistence.belongsToMany(CategoryPersistence, {
   through: productCategoryModelName,
@@ -142,6 +146,16 @@ ProductPersistence.hasMany(ReviewPersistence, {
   as: reviewModelName.toLowerCase(),
 });
 
+OrderPersistence.belongsTo(CustomerPersistence, {
+  foreignKey: 'customer_id',
+  as: customerModelName.toLowerCase(),
+});
+
+CustomerPersistence.hasMany(OrderPersistence, {
+  foreignKey: 'customer_id',
+  as: orderModelName.toLowerCase(),
+});
+
 ReviewPersistence.belongsTo(ProductPersistence, {
   foreignKey: 'product_id',
   as: productModelName.toLowerCase(),
@@ -163,6 +177,6 @@ ImagePersistence.hasOne(CategoryPersistence, {
   foreignKey: 'image_id',
 });
 
-app.listen(3001, () => {
+app.listen(port, () => {
   console.log(`Server is running on: http://localhost:${port}`);
 });
