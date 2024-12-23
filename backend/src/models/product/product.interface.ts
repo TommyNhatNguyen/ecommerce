@@ -19,7 +19,7 @@ export interface IProductRepository
     ICommandRepository {}
 
 export interface IQueryRepository {
-  get(id: string, condition: ProductConditionDTOSchema): Promise<Product | null>;
+  get(id: string, condition?: ProductConditionDTOSchema): Promise<Product | null>;
   list(
     condition: ProductConditionDTOSchema,
     paging: PagingDTO

@@ -15,6 +15,10 @@ import {
   ProductPersistence,
 } from 'src/infras/repository/product/dto';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
+import {
+  discountModelName,
+  DiscountPersistence,
+} from 'src/infras/repository/discount/dto';
 
 export class PostgresOrderRepository implements IOrderRepository {
   constructor(
@@ -27,10 +31,21 @@ export class PostgresOrderRepository implements IOrderRepository {
         {
           model: ProductPersistence,
           as: productModelName,
-          attributes: { exclude: EXCLUDE_ATTRIBUTES },
+          attributes: { exclude: [...EXCLUDE_ATTRIBUTES, 'description'] },
           through: {
-            attributes: ['quantity', 'subtotal'],
+            attributes: ['quantity', 'subtotal', 'status'],
+            as: 'order_detail',
           },
+          include: [
+            {
+              model: DiscountPersistence,
+              as: discountModelName,
+              attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+              through: {
+                attributes: [],
+              },
+            },
+          ],
         },
       ],
     });
@@ -51,9 +66,20 @@ export class PostgresOrderRepository implements IOrderRepository {
         {
           model: ProductPersistence,
           as: productModelName,
-          attributes: { exclude: EXCLUDE_ATTRIBUTES },
+          attributes: { exclude: [...EXCLUDE_ATTRIBUTES, 'description'] },
+          include: [
+            {
+              model: DiscountPersistence,
+              as: discountModelName,
+              attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+              through: {
+                attributes: [],
+              },
+            },
+          ],
           through: {
-            attributes: ['quantity', 'subtotal'],
+            attributes: ['quantity', 'subtotal', 'status'],
+            as: 'order_detail',
           },
         },
       ],
@@ -70,31 +96,32 @@ export class PostgresOrderRepository implements IOrderRepository {
   }
   async create(data: OrderCreateDTO): Promise<Order> {
     const { product_orders, ...rest } = data;
-    const payload = {
-      ...rest,
-      product: product_orders.map((item) => ({
-        id: item.product_id,
-        [productOrderModelName]: {
-          quantity: item.quantity,
-          subtotal: item.subtotal,
-        },
-      })),
-    };
-    console.log(payload);
-    const order: any = await this.sequelize.models[this.modelName].create(
-      data,
-      {
-        returning: true,
-        include: [ProductPersistence],
-      }
-    );
-    console.log(order);
-    //   through: {
-    //     quantity: product_orders.quantity,
-    //     subtotal: product_orders.subtotal,
-    //   },
-    // });
-    return order.dataValues;
+    const transaction = await this.sequelize.transaction();
+    try {
+      // Create order
+      const order: any = await this.sequelize.models[this.modelName].create(
+        rest,
+        {
+          returning: true,
+          transaction: transaction,
+        }
+      );
+      await ProductOrderPersistence.bulkCreate(
+        product_orders.map((product) => ({
+          ...product,
+          order_id: order.dataValues.id,
+        })),
+        {
+          returning: true,
+          transaction: transaction,
+        }
+      );
+      await transaction.commit();
+      return order.dataValues;
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }
   async update(id: string, data: OrderUpdateDTO): Promise<Order> {
     const order = await this.sequelize.models[this.modelName].update(data, {

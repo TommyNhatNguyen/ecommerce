@@ -163,6 +163,6 @@ ImagePersistence.hasOne(CategoryPersistence, {
   foreignKey: 'image_id',
 });
 
-app.listen(port, () => {
+app.listen(3001, () => {
   console.log(`Server is running on: http://localhost:${port}`);
 });
