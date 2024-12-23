@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { init, initProductCategory, initProductDiscount, initProductImage,  initProductVariant, productModelName } from 'src/infras/repository/product/dto';
+import { init, initProductCategory, initProductDiscount, initProductImage,  initProductOrder,  initProductVariant, productModelName } from 'src/infras/repository/product/dto';
 import { Sequelize } from 'sequelize';
 import { PostgresProductRepository } from 'src/infras/repository/product/repo';
 import { ProductUseCase } from 'src/usecase/product';
@@ -11,6 +11,7 @@ export const setupProductRouter = (sequelize: Sequelize) => {
   initProductDiscount(sequelize);
   initProductVariant(sequelize);
   initProductImage(sequelize);
+  initProductOrder(sequelize);
   const repository = new PostgresProductRepository(sequelize, productModelName);
   const useCase = new ProductUseCase(repository);
   const httpService = new ProductHttpService(useCase);

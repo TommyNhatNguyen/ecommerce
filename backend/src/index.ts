@@ -12,6 +12,7 @@ import {
   productDiscountModelName,
   productImageModelName,
   productModelName,
+  productOrderModelName,
   ProductPersistence,
   productVariantModelName,
 } from 'src/infras/repository/product/dto';
@@ -38,6 +39,9 @@ import {
 import { reviewModelName } from 'src/infras/repository/review/dto';
 import { setupReviewRouter } from 'src/routers/review';
 import { ReviewPersistence } from 'src/infras/repository/review/dto';
+import { orderModelName } from 'src/infras/repository/order/dto';
+import { OrderPersistence } from 'src/infras/repository/order/dto';
+import { setupOrderRouter } from 'src/routers/order';
 config();
 
 (async () => {
@@ -61,6 +65,8 @@ app.use('/v1', setupVariantRouter(sequelize));
 app.use('/v1', setupImageRouter(sequelize));
 app.use('/v1', setupInventoryRouter(sequelize));
 app.use('/v1', setupReviewRouter(sequelize));
+app.use('/v1', setupOrderRouter(sequelize));
+
 ProductPersistence.belongsToMany(CategoryPersistence, {
   through: productCategoryModelName,
   foreignKey: 'product_id',
@@ -113,6 +119,20 @@ ProductPersistence.belongsToMany(ImagePersistence, {
 ImagePersistence.belongsToMany(ProductPersistence, {
   through: productImageModelName,
   foreignKey: 'image_id',
+  otherKey: 'product_id',
+  as: productModelName.toLowerCase(),
+});
+
+ProductPersistence.belongsToMany(OrderPersistence, {
+  through: productOrderModelName,
+  foreignKey: 'product_id',
+  otherKey: 'order_id',
+  as: orderModelName.toLowerCase(),
+});
+
+OrderPersistence.belongsToMany(ProductPersistence, {
+  through: productOrderModelName,
+  foreignKey: 'order_id',
   otherKey: 'product_id',
   as: productModelName.toLowerCase(),
 });

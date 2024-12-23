@@ -206,3 +206,49 @@ export function initProductImage(sequelize: Sequelize) {
     }
   );
 }
+
+export const productOrderModelName = 'productorder';
+
+export class ProductOrderPersistence extends Model {
+  declare id: string;
+  declare product_id: string;
+  declare order_id: string;
+  declare quantity: number;
+  declare subtotal: number;
+  declare discount_id: string;
+  declare status: ModelStatus;
+  declare created_at: Date;
+  declare updated_at: Date;
+}
+
+export function initProductOrder(sequelize: Sequelize) {
+  ProductOrderPersistence.init(
+    {
+      product_id: { type: DataTypes.STRING, allowNull: false },
+      order_id: { type: DataTypes.STRING, allowNull: false },
+      quantity: { type: DataTypes.INTEGER, allowNull: false },
+      subtotal: { type: DataTypes.FLOAT, allowNull: false },
+      status: {
+        type: DataTypes.ENUM(...Object.values(ModelStatus)),
+        allowNull: false,
+        defaultValue: ModelStatus.ACTIVE,
+      },
+      created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+    },
+    {
+      sequelize,
+      tableName: 'products_orders',
+      timestamps: false,
+      modelName: productOrderModelName,
+    }
+  );
+}

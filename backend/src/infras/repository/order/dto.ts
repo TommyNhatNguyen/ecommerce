@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { DataTypes, Model } from 'sequelize';
 import { ModelStatus, OrderState } from 'src/share/models/base-model';
-
+import { v7 as uuidv7 } from 'uuid';
 export class OrderPersistence extends Model {
   declare id: string;
   declare customer_id: string;
@@ -10,7 +10,9 @@ export class OrderPersistence extends Model {
   declare shipping_method_id: string;
   declare payment_method_id: string;
   declare shipping_address: string;
-  declare paid_amount: number;
+  declare shipping_phone: string;
+  declare shipping_email: string;
+  declare has_paid: boolean;
   declare status: ModelStatus;
 }
 
@@ -24,10 +26,11 @@ export const orderInit = (sequelize: Sequelize) => {
         primaryKey: true,
         unique: true,
         allowNull: false,
+        defaultValue: () => uuidv7(),
       },
       customer_id: { type: DataTypes.STRING, allowNull: false },
-      phone: { type: DataTypes.STRING, allowNull: false },
-      email: { type: DataTypes.STRING, allowNull: true },
+      shipping_phone: { type: DataTypes.STRING, allowNull: false },
+      shipping_email: { type: DataTypes.STRING, allowNull: true },
       shipping_address: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -51,11 +54,10 @@ export const orderInit = (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      paid_amount: {
-        type: DataTypes.FLOAT,
+      has_paid: {
+        type: DataTypes.BOOLEAN,
         allowNull: false,
-        defaultValue: 0,
-        validate: { min: 0 },
+        defaultValue: false,
       },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
