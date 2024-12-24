@@ -53,6 +53,10 @@ import {
   paymentModelName,
   PaymentPersistence,
 } from 'src/infras/repository/payment/dto';
+import { setupUserRouter } from 'src/routers/user';
+import { setupRoleRouter } from 'src/routers/role';
+import { userModelName, UserPersistence } from 'src/infras/repository/user/dto';
+import { roleModelName, RolePersistence } from 'src/infras/repository/role/dto';
 config();
 
 (async () => {
@@ -80,6 +84,9 @@ app.use('/v1', setupOrderRouter(sequelize));
 app.use('/v1', setupCustomerRouter(sequelize));
 app.use('/v1', setupShippingRouter(sequelize));
 app.use('/v1', setupPaymentRouter(sequelize));
+app.use('/v1', setupUserRouter(sequelize));
+app.use('/v1', setupRoleRouter(sequelize));
+
 ProductPersistence.belongsToMany(CategoryPersistence, {
   through: productCategoryModelName,
   foreignKey: 'product_id',
@@ -206,6 +213,16 @@ ImagePersistence.hasOne(CategoryPersistence, {
   foreignKey: 'image_id',
 });
 
-app.listen(port, () => {
+UserPersistence.hasOne(RolePersistence, {
+  foreignKey: 'role_id',
+  as: roleModelName.toLowerCase(),
+});
+
+RolePersistence.belongsTo(UserPersistence, {
+  foreignKey: 'role_id',
+  as: userModelName.toLowerCase(),
+});
+
+app.listen(3001, () => {
   console.log(`Server is running on: http://localhost:${port}`);
 });

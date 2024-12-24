@@ -52,3 +52,10 @@ export enum PaymentMethod {
   WALLET = 'WALLET',
   OTHER = 'OTHER',
 }
+
+export enum Roles {
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  ADMIN = 'ADMIN',
+  STAFF = 'STAFF',
+  USER = 'USER',
+}

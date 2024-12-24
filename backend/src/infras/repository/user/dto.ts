@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { DataTypes, Model } from 'sequelize';
-import { ModelStatus, ShippingMethod } from 'src/share/models/base-model';
-
+import { ModelStatus } from 'src/share/models/base-model';
+import { v7 as uuidv7 } from 'uuid';
 export class UserPersistence extends Model {
   declare id: string;
   declare username: string;
@@ -21,6 +21,7 @@ export const userInit = (sequelize: Sequelize) => {
         primaryKey: true,
         unique: true,
         allowNull: false,
+        defaultValue: uuidv7(),
       },
       username: {
         type: DataTypes.STRING,
@@ -40,6 +41,10 @@ export const userInit = (sequelize: Sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
+      },
+      role_id: {
+        type: DataTypes.STRING,
+        allowNull: false,
       },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
