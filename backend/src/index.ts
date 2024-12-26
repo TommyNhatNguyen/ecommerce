@@ -57,6 +57,12 @@ import { setupUserRouter } from 'src/routers/user';
 import { setupRoleRouter } from 'src/routers/role';
 import { userModelName, UserPersistence } from 'src/infras/repository/user/dto';
 import { roleModelName, RolePersistence } from 'src/infras/repository/role/dto';
+import { setupPermissionRouter } from 'src/routers/permission';
+import {
+  permissionModelName,
+  PermissionPersistence,
+  permissionRoleModelName,
+} from 'src/infras/repository/permission/dto';
 config();
 
 (async () => {
@@ -86,6 +92,7 @@ app.use('/v1', setupShippingRouter(sequelize));
 app.use('/v1', setupPaymentRouter(sequelize));
 app.use('/v1', setupUserRouter(sequelize));
 app.use('/v1', setupRoleRouter(sequelize));
+app.use('/v1', setupPermissionRouter(sequelize));
 
 ProductPersistence.belongsToMany(CategoryPersistence, {
   through: productCategoryModelName,
@@ -213,16 +220,30 @@ ImagePersistence.hasOne(CategoryPersistence, {
   foreignKey: 'image_id',
 });
 
-UserPersistence.hasOne(RolePersistence, {
+UserPersistence.belongsTo(RolePersistence, {
   foreignKey: 'role_id',
   as: roleModelName.toLowerCase(),
 });
 
-RolePersistence.belongsTo(UserPersistence, {
+RolePersistence.hasOne(UserPersistence, {
   foreignKey: 'role_id',
   as: userModelName.toLowerCase(),
 });
 
-app.listen(3001, () => {
+PermissionPersistence.belongsToMany(RolePersistence, {
+  through: permissionRoleModelName,
+  foreignKey: 'permission_id',
+  otherKey: 'role_id',
+  as: roleModelName.toLowerCase(),
+});
+
+RolePersistence.belongsToMany(PermissionPersistence, {
+  through: permissionRoleModelName,
+  foreignKey: 'role_id',
+  otherKey: 'permission_id',
+  as: permissionModelName.toLowerCase(),
+});
+
+app.listen(port, () => {
   console.log(`Server is running on: http://localhost:${port}`);
 });

@@ -2,7 +2,7 @@ import { ModelStatus } from "src/share/models/base-model";
 import z from "zod";
 
 export const IUserCreateDTOSchema = z.object({
-  name: z.string(),
+  username: z.string(),
   hash_password: z.string(),
   phone: z.string(),
   email: z.string().email().optional(),
@@ -10,7 +10,7 @@ export const IUserCreateDTOSchema = z.object({
 })
 
 export const IUserUpdateDTOSchema = z.object({
-  name: z.string().optional(),
+  username: z.string().optional(),
   hash_password: z.string().optional(),
   phone: z.string().optional(),
   email: z.string().email().optional(),
@@ -22,7 +22,7 @@ export const IUserUpdateDTOSchema = z.object({
 
 export const IUserConditionSchema = z.object({
   id: z.string().uuid().optional(),
-  name: z.string().optional(),
+  username: z.string().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),

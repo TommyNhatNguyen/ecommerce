@@ -21,7 +21,7 @@ export const userInit = (sequelize: Sequelize) => {
         primaryKey: true,
         unique: true,
         allowNull: false,
-        defaultValue: uuidv7(),
+        defaultValue: () => uuidv7(),
       },
       username: {
         type: DataTypes.STRING,

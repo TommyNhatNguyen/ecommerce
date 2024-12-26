@@ -1,12 +1,12 @@
-import { ModelStatus } from "src/share/models/base-model";
+import { ModelStatus, Roles } from "src/share/models/base-model";
 import z from "zod";
 
 export const IRoleCreateDTOSchema = z.object({
-  name: z.string(),
+  name: z.nativeEnum(Roles),
 })
 
 export const IRoleUpdateDTOSchema = z.object({
-  name: z.string().optional(),
+  name: z.nativeEnum(Roles).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
@@ -14,7 +14,7 @@ export const IRoleUpdateDTOSchema = z.object({
 
 export const IRoleConditionSchema = z.object({
   id: z.string().uuid().optional(),
-  name: z.string().optional(),
+  name: z.nativeEnum(Roles).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),

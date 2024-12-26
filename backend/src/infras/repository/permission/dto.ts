@@ -1,7 +1,11 @@
 import { Sequelize } from 'sequelize';
 import { DataTypes, Model } from 'sequelize';
-import { ModelStatus, ShippingMethod } from 'src/share/models/base-model';
-
+import {
+  ModelStatus,
+  PermissionType,
+  ShippingMethod,
+} from 'src/share/models/base-model';
+import { v7 as uuidv7 } from 'uuid';
 export class PermissionPersistence extends Model {
   declare id: string;
   declare name: string;
@@ -18,9 +22,10 @@ export const permissionInit = (sequelize: Sequelize) => {
         primaryKey: true,
         unique: true,
         allowNull: false,
+        defaultValue: () => uuidv7(),
       },
-      name: {
-        type: DataTypes.STRING,
+      type: {
+        type: DataTypes.ENUM(...Object.values(PermissionType)),
         allowNull: false,
       },
       status: {
@@ -36,6 +41,50 @@ export const permissionInit = (sequelize: Sequelize) => {
       createdAt: 'created_at',
       updatedAt: 'updated_at',
       modelName: permissionModelName,
+    }
+  );
+};
+
+export const permissionRoleModelName = 'permission_role';
+
+export class PermissionRolePersistence extends Model {
+  declare id: string;
+  declare permission_id: string;
+  declare role_id: string;
+}
+
+export const permissionRoleInit = (sequelize: Sequelize) => {
+  PermissionRolePersistence.init(
+    {
+      permission_id: {
+        type: DataTypes.ENUM(...Object.values(PermissionType)),
+        allowNull: false,
+      },
+      role_id: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      status: {
+        type: DataTypes.ENUM(...Object.values(ModelStatus)),
+        allowNull: false,
+        defaultValue: ModelStatus.ACTIVE,
+      },
+    },
+    {
+      sequelize,
+      tableName: 'permission_role',
+      timestamps: false,
+      modelName: permissionRoleModelName,
     }
   );
 };

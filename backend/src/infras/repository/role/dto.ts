@@ -1,6 +1,10 @@
 import { Sequelize } from 'sequelize';
 import { DataTypes, Model } from 'sequelize';
-import { ModelStatus, Roles, ShippingMethod } from 'src/share/models/base-model';
+import {
+  ModelStatus,
+  Roles,
+  ShippingMethod,
+} from 'src/share/models/base-model';
 import { v7 as uuidv7 } from 'uuid';
 
 export class RolePersistence extends Model {
@@ -19,12 +23,11 @@ export const roleInit = (sequelize: Sequelize) => {
         primaryKey: true,
         unique: true,
         allowNull: false,
-        defaultValue: uuidv7(),
+        defaultValue: () => uuidv7(),
       },
       name: {
         type: DataTypes.ENUM(...Object.values(Roles)),
         allowNull: false,
-        unique: true,
       },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
