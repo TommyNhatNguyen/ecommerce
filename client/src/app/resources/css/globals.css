@@ -29,17 +29,25 @@ Usage Ideas:
 
 html {
   font-size: 62.5%;
+
+  &.--dashboard {
+    body {
+      background: var(--bg-dashboard-color);
+      color: var(--text-dashboard-color);
+      font-family: var(--ff-os-regular);
+    }
+  }
 }
 
 body {
   height: 100%;
   width: 100%;
-  /* max-width: var(--max-width-page); */
   margin: auto;
   background: var(--bg-primary-color);
   color: var(--green-300);
   font-family: var(--ff-ro-regular);
   font-size: var(--fs-body-text);
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 3px;

@@ -22,7 +22,9 @@
   --bg-primary-color-70: rgb(220, 215, 201, 0.7);
   --bg-primary-color-60: rgb(220, 215, 201, 0.6);
   --bg-secondary-color: rgb(240, 226, 182);
-
+  /* --------- Dashboard --------- */
+  --bg-dashboard-color: rgb(240, 235, 220); /* Lighter color for dashboard background */
+  --text-dashboard-color: rgb(0, 0, 0); /* Black color for dashboard text */
   /* New Status Colors */
   --error-color: rgb(179, 57, 57);
   /* Muted Red for Errors */
@@ -50,7 +52,9 @@
   --ff-ro-regular: var(--ff-ro-regular);
   --ff-ro-medium: var(--ff-ro-medium);
   --ff-ro-bold: var(--ff-ro-bold);
-
+  --ff-os-regular: var(--ff-os-regular);
+  --ff-os-medium: var(--ff-os-medium);
+  --ff-os-bold: var(--ff-os-bold);
   /* Responsive */
   @media (max-width: 1440px) {
     :root {

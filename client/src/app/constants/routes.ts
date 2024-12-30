@@ -13,3 +13,16 @@ export const ROUTES = {
   COMPLETE: "/complete",
   ORDER: "/order",
 };
+
+export const ADMIN_ROUTES = {
+  dashboard: "/admin/dashboard",
+  orders: "/admin/orders",
+  sales: "/admin/sales",
+  products: "/admin/products",
+  inventory: "/admin/inventory",
+  customers: "/admin/customers",
+  resources: "/admin/resources",
+  settings: "/admin/settings",
+  permissions: "/admin/permissions",
+};
+
