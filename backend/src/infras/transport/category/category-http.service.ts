@@ -83,7 +83,7 @@ export class CategoryHttpService {
         res.status(404).json({ message: 'Category not found' });
         return;
       }
-      res.status(200).json({ message: 'Category found', data: category });
+      res.status(200).json({ message: 'Category found',  ...category });
     } catch (error) {
       res.status(500).json({ message: 'Failed to get category' });
       return;
@@ -94,7 +94,7 @@ export class CategoryHttpService {
       success: pagingSuccess,
       data: pagingData,
       error: pagingError,
-    } = PagingDTOSchema.safeParse(req.body);
+    } = PagingDTOSchema.safeParse(req.query);
     const {
       success: conditionSuccess,
       data: conditionData,
@@ -111,7 +111,7 @@ export class CategoryHttpService {
         conditionData
       );
       console.log(categories);
-      res.status(200).json({ message: 'Categories found', data: categories });
+      res.status(200).json({ message: 'Categories found', ...categories });
     } catch (error) {
       res.status(500).json({ message: 'Failed to list categories' });
       return;

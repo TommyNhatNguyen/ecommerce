@@ -1,6 +1,7 @@
 "use client";
 
 import { ADMIN_ROUTES } from "@/app/constants/routes";
+import NotificationContextProvider from "@/app/contexts/NotificationContext";
 import Logo from "@/app/shared/components/Logo";
 import { MenuItem } from "@/app/shared/types/antd.model";
 import { Separator } from "@/components/ui/separator";
@@ -33,7 +34,7 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
-
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const { Header, Footer, Sider, Content } = Layout;
 type DashboardLayoutPropsType = {
   children: React.ReactNode;
@@ -98,61 +99,66 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   const handleSelect = (key: string) => {
     router.push(key);
   };
+  const queryClient = new QueryClient();
   return (
-    <Layout className="h-screen">
-      <Sider className="bg-white" collapsed={collapsed}>
-        <div className="flex items-center justify-between gap-2 p-2">
-          <Logo />
-          <button onClick={toggleCollapsed}>
-            {collapsed ? <SquareChevronLeft /> : <SquareChevronRight />}
-          </button>
-        </div>
-        <Divider variant="dashed" />
-        <Menu
-          items={items}
-          inlineCollapsed={collapsed}
-          selectedKeys={[pathname]}
-          onSelect={(e) => handleSelect(e.key)}
-          mode="inline"
-        />
-      </Sider>
-      <Layout>
-        <Header className="flex items-center justify-between bg-white px-4">
-          <Input.Search
-            placeholder="Search..."
-            style={{ width: 300 }}
-            prefix={<Search />}
-          />
-          <div className="flex items-center gap-4">
-            <Badge count={5}>
-              <Button type="text" icon={<Bell />} size="small" />
-            </Badge>
-            <Dropdown
-              menu={{
-                items: dropdownItems,
-              }}
-              trigger={["click"]}
-            >
-              <div className="flex items-center gap-2">
-                <Avatar shape="square" icon={<User />} />
-                <div className="h-fit">
-                  <p className="h-fit font-open-sans-medium">John Doe</p>
-                </div>
-                <ChevronDown />
+    <QueryClientProvider client={queryClient}>
+      <NotificationContextProvider>
+        <Layout className="h-screen">
+          <Sider className="bg-white" collapsed={collapsed}>
+            <div className="flex items-center justify-between gap-2 p-2">
+              <Logo />
+              <button onClick={toggleCollapsed}>
+                {collapsed ? <SquareChevronLeft /> : <SquareChevronRight />}
+              </button>
+            </div>
+            <Divider variant="dashed" />
+            <Menu
+              items={items}
+              inlineCollapsed={collapsed}
+              selectedKeys={[pathname]}
+              onSelect={(e) => handleSelect(e.key)}
+              mode="inline"
+            />
+          </Sider>
+          <Layout>
+            <Header className="flex items-center justify-between bg-white px-4">
+              <Input.Search
+                placeholder="Search..."
+                style={{ width: 300 }}
+                prefix={<Search />}
+              />
+              <div className="flex items-center gap-4">
+                <Badge count={5}>
+                  <Button type="text" icon={<Bell />} size="small" />
+                </Badge>
+                <Dropdown
+                  menu={{
+                    items: dropdownItems,
+                  }}
+                  trigger={["click"]}
+                >
+                  <div className="flex items-center gap-2">
+                    <Avatar shape="square" icon={<User />} />
+                    <div className="h-fit">
+                      <p className="h-fit font-open-sans-medium">John Doe</p>
+                    </div>
+                    <ChevronDown />
+                  </div>
+                </Dropdown>
               </div>
-            </Dropdown>
-          </div>
-        </Header>
-        <Content className="mb-4 p-2">
-          <h1 className="text-xl font-bold capitalize">{currentPath}</h1>
-          <Divider />
-          {children}
-        </Content>
-        <Footer className="bg-white text-center">
-          @copyright 2023 Nguyen Anh Nhat
-        </Footer>
-      </Layout>
-    </Layout>
+            </Header>
+            <Content className="mb-4 min-h-screen p-2">
+              <h1 className="text-xl font-bold capitalize">{currentPath}</h1>
+              <Divider />
+              {children}
+            </Content>
+            <Footer className="bg-white text-center">
+              @copyright 2023 Nguyen Anh Nhat
+            </Footer>
+          </Layout>
+        </Layout>
+      </NotificationContextProvider>
+    </QueryClientProvider>
   );
 };
 

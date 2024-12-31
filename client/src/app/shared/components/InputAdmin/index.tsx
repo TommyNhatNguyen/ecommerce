@@ -10,6 +10,7 @@ type InputAdminPropsType = {
     props: InputProps,
     ref: React.RefObject<InputRef>,
   ) => React.ReactNode;
+  groupClassName?: string;
 } & InputProps;
 
 const InputAdmin = forwardRef(
@@ -19,12 +20,13 @@ const InputAdmin = forwardRef(
       error,
       required = false,
       customComponent,
+      groupClassName,
       ...props
     }: InputAdminPropsType,
     ref: any,
   ) => {
     return (
-      <div className="flex flex-col gap-1">
+      <div className={cn("flex flex-col gap-1", groupClassName)}>
         <label className="font-medium">
           {required && <span className="text-red-500">*</span>}
           {label}

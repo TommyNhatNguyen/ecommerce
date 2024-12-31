@@ -18,7 +18,7 @@ export class DiscountHttpService {
       }
       res
         .status(200)
-        .json({ data: discount, message: 'Discount fetched successfully' });
+        .json({ ...discount, message: 'Discount fetched successfully' });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
       return;
@@ -51,7 +51,7 @@ export class DiscountHttpService {
       }
       res
         .status(200)
-        .json({ data: discounts, message: 'Discounts fetched successfully' });
+        .json({  ...discounts, message: 'Discounts fetched successfully' });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
       return;

@@ -1,3 +1,4 @@
+import { formatCurrency } from "@/app/shared/utils/utils";
 import { cn } from "@/lib/utils";
 import { Divider } from "antd";
 import React from "react";
@@ -45,43 +46,43 @@ const InventoryOverall = (props: Props) => {
   const inventoryData = [
     {
       title: "Categories",
-      value: 100,
+      value: formatCurrency(100),
       last7Days: "Last 7 days",
       titleColor: "text-blue-700",
     },
     {
       title: "Products",
-      value: 100,
+      value: formatCurrency(100),
       last7Days: "Last 7 days",
       titleColor: "text-green-700",
     },
     {
       title: "Revenue",
-      value: "$25000",
+      value: formatCurrency(25000),
       last7Days: "Revenue",
       titleColor: "text-red-700",
     },
     {
       title: "Top Selling",
-      value: 5,
+      value: formatCurrency(5),
       last7Days: "Last 7 days",
       titleColor: "text-yellow-700",
     },
     {
       title: "Cost",
-      value: "$25000",
+      value: formatCurrency(25000),
       last7Days: "Cost",
       titleColor: "text-purple-700",
     },
     {
       title: "Low Stock",
-      value: 5,
+      value: formatCurrency(5),
       last7Days: "Ordered",
       titleColor: "text-orange-700",
     },
     {
       title: "Not in stock",
-      value: 2,
+      value: formatCurrency(2),
       last7Days: "Not in stock",
       titleColor: "text-pink-700",
     },

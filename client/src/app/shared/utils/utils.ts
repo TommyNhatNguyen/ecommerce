@@ -18,6 +18,13 @@ export function getBase64FromUrl(url: string) {
   return fetch(url)
     .then((res) => res.blob())
     .then((blob) =>
-      getBase64(new File([blob], "image.jpg", { type: "image/jpeg" }))
+      getBase64(new File([blob], "image.jpg", { type: "image/jpeg" })),
     );
+}
+
+export function formatCurrency(data: number, currency = "VND") {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency,
+  }).format(data);
 }

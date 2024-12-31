@@ -5,7 +5,7 @@ import {
 } from '@models/category/category.dto';
 import { ICategoryRepository } from '@models/category/category.interface';
 import { Category } from '@models/category/category.model';
-import { Op, Sequelize } from 'sequelize';
+import { Op, Sequelize, where } from 'sequelize';
 import {
   productModelName,
   ProductPersistence,
@@ -50,6 +50,7 @@ class PostgresCategoryRepository implements ICategoryRepository {
     condition: CategoryConditionDTOSchema
   ): Promise<ListResponse<Category[]>> {
     const { page, limit } = paging;
+    console.log(paging);
     const where: any = {};
     const order = condition?.order || BaseOrder.DESC;
     const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
@@ -79,10 +80,10 @@ class PostgresCategoryRepository implements ICategoryRepository {
         limit,
         offset: (page - 1) * limit,
         order: [[sortBy, order]],
+        distinct: true,
         include: {
           model: ProductPersistence,
           as: productModelName,
-          required: true,
           attributes: {
             exclude: EXCLUDE_ATTRIBUTES,
           },

@@ -104,7 +104,7 @@ export class ProductHttpService {
       const result = await this.productUseCase.getProducts(condition, paging);
       res.status(200).json({
         message: 'Products fetched successfully',
-        data: result,
+         ...result,
       });
     } catch (error) {
       res.status(400).json({ error: (error as Error).message });
@@ -131,7 +131,7 @@ export class ProductHttpService {
       }
       res.status(200).json({
         message: 'Product fetched successfully',
-        data: result,
+        ...result,
       });
     } catch (error) {
       res.status(500).json({ error: (error as Error).message });

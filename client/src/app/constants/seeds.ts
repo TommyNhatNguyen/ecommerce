@@ -215,3 +215,8 @@ export const discountCampaigns = [
     value: "Holiday Sale",
   },
 ];
+
+export const statusOptions = [
+  { label: "Publish", value: "publish" },
+  { label: "Unpublish", value: "unpublish" },
+];

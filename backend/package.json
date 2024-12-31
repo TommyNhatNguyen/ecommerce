@@ -13,6 +13,7 @@
     "@sequelize/core": "^7.0.0-alpha.42",
     "@sequelize/postgres": "^7.0.0-alpha.43",
     "@types/sequelize": "^4.28.20",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "pg-hstore": "^2.3.4",
