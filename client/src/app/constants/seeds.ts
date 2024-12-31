@@ -217,6 +217,7 @@ export const discountCampaigns = [
 ];
 
 export const statusOptions = [
-  { label: "Publish", value: "publish" },
-  { label: "Unpublish", value: "unpublish" },
+  { label: "ACTIVE", value: "ACTIVE" },
+  { label: "INACTIVE", value: "INACTIVE" },
+  { label: "DELETED", value: "DELETED" },
 ];

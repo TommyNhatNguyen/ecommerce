@@ -6,7 +6,7 @@ import Container from "@/app/shared/components/Container";
 import Titlegroup from "@/app/shared/components/Titlegroup";
 import { ChevronRightIcon, PlusCircle } from "lucide-react";
 import React from "react";
-import mockProductImage from "../../../../resources/images/homepage/product-2.jpg";
+import mockProductImage from "@/app/shared/resources/images/homepage/product-2.jpg";
 import { CardProduct } from "@/app/shared/components/Card";
 const products = [
   {

@@ -8,5 +8,7 @@ export type ProductModel = {
   status: ModelStatus;
   created_at: string;
   updated_at: string;
-  inventory: null;
+  inventory: {
+    quantity: number;
+  };
 };

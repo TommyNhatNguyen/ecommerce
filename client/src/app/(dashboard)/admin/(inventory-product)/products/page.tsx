@@ -1,28 +1,36 @@
 "use client";
 import { useCategory } from "@/app/(dashboard)/admin/(inventory-product)/products/hooks/useCategory";
 import { useDiscounts } from "@/app/(dashboard)/admin/(inventory-product)/products/hooks/useDiscounts";
+import { useProducts } from "@/app/(dashboard)/admin/(inventory-product)/products/hooks/useProduct";
 import {
   categories,
   dataSource,
   discountCampaigns,
 } from "@/app/constants/seeds";
+import { useNotification } from "@/app/contexts/NotificationContext";
 import CreateCategoryModal from "@/app/shared/components/GeneralModal/components/CreateCategoryModal";
 import CreateDiscountModal from "@/app/shared/components/GeneralModal/components/CreateDiscountModal";
 import CreateProductModal from "@/app/shared/components/GeneralModal/components/CreateProductModal";
 import LoadingComponent from "@/app/shared/components/LoadingComponent";
+import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import { CreateDiscountDTO } from "@/app/shared/interfaces/discounts/discounts.dto";
 import { CreateProductDTO } from "@/app/shared/interfaces/products/product.dto";
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { discountsService } from "@/app/shared/services/discounts/discountsService";
 import { productService } from "@/app/shared/services/products/productService";
 import { useQuery } from "@tanstack/react-query";
-import { Button, Card } from "antd";
-import { PlusIcon } from "lucide-react";
+import { Button, Card, Tooltip } from "antd";
+import { Eye, Pencil, PlusIcon, Trash2Icon } from "lucide-react";
 import React, { useState } from "react";
 
 type Props = {};
-
+const ButtonDeleteWithPopover = withDeleteConfirmPopover(
+  <Button type="text" className="aspect-square rounded-full p-0">
+    <Trash2Icon className="h-4 w-4 stroke-red-500" />
+  </Button>,
+);
 const ProductPage = (props: Props) => {
+  const { notificationApi } = useNotification();
   const [isModalCreateProductOpen, setIsModalCreateProductOpen] =
     useState(false);
   const [isModalCreateCategoryOpen, setIsModalCreateCategoryOpen] =
@@ -35,6 +43,7 @@ const ProductPage = (props: Props) => {
     useCategory();
   const { loading: createDiscountLoading, hanldeCreateDiscount } =
     useDiscounts();
+  const { loading: createProductLoading, hanldeCreateProduct } = useProducts();
   const { data: categories, isLoading: isLoadingCategories } = useQuery({
     queryKey: ["categories", createCategoryLoading],
     queryFn: () => categoriesService.getCategories({}, {}),
@@ -44,7 +53,7 @@ const ProductPage = (props: Props) => {
     queryFn: () => discountsService.getDiscounts(),
   });
   const { data: products, isLoading: isLoadingProducts } = useQuery({
-    queryKey: ["products"],
+    queryKey: ["products", createProductLoading],
     queryFn: () => productService.getProducts({}, {}),
   });
   const _onOpenModalCreateProduct = () => {
@@ -53,8 +62,9 @@ const ProductPage = (props: Props) => {
   const handleCloseModalCreateProduct = () => {
     setIsModalCreateProductOpen(false);
   };
-  const handleSubmitCreateProductForm = (data: CreateProductDTO) => {
-    console.log("Submit create product form", data);
+  const handleSubmitCreateProductForm = async (data: CreateProductDTO) => {
+    await hanldeCreateProduct(data);
+    handleCloseModalCreateProduct();
   };
 
   const _onOpenModalCreateCategory = () => {
@@ -104,7 +114,31 @@ const ProductPage = (props: Props) => {
       >
         {products &&
           products.data.map((item) => (
-            <div key={item.id}>{item.name}</div>
+            <Tooltip
+              title={`${item.inventory?.quantity || 0} items in stock`}
+              key={item.id}
+            >
+              <Button
+                itemType="div"
+                className="w-full justify-between"
+                type="text"
+              >
+                {item.name}
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="text"
+                    className="aspect-square rounded-full p-0"
+                  >
+                    <Pencil className="h-4 w-4 stroke-yellow-500" />
+                  </Button>
+                  <ButtonDeleteWithPopover
+                    trigger={"click"}
+                    handleCancel={() => {}}
+                    handleDelete={() => {}}
+                  />
+                </div>
+              </Button>
+            </Tooltip>
           ))}
         <LoadingComponent isLoading={isLoadingProducts} />
       </Card>
@@ -124,7 +158,23 @@ const ProductPage = (props: Props) => {
       >
         {categories &&
           categories.data.map((item) => (
-            <div key={item.id}>{item.name}</div>
+            <Button
+              itemType="div"
+              className="w-full justify-between"
+              type="text"
+            >
+              {item.name}
+              <div className="flex items-center gap-1">
+                <Button type="text" className="aspect-square rounded-full p-0">
+                  <Pencil className="h-4 w-4 stroke-yellow-500" />
+                </Button>
+                <ButtonDeleteWithPopover
+                  trigger={"click"}
+                  handleCancel={() => {}}
+                  handleDelete={() => {}}
+                />
+              </div>
+            </Button>
           ))}
         <LoadingComponent isLoading={isLoadingCategories} />
       </Card>
@@ -144,7 +194,28 @@ const ProductPage = (props: Props) => {
       >
         {discounts &&
           discounts.data.map((item) => (
-            <div key={item.id}>{item.name}</div>
+            <Tooltip title={`${item.discount_percentage || 0}%`} key={item.id}>
+              <Button
+                itemType="div"
+                className="w-full justify-between"
+                type="text"
+              >
+                {item.name}
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="text"
+                    className="aspect-square rounded-full p-0"
+                  >
+                    <Pencil className="h-4 w-4 stroke-yellow-500" />
+                  </Button>
+                  <ButtonDeleteWithPopover
+                    trigger={"click"}
+                    handleCancel={() => {}}
+                    handleDelete={() => {}}
+                  />
+                </div>
+              </Button>
+            </Tooltip>
           ))}
         <LoadingComponent isLoading={isLoadingDiscounts} />
       </Card>
@@ -162,11 +233,13 @@ const ProductPage = (props: Props) => {
         handleSubmitCreateDiscountCampaignForm={
           handleSubmitCreateDiscountCampaignForm
         }
+        loading={createDiscountLoading}
       />
       <CreateProductModal
         isModalCreateProductOpen={isModalCreateProductOpen}
         handleCloseModalCreateProduct={handleCloseModalCreateProduct}
         handleSubmitCreateProductForm={handleSubmitCreateProductForm}
+        loading={createProductLoading}
       />
     </div>
   );

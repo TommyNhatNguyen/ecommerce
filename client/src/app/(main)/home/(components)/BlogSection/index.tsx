@@ -5,8 +5,8 @@ import Container from "@/app/shared/components/Container";
 import Titlegroup from "@/app/shared/components/Titlegroup";
 import { ChevronRightIcon } from "lucide-react";
 import React from "react";
-import mockBlogImage from "../../../../resources/images/homepage/blog-thumb.jpg";
-import mockUserAvatar from "../../../../resources/images/homepage/blog-thumb.jpg";
+import mockBlogImage from "@/app/shared/resources/images/homepage/blog-thumb.jpg";
+import mockUserAvatar from "@/app/shared/resources/images/homepage/blog-thumb.jpg";
 
 type Props = {};
 

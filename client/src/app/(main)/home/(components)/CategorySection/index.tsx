@@ -3,10 +3,10 @@ import Titlegroup from "@/app/shared/components/Titlegroup";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import mockCategoryImage from "../../../../resources/images/homepage/category-1.jpg";
-import mockCategoryImage2 from "../../../../resources/images/homepage/category-2.jpg";
-import mockCategoryImage3 from "../../../../resources/images/homepage/category-3.jpg";
-import mockCategoryImage4 from "../../../../resources/images/homepage/category-4.jpg";
+import mockCategoryImage from "@/app/shared/resources/images/homepage/category-1.jpg";
+import mockCategoryImage2 from "@/app/shared/resources/images/homepage/category-2.jpg";
+import mockCategoryImage3 from "@/app/shared/resources/images/homepage/category-3.jpg";
+import mockCategoryImage4 from "@/app/shared/resources/images/homepage/category-4.jpg";
 import clsx from "clsx";
 
 type Props = {};

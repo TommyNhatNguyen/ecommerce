@@ -1,13 +1,15 @@
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 
 export type CreateProductDTO = {
-  productName: string;
-  category: string[];
-  description: string;
+  name: string;
+  description?: string;
   price: number | string;
-  stock: number | string;
-  discountCampaign: string;
-  status: "publish" | "unpublish";
+  categoryIds: string[];
+  discountIds: string[];
+  variantIds?: string[];
+  imageIds?: string[];
+  quantity: number | string;
+  status: "ACTIVE" | "INACTIVE" | "DELETED";
 };
 
 export type GetProductsBodyDTO = {

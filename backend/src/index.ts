@@ -246,6 +246,6 @@ RolePersistence.belongsToMany(PermissionPersistence, {
   as: permissionModelName.toLowerCase(),
 });
 
-app.listen(port, () => {
+app.listen(3002, () => {
   console.log(`Server is running on: http://localhost:${port}`);
 });

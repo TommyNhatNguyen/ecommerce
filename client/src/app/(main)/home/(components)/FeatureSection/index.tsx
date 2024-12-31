@@ -5,7 +5,7 @@ import Container from "@/app/shared/components/Container";
 import Titlegroup from "@/app/shared/components/Titlegroup";
 import { PlusCircle } from "lucide-react";
 import React from "react";
-import mockProductImage from "../../../../resources/images/homepage/product-1.jpg";
+import mockProductImage from "@/app/shared/resources/images/homepage/product-1.jpg";
 import { ROUTES } from "@/app/constants/routes";
 type Props = {};
 

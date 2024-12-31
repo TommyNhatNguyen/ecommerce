@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import bannerImage from "../../../resources/images/homepage/banner-1.png";
+import bannerImage from "@/app/shared/resources/images/homepage/banner-1.png";
 import Container from "@/app/shared/components/Container";
 type Props = {};
 

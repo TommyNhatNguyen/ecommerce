@@ -1,5 +1,5 @@
 import React from "react";
-import bannerImage from "../../../../resources/images/homepage/subhero-banner.jpg";
+import bannerImage from "@/app/shared/resources/images/homepage/subhero-banner.jpg";
 import Image from "next/image";
 import { ButtonWithLink } from "@/app/shared/components/Button";
 import { ROUTES } from "@/app/constants/routes";

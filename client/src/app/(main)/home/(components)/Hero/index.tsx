@@ -1,5 +1,5 @@
 import React from "react";
-import heroImage from "../../../../resources/images/homepage/hero-banner.jpg";
+import heroImage from "@/app/shared/resources/images/homepage/hero-banner.jpg";
 import { Search } from "lucide-react";
 import Form from "@/app/shared/components/Form";
 import Button from "@/app/shared/components/Button";
