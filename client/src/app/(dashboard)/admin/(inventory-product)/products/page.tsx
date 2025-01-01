@@ -22,6 +22,7 @@ import { discountsService } from "@/app/shared/services/discounts/discountsServi
 import { productService } from "@/app/shared/services/products/productService";
 
 import { getDateFormat } from "@/app/shared/utils/datetime";
+import { CreateCategoryDTO, CreateCategoryFormDTO } from "@/app/shared/interfaces/categories/category.dto";
 
 type Props = {};
 
@@ -120,9 +121,14 @@ const ProductPage = (props: Props) => {
   };
 
   // Handlers for form submissions
-  const handleSubmitCreateCategory = async (data: any) => {
-    await hanldeCreateCategory(data);
-    handleCloseModalCreateCategory();
+  const handleSubmitCreateCategory = async (data: CreateCategoryFormDTO) => {
+    const payload: CreateCategoryDTO = {
+      name: data.name,
+      description: data.description,
+      image_id: data.imageId,
+      status: data.status || "ACTIVE",
+    };
+    await hanldeCreateCategory(payload);
   };
 
   const handleSubmitCreateDiscountCampaignForm = async (data: any) => {

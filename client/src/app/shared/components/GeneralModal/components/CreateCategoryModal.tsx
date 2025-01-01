@@ -1,11 +1,13 @@
 import { ERROR_MESSAGE } from "@/app/constants/errors";
+import { statusOptions } from "@/app/constants/seeds";
 import GeneralModal from "@/app/shared/components/GeneralModal";
 import InputAdmin from "@/app/shared/components/InputAdmin";
-import { Button, Input, Upload } from "antd";
+import { CreateCategoryFormDTO } from "@/app/shared/interfaces/categories/category.dto";
+import { imagesService } from "@/app/shared/services/images/imagesService";
+import { Button, Input, Select, Upload, UploadFile } from "antd";
 import { PlusIcon } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-
 type CreateCategoryModalPropsType = {
   isModalCreateCategoryOpen: boolean;
   handleCloseModalCreateCategory: () => void;
@@ -24,14 +26,56 @@ const CreateCategoryModal = ({
     formState: { errors },
     reset,
     control,
-  } = useForm();
+  } = useForm<CreateCategoryFormDTO>({
+    defaultValues: {
+      name: "",
+      description: "",
+      status: "ACTIVE",
+    },
+  });
+  const [file, setFile] = useState<UploadFile>();
+  const [uploadImageLoading, setUploadImageLoading] = useState(false);
+  const createCategoryLoading = uploadImageLoading || loading;
+  const _onChangeFile = (file: UploadFile) => {
+    setFile(file);
+  };
+  const _onRemoveFile = () => {
+    console.log(file);
+    setFile(undefined);
+  };
+  const _onSubmitFileList = async () => {
+    if (!file?.originFileObj) return;
+    setUploadImageLoading(true);
+    try {
+      const response = await imagesService.uploadImage(file.originFileObj);
+      if (response) {
+        return response.data.id;
+      } else {
+        throw new Error("Failed to upload image");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setUploadImageLoading(false);
+    }
+  };
   const _onCloseModalCreateCategory = () => {
     handleCloseModalCreateCategory();
+    setFile(undefined);
     reset();
   };
-  const _onConfirmCreateCategory = (data: any) => {
-    handleSubmitCreateCategoryForm(data);
-    reset();
+
+  const _onConfirmCreateCategory = async (data: any) => {
+    const payload: CreateCategoryFormDTO = {
+      ...data,
+    };
+    if (file) {
+      const imageId = await _onSubmitFileList();
+      if (!imageId) return;
+      payload.imageId = imageId;
+    }
+    handleSubmitCreateCategoryForm(payload);
+    _onCloseModalCreateCategory();
   };
   const _renderFooterModalCreateCategory = () => {
     return (
@@ -90,20 +134,45 @@ const CreateCategoryModal = ({
               />
             )}
           />
+          <InputAdmin
+            label="Status"
+            placeholder="Status"
+            required={true}
+            customComponent={(props: any, ref: any) => (
+              <Controller
+                control={control}
+                name="status"
+                render={({ field }) => (
+                  <Select
+                    options={statusOptions}
+                    placeholder="Select Status"
+                    value={field.value}
+                    onChange={field.onChange}
+                    {...props}
+                    ref={ref}
+                  />
+                )}
+              />
+            )}
+          />
         </div>
         <div className="mt-4">
           <InputAdmin
-            label="Product Image"
+            label="Category Image"
             required={true}
-            placeholder="Product Image"
+            placeholder="Category Image"
             customComponent={() => (
               <Upload
-                action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
-                listType="picture-card"
                 accept=".jpg,.jpeg,.png,.gif,.webp"
-                // fileList={fileList}
-                // onChange={onChange}
-                // onPreview={onPreview}
+                listType="picture-card"
+                fileList={file ? [file] : undefined}
+                maxCount={1}
+                onChange={(info) => {
+                  _onChangeFile(info.file);
+                }}
+                onRemove={(file) => {
+                  _onRemoveFile();
+                }}
               >
                 <PlusIcon className="h-4 w-4" />
               </Upload>
@@ -120,7 +189,7 @@ const CreateCategoryModal = ({
       renderContent={_renderContentModalCreateCategory}
       renderFooter={_renderFooterModalCreateCategory}
       onCancel={_onCloseModalCreateCategory}
-      loading={loading}
+      loading={createCategoryLoading}
     />
   );
 };

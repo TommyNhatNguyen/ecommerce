@@ -108,11 +108,16 @@ const CreateProductModal = ({
     setCreateProductForm((prev) => ({ ...prev, discountIds: [] }));
   };
 
+  const _onClearAllImages = () => {
+    setCreateProductForm((prev) => ({ ...prev, imageFileList: [] }));
+  };
+
   const _onCloseModalCreateProduct = () => {
     handleCloseModalCreateProduct();
     reset();
     _onClearAllCategories();
     _onClearAllDiscounts();
+    _onClearAllImages();
   };
 
   const _onSubmitFileList = async () => {
@@ -121,11 +126,17 @@ const CreateProductModal = ({
     try {
       const response = await Promise.all(
         createProductForm.imageFileList.map(async (file) => {
-          return await imagesService.uploadImage(file);
+          if (!file?.originFileObj) return;
+          const response = await imagesService.uploadImage(file.originFileObj);
+          if (response) {
+            return response.data;
+          } else {
+            throw new Error("Failed to upload image");
+          }
         }),
       );
       if (response.length > 0) {
-        const imageIds = response.map((item) => item.data.id);
+        const imageIds = response.map((item) => item.id);
         return imageIds;
       } else {
         throw new Error("Failed to upload image");
@@ -187,10 +198,10 @@ const CreateProductModal = ({
     setCreateProductForm((prev) => ({ ...prev, status: value }));
   };
 
-  const _onChangeFileList = (file: UploadFile) => {
+  const _onChangeFileList = (fileList: UploadFile[]) => {
     setCreateProductForm((prev) => ({
       ...prev,
-      imageFileList: [...(prev.imageFileList || []), file],
+      imageFileList: fileList,
     }));
   };
 
@@ -201,7 +212,6 @@ const CreateProductModal = ({
         prev.imageFileList?.filter((item) => item.uid !== file.uid) || [],
     }));
   };
-
   // Render functions
   const _renderTitleModalCreateProduct = () => {
     return <h1 className="text-2xl font-bold">Create Product</h1>;
@@ -416,9 +426,10 @@ const CreateProductModal = ({
               <Upload
                 listType="picture-card"
                 accept=".jpg,.jpeg,.png,.gif,.webp"
-                beforeUpload={(file) => {
-                  _onChangeFileList(file);
-                  return false;
+                multiple={true}
+                fileList={createProductForm.imageFileList}
+                onChange={(info) => {
+                  _onChangeFileList(info.fileList);
                 }}
                 onRemove={(file) => {
                   _onRemoveFileList(file);

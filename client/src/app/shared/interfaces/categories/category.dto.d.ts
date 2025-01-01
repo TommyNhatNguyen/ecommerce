@@ -1,7 +1,17 @@
+import { ModelStatus } from "@/app/shared/models/others/status.model";
+
 export type CreateCategoryDTO = {
   name: string;
   description?: string;
-  status?: "publish" | "unpublish";
+  status?: ModelStatus;
+  image_id?: string;
+};
+
+export type CreateCategoryFormDTO = {
+  name: string;
+  description?: string;
+  imageId?: string;
+  status?: ModelStatus;
 };
 
 export type GetCategoriesBodyDTO = {

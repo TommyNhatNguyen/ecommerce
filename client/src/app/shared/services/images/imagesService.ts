@@ -1,8 +1,9 @@
 import { axiosInstance } from "@/app/shared/utils/axiosInstance";
 import { UploadFile } from "antd";
+import { RcFile } from "antd/es/upload";
 
 export const imagesService = {
-  uploadImage: async (file: UploadFile) => {
+  uploadImage: async (file: RcFile) => {
     const response = await axiosInstance.post(
       "/image",
       {
