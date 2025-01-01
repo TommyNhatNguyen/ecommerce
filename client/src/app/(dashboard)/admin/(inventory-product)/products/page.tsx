@@ -1,31 +1,39 @@
 "use client";
+
+import React, { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Button, Card, Empty, Tooltip } from "antd";
+import {  Pencil, PlusIcon, Trash2Icon } from "lucide-react";
+
 import { useCategory } from "@/app/(dashboard)/admin/(inventory-product)/products/hooks/useCategory";
 import { useDiscounts } from "@/app/(dashboard)/admin/(inventory-product)/products/hooks/useDiscounts";
 import { useProducts } from "@/app/(dashboard)/admin/(inventory-product)/products/hooks/useProduct";
-import { useNotification } from "@/app/contexts/NotificationContext";
+
 import CreateCategoryModal from "@/app/shared/components/GeneralModal/components/CreateCategoryModal";
 import CreateDiscountModal from "@/app/shared/components/GeneralModal/components/CreateDiscountModal";
 import CreateProductModal from "@/app/shared/components/GeneralModal/components/CreateProductModal";
 import LoadingComponent from "@/app/shared/components/LoadingComponent";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
+
 import { CreateDiscountDTO } from "@/app/shared/interfaces/discounts/discounts.dto";
-import { CreateProductDTO } from "@/app/shared/interfaces/products/product.dto";
+
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { discountsService } from "@/app/shared/services/discounts/discountsService";
 import { productService } from "@/app/shared/services/products/productService";
+
 import { getDateFormat } from "@/app/shared/utils/datetime";
-import { useQuery } from "@tanstack/react-query";
-import { Button, Card, Empty, Tooltip } from "antd";
-import { Eye, Pencil, PlusIcon, Trash2Icon } from "lucide-react";
-import React, { useState } from "react";
 
 type Props = {};
+
+// Button with delete confirmation popover
 const ButtonDeleteWithPopover = withDeleteConfirmPopover(
   <Button type="text" className="aspect-square rounded-full p-0">
     <Trash2Icon className="h-4 w-4 stroke-red-500" />
   </Button>,
 );
+
 const ProductPage = (props: Props) => {
+  // State management for modals
   const [isModalCreateProductOpen, setIsModalCreateProductOpen] =
     useState(false);
   const [isModalCreateCategoryOpen, setIsModalCreateCategoryOpen] =
@@ -34,70 +42,89 @@ const ProductPage = (props: Props) => {
     isModalCreateDiscountCampaignOpen,
     setIsModalCreateDiscountCampaignOpen,
   ] = useState(false);
+
+  // Hooks for category, discount, and product management
   const {
     loading: createCategoryLoading,
     hanldeCreateCategory,
     hanldeDeleteCategory,
     loadingDelete: deleteCategoryLoading,
   } = useCategory();
+
   const {
     loading: createDiscountLoading,
     hanldeCreateDiscount,
     hanldeDeleteDiscount,
     loadingDelete: deleteDiscountLoading,
   } = useDiscounts();
+
   const { loadingDelete: deleteProductLoading, handleDeleteProduct } =
     useProducts();
-  const { loading: createProductLoading, hanldeCreateProduct } = useProducts();
+
+  // Queries for fetching data
   const { data: categories, isLoading: isLoadingCategories } = useQuery({
     queryKey: ["categories", createCategoryLoading, deleteCategoryLoading],
     queryFn: () => categoriesService.getCategories({}, {}),
   });
+
   const { data: discounts, isLoading: isLoadingDiscounts } = useQuery({
     queryKey: ["discounts", createDiscountLoading, deleteDiscountLoading],
     queryFn: () => discountsService.getDiscounts(),
   });
-  const { data: products, isLoading: isLoadingProducts } = useQuery({
-    queryKey: ["products", createProductLoading, deleteProductLoading],
+
+  const {
+    data: products,
+    isLoading: isLoadingProducts,
+    refetch,
+  } = useQuery({
+    queryKey: ["products", deleteProductLoading],
     queryFn: () => productService.getProducts({}),
   });
+
+  // Handlers for delete actions
   const _onDeleteProduct = async (id: string) => {
     await handleDeleteProduct(id);
   };
+
   const _onDeleteCategory = async (id: string) => {
     await hanldeDeleteCategory(id);
   };
+
   const _onDeleteDiscount = async (id: string) => {
     await hanldeDeleteDiscount(id);
   };
+
+  // Handlers for opening and closing modals
   const _onOpenModalCreateProduct = () => {
     setIsModalCreateProductOpen(true);
   };
+
   const handleCloseModalCreateProduct = () => {
     setIsModalCreateProductOpen(false);
-  };
-  const handleSubmitCreateProductForm = async (data: CreateProductDTO) => {
-    await hanldeCreateProduct(data);
-    handleCloseModalCreateProduct();
   };
 
   const _onOpenModalCreateCategory = () => {
     setIsModalCreateCategoryOpen(true);
   };
+
   const handleCloseModalCreateCategory = () => {
     setIsModalCreateCategoryOpen(false);
-  };
-  const handleSubmitCreateCategory = async (data: any) => {
-    await hanldeCreateCategory(data);
-    handleCloseModalCreateCategory();
   };
 
   const _onOpenModalCreateDiscountCampaign = () => {
     setIsModalCreateDiscountCampaignOpen(true);
   };
+
   const handleCloseModalCreateDiscountCampaign = () => {
     setIsModalCreateDiscountCampaignOpen(false);
   };
+
+  // Handlers for form submissions
+  const handleSubmitCreateCategory = async (data: any) => {
+    await hanldeCreateCategory(data);
+    handleCloseModalCreateCategory();
+  };
+
   const handleSubmitCreateDiscountCampaignForm = async (data: any) => {
     const payload: CreateDiscountDTO = {
       name: data.name,
@@ -106,13 +133,13 @@ const ProductPage = (props: Props) => {
       start_date: data.startDate.format(getDateFormat()),
       end_date: data.endDate.format(getDateFormat()),
     };
-    console.log(payload);
     await hanldeCreateDiscount(payload);
     handleCloseModalCreateDiscountCampaign();
   };
 
   return (
     <div className="grid min-h-[300px] grid-flow-row grid-cols-3 gap-4">
+      {/* Product Card */}
       <Card
         title="Product"
         className="h-full max-h-[300px] flex-1 overflow-y-auto"
@@ -163,6 +190,8 @@ const ProductPage = (props: Props) => {
         )}
         <LoadingComponent isLoading={isLoadingProducts} />
       </Card>
+
+      {/* Category Card */}
       <Card
         title="Category"
         className="relative h-full max-h-[300px] overflow-y-auto"
@@ -207,6 +236,8 @@ const ProductPage = (props: Props) => {
         )}
         <LoadingComponent isLoading={isLoadingCategories} />
       </Card>
+
+      {/* Discount Campaign Card */}
       <Card
         title="Discount Campaign"
         className="h-full max-h-[300px] overflow-y-auto"
@@ -254,6 +285,8 @@ const ProductPage = (props: Props) => {
         )}
         <LoadingComponent isLoading={isLoadingDiscounts} />
       </Card>
+
+      {/* Modals */}
       <CreateCategoryModal
         isModalCreateCategoryOpen={isModalCreateCategoryOpen}
         handleCloseModalCreateCategory={handleCloseModalCreateCategory}
@@ -273,8 +306,7 @@ const ProductPage = (props: Props) => {
       <CreateProductModal
         isModalCreateProductOpen={isModalCreateProductOpen}
         handleCloseModalCreateProduct={handleCloseModalCreateProduct}
-        handleSubmitCreateProductForm={handleSubmitCreateProductForm}
-        loading={createProductLoading}
+        refetch={refetch}
       />
     </div>
   );

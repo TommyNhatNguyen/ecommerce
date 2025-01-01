@@ -16,7 +16,7 @@ export class ImageHttpService {
         res.status(404).json({ message: 'Image not found' });
         return;
       }
-      res.status(200).json({ message: 'Image retrieved successfully', data: image });
+      res.status(200).json({ message: 'Image retrieved successfully',  ...image });
     } catch (error) {
       res.status(500).json({ message: 'Failed to retrieve image' });
       return;
@@ -34,7 +34,7 @@ export class ImageHttpService {
         res.status(404).json({ message: 'Images not found' });
         return;
       }
-      res.status(200).json({ message: 'Images retrieved successfully', data: images });
+      res.status(200).json({ message: 'Images retrieved successfully', ...images });
     } catch (error) {
       res.status(500).json({ message: 'Failed to retrieve images' });
       return;
@@ -50,7 +50,7 @@ export class ImageHttpService {
       const image = await this.useCase.createImage(data);
       res
         .status(200)
-        .json({ message: 'Image created successfully', data: image });
+        .json({ message: 'Image created successfully', ...image });
     } catch (error) {
       res.status(500).json({ message: 'Failed to create image' });
       return;
@@ -72,7 +72,7 @@ export class ImageHttpService {
       const updatedImage = await this.useCase.updateImage(id, data);
       res
         .status(200)
-        .json({ message: 'Image updated successfully', data: updatedImage });
+        .json({ message: 'Image updated successfully', ...updatedImage });
     } catch (error) {
       res.status(500).json({ message: 'Failed to update image' });
       return;

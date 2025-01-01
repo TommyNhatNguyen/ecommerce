@@ -1,6 +1,19 @@
 import { ModelStatus } from "@/app/shared/models/others/status.model";
+import { UploadFile } from "antd";
 
 export type CreateProductDTO = {
+  name: string;
+  description?: string;
+  price: number | string;
+  categoryIds: string[];
+  discountIds: string[];
+  variantIds?: string[];
+  imageFileList?: UploadFile[];
+  quantity: number | string;
+  status: "ACTIVE" | "INACTIVE" | "DELETED";
+};
+
+export type CreateProductBodyDTO = {
   name: string;
   description?: string;
   price: number | string;

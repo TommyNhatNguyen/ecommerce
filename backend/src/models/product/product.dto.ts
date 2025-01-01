@@ -18,6 +18,7 @@ export const ProductCreateDTOSchema = z.object({
   variantIds: z.array(z.string().uuid()).optional(),
   imageIds: z.array(z.string().uuid()).optional(),
   quantity: z.number().nonnegative().min(0).optional(),
+  status: z.nativeEnum(ModelStatus).optional(),
 });
 
 export const ProductUpdateDTOSchema = z.object({

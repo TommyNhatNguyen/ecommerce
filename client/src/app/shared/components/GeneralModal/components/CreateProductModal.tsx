@@ -3,11 +3,6 @@
 import React, { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
-  dataSource,
-  discountCampaigns,
-  statusOptions,
-} from "@/app/constants/seeds";
-import {
   Button,
   Checkbox,
   CheckboxProps,
@@ -15,31 +10,40 @@ import {
   Input,
   Select,
   Upload,
+  UploadFile,
 } from "antd";
+import { PlusIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+
+import { statusOptions } from "@/app/constants/seeds";
 import { ERROR_MESSAGE } from "@/app/constants/errors";
 import InputAdmin from "@/app/shared/components/InputAdmin";
-import { PlusIcon } from "lucide-react";
 import GeneralModal from "@/app/shared/components/GeneralModal";
-import { useQuery } from "@tanstack/react-query";
-import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import LoadingComponent from "@/app/shared/components/LoadingComponent";
+
+import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { discountsService } from "@/app/shared/services/discounts/discountsService";
-import { CreateProductDTO } from "@/app/shared/interfaces/products/product.dto";
+import { imagesService } from "@/app/shared/services/images/imagesService";
+import { useCreateProductModal } from "@/app/shared/components/GeneralModal/hooks/useCreateProductModal";
+
+import {
+  CreateProductBodyDTO,
+  CreateProductDTO,
+} from "@/app/shared/interfaces/products/product.dto";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 
 type CreateProductModalPropsType = {
   isModalCreateProductOpen: boolean;
   handleCloseModalCreateProduct: () => void;
-  handleSubmitCreateProductForm: (data: CreateProductDTO) => void;
-  loading?: boolean;
+  refetch: () => void;
 };
 
 const CreateProductModal = ({
   isModalCreateProductOpen,
   handleCloseModalCreateProduct,
-  handleSubmitCreateProductForm,
-  loading = false,
+  refetch,
 }: CreateProductModalPropsType) => {
+  // State management
   const [createProductForm, setCreateProductForm] = useState<CreateProductDTO>({
     name: "",
     categoryIds: [],
@@ -48,17 +52,23 @@ const CreateProductModal = ({
     quantity: "",
     discountIds: [],
     status: "ACTIVE",
+    imageFileList: [],
   });
+  const [uploadImageLoading, setUploadImageLoading] = useState(false);
   const [isDropdownVisible, setIsDropdownVisible] = useState({
     category: false,
     discountCampaign: false,
   });
+
+  // Form handling
   const {
     handleSubmit,
     formState: { errors },
     reset,
     control,
   } = useForm();
+
+  // Queries
   const { data: categories, isLoading: isLoadingCategories } = useQuery({
     queryKey: ["categories"],
     queryFn: () => categoriesService.getCategories({}, {}),
@@ -69,6 +79,12 @@ const CreateProductModal = ({
     queryFn: () => discountsService.getDiscounts(),
     enabled: isDropdownVisible.discountCampaign,
   });
+
+  // Custom hooks
+  const { hanldeCreateProduct, loading } = useCreateProductModal();
+  const createProductLoading = loading || uploadImageLoading;
+
+  // Checkbox states
   const checkAll =
     categories &&
     categories.data.length === createProductForm.categoryIds.length;
@@ -82,42 +98,67 @@ const CreateProductModal = ({
     discounts &&
     createProductForm.discountIds.length > 0 &&
     createProductForm.discountIds.length < discounts.data.length;
+
+  // Handlers
   const _onClearAllCategories = () => {
-    setCreateProductForm((prev) => ({
-      ...prev,
-      categoryIds: [],
-    }));
+    setCreateProductForm((prev) => ({ ...prev, categoryIds: [] }));
   };
+
   const _onClearAllDiscounts = () => {
-    setCreateProductForm((prev) => ({
-      ...prev,
-      discountIds: [],
-    }));
+    setCreateProductForm((prev) => ({ ...prev, discountIds: [] }));
   };
+
   const _onCloseModalCreateProduct = () => {
     handleCloseModalCreateProduct();
     reset();
     _onClearAllCategories();
     _onClearAllDiscounts();
   };
-  const _onConfirmCreateProduct: SubmitHandler<any> = (data) => {
-    const payload: CreateProductDTO = {
+
+  const _onSubmitFileList = async () => {
+    if (!createProductForm.imageFileList) return;
+    setUploadImageLoading(true);
+    try {
+      const response = await Promise.all(
+        createProductForm.imageFileList.map(async (file) => {
+          return await imagesService.uploadImage(file);
+        }),
+      );
+      if (response.length > 0) {
+        const imageIds = response.map((item) => item.data.id);
+        return imageIds;
+      } else {
+        throw new Error("Failed to upload image");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setUploadImageLoading(false);
+    }
+  };
+
+  const _onConfirmCreateProduct: SubmitHandler<any> = async (data) => {
+    const payload: CreateProductBodyDTO = {
       ...createProductForm,
       ...data,
       price: Number(data.price),
       quantity: Number(data.quantity),
     };
-    handleSubmitCreateProductForm(payload);
-    reset();
+    if (createProductForm.imageFileList) {
+      const imageIds = await _onSubmitFileList();
+      payload.imageIds = imageIds;
+    }
+    await hanldeCreateProduct(payload);
+    refetch();
+    _onCloseModalCreateProduct();
     _onClearAllCategories();
     _onClearAllDiscounts();
   };
+
   const _onChangeCategories = (list: string[]) => {
-    setCreateProductForm((prev) => ({
-      ...prev,
-      categoryIds: list,
-    }));
+    setCreateProductForm((prev) => ({ ...prev, categoryIds: list }));
   };
+
   const _onCheckAllCategories: CheckboxProps["onChange"] = (e) => {
     setCreateProductForm((prev) => ({
       ...prev,
@@ -129,11 +170,9 @@ const CreateProductModal = ({
   };
 
   const _onChangeDiscountCampaign = (value: string[]) => {
-    setCreateProductForm((prev) => ({
-      ...prev,
-      discountIds: value,
-    }));
+    setCreateProductForm((prev) => ({ ...prev, discountIds: value }));
   };
+
   const _onCheckAllDiscounts: CheckboxProps["onChange"] = (e) => {
     setCreateProductForm((prev) => ({
       ...prev,
@@ -145,14 +184,29 @@ const CreateProductModal = ({
   };
 
   const _onChangeStatus = (value: ModelStatus) => {
+    setCreateProductForm((prev) => ({ ...prev, status: value }));
+  };
+
+  const _onChangeFileList = (file: UploadFile) => {
     setCreateProductForm((prev) => ({
       ...prev,
-      status: value,
+      imageFileList: [...(prev.imageFileList || []), file],
     }));
   };
+
+  const _onRemoveFileList = (file: UploadFile) => {
+    setCreateProductForm((prev) => ({
+      ...prev,
+      imageFileList:
+        prev.imageFileList?.filter((item) => item.uid !== file.uid) || [],
+    }));
+  };
+
+  // Render functions
   const _renderTitleModalCreateProduct = () => {
     return <h1 className="text-2xl font-bold">Create Product</h1>;
   };
+
   const _renderContentModalCreateProduct = () => {
     return (
       <>
@@ -360,22 +414,26 @@ const CreateProductModal = ({
             placeholder="Product Image"
             customComponent={() => (
               <Upload
-                action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
                 listType="picture-card"
                 accept=".jpg,.jpeg,.png,.gif,.webp"
-                // fileList={fileList}
-                // onChange={onChange}
-                // onPreview={onPreview}
+                beforeUpload={(file) => {
+                  _onChangeFileList(file);
+                  return false;
+                }}
+                onRemove={(file) => {
+                  _onRemoveFileList(file);
+                }}
               >
                 <PlusIcon className="h-4 w-4" />
               </Upload>
             )}
           />
         </div>
-        <LoadingComponent isLoading={loading} />
+        <LoadingComponent isLoading={createProductLoading} />
       </>
     );
   };
+
   const _renderFooterModalCreateProduct = () => {
     return (
       <div className="flex items-center justify-end gap-2">
@@ -392,6 +450,7 @@ const CreateProductModal = ({
       </div>
     );
   };
+
   return (
     <GeneralModal
       renderTitle={_renderTitleModalCreateProduct}

@@ -77,9 +77,11 @@ const InventoryTable = (props: Props) => {
   const handleCloseModalCreateProduct = () => {
     setIsModalCreateProductOpen(false);
   };
-  const handleSubmitCreateProductForm = (data: CreateProductDTO) => {
-    console.log("Submit create product form", data);
-  };
+  // const handleSubmitCreateProductForm = (data: CreateProductDTO) => {
+  //   await hanldeCreateProduct(data);
+  //   handleCloseModalCreateProduct();
+  // };
+  
   /**
    * -----------------------
    * TABLE
@@ -122,6 +124,7 @@ const InventoryTable = (props: Props) => {
     data: inventories,
     isLoading,
     isError,
+    refetch,
   } = useQuery({
     queryKey: ["inventories"],
     queryFn: () =>
@@ -338,7 +341,7 @@ const InventoryTable = (props: Props) => {
       <CreateProductModal
         isModalCreateProductOpen={isModalCreateProductOpen}
         handleCloseModalCreateProduct={handleCloseModalCreateProduct}
-        handleSubmitCreateProductForm={handleSubmitCreateProductForm}
+        refetch={refetch}
       />
     </>
   );
