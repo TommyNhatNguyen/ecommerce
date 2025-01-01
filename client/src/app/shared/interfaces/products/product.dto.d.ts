@@ -13,6 +13,8 @@ export type CreateProductDTO = {
 };
 
 export type GetProductsBodyDTO = {
+  limit?: number;
+  page?: number;
   status?: ModelStatus;
   minPrice?: number | string;
   maxPrice?: number | string;

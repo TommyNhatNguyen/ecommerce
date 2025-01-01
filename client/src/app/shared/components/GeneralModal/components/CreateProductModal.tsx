@@ -1,30 +1,38 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import React, { useState } from "react";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
   dataSource,
   discountCampaigns,
   statusOptions,
 } from "@/app/constants/seeds";
-import { Button, Checkbox, CheckboxProps, Input, Select, Upload } from 'antd';
-import { ERROR_MESSAGE } from '@/app/constants/errors';
-import InputAdmin from '@/app/shared/components/InputAdmin';
-import { PlusIcon } from 'lucide-react';
-import GeneralModal from '@/app/shared/components/GeneralModal';
-import { useQuery } from '@tanstack/react-query';
-import { categoriesService } from '@/app/shared/services/categories/categoriesService';
-import LoadingComponent from '@/app/shared/components/LoadingComponent';
-import { discountsService } from '@/app/shared/services/discounts/discountsService';
+import {
+  Button,
+  Checkbox,
+  CheckboxProps,
+  Empty,
+  Input,
+  Select,
+  Upload,
+} from "antd";
+import { ERROR_MESSAGE } from "@/app/constants/errors";
+import InputAdmin from "@/app/shared/components/InputAdmin";
+import { PlusIcon } from "lucide-react";
+import GeneralModal from "@/app/shared/components/GeneralModal";
+import { useQuery } from "@tanstack/react-query";
+import { categoriesService } from "@/app/shared/services/categories/categoriesService";
+import LoadingComponent from "@/app/shared/components/LoadingComponent";
+import { discountsService } from "@/app/shared/services/discounts/discountsService";
 import { CreateProductDTO } from "@/app/shared/interfaces/products/product.dto";
-import { ModelStatus } from '@/app/shared/models/others/status.model';
+import { ModelStatus } from "@/app/shared/models/others/status.model";
 
 type CreateProductModalPropsType = {
   isModalCreateProductOpen: boolean;
   handleCloseModalCreateProduct: () => void;
   handleSubmitCreateProductForm: (data: CreateProductDTO) => void;
   loading?: boolean;
-}
+};
 
 const CreateProductModal = ({
   isModalCreateProductOpen,
@@ -56,49 +64,54 @@ const CreateProductModal = ({
     queryFn: () => categoriesService.getCategories({}, {}),
     enabled: isDropdownVisible.category,
   });
-  const {data: discounts, isLoading: isLoadingDiscounts} = useQuery({
+  const { data: discounts, isLoading: isLoadingDiscounts } = useQuery({
     queryKey: ["discounts"],
     queryFn: () => discountsService.getDiscounts(),
     enabled: isDropdownVisible.discountCampaign,
   });
-  const checkAll = categories && categories.data.length === createProductForm.categoryIds.length;
-  const indeterminate = categories &&
+  const checkAll =
+    categories &&
+    categories.data.length === createProductForm.categoryIds.length;
+  const indeterminate =
+    categories &&
     createProductForm.categoryIds.length > 0 &&
     createProductForm.categoryIds.length < categories.data.length;
-  const checkAllDiscounts = discounts && discounts.data.length === createProductForm.discountIds.length;
-  const indeterminateDiscounts = discounts &&
+  const checkAllDiscounts =
+    discounts && discounts.data.length === createProductForm.discountIds.length;
+  const indeterminateDiscounts =
+    discounts &&
     createProductForm.discountIds.length > 0 &&
     createProductForm.discountIds.length < discounts.data.length;
-    const _onClearAllCategories = () => {
-      setCreateProductForm((prev) => ({
-        ...prev,
-        categoryIds: [],
-      }));
+  const _onClearAllCategories = () => {
+    setCreateProductForm((prev) => ({
+      ...prev,
+      categoryIds: [],
+    }));
+  };
+  const _onClearAllDiscounts = () => {
+    setCreateProductForm((prev) => ({
+      ...prev,
+      discountIds: [],
+    }));
+  };
+  const _onCloseModalCreateProduct = () => {
+    handleCloseModalCreateProduct();
+    reset();
+    _onClearAllCategories();
+    _onClearAllDiscounts();
+  };
+  const _onConfirmCreateProduct: SubmitHandler<any> = (data) => {
+    const payload: CreateProductDTO = {
+      ...createProductForm,
+      ...data,
+      price: Number(data.price),
+      quantity: Number(data.quantity),
     };
-    const _onClearAllDiscounts = () => {
-      setCreateProductForm((prev) => ({
-        ...prev,
-        discountIds: [],
-      }));
-    };
-    const _onCloseModalCreateProduct = () => {
-      handleCloseModalCreateProduct();
-      reset();
-      _onClearAllCategories();
-      _onClearAllDiscounts();
-    };
-    const _onConfirmCreateProduct: SubmitHandler<any> = (data) => {
-      const payload: CreateProductDTO = {
-        ...createProductForm,
-        ...data,
-        price: Number(data.price),
-        quantity: Number(data.quantity),
-      };
-      handleSubmitCreateProductForm(payload);
-      reset();
-      _onClearAllCategories();
-      _onClearAllDiscounts();
-    };
+    handleSubmitCreateProductForm(payload);
+    reset();
+    _onClearAllCategories();
+    _onClearAllDiscounts();
+  };
   const _onChangeCategories = (list: string[]) => {
     setCreateProductForm((prev) => ({
       ...prev,
@@ -108,10 +121,13 @@ const CreateProductModal = ({
   const _onCheckAllCategories: CheckboxProps["onChange"] = (e) => {
     setCreateProductForm((prev) => ({
       ...prev,
-      categoryIds: e.target.checked && categories ? categories?.data.map((item) => item.id) : [],
+      categoryIds:
+        e.target.checked && categories
+          ? categories?.data.map((item) => item.id)
+          : [],
     }));
   };
-  
+
   const _onChangeDiscountCampaign = (value: string[]) => {
     setCreateProductForm((prev) => ({
       ...prev,
@@ -121,10 +137,13 @@ const CreateProductModal = ({
   const _onCheckAllDiscounts: CheckboxProps["onChange"] = (e) => {
     setCreateProductForm((prev) => ({
       ...prev,
-      discountIds: e.target.checked && discounts ? discounts?.data.map((item) => item.id) : [],
+      discountIds:
+        e.target.checked && discounts
+          ? discounts?.data.map((item) => item.id)
+          : [],
     }));
   };
-  
+
   const _onChangeStatus = (value: ModelStatus) => {
     setCreateProductForm((prev) => ({
       ...prev,
@@ -180,8 +199,8 @@ const CreateProductModal = ({
                 allowClear={true}
                 mode="multiple"
                 onChange={_onChangeCategories}
-                dropdownRender={(menu) => (
-                  <>
+                dropdownRender={(menu) =>
+                  categories?.data && categories?.data.length > 0 ? (
                     <div className="flex flex-col gap-2 p-2">
                       <Checkbox
                         className="font-medium"
@@ -204,8 +223,12 @@ const CreateProductModal = ({
                       />
                       <LoadingComponent isLoading={isLoadingCategories} />
                     </div>
-                  </>
-                )}
+                  ) : (
+                    <div className="flex items-center justify-center">
+                      <Empty description="No categories found" />
+                    </div>
+                  )
+                }
               />
             )}
           />
@@ -283,8 +306,8 @@ const CreateProductModal = ({
                 allowClear={true}
                 mode="multiple"
                 onChange={_onChangeDiscountCampaign}
-                dropdownRender={(menu) => (
-                  <>
+                dropdownRender={(menu) =>
+                  discounts?.data && discounts?.data.length > 0 ? (
                     <div className="flex flex-col gap-2 p-2">
                       <Checkbox
                         className="font-medium"
@@ -307,8 +330,12 @@ const CreateProductModal = ({
                       />
                       <LoadingComponent isLoading={isLoadingDiscounts} />
                     </div>
-                  </>
-                )}
+                  ) : (
+                    <div className="flex items-center justify-center">
+                      <Empty description="No discount campaigns found" />
+                    </div>
+                  )
+                }
               />
             )}
           />
@@ -351,7 +378,7 @@ const CreateProductModal = ({
   };
   const _renderFooterModalCreateProduct = () => {
     return (
-      <div className="flex justify-end gap-2 items-center">
+      <div className="flex items-center justify-end gap-2">
         <Button type="default" onClick={_onCloseModalCreateProduct}>
           Cancel
         </Button>
@@ -377,4 +404,4 @@ const CreateProductModal = ({
   );
 };
 
-export default CreateProductModal
+export default CreateProductModal;

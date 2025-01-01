@@ -5,6 +5,11 @@ import { Sequelize, where } from 'sequelize';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
+// export class CloudinaryImageRepository implements IImageRepository {
+//   constructor(private readonly cloudinary: Cloudinary) {}
+// }
+
+
 export class PostgresImageRepository implements IImageRepository {
   constructor(
     private readonly squelize: Sequelize,

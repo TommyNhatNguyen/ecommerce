@@ -1,6 +1,7 @@
 var cors = require('cors');
 import express from 'express';
 import { config } from 'dotenv';
+import path from 'path';
 import { sequelize } from 'src/share/sequelize';
 import { setupProductRouter } from 'src/routers/product';
 import setupCategoryRouter from 'src/routers/category';
@@ -65,6 +66,7 @@ import {
   permissionRoleModelName,
 } from 'src/infras/repository/permission/dto';
 config();
+
 
 (async () => {
   try {
@@ -246,6 +248,8 @@ RolePersistence.belongsToMany(PermissionPersistence, {
   as: permissionModelName.toLowerCase(),
 });
 
-app.listen(3002, () => {
+console.log(path.join(__dirname, "storage", "images"))
+
+app.listen(port, () => {
   console.log(`Server is running on: http://localhost:${port}`);
 });

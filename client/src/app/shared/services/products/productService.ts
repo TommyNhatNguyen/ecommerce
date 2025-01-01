@@ -7,18 +7,20 @@ import { ProductModel } from "@/app/shared/models/products/products.model";
 import { axiosInstance } from "@/app/shared/utils/axiosInstance";
 
 export const productService = {
-  createProduct: async (data: CreateProductDTO) : Promise<ProductModel> => {
+  createProduct: async (data: CreateProductDTO): Promise<ProductModel> => {
     const response = await axiosInstance.post("/products", data);
     return response.data;
   },
   getProducts: async (
-    query: any,
-    data: GetProductsBodyDTO,
+    query: GetProductsBodyDTO,
   ): Promise<ListResponseModel<ProductModel>> => {
     const response = await axiosInstance.get("/products", {
       params: query,
-      data: data,
     });
     return response.data;
+  },
+  deleteProduct: async (id: string): Promise<boolean> => {
+    const response = await axiosInstance.delete(`/products/${id}`);
+    return !!response.data;
   },
 };

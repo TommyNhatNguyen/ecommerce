@@ -5,6 +5,7 @@ import InputAdmin from "@/app/shared/components/InputAdmin";
 import { Button, Input } from "antd";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
+import { formatDiscountPercentage } from "@/app/shared/utils/utils";
 
 type CreateDiscountModalPropsType = {
   isModalCreateDiscountCampaignOpen: boolean;
@@ -100,6 +101,14 @@ const CreateDiscountModal = ({
             required: {
               value: true,
               message: ERROR_MESSAGE.REQUIRED,
+            },
+            min: {
+              value: 0,
+              message: "Discount percentage must be greater than 0%",
+            },
+            max: {
+              value: 100,
+              message: "Discount percentage must be less than 100%",
             },
           }}
           render={({ field }) => (

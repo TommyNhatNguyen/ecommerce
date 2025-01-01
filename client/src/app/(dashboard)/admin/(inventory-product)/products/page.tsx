@@ -2,11 +2,6 @@
 import { useCategory } from "@/app/(dashboard)/admin/(inventory-product)/products/hooks/useCategory";
 import { useDiscounts } from "@/app/(dashboard)/admin/(inventory-product)/products/hooks/useDiscounts";
 import { useProducts } from "@/app/(dashboard)/admin/(inventory-product)/products/hooks/useProduct";
-import {
-  categories,
-  dataSource,
-  discountCampaigns,
-} from "@/app/constants/seeds";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import CreateCategoryModal from "@/app/shared/components/GeneralModal/components/CreateCategoryModal";
 import CreateDiscountModal from "@/app/shared/components/GeneralModal/components/CreateDiscountModal";
@@ -18,8 +13,9 @@ import { CreateProductDTO } from "@/app/shared/interfaces/products/product.dto";
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { discountsService } from "@/app/shared/services/discounts/discountsService";
 import { productService } from "@/app/shared/services/products/productService";
+import { getDateFormat } from "@/app/shared/utils/datetime";
 import { useQuery } from "@tanstack/react-query";
-import { Button, Card, Tooltip } from "antd";
+import { Button, Card, Empty, Tooltip } from "antd";
 import { Eye, Pencil, PlusIcon, Trash2Icon } from "lucide-react";
 import React, { useState } from "react";
 
@@ -30,7 +26,6 @@ const ButtonDeleteWithPopover = withDeleteConfirmPopover(
   </Button>,
 );
 const ProductPage = (props: Props) => {
-  const { notificationApi } = useNotification();
   const [isModalCreateProductOpen, setIsModalCreateProductOpen] =
     useState(false);
   const [isModalCreateCategoryOpen, setIsModalCreateCategoryOpen] =
@@ -39,23 +34,42 @@ const ProductPage = (props: Props) => {
     isModalCreateDiscountCampaignOpen,
     setIsModalCreateDiscountCampaignOpen,
   ] = useState(false);
-  const { loading: createCategoryLoading, hanldeCreateCategory } =
-    useCategory();
-  const { loading: createDiscountLoading, hanldeCreateDiscount } =
-    useDiscounts();
+  const {
+    loading: createCategoryLoading,
+    hanldeCreateCategory,
+    hanldeDeleteCategory,
+    loadingDelete: deleteCategoryLoading,
+  } = useCategory();
+  const {
+    loading: createDiscountLoading,
+    hanldeCreateDiscount,
+    hanldeDeleteDiscount,
+    loadingDelete: deleteDiscountLoading,
+  } = useDiscounts();
+  const { loadingDelete: deleteProductLoading, handleDeleteProduct } =
+    useProducts();
   const { loading: createProductLoading, hanldeCreateProduct } = useProducts();
   const { data: categories, isLoading: isLoadingCategories } = useQuery({
-    queryKey: ["categories", createCategoryLoading],
+    queryKey: ["categories", createCategoryLoading, deleteCategoryLoading],
     queryFn: () => categoriesService.getCategories({}, {}),
   });
   const { data: discounts, isLoading: isLoadingDiscounts } = useQuery({
-    queryKey: ["discounts", createDiscountLoading],
+    queryKey: ["discounts", createDiscountLoading, deleteDiscountLoading],
     queryFn: () => discountsService.getDiscounts(),
   });
   const { data: products, isLoading: isLoadingProducts } = useQuery({
-    queryKey: ["products", createProductLoading],
-    queryFn: () => productService.getProducts({}, {}),
+    queryKey: ["products", createProductLoading, deleteProductLoading],
+    queryFn: () => productService.getProducts({}),
   });
+  const _onDeleteProduct = async (id: string) => {
+    await handleDeleteProduct(id);
+  };
+  const _onDeleteCategory = async (id: string) => {
+    await hanldeDeleteCategory(id);
+  };
+  const _onDeleteDiscount = async (id: string) => {
+    await hanldeDeleteDiscount(id);
+  };
   const _onOpenModalCreateProduct = () => {
     setIsModalCreateProductOpen(true);
   };
@@ -89,18 +103,19 @@ const ProductPage = (props: Props) => {
       name: data.name,
       description: data.description,
       discount_percentage: Number(data.discountPercentage),
-      start_date: data.startDate.format("DD-MM-YYYY"),
-      end_date: data.endDate.format("DD-MM-YYYY"),
+      start_date: data.startDate.format(getDateFormat()),
+      end_date: data.endDate.format(getDateFormat()),
     };
+    console.log(payload);
     await hanldeCreateDiscount(payload);
     handleCloseModalCreateDiscountCampaign();
   };
 
   return (
-    <div className="grid grid-flow-row grid-cols-3 gap-4">
+    <div className="grid min-h-[300px] grid-flow-row grid-cols-3 gap-4">
       <Card
         title="Product"
-        className="max-h-[300px] flex-1 overflow-y-auto"
+        className="h-full max-h-[300px] flex-1 overflow-y-auto"
         extra={
           <Button
             type="primary"
@@ -118,10 +133,9 @@ const ProductPage = (props: Props) => {
               title={`${item.inventory?.quantity || 0} items in stock`}
               key={item.id}
             >
-              <Button
-                itemType="div"
-                className="w-full justify-between"
-                type="text"
+              <div
+                className="flex w-full items-center justify-between"
+                key={item.id}
               >
                 {item.name}
                 <div className="flex items-center gap-1">
@@ -132,19 +146,26 @@ const ProductPage = (props: Props) => {
                     <Pencil className="h-4 w-4 stroke-yellow-500" />
                   </Button>
                   <ButtonDeleteWithPopover
+                    title={`Delete ${item.name}?`}
                     trigger={"click"}
-                    handleCancel={() => {}}
-                    handleDelete={() => {}}
+                    handleDelete={() => {
+                      _onDeleteProduct(item.id);
+                    }}
                   />
                 </div>
-              </Button>
+              </div>
             </Tooltip>
           ))}
+        {products && products.data.length === 0 && (
+          <div className="flex h-full items-center justify-center">
+            <Empty description="No products found" />
+          </div>
+        )}
         <LoadingComponent isLoading={isLoadingProducts} />
       </Card>
       <Card
         title="Category"
-        className="relative max-h-[300px] overflow-y-auto"
+        className="relative h-full max-h-[300px] overflow-y-auto"
         extra={
           <Button
             type="primary"
@@ -158,29 +179,37 @@ const ProductPage = (props: Props) => {
       >
         {categories &&
           categories.data.map((item) => (
-            <Button
-              itemType="div"
-              className="w-full justify-between"
-              type="text"
-            >
-              {item.name}
-              <div className="flex items-center gap-1">
-                <Button type="text" className="aspect-square rounded-full p-0">
-                  <Pencil className="h-4 w-4 stroke-yellow-500" />
-                </Button>
-                <ButtonDeleteWithPopover
-                  trigger={"click"}
-                  handleCancel={() => {}}
-                  handleDelete={() => {}}
-                />
+            <Tooltip title={`${item.name}`} key={item.id}>
+              <div className="flex w-full items-center justify-between">
+                {item.name}
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="text"
+                    className="aspect-square rounded-full p-0"
+                  >
+                    <Pencil className="h-4 w-4 stroke-yellow-500" />
+                  </Button>
+                  <ButtonDeleteWithPopover
+                    title={`Delete ${item.name}?`}
+                    trigger={"click"}
+                    handleDelete={() => {
+                      _onDeleteCategory(item.id);
+                    }}
+                  />
+                </div>
               </div>
-            </Button>
+            </Tooltip>
           ))}
+        {categories && categories.data.length === 0 && (
+          <div className="flex h-full items-center justify-center">
+            <Empty description="No categories found" />
+          </div>
+        )}
         <LoadingComponent isLoading={isLoadingCategories} />
       </Card>
       <Card
         title="Discount Campaign"
-        className="max-h-[300px] overflow-y-auto"
+        className="h-full max-h-[300px] overflow-y-auto"
         extra={
           <Button
             type="primary"
@@ -195,10 +224,9 @@ const ProductPage = (props: Props) => {
         {discounts &&
           discounts.data.map((item) => (
             <Tooltip title={`${item.discount_percentage || 0}%`} key={item.id}>
-              <Button
-                itemType="div"
-                className="w-full justify-between"
-                type="text"
+              <div
+                className="flex w-full items-center justify-between"
+                key={item.id}
               >
                 {item.name}
                 <div className="flex items-center gap-1">
@@ -209,14 +237,21 @@ const ProductPage = (props: Props) => {
                     <Pencil className="h-4 w-4 stroke-yellow-500" />
                   </Button>
                   <ButtonDeleteWithPopover
+                    title={`Delete ${item.name}?`}
                     trigger={"click"}
-                    handleCancel={() => {}}
-                    handleDelete={() => {}}
+                    handleDelete={() => {
+                      _onDeleteDiscount(item.id);
+                    }}
                   />
                 </div>
-              </Button>
+              </div>
             </Tooltip>
           ))}
+        {discounts && discounts.data.length === 0 && (
+          <div className="flex h-full items-center justify-center">
+            <Empty description="No discounts found" />
+          </div>
+        )}
         <LoadingComponent isLoading={isLoadingDiscounts} />
       </Card>
       <CreateCategoryModal

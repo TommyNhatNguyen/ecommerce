@@ -60,6 +60,7 @@ export class ProductHttpService {
 
   async deleteProduct(req: Request, res: Response) {
     const { id } = req.params;
+    console.log(id);
     if (!id) {
       res.status(400).json({ error: 'Id is required' });
       return;

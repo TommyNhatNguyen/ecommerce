@@ -3,7 +3,7 @@ import Reviews from "@/app/(main)/product/[id]/(components)/Reviews";
 import { ROUTES } from "@/app/constants/routes";
 import SimilarCardComponent from "@/app/shared/components/SimilarCardComponent";
 import React from "react";
-import mockProductImage from "@/app/resources/images/homepage/product-2.jpg";
+import mockProductImage from "@/app/shared/resources/images/homepage/product-2.jpg";
 type Props = {};
 const products = [
   {

@@ -28,3 +28,11 @@ export function formatCurrency(data: number, currency = "VND") {
     currency: currency,
   }).format(data);
 }
+
+export function formatDiscountPercentage(data: number | string) {
+  return new Intl.NumberFormat("en-US", {
+    style: "percent",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(Number(data) / 100);
+}

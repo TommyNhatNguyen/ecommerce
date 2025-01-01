@@ -1,5 +1,5 @@
 import React from "react";
-import productImg from "@/app/resources/images/homepage/product-1.jpg";
+import productImg from "@/app/shared/resources/images/homepage/product-1.jpg";
 import Button from "@/app/shared/components/Button";
 type Props = {};
 

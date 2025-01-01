@@ -8,7 +8,16 @@ export type ProductModel = {
   status: ModelStatus;
   created_at: string;
   updated_at: string;
-  inventory: {
+  inventory?: {
     quantity: number;
   };
+  discount?: {
+    discount_percentage: number;
+  }[];
+  category?: {
+    name: string;
+  }[];
+  image?: {
+    url: string;
+  }[];
 };

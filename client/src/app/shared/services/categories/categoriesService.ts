@@ -21,4 +21,8 @@ export const categoriesService = {
     });
     return response.data;
   },
+  deleteCategory: async (id: string): Promise<CategoryModel> => {
+    const response = await axiosInstance.delete(`/categories/${id}`);
+    return response.data;
+  },
 };

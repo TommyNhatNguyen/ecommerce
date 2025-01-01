@@ -96,12 +96,14 @@ const InventoryOverall = (props: Props) => {
         Overall Inventory
       </h2>
       <div
-        className={cn("inventory-page__overall-content", "justify-between flex mt-2")}
+        className={cn(
+          "inventory-page__overall-content",
+          "mt-2 flex justify-between",
+        )}
       >
         {inventoryData.map((item, index) => (
-          <>
+          <React.Fragment key={index || item.title}>
             <InventoryItem
-              key={index || item.title}
               title={item.title}
               value={item.value}
               last7Days={item.last7Days}
@@ -110,7 +112,7 @@ const InventoryOverall = (props: Props) => {
             {index !== inventoryData.length - 1 && (
               <Divider type="vertical" className="h-[initial]" />
             )}
-          </>
+          </React.Fragment>
         ))}
       </div>
     </div>

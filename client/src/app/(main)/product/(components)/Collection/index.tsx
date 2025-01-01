@@ -3,7 +3,7 @@ import Button from "@/app/shared/components/Button";
 import Form from "@/app/shared/components/Form";
 import { ChevronRightIcon, Search } from "lucide-react";
 import React from "react";
-import mockProductImage from "../../../../resources/images/homepage/product-2.jpg";
+import mockProductImage from "@/app/shared/resources/images/homepage/product-2.jpg";
 import { CardProduct } from "@/app/shared/components/Card";
 import { PlusCircle } from "lucide-react";
 import { ROUTES } from "@/app/constants/routes";

@@ -2,7 +2,7 @@ import Button from "@/app/shared/components/Button";
 import Form from "@/app/shared/components/Form";
 import RatingInput from "@/app/shared/components/RatingInput";
 import Textarea from "@/app/shared/components/Textarea";
-import avatarImg from "@/app/resources/images/homepage/product-1.jpg";
+import avatarImg from "@/app/shared/resources/images/homepage/product-1.jpg";
 import { ChevronRight } from "lucide-react";
 import React, { useState } from "react";
 import Avatar from "@/app/shared/components/Avatar";
@@ -59,7 +59,7 @@ const ReviewsDetail = () => {
       <ul className="content_reviews-list h-ful mt-[40px] flex max-h-[600px] min-h-[500px] flex-col gap-[32px] overflow-y-scroll rounded-[14px] border border-solid border-bg-primary p-[30px]">
         {Array.from({ length: 10 }).map((index) => {
           return (
-            <li key={index} className="flex items-start gap-gutter">
+            <li key={index + "a"} className="flex items-start gap-gutter">
               <Avatar imgSrc={avatarImg.src} />
               <div className="flex-1">
                 <div>

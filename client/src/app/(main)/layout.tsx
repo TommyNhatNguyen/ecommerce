@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "../shared/resources/css/globals.css";
+import localFont from "next/font/local";
+import type { Metadata } from "next";
 import MainLayout from "@/app/layouts/MainLayout";
 
 const playfairDisplayRegular = localFont({
@@ -14,7 +14,7 @@ const playfairDisplayMedium = localFont({
   weight: "500",
 });
 const playfairDisplaySemibold = localFont({
-  src: "../shared/resources/fonts/PlayfairDisplay-Semibold.woff",
+  src: "../shared/resources/fonts/PlayfairDisplay-SemiBold.woff",
   variable: "--ff-pl-semibold",
   weight: "600",
 });

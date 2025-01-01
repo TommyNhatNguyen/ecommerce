@@ -6,6 +6,8 @@ import { discountsService } from "@/app/shared/services/discounts/discountsServi
 export function useDiscounts() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [errorDelete, setErrorDelete] = useState<string>("");
   const { notificationApi } = useNotification();
   const hanldeCreateDiscount = async (data: CreateDiscountDTO) => {
     setLoading(true);
@@ -28,5 +30,33 @@ export function useDiscounts() {
       setLoading(false);
     }
   };
-  return { loading, error, hanldeCreateDiscount };
+  const hanldeDeleteDiscount = async (id: string) => {
+    setLoadingDelete(true);
+    try {
+      const response = await discountsService.deleteDiscount(id);
+      if (response) {
+        notificationApi.success({
+          message: "Delete discount success",
+          description: "Discount deleted successfully",
+        });
+        return response;
+      }
+    } catch (error: any) {
+      notificationApi.error({
+        message: "Delete discount failed",
+        description: "Please try again",
+      });
+      setErrorDelete(error.message);
+    } finally {
+      setLoadingDelete(false);
+    }
+  };
+  return {
+    loading,
+    error,
+    hanldeCreateDiscount,
+    hanldeDeleteDiscount,
+    loadingDelete,
+    errorDelete,
+  };
 }

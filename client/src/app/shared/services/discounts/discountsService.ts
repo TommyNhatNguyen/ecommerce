@@ -13,4 +13,8 @@ export const discountsService = {
     const response = await axiosInstance.post("/discounts", data);
     return response.data 
   },
+  deleteDiscount: async (id: string): Promise<DiscountModel> => {
+    const response = await axiosInstance.delete(`/discounts/${id}`);
+    return response.data;
+  },
 };
