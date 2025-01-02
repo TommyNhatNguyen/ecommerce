@@ -8,6 +8,7 @@ import {
   CheckboxProps,
   Empty,
   Input,
+  InputNumber,
   Select,
   Upload,
   UploadFile,
@@ -32,6 +33,7 @@ import {
 } from "@/app/shared/interfaces/products/product.dto";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { ImageType } from "@/app/shared/interfaces/image/image.dto";
+import { formatCurrency, formatNumber } from "@/app/shared/utils/utils";
 
 type CreateProductModalPropsType = {
   isModalCreateProductOpen: boolean;
@@ -321,6 +323,10 @@ const CreateProductModal = ({
                 value: true,
                 message: ERROR_MESSAGE.REQUIRED,
               },
+              pattern: {
+                value: /^[0-9]*\.?[0-9]*$/,
+                message: ERROR_MESSAGE.INVALID_NUMBER,
+              },
             }}
             render={({ field }) => (
               <InputAdmin
@@ -329,6 +335,14 @@ const CreateProductModal = ({
                 placeholder="Price"
                 error={errors.price?.message as string}
                 {...field}
+                customComponent={(props: any, ref: any) => (
+                  <InputNumber
+                    className="w-full"
+                    ref={ref}
+                    formatter={(value) => formatCurrency(Number(value) || 0)}
+                    {...props}
+                  />
+                )}
               />
             )}
           />
@@ -340,6 +354,10 @@ const CreateProductModal = ({
                 value: true,
                 message: ERROR_MESSAGE.REQUIRED,
               },
+              pattern: {
+                value: /^[0-9]+$/,
+                message: ERROR_MESSAGE.INVALID_NUMBER,
+              },
             }}
             render={({ field }) => (
               <InputAdmin
@@ -348,6 +366,14 @@ const CreateProductModal = ({
                 placeholder="Stock"
                 error={errors.quantity?.message as string}
                 {...field}
+                customComponent={(props: any, ref: any) => (
+                  <InputNumber
+                    className="w-full"
+                    formatter={(value) => formatNumber(Number(value))}
+                    ref={ref}
+                    {...props}
+                  />
+                )}
               />
             )}
           />

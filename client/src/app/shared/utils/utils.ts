@@ -36,3 +36,7 @@ export function formatDiscountPercentage(data: number | string) {
     maximumFractionDigits: 2,
   }).format(Number(data) / 100);
 }
+
+export function formatNumber(data: number, format = "en-US") {
+  return new Intl.NumberFormat(format).format(data);
+}

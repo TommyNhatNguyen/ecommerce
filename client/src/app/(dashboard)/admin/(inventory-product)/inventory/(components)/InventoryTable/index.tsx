@@ -32,10 +32,10 @@ import {
   MoreHorizontal,
   Pencil,
   PlusIcon,
+  TrashIcon,
 } from "lucide-react";
-import React, { Key, useState } from "react";
+import React, { Key, useEffect, useState } from "react";
 import {
-  categories,
   dataSource,
   discountCampaigns,
   statusOptions,
@@ -50,11 +50,18 @@ import GeneralModal from "@/app/shared/components/GeneralModal";
 import CreateProductModal from "@/app/shared/components/GeneralModal/components/CreateProductModal";
 import { CreateProductDTO } from "@/app/shared/interfaces/products/product.dto";
 import { useInventory } from "@/app/(dashboard)/admin/(inventory-product)/inventory/hooks/useInventory";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { productService } from "@/app/shared/services/products/productService";
 import { Trash2Icon } from "lucide-react";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import ActionGroup from "@/app/shared/components/ActionGroup";
+import LoadingComponent from "@/app/shared/components/LoadingComponent";
+import {
+  formatCurrency,
+  formatDiscountPercentage,
+  formatNumber,
+} from "@/app/shared/utils/utils";
+import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 
 type InventoryTablePropsType = {
   handleDeleteProduct: (id: string) => Promise<boolean>;
@@ -72,7 +79,7 @@ interface DataType {
   totalValue: number;
   status: "ACTIVE" | "INACTIVE" | "DELETED";
   createdAt: string;
-  image: string;
+  images: string[];
 }
 type OnChange = NonNullable<TableProps<DataType>["onChange"]>;
 type Filters = Parameters<OnChange>[1];
@@ -92,32 +99,63 @@ const InventoryTable = ({
   const handleCloseModalCreateProduct = () => {
     setIsModalCreateProductOpen(false);
   };
-  // const handleSubmitCreateProductForm = (data: CreateProductDTO) => {
-  //   await hanldeCreateProduct(data);
-  //   handleCloseModalCreateProduct();
-  // };
 
   /**
    * -----------------------
    * TABLE
    * -----------------------
    */
+  const [defaultProductFormData, setDefaultProductFormData] =
+    useState<CreateProductDTO>();
   const [filteredInfo, setFilteredInfo] = useState<Filters>({});
   const [sortedInfo, setSortedInfo] = useState<Sorts>({});
   const [sortedDate, setSortedDate] = useState<Dayjs[] | null>(null);
   const [selectedRows, setSelectedRows] = useState<DataType[]>([]);
-  const _onSelectRow = (selectedRowKeys: Key[], selectedRows: DataType[]) => {
-    console.log(selectedRowKeys, selectedRows);
+
+  const ButtonDeleteSelected = withDeleteConfirmPopover(
+    <Button
+      type="primary"
+      variant="solid"
+      color="danger"
+      className="flex items-center gap-2"
+      disabled={selectedRows.length === 0}
+    >
+      <TrashIcon className="h-4 w-4" />
+      Delete Selected Products
+    </Button>,
+  );
+
+  const _onDeleteProduct = async (id: string) => {
+    await handleDeleteProduct(id);
+  };
+  const _onSelectRow = (
+    record: DataType,
+    selected: boolean,
+    selectedRows: DataType[],
+  ) => {
     setSelectedRows(selectedRows);
+  };
+  const _onSelectAllRow = (
+    selected: boolean,
+    selectedRows: DataType[],
+    changeRows: DataType[],
+  ) => {
+    setSelectedRows(selectedRows);
+  };
+  console.log("🚀 ~ selectedRows:", selectedRows);
+  const _onDeleteSelectedProducts = async () => {
+    if (selectedRows.length === 0) return;
+    console.log(selectedRows);
+    await Promise.all(
+      selectedRows.map(async (item) => await _onDeleteProduct(item.id)),
+    );
+    setSelectedRows([]);
   };
   const _handleChangeDate = (dates: Dayjs[], dateStrings: string[]) => {
     setSortedDate(dates);
   };
   const _handleSubmitFilterDate = () => {
     console.log(sortedDate);
-  };
-  const _onDeleteProduct = async (id: string) => {
-    await handleDeleteProduct(id);
   };
   const _handleChangeTable: OnChange = (pagination, filters, sorter) => {
     console.log("Pagination:", pagination);
@@ -137,40 +175,68 @@ const InventoryTable = ({
   const clearSort = () => {
     setSortedInfo({});
   };
-
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => categoriesService.getCategories(),
+  });
+  const [inventoryPage, setInventoryPage] = useState(1);
+  const [inventoryLimit, setInventoryLimit] = useState(10);
+  const [inventoryHasMore, setInventoryHasMore] = useState(false);
   const {
     data: inventories,
     isLoading,
-    isError,
+    isFetching,
+    isPlaceholderData,
+    isPending,
     refetch,
   } = useQuery({
-    queryKey: ["inventories", deleteProductLoading],
+    queryKey: [
+      "inventories",
+      deleteProductLoading,
+      inventoryPage,
+      inventoryLimit,
+    ],
     queryFn: () =>
       productService.getProducts({
+        page: inventoryPage,
+        limit: inventoryLimit,
         includeCategory: true,
         includeDiscount: true,
         includeImage: true,
       }),
+    placeholderData: keepPreviousData,
   });
-  const tableDataSource: DataType[] =
-    inventories &&
-    inventories.data.map((item) => ({
+  useEffect(() => {
+    if (inventories) {
+      const isHasMore =
+        inventories.meta.total_page > inventories.meta.current_page;
+      setInventoryHasMore(isHasMore);
+    }
+  }, [inventories]);
+  const { data: inventoriesData, meta } = inventories || {};
+  const { limit, total_count, current_page, total_page } = meta || {};
+  const tableDataSource =
+    inventoriesData &&
+    inventoriesData.map((item) => ({
       id: item.id,
       name: item.name,
       description: item.description,
       price: item.price,
-      image: item.image ? item.image.map((image) => image.url) : [],
+      images: item.image ? item.image.map((image) => image.url) : [],
       category: item.category
         ? item.category?.map((category) => category.name)
         : [],
       quantity: item.inventory ? item.inventory.quantity : 0,
       discount: item.discount
-        ? item.discount.reduce((acc, curr) => acc + curr.discount_percentage, 0)
+        ? item.discount.reduce(
+            (acc, curr) => acc + (curr.discount_percentage || 0),
+            0,
+          )
         : 0,
       totalValue: item.discount
         ? (item.price *
             item.discount.reduce(
-              (acc, curr) => acc + curr.discount_percentage,
+              (acc, curr) => acc + (curr.discount_percentage || 0),
               0,
             )) /
           100
@@ -181,25 +247,19 @@ const InventoryTable = ({
   const columns: TableProps<DataType>["columns"] = [
     {
       title: null,
-      dataIndex: "image",
-      key: "image",
+      dataIndex: "images",
+      key: "images",
       className: "max-w-[150px] ",
-      render: (_, { image }) => {
+      render: (_, { images }) => {
         return (
           <Image.PreviewGroup
-            items={image}
+            items={images}
             preview={{
               movable: false,
             }}
           >
-            <Carousel
-              nextArrow={<ArrowRightCircle />}
-              prevArrow={<ArrowLeftCircle />}
-              arrows={true}
-              autoplay
-              dotPosition="bottom"
-            >
-              {image.map((item) => (
+            <Carousel autoplay dotPosition="bottom">
+              {images.map((item) => (
                 <Image
                   src={item}
                   alt="product"
@@ -234,10 +294,12 @@ const InventoryTable = ({
       key: "category",
       render: (_, { category }) => <span>{category}</span>,
       filterSearch: true,
-      filters: categories.map((item) => ({
-        text: item.label,
-        value: item.value,
-      })),
+      filters:
+        categories &&
+        categories.data.map((item) => ({
+          text: item.name,
+          value: item.name,
+        })),
       filteredValue: filteredInfo.category || null,
       onFilter: (value, record) =>
         record.category.indexOf(value as string) === 0,
@@ -248,6 +310,7 @@ const InventoryTable = ({
       key: "price",
       sorter: (a, b) => a.price - b.price,
       sortOrder: sortedInfo.columnKey === "price" ? sortedInfo.order : null,
+      render: (_, { price }) => <span>{formatCurrency(price)}</span>,
     },
     {
       title: "In stock",
@@ -262,7 +325,7 @@ const InventoryTable = ({
             quantity === 0 ? "text-red-500" : "text-green-500",
           )}
         >
-          {quantity === 0 ? "Out of stock" : quantity}
+          {quantity === 0 ? "Out of stock" : formatNumber(quantity)}
         </span>
       ),
     },
@@ -272,6 +335,9 @@ const InventoryTable = ({
       dataIndex: "discount",
       sorter: (a, b) => a.discount - b.discount,
       sortOrder: sortedInfo.columnKey === "discount" ? sortedInfo.order : null,
+      render: (_, { discount }) => (
+        <span>{formatDiscountPercentage(discount)}</span>
+      ),
     },
     {
       title: "Total Value",
@@ -280,6 +346,7 @@ const InventoryTable = ({
       sorter: (a, b) => a.totalValue - b.totalValue,
       sortOrder:
         sortedInfo.columnKey === "totalValue" ? sortedInfo.order : null,
+      render: (_, { totalValue }) => <span>{formatCurrency(totalValue)}</span>,
     },
     {
       title: "Created At",
@@ -327,13 +394,15 @@ const InventoryTable = ({
             _onDeleteProduct(id);
           }}
           handleEdit={() => {
-            console.log("edit", id);
+            const item =
+              inventoriesData && inventoriesData.find((item) => item.id === id);
+            console.log(item);
+            // setDefaultProductFormData(item);
           }}
         />
       ),
     },
   ];
-  console.log("🚀 ~ InventoryTable ~ inventories:", inventories);
   return (
     <>
       <div
@@ -345,14 +414,21 @@ const InventoryTable = ({
             "flex items-center justify-between gap-2",
           )}
         >
-          <Button
-            type="primary"
-            className="flex items-center gap-2"
-            onClick={_onOpenModalCreateProduct}
-          >
-            <PlusIcon className="h-4 w-4" />
-            Add New Product
-          </Button>
+          <div className="flex items-center gap-2">
+            <ButtonDeleteSelected
+              handleDelete={_onDeleteSelectedProducts}
+              title="Are you sure you want to delete these products?"
+              trigger={"click"}
+            />
+            <Button
+              type="primary"
+              className="flex items-center gap-2"
+              onClick={_onOpenModalCreateProduct}
+            >
+              <PlusIcon className="h-4 w-4" />
+              Add New Product
+            </Button>
+          </div>
           <div
             className={cn(
               "inventory-page__table-filters-search",
@@ -383,13 +459,29 @@ const InventoryTable = ({
         </div>
         <div className={cn("inventory-page__table-content", "mt-4")}>
           <Table
-            dataSource={tableDataSource as DataType[]}
+            dataSource={tableDataSource as any}
             columns={columns}
             onChange={_handleChangeTable}
+            rowKey={(record) => record.id}
             rowSelection={{
-              onChange: _onSelectRow,
+              onSelect: (record, selected, selectedRows, nativeEvent) =>
+                _onSelectRow(record, selected, selectedRows),
+              onSelectAll: (selected, selectedRows, changeRows) =>
+                _onSelectAllRow(selected, selectedRows, changeRows),
+            }}
+            pagination={{
+              current: current_page,
+              pageSize: limit,
+              total: total_count,
+              showSizeChanger: true,
+              pageSizeOptions: [10, 20, 30, 40, 50, Number(total_count)],
+              onChange: (page, pageSize) => {
+                setInventoryPage(page);
+                setInventoryLimit(pageSize);
+              },
             }}
           />
+          {isLoading && <LoadingComponent isLoading={isLoading} />}
         </div>
       </div>
       <CreateProductModal

@@ -1,5 +1,5 @@
 import { ERROR_MESSAGE } from "@/app/constants/errors";
-import { DatePicker } from "antd";
+import { DatePicker, InputNumber } from "antd";
 import GeneralModal from "@/app/shared/components/GeneralModal";
 import InputAdmin from "@/app/shared/components/InputAdmin";
 import { Button, Input } from "antd";
@@ -118,6 +118,16 @@ const CreateDiscountModal = ({
               required={true}
               error={errors.discountPercentage?.message as string}
               {...field}
+              customComponent={(props: any, ref: any) => (
+                <InputNumber
+                  min={0}
+                  max={100}
+                  className="w-full"
+                  formatter={(value) => `${value}%`}
+                  ref={ref}
+                  {...props}
+                />
+              )}
             />
           )}
         />

@@ -1,3 +1,4 @@
+import { CategoryModel } from "@/app/shared/models/categories/categories.model";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 
 export type ProductModel = {
@@ -9,15 +10,25 @@ export type ProductModel = {
   created_at: string;
   updated_at: string;
   inventory?: {
-    quantity: number;
+    quantity?: number;
   };
   discount?: {
-    discount_percentage: number;
+    id?: string;
+    type?: string;
+    discount_percentage?: number;
+    description?: string;
+    end_date?: string;
+    start_date?: string;
   }[];
   category?: {
-    name: string;
+    id?: string;
+    name?: string;
+    image_id?: string;
+    description?: string;
   }[];
   image?: {
-    url: string;
+    id?: string;
+    type?: string;
+    url?: string;
   }[];
 };
