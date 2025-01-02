@@ -4,6 +4,8 @@ import { Sequelize } from 'sequelize';
 import { PostgresProductRepository } from 'src/infras/repository/product/repo';
 import { ProductUseCase } from 'src/usecase/product';
 import { ProductHttpService } from 'src/infras/transport/product/http-service';
+import { CloudinaryImageRepository } from 'src/infras/repository/image/repo';
+import cloudinary from 'src/share/cloudinary';
 
 export const setupProductRouter = (sequelize: Sequelize) => {
   init(sequelize);
@@ -13,7 +15,8 @@ export const setupProductRouter = (sequelize: Sequelize) => {
   initProductImage(sequelize);
   initProductOrder(sequelize);
   const repository = new PostgresProductRepository(sequelize, productModelName);
-  const useCase = new ProductUseCase(repository);
+  const cloudinaryRepository = new CloudinaryImageRepository(cloudinary);
+  const useCase = new ProductUseCase(repository, cloudinaryRepository);
   const httpService = new ProductHttpService(useCase);
   const router = Router();
   router.get('/products', httpService.getProducts.bind(httpService));

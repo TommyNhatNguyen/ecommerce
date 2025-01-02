@@ -20,8 +20,9 @@ export const CategoryUpdateDTOSchema = z.object({
 
 export const CategoryConditionDTOSchema = z.object({
   name: z.string().optional(),
-  id: z.string().uuid().optional(), 
+  id: z.string().uuid().optional(),
   include_products: z.boolean().optional(),
+  include_image: z.boolean().optional(),
   status: z.string().optional(),
   order: z.string().optional().default(BaseOrder.DESC),
   sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),

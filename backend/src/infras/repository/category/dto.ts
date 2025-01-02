@@ -22,7 +22,7 @@ export const categoryInit = (sequelize: Sequelize) => {
         allowNull: false,
       },
       description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: true,
       },
       image_id: {

@@ -1,13 +1,14 @@
+import { ImageCreateDTO } from "@/app/shared/interfaces/image/image.dto.d";
 import { axiosInstance } from "@/app/shared/utils/axiosInstance";
-import { UploadFile } from "antd";
 import { RcFile } from "antd/es/upload";
 
 export const imagesService = {
-  uploadImage: async (file: RcFile) => {
+  uploadImage: async (file: RcFile, data: ImageCreateDTO) => {
     const response = await axiosInstance.post(
       "/image",
       {
         file: file,
+        ...data,
       },
       {
         headers: {

@@ -19,7 +19,6 @@ if (config.use_env_variable) {
 fs
   .readdirSync(__dirname + "/src/infras/repository/category")
   .filter(file => {
-    console.log(file)
     return (
       file.indexOf('.') !== 0 &&
       file !== basename &&

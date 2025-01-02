@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Card, Empty, Tooltip } from "antd";
-import {  Pencil, PlusIcon, Trash2Icon } from "lucide-react";
+import { Pencil, PlusIcon, Trash2Icon } from "lucide-react";
 
 import { useCategory } from "@/app/(dashboard)/admin/(inventory-product)/products/hooks/useCategory";
 import { useDiscounts } from "@/app/(dashboard)/admin/(inventory-product)/products/hooks/useDiscounts";
@@ -22,7 +22,10 @@ import { discountsService } from "@/app/shared/services/discounts/discountsServi
 import { productService } from "@/app/shared/services/products/productService";
 
 import { getDateFormat } from "@/app/shared/utils/datetime";
-import { CreateCategoryDTO, CreateCategoryFormDTO } from "@/app/shared/interfaces/categories/category.dto";
+import {
+  CreateCategoryDTO,
+  CreateCategoryFormDTO,
+} from "@/app/shared/interfaces/categories/category.dto";
 
 type Props = {};
 

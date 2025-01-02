@@ -14,6 +14,7 @@ export async function cloudinaryBase64Middleware(req: Request, res: Response, ne
   try {
     const cldRes = await handleUpload(dataURI);
     req.body.url = cldRes.secure_url;
+    req.body.cloudinary_id = cldRes.public_id;
     next();
   } catch (error) {
     res.status(500).json({ message: 'Image uploaded failed' });

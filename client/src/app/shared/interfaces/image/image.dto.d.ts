@@ -1,0 +1,21 @@
+export enum ImageType {
+  CATEGORY = "CATEGORY",
+  CUSTOMER = "CUSTOMER",
+  DISCOUNT = "DISCOUNT",
+  IMAGE = "IMAGE",
+  INVENTORY = "INVENTORY",
+  ORDER = "ORDER",
+  PAYMENT = "PAYMENT",
+  PERMISSION = "PERMISSION",
+  PRODUCT = "PRODUCT",
+  REVIEW = "REVIEW",
+  ROLE = "ROLE",
+  SHIPPING = "SHIPPING",
+  USER = "USER",
+  VARIANT = "VARIANT",
+  OTHER = "OTHER",
+}
+
+export type ImageCreateDTO = {
+  type: ImageType;
+};

@@ -20,7 +20,7 @@ export function init(sequelize: Sequelize) {
         allowNull: false,
       },
       name: { type: DataTypes.STRING, allowNull: false },
-      description: { type: DataTypes.STRING, allowNull: true },
+      description: { type: DataTypes.TEXT, allowNull: true },
       price: { type: DataTypes.FLOAT, allowNull: false },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),

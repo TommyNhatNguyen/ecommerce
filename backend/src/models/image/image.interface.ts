@@ -15,6 +15,10 @@ export interface IImageRepository
   extends IQueryRepository,
     ICommandRepository {}
 
+export interface IImageCloudinaryRepository {
+  delete(public_id: string): Promise<boolean>;
+}
+
 export interface IQueryRepository {
   get(id: string): Promise<Image | null>;
   list(paging: PagingDTO): Promise<ListResponse<Image[]>>;

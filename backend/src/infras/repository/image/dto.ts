@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { DataTypes, Model } from 'sequelize';
-import { ModelStatus } from 'src/share/models/base-model';
+import { ModelStatus, PermissionType } from 'src/share/models/base-model';
 
 export class ImagePersistence extends Model {
   declare id: string;
@@ -24,6 +24,14 @@ export const imageInit = (sequelize: Sequelize) => {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
         allowNull: false,
         defaultValue: ModelStatus.ACTIVE,
+      },
+      cloudinary_id: { type: DataTypes.STRING, allowNull: false },
+      type: {
+        type: DataTypes.ENUM(
+          ...Object.values({ ...PermissionType, OTHER: 'OTHER' })
+        ),
+        allowNull: false,
+        defaultValue: 'OTHER',
       },
     },
     {

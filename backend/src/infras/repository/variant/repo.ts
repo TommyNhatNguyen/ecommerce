@@ -47,7 +47,7 @@ export class PostgresVariantRepository implements IVariantRepository {
     };
   }
   async insert(data: VariantCreateDTO): Promise<Variant> {
-    console.log(data);
+
     const result = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });

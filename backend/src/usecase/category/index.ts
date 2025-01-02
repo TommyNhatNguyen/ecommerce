@@ -8,11 +8,15 @@ import {
   ICategoryUseCase,
 } from '@models/category/category.interface';
 import { Category } from '@models/category/category.model';
-import { ListResponse, ModelStatus } from 'src/share/models/base-model';
+import { IImageCloudinaryRepository } from '@models/image/image.interface';
+import { BaseOrder, BaseSortBy, ListResponse, ModelStatus } from 'src/share/models/base-model';
 import { PagingDTO, Meta } from 'src/share/models/paging';
 import { v7 as uuidv7 } from 'uuid';
 export class CategoryUseCase implements ICategoryUseCase {
-  constructor(private readonly repository: ICategoryRepository) {}
+  constructor(
+    private readonly repository: ICategoryRepository,
+    private readonly cloudinaryImageRepository: IImageCloudinaryRepository
+  ) {}
   async updateCategory(
     id: string,
     data: CategoryUpdateDTOSchema
@@ -21,6 +25,16 @@ export class CategoryUseCase implements ICategoryUseCase {
     return category;
   }
   async deleteCategory(id: string): Promise<boolean> {
+    const category = await this.repository.get(id, {
+      include_image: true,
+      order: BaseOrder.DESC,
+      sortBy: BaseSortBy.CREATED_AT,
+    });
+    console.log("🚀 ~ CategoryUseCase ~ deleteCategory ~ category.image:", category)
+    if (category?.image) {
+      console.log("🚀 ~ CategoryUseCase ~ deleteCategory ~ category.image:", category.image)
+      await this.cloudinaryImageRepository.delete(category.image.cloudinary_id);
+    }
     await this.repository.delete(id);
     return true;
   }
@@ -28,7 +42,8 @@ export class CategoryUseCase implements ICategoryUseCase {
     id: string,
     condition: CategoryConditionDTOSchema
   ): Promise<Category | null> {
-    return await this.repository.get(id, condition);
+    const category = await this.repository.get(id, condition);
+    return category;
   }
   async listCategory(
     paging: PagingDTO,

@@ -2,9 +2,10 @@ import { Router } from 'express';
 import multer from 'multer';
 import { Sequelize } from 'sequelize';
 import { imageInit, imageModelName } from 'src/infras/repository/image/dto';
-import { PostgresImageRepository } from 'src/infras/repository/image/repo';
+import { CloudinaryImageRepository, PostgresImageRepository } from 'src/infras/repository/image/repo';
 import { ImageHttpService } from 'src/infras/transport/image/image-http.service';
 import { cloudinaryBase64Middleware } from 'src/middlewares/cloudinary-base64.middleware';
+import cloudinary from 'src/share/cloudinary';
 import { ImageUseCase } from 'src/usecase/image';
 
 export function setupImageRouter(sequelize: Sequelize) {
@@ -13,7 +14,8 @@ export function setupImageRouter(sequelize: Sequelize) {
   imageInit(sequelize);
   const router = Router();
   const repository = new PostgresImageRepository(sequelize, imageModelName);
-  const usecase = new ImageUseCase(repository);
+  const cloudinaryRepository = new CloudinaryImageRepository(cloudinary);
+  const usecase = new ImageUseCase(repository, cloudinaryRepository);
   const httpService = new ImageHttpService(usecase);
   router.get('/image/:id', httpService.getImage.bind(httpService));
   router.get('/image', httpService.listImage.bind(httpService));

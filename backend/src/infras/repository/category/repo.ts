@@ -7,6 +7,10 @@ import { ICategoryRepository } from '@models/category/category.interface';
 import { Category } from '@models/category/category.model';
 import { Op, Sequelize, where } from 'sequelize';
 import {
+  imageModelName,
+  ImagePersistence,
+} from 'src/infras/repository/image/dto';
+import {
   productModelName,
   ProductPersistence,
 } from 'src/infras/repository/product/dto';
@@ -40,6 +44,15 @@ class PostgresCategoryRepository implements ICategoryRepository {
         },
       });
     }
+    if (condition?.include_image) {
+      include.push({
+        model: ImagePersistence,
+        as: imageModelName,
+        attributes: {
+          exclude: [...EXCLUDE_ATTRIBUTES],
+        },
+      });
+    }
     const data = await this.sequelize.models[this.modelName].findByPk(id, {
       include: include,
     });
@@ -50,10 +63,10 @@ class PostgresCategoryRepository implements ICategoryRepository {
     condition: CategoryConditionDTOSchema
   ): Promise<ListResponse<Category[]>> {
     const { page, limit } = paging;
-    console.log(paging);
     const where: any = {};
     const order = condition?.order || BaseOrder.DESC;
     const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
+    const include: any[] = [];
     if (condition.name) {
       where.name = {
         [Op.iLike]: condition.name,
@@ -73,53 +86,45 @@ class PostgresCategoryRepository implements ICategoryRepository {
       };
     }
     if (condition?.include_products) {
-      const { rows, count } = await this.sequelize.models[
-        this.modelName
-      ].findAndCountAll({
-        where: where,
-        limit,
-        offset: (page - 1) * limit,
-        order: [[sortBy, order]],
-        distinct: true,
-        include: {
-          model: ProductPersistence,
-          as: productModelName,
-          attributes: {
-            exclude: EXCLUDE_ATTRIBUTES,
-          },
-          through: {
-            attributes: [],
-          },
+      include.push({
+        model: ProductPersistence,
+        as: productModelName,
+        attributes: {
+          exclude: EXCLUDE_ATTRIBUTES,
+        },
+        through: {
+          attributes: [],
         },
       });
-      return {
-        data: rows as unknown as Category[],
-        meta: {
-          limit,
-          total_count: count,
-          current_page: page,
-          total_page: Math.ceil(count / limit),
-        },
-      };
-    } else {
-      const { rows, count } = await this.sequelize.models[
-        this.modelName
-      ].findAndCountAll({
-        where: where,
-        limit,
-        offset: (page - 1) * limit,
-        order: [[sortBy, order]],
-      });
-      return {
-        data: rows.map((row) => row.dataValues),
-        meta: {
-          limit,
-          total_count: count,
-          current_page: page,
-          total_page: Math.ceil(count / limit),
-        },
-      };
     }
+
+    if (condition?.include_image) {
+      include.push({
+        model: ImagePersistence,
+        as: imageModelName,
+        attributes: {
+          exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'],
+        },
+      });
+    }
+    const { rows, count } = await this.sequelize.models[
+      this.modelName
+    ].findAndCountAll({
+      where: where,
+      limit,
+      offset: (page - 1) * limit,
+      order: [[sortBy, order]],
+      include: include,
+    });
+    return {
+      data: rows.map((row) => row.dataValues),
+      meta: {
+        limit,
+        total_count: count,
+        current_page: page,
+        total_page: Math.ceil(count / limit),
+      },
+    };
   }
   async insert(data: CategoryCreateDTOSchema): Promise<Category> {
     const result = await this.sequelize.models[this.modelName].create(data, {

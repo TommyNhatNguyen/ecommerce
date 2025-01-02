@@ -100,17 +100,18 @@ export class CategoryHttpService {
       data: conditionData,
       error: conditionError,
     } = CategoryConditionDTOSchema.safeParse(req.body);
+
     if (!pagingSuccess || !conditionSuccess) {
       res.status(400).json({ message: pagingError?.message });
       return;
     }
     try {
-      console.log(conditionData);
+
       const categories = await this.useCase.listCategory(
         pagingData,
         conditionData
       );
-      console.log(categories);
+
       res.status(200).json({ message: 'Categories found', ...categories });
     } catch (error) {
       res.status(500).json({ message: 'Failed to list categories' });

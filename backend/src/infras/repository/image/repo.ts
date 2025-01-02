@@ -1,5 +1,5 @@
 import { ImageCreateDTO, ImageUpdateDTO } from '@models/image/image.dto';
-import { IImageRepository } from '@models/image/image.interface';
+import { IImageCloudinaryRepository, IImageRepository } from '@models/image/image.interface';
 import { Image } from '@models/image/image.model';
 import { Sequelize, where } from 'sequelize';
 import { ListResponse } from 'src/share/models/base-model';
@@ -54,6 +54,14 @@ export class PostgresImageRepository implements IImageRepository {
     await this.squelize.models[this.modelName].destroy({
       where: { id },
     });
+    return true;
+  }
+}
+
+export class CloudinaryImageRepository implements IImageCloudinaryRepository {
+  constructor(private readonly cloudinary: any) {}
+  async delete(public_id: string): Promise<boolean> {
+    await this.cloudinary.uploader.destroy(public_id);
     return true;
   }
 }

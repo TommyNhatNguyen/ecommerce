@@ -39,7 +39,6 @@ import {
   inventoryModelName,
   InventoryPersistence,
 } from 'src/infras/repository/inventory/dto';
-import { attribute } from '@sequelize/core/_non-semver-use-at-your-own-risk_/expression-builders/attribute.js';
 import {
   reviewModelName,
   ReviewPersistence,
@@ -90,7 +89,7 @@ export class PostgresProductRepository implements IProductRepository {
       include.push({
         model: ImagePersistence,
         as: imageModelName,
-        attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
         through: { attributes: [] },
       });
     }
@@ -156,7 +155,7 @@ export class PostgresProductRepository implements IProductRepository {
       include.push({
         model: ImagePersistence,
         as: imageModelName,
-        attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        attributes: { exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'] },
         through: { attributes: [] },
       });
     }

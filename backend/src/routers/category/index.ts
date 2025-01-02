@@ -5,7 +5,9 @@ import {
   categoryModelName,
 } from 'src/infras/repository/category/dto';
 import PostgresCategoryRepository from 'src/infras/repository/category/repo';
+import { CloudinaryImageRepository } from 'src/infras/repository/image/repo';
 import { CategoryHttpService } from 'src/infras/transport/category/category-http.service';
+import cloudinary from 'src/share/cloudinary';
 import { CategoryUseCase } from 'src/usecase/category';
 
 function setupCategoryRouter(sequelize: Sequelize) {
@@ -15,7 +17,8 @@ function setupCategoryRouter(sequelize: Sequelize) {
     sequelize,
     categoryModelName
   );
-  const categoryUseCase = new CategoryUseCase(categoryRepository);
+  const cloudinaryImageRepository = new CloudinaryImageRepository(cloudinary);
+  const categoryUseCase = new CategoryUseCase(categoryRepository, cloudinaryImageRepository);
   const categoryHttpService = new CategoryHttpService(categoryUseCase);
   router.get('/categories', categoryHttpService.listCategory.bind(categoryHttpService))
   router.get('/categories/:id', categoryHttpService.getCategory.bind(categoryHttpService))

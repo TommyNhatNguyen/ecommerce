@@ -22,13 +22,23 @@ import {
   Tabs,
   TabsProps,
   Image,
+  Popover,
+  Tooltip,
+  Carousel,
 } from "antd";
-import { PlusIcon } from "lucide-react";
+import {
+  ArrowLeftCircle,
+  ArrowRightCircle,
+  MoreHorizontal,
+  Pencil,
+  PlusIcon,
+} from "lucide-react";
 import React, { Key, useState } from "react";
 import {
   categories,
   dataSource,
   discountCampaigns,
+  statusOptions,
 } from "@/app/constants/seeds";
 import { Dayjs } from "dayjs";
 import InputAdmin from "@/app/shared/components/InputAdmin";
@@ -42,15 +52,17 @@ import { CreateProductDTO } from "@/app/shared/interfaces/products/product.dto";
 import { useInventory } from "@/app/(dashboard)/admin/(inventory-product)/inventory/hooks/useInventory";
 import { useQuery } from "@tanstack/react-query";
 import { productService } from "@/app/shared/services/products/productService";
+import { Trash2Icon } from "lucide-react";
+import withDeleteConfirmPopover from "@/app/shared/components/Popover";
+import ActionGroup from "@/app/shared/components/ActionGroup";
 
-type Props = {};
+type InventoryTablePropsType = {
+  handleDeleteProduct: (id: string) => Promise<boolean>;
+  deleteProductLoading: boolean;
+};
 
-// Define filter options
-const statusOptions = [
-  { label: "Publish", value: "publish" },
-  { label: "Unpublish", value: "unpublish" },
-];
 interface DataType {
+  id: string;
   key: string;
   name: string;
   category: string;
@@ -68,7 +80,10 @@ type Filters = Parameters<OnChange>[1];
 type GetSingle<T> = T extends (infer U)[] ? U : never;
 type Sorts = GetSingle<Parameters<OnChange>[2]>;
 
-const InventoryTable = (props: Props) => {
+const InventoryTable = ({
+  handleDeleteProduct,
+  deleteProductLoading,
+}: InventoryTablePropsType) => {
   const [isModalCreateProductOpen, setIsModalCreateProductOpen] =
     useState(false);
   const _onOpenModalCreateProduct = () => {
@@ -81,7 +96,7 @@ const InventoryTable = (props: Props) => {
   //   await hanldeCreateProduct(data);
   //   handleCloseModalCreateProduct();
   // };
-  
+
   /**
    * -----------------------
    * TABLE
@@ -100,6 +115,9 @@ const InventoryTable = (props: Props) => {
   };
   const _handleSubmitFilterDate = () => {
     console.log(sortedDate);
+  };
+  const _onDeleteProduct = async (id: string) => {
+    await handleDeleteProduct(id);
   };
   const _handleChangeTable: OnChange = (pagination, filters, sorter) => {
     console.log("Pagination:", pagination);
@@ -126,7 +144,7 @@ const InventoryTable = (props: Props) => {
     isError,
     refetch,
   } = useQuery({
-    queryKey: ["inventories"],
+    queryKey: ["inventories", deleteProductLoading],
     queryFn: () =>
       productService.getProducts({
         includeCategory: true,
@@ -137,10 +155,11 @@ const InventoryTable = (props: Props) => {
   const tableDataSource: DataType[] =
     inventories &&
     inventories.data.map((item) => ({
+      id: item.id,
       name: item.name,
       description: item.description,
       price: item.price,
-      image: item.image ? item.image[0]?.url : [],
+      image: item.image ? item.image.map((image) => image.url) : [],
       category: item.category
         ? item.category?.map((category) => category.name)
         : [],
@@ -164,15 +183,36 @@ const InventoryTable = (props: Props) => {
       title: null,
       dataIndex: "image",
       key: "image",
-      render: (_, { image }) => (
-        <Image
-          src={image}
-          alt="product"
-          width={100}
-          height={100}
-          fallback={defaultImg}
-        />
-      ),
+      className: "max-w-[150px] ",
+      render: (_, { image }) => {
+        return (
+          <Image.PreviewGroup
+            items={image}
+            preview={{
+              movable: false,
+            }}
+          >
+            <Carousel
+              nextArrow={<ArrowRightCircle />}
+              prevArrow={<ArrowLeftCircle />}
+              arrows={true}
+              autoplay
+              dotPosition="bottom"
+            >
+              {image.map((item) => (
+                <Image
+                  src={item}
+                  alt="product"
+                  width={150}
+                  height={150}
+                  fallback={defaultImg}
+                  className="object-contain"
+                />
+              ))}
+            </Carousel>
+          </Image.PreviewGroup>
+        );
+      },
     },
     {
       title: "Product Name",
@@ -276,6 +316,20 @@ const InventoryTable = (props: Props) => {
         >
           {status}
         </Tag>
+      ),
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, { id }) => (
+        <ActionGroup
+          handleDelete={() => {
+            _onDeleteProduct(id);
+          }}
+          handleEdit={() => {
+            console.log("edit", id);
+          }}
+        />
       ),
     },
   ];

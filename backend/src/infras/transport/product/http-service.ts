@@ -67,7 +67,7 @@ export class ProductHttpService {
     }
 
     try {
-      const product = await this.productUseCase.getProductById(id);
+      const product = await this.productUseCase.getProductById(id, {includeImage: true});
       if (!product) {
         res.status(404).json({ error: 'Product not found' });
         return;

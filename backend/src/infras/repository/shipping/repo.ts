@@ -24,7 +24,7 @@ export class PostgresShippingRepository implements IShippingRepository {
     id: string,
     data: IShippingUpdateDTO
   ): Promise<Shipping> {
-    console.log(id);
+
     const shipping = await this.sequelize.models[this.modelName].update(data, {
       where: { id },
       returning: true,
@@ -50,7 +50,7 @@ export class PostgresShippingRepository implements IShippingRepository {
     if (created_at) where.created_at = created_at;
     if (updated_at) where.updated_at = updated_at;
     const shipping = await this.sequelize.models[this.modelName].findByPk(id, where);
-    console.log(shipping);
+
     return shipping?.dataValues;
   }
   async getShippingList(

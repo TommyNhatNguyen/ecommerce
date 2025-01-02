@@ -16,8 +16,6 @@ export class ShippingUseCase implements IShippingUseCase{
     return this.shippingRepository.createShipping(data);
   }
   updateShipping(id: string, data: IShippingUpdateDTO): Promise<Shipping> {
-    console.log(id);
-    console.log(data);
     return this.shippingRepository.updateShipping(id, data);
   }
   deleteShipping(id: string): Promise<boolean> {

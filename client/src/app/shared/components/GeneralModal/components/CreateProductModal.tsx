@@ -31,6 +31,7 @@ import {
   CreateProductDTO,
 } from "@/app/shared/interfaces/products/product.dto";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
+import { ImageType } from "@/app/shared/interfaces/image/image.dto";
 
 type CreateProductModalPropsType = {
   isModalCreateProductOpen: boolean;
@@ -70,14 +71,14 @@ const CreateProductModal = ({
 
   // Queries
   const { data: categories, isLoading: isLoadingCategories } = useQuery({
-    queryKey: ["categories"],
+    queryKey: ["categories", isModalCreateProductOpen],
     queryFn: () => categoriesService.getCategories({}, {}),
-    enabled: isDropdownVisible.category,
+    enabled: isModalCreateProductOpen,
   });
   const { data: discounts, isLoading: isLoadingDiscounts } = useQuery({
-    queryKey: ["discounts"],
+    queryKey: ["discounts", isModalCreateProductOpen],
     queryFn: () => discountsService.getDiscounts(),
-    enabled: isDropdownVisible.discountCampaign,
+    enabled: isModalCreateProductOpen,
   });
 
   // Custom hooks
@@ -127,7 +128,9 @@ const CreateProductModal = ({
       const response = await Promise.all(
         createProductForm.imageFileList.map(async (file) => {
           if (!file?.originFileObj) return;
-          const response = await imagesService.uploadImage(file.originFileObj);
+          const response = await imagesService.uploadImage(file.originFileObj, {
+            type: "PRODUCT" as ImageType.PRODUCT,
+          });
           if (response) {
             return response.data;
           } else {

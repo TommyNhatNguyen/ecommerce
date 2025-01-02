@@ -3,6 +3,7 @@ import { statusOptions } from "@/app/constants/seeds";
 import GeneralModal from "@/app/shared/components/GeneralModal";
 import InputAdmin from "@/app/shared/components/InputAdmin";
 import { CreateCategoryFormDTO } from "@/app/shared/interfaces/categories/category.dto";
+import { ImageType } from "@/app/shared/interfaces/image/image.dto";
 import { imagesService } from "@/app/shared/services/images/imagesService";
 import { Button, Input, Select, Upload, UploadFile } from "antd";
 import { PlusIcon } from "lucide-react";
@@ -40,14 +41,15 @@ const CreateCategoryModal = ({
     setFile(file);
   };
   const _onRemoveFile = () => {
-    console.log(file);
     setFile(undefined);
   };
   const _onSubmitFileList = async () => {
     if (!file?.originFileObj) return;
     setUploadImageLoading(true);
     try {
-      const response = await imagesService.uploadImage(file.originFileObj);
+      const response = await imagesService.uploadImage(file.originFileObj, {
+        type: "CATEGORY" as ImageType.CATEGORY,
+      });
       if (response) {
         return response.data.id;
       } else {
