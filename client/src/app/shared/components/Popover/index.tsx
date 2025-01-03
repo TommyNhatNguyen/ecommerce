@@ -4,12 +4,14 @@ import React, { useState } from "react";
 
 type WithDeleteConfirmPopoverProps = {
   handleDelete: () => void;
+  isWithDeleteConfirmPopover?: boolean;
 } & PopoverProps;
 
 const withDeleteConfirmPopover = (Component: React.ReactNode) => {
   return function withDeleteConfirmPopoverComponent({
     handleDelete,
     title,
+    isWithDeleteConfirmPopover = true,
     ...props
   }: WithDeleteConfirmPopoverProps) {
     const [open, setOpen] = useState(false);
@@ -31,29 +33,34 @@ const withDeleteConfirmPopover = (Component: React.ReactNode) => {
             <XIcon className="h-4 w-4" />
             Cancel
           </Button>
-          <Popover
-            open={openDeleteConfirm}
-            onOpenChange={_toggleOpenDeleteConfirm}
-            trigger="click"
-            content={
-              <div className="flex justify-end gap-2">
-                <Button type="default" onClick={_toggleOpenDeleteConfirm}>
-                  <XIcon className="h-4 w-4" />
-                  Cancel
-                </Button>
-                <Button type="primary" onClick={_onDelete}>
-                  <Trash2Icon className="h-4 w-4" />
-                  Delete
-                </Button>
-              </div>
-            }
-            title="Are you sure you want to delete this item?"
-          >
-            <Button type="primary">
+          {isWithDeleteConfirmPopover ? (
+            <Popover
+              {...props}
+              content={
+                <div className="flex justify-end gap-2">
+                  <Button type="default" onClick={_toggleOpenDeleteConfirm}>
+                    <XIcon className="h-4 w-4" />
+                    Cancel
+                  </Button>
+                  <Button type="primary" onClick={_onDelete}>
+                    <Trash2Icon className="h-4 w-4" />
+                    Delete
+                  </Button>
+                </div>
+              }
+              title="Are you sure you want to delete this item?"
+            >
+              <Button type="primary">
+                <Trash2Icon className="h-4 w-4" />
+                Delete
+              </Button>
+            </Popover>
+          ) : (
+            <Button type="primary" onClick={_onDelete}>
               <Trash2Icon className="h-4 w-4" />
               Delete
             </Button>
-          </Popover>
+          )}
         </div>
       );
     };

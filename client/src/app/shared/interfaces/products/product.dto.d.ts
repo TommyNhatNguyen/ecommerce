@@ -25,6 +25,18 @@ export type CreateProductBodyDTO = {
   status: "ACTIVE" | "INACTIVE" | "DELETED";
 };
 
+export type UpdateProductDTO = {
+  name?: string;
+  description?: string;
+  price?: number | string;
+  status?: ModelStatus;
+  categoryIds?: string[];
+  discountIds?: string[];
+  variantIds?: string[];
+  imageIds?: string[];
+  quantity?: number | string;
+};
+
 export type GetProductsBodyDTO = {
   limit?: number;
   page?: number;

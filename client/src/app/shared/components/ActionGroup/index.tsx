@@ -10,6 +10,8 @@ type ActionGroupPropsType = {
   handleEdit?: (...args: any[]) => void;
   content?: React.ReactNode;
   loading?: boolean;
+  isWithDeleteConfirmPopover?: boolean;
+  deleteConfirmPopoverProps?: PopoverProps;
 } & PopoverProps;
 const ButtonDeleteWithPopover = withDeleteConfirmPopover(
   <Button type="text" className="aspect-square rounded-full p-0">
@@ -21,6 +23,8 @@ const ActionGroup = ({
   handleEdit,
   content,
   loading = false,
+  isWithDeleteConfirmPopover = false,
+  deleteConfirmPopoverProps,
   ...props
 }: ActionGroupPropsType) => {
   const [open, setOpen] = useState(false);
@@ -41,12 +45,12 @@ const ActionGroup = ({
       onOpenChange={_onToggleOpen}
       content={
         content ? (
-          <div className="flex items-center gap-2 relative">
+          <div className="relative flex items-center gap-2">
             {content}
             {loading && <LoadingComponent isLoading={loading} />}
           </div>
         ) : (
-          <div className="flex items-center gap-2 relative">
+          <div className="relative flex items-center gap-2">
             {!!handleEdit && (
               <Button
                 type="text"
@@ -57,7 +61,12 @@ const ActionGroup = ({
               </Button>
             )}
             {!!handleDelete && (
-              <ButtonDeleteWithPopover handleDelete={_onDelete} />
+              <ButtonDeleteWithPopover
+                handleDelete={_onDelete}
+                trigger={"click"}
+                isWithDeleteConfirmPopover={isWithDeleteConfirmPopover}
+                {...deleteConfirmPopoverProps}
+              />
             )}
             {loading && <LoadingComponent isLoading={loading} />}
           </div>

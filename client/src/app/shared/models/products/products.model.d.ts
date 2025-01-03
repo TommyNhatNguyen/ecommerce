@@ -14,6 +14,7 @@ export type ProductModel = {
   };
   discount?: {
     id?: string;
+    name?: string;
     type?: string;
     discount_percentage?: number;
     description?: string;

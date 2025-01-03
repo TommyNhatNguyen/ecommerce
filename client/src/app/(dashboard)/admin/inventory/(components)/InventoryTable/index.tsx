@@ -47,7 +47,7 @@ import { ADMIN_ROUTES } from "@/app/constants/routes";
 import GeneralModal from "@/app/shared/components/GeneralModal";
 import CreateProductModal from "@/app/shared/components/GeneralModal/components/CreateProductModal";
 import { CreateProductDTO } from "@/app/shared/interfaces/products/product.dto";
-import { useInventory } from "@/app/(dashboard)/admin/(inventory-product)/inventory/hooks/useInventory";
+import { useInventory } from "@/app/(dashboard)/admin/inventory/hooks/useInventory";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { productService } from "@/app/shared/services/products/productService";
 import { Trash2Icon } from "lucide-react";
@@ -62,7 +62,8 @@ import {
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { defaultImage } from "@/app/shared/resources/images/default-image";
 import { ProductModel } from "@/app/shared/models/products/products.model";
-import { DataType } from "@/app/(dashboard)/admin/(inventory-product)/inventory/hooks/useInventory";
+import { DataType } from "@/app/(dashboard)/admin/inventory/hooks/useInventory";
+import { ModelStatus } from "@/app/shared/models/others/status.model";
 
 type InventoryTablePropsType = {
   handleSelectAllRow: (
@@ -70,16 +71,19 @@ type InventoryTablePropsType = {
     selectedRows: DataType[],
     changeRows: DataType[],
   ) => void;
-  handleDeleteProduct: (id: string) => Promise<boolean>;
-  deleteProductLoading: boolean;
+  handleSoftDeleteProduct: (id: string) => Promise<ProductModel | null>;
+  softDeleteProductLoading: boolean;
   handleSelectRow: (
     record: DataType,
     selected: boolean,
     selectedRows: DataType[],
   ) => void;
-  handleDeleteSelectedProducts: () => Promise<void>;
   handleClearAllSelectedRows: () => void;
   selectedRows: DataType[];
+  handleUpdateStatus: (id: string, status: ModelStatus) => Promise<boolean>;
+  updateStatusLoading: boolean;
+  handleSoftDeleteSelectedProducts: () => Promise<void>;
+  softDeleteSelectedProductsLoading: boolean;
 };
 
 type OnChange = NonNullable<TableProps<DataType>["onChange"]>;
@@ -91,11 +95,14 @@ type Sorts = GetSingle<Parameters<OnChange>[2]>;
 const InventoryTable = ({
   handleSelectRow,
   handleSelectAllRow,
-  handleDeleteProduct,
   handleClearAllSelectedRows,
+  handleSoftDeleteProduct,
+  softDeleteProductLoading,
+  handleUpdateStatus,
+  updateStatusLoading,
   selectedRows,
-  deleteProductLoading,
-  handleDeleteSelectedProducts,
+  handleSoftDeleteSelectedProducts,
+  softDeleteSelectedProductsLoading,
 }: InventoryTablePropsType) => {
   const [filteredInfo, setFilteredInfo] = useState<Filters>({});
   const [sortedInfo, setSortedInfo] = useState<Sorts>({});
@@ -116,14 +123,43 @@ const InventoryTable = ({
       Delete Selected Products
     </Button>,
   );
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => categoriesService.getCategories(),
+  });
+  const {
+    data: inventories,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: [
+      "inventories",
+      softDeleteProductLoading,
+      inventoryPage,
+      inventoryLimit,
+      updateStatusLoading,
+      softDeleteSelectedProductsLoading,
+    ],
+    queryFn: () =>
+      productService.getProducts({
+        page: inventoryPage,
+        limit: inventoryLimit,
+        includeCategory: true,
+        includeDiscount: true,
+        includeImage: true,
+      }),
+    placeholderData: keepPreviousData,
+  });
+  const { data: inventoriesData, meta } = inventories || {};
+  const { limit, total_count, current_page } = meta || {};
   const _onOpenModalCreateProduct = () => {
     setIsModalCreateProductOpen(true);
   };
   const handleCloseModalCreateProduct = () => {
     setIsModalCreateProductOpen(false);
   };
-  const _onDeleteProduct = async (id: string) => {
-    await handleDeleteProduct(id);
+  const _onSoftDeleteProduct = async (id: string) => {
+    await handleSoftDeleteProduct(id);
   };
   const _onSelectRow = (
     record: DataType,
@@ -139,8 +175,8 @@ const InventoryTable = ({
   ) => {
     handleSelectAllRow(selected, selectedRows, changeRows);
   };
-  const _onDeleteSelectedProducts = async () => {
-    await handleDeleteSelectedProducts();
+  const _onSoftDeleteSelectedProducts = async () => {
+    await handleSoftDeleteSelectedProducts();
   };
   const _onChangeDate = (dates: Dayjs[], dateStrings: string[]) => {
     setSortedDate(dates);
@@ -163,22 +199,20 @@ const InventoryTable = ({
     _onClearSort();
     handleClearAllSelectedRows();
   };
+  const _onSelectStatus = async (status: ModelStatus, id: string) => {
+    await handleUpdateStatus(id, status);
+  };
   const _onGenerateTableDataSource = (inventories: ProductModel[]) => {
     let tableDataSource: DataType[] = [];
     inventories.forEach((item) => {
-      const images = item.image ? item.image.map((image) => image.url) : [];
-      const category = item.category
-        ? item.category?.map((category) => category.name)
-        : [];
-      const discount = item.discount
-        ? item.discount.reduce(
-            (acc, curr) => acc + (curr.discount_percentage || 0),
-            0,
-          )
-        : 0;
-      const totalValue = item.discount
-        ? (item.price * (100 - discount)) / 100
-        : item.price;
+      const images =
+        item.image && item.image.length > 0
+          ? item.image.map((image) => image.url)
+          : [defaultImage];
+      const totalValue =
+        item.price && item.inventory?.quantity
+          ? item.price * (item.inventory?.quantity || 1)
+          : item.price;
       tableDataSource.push({
         key: item.id,
         id: item.id,
@@ -186,9 +220,9 @@ const InventoryTable = ({
         description: item.description,
         price: item.price,
         images: images as string[],
-        category: category as string[],
+        category: item.category,
         quantity: item.inventory ? item.inventory.quantity || 0 : 0,
-        discount: discount,
+        discounts: item.discount,
         totalValue: totalValue,
         status: item.status,
         createdAt: item.created_at,
@@ -196,33 +230,6 @@ const InventoryTable = ({
     });
     return tableDataSource;
   };
-  const { data: categories } = useQuery({
-    queryKey: ["categories"],
-    queryFn: () => categoriesService.getCategories(),
-  });
-  const {
-    data: inventories,
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: [
-      "inventories",
-      deleteProductLoading,
-      inventoryPage,
-      inventoryLimit,
-    ],
-    queryFn: () =>
-      productService.getProducts({
-        page: inventoryPage,
-        limit: inventoryLimit,
-        includeCategory: true,
-        includeDiscount: true,
-        includeImage: true,
-      }),
-    placeholderData: keepPreviousData,
-  });
-  const { data: inventoriesData, meta } = inventories || {};
-  const { limit, total_count, current_page } = meta || {};
   const tableDataSource =
     inventoriesData && _onGenerateTableDataSource(inventoriesData);
   const columns: TableProps<DataType>["columns"] = [
@@ -242,6 +249,7 @@ const InventoryTable = ({
             <Carousel autoplay dotPosition="bottom">
               {images.map((item) => (
                 <Image
+                  key={item}
                   src={item}
                   alt="product"
                   width={150}
@@ -273,7 +281,23 @@ const InventoryTable = ({
       title: "Category",
       dataIndex: "category",
       key: "category",
-      render: (_, { category }) => <span>{category}</span>,
+      render: (_, { category }) => {
+        return (
+          <div className="flex flex-col gap-2">
+            {category?.map((item, index) => (
+              <Tooltip
+                title={item?.description}
+                popupVisible={item?.description ? true : false}
+                key={item?.id}
+              >
+                <Tag>
+                  <span className="capitalize">{item?.name}</span>
+                </Tag>
+              </Tooltip>
+            ))}
+          </div>
+        );
+      },
       filterSearch: true,
       filters:
         categories &&
@@ -283,7 +307,8 @@ const InventoryTable = ({
         })),
       filteredValue: filteredInfo.category || null,
       onFilter: (value, record) =>
-        record.category.indexOf(value as string) === 0,
+        record.category?.map((item) => item.name).indexOf(value as string) ===
+        0,
     },
     {
       title: "Price",
@@ -312,13 +337,41 @@ const InventoryTable = ({
     },
     {
       title: "Discount",
-      key: "discount",
-      dataIndex: "discount",
-      sorter: (a, b) => a.discount - b.discount,
-      sortOrder: sortedInfo.columnKey === "discount" ? sortedInfo.order : null,
-      render: (_, { discount }) => (
-        <span>{formatDiscountPercentage(discount)}</span>
-      ),
+      key: "discounts",
+      dataIndex: "discounts",
+      sorter: (a, b) =>
+        (a.discounts?.length || 0) - (b.discounts?.length || 0) ||
+        (a.discounts?.reduce(
+          (acc, curr) => acc + (curr.discount_percentage || 0),
+          0,
+        ) || 0) -
+          (b.discounts?.reduce(
+            (acc, curr) => acc + (curr.discount_percentage || 0),
+            0,
+          ) || 0),
+      sortOrder: sortedInfo.columnKey === "discounts" ? sortedInfo.order : null,
+      render: (_, { discounts }) => {
+        return (
+          <div className="flex flex-col gap-2">
+            {discounts?.map((discount, index) => (
+              <Tooltip
+                title={discount?.description}
+                popupVisible={discount?.description ? true : false}
+                key={discount?.id}
+              >
+                <Tag>
+                  <span className="capitalize">{discount?.name} - </span>
+                  <span>
+                    {formatDiscountPercentage(
+                      discount?.discount_percentage || 0,
+                    )}
+                  </span>
+                </Tag>
+              </Tooltip>
+            ))}
+          </div>
+        );
+      },
     },
     {
       title: "Total Value",
@@ -356,23 +409,55 @@ const InventoryTable = ({
       })),
       filteredValue: filteredInfo.status || null,
       onFilter: (value, record) => record.status === value,
-      render: (_, { status }) => (
-        <Tag
-          color={status === "ACTIVE" ? "green" : "red"}
-          key={status}
-          className="capitalize"
-        >
-          {status}
-        </Tag>
-      ),
+      render: (_, { status, id }) => {
+        console.log(status);
+        return (
+          <Select
+            options={statusOptions}
+            defaultValue={status}
+            disabled={updateStatusLoading}
+            onSelect={(value) => {
+              _onSelectStatus(value, id);
+            }}
+            className="min-w-[120px]"
+            labelRender={(option) => {
+              const textColor =
+                option.value === "ACTIVE" ? "text-green-500" : "text-red-500";
+              return (
+                <div className={cn("font-semibold capitalize", `${textColor}`)}>
+                  {option.label}
+                </div>
+              );
+            }}
+            dropdownRender={(menu) => {
+              return (
+                <div className="min-w-fit">
+                  <div>{menu}</div>
+                  {/* <Button
+                    type="primary"
+                    className="w-full"
+                    onClick={() => _onUpdateStatus(id)}
+                  >
+                    Submit
+                  </Button> */}
+                </div>
+              );
+            }}
+          />
+        );
+      },
     },
     {
       title: "Action",
       key: "action",
       render: (_, { id }) => (
         <ActionGroup
+          isWithDeleteConfirmPopover={false}
+          deleteConfirmPopoverProps={{
+            title: "Are you sure you want to delete this product?",
+          }}
           handleDelete={() => {
-            _onDeleteProduct(id);
+            _onSoftDeleteProduct(id);
           }}
           handleEdit={() => {
             const item =
@@ -397,9 +482,10 @@ const InventoryTable = ({
         >
           <div className="flex items-center gap-2">
             <ButtonDeleteSelected
-              handleDelete={_onDeleteSelectedProducts}
+              handleDelete={_onSoftDeleteSelectedProducts}
               title="Are you sure you want to delete these products?"
               trigger={"click"}
+              isWithDeleteConfirmPopover={false}
             />
             <Button
               type="primary"

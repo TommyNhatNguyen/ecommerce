@@ -33,7 +33,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const { Header, Footer, Sider, Content } = Layout;
 type DashboardLayoutPropsType = {
@@ -53,7 +53,7 @@ const items: MenuItem[] = [
   },
   { key: ADMIN_ROUTES.sales, label: "Sales", icon: <BarChart size={16} /> },
   {
-    key: ADMIN_ROUTES.inventory,
+    key: ADMIN_ROUTES.inventory.index,
     label: "Inventory",
     icon: <Package size={16} />,
   },
@@ -90,7 +90,7 @@ const dropdownItems: MenuItem[] = [
 
 const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   const pathname = usePathname();
-  const currentPath = pathname.split("/").pop();
+  const currentPath = pathname.split("/").slice(1);
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const toggleCollapsed = () => {
@@ -148,7 +148,9 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
               </div>
             </Header>
             <Content className="mb-4 min-h-screen p-2">
-              <h1 className="text-xl font-bold capitalize">{currentPath}</h1>
+              <h1 className="text-xl font-bold capitalize">
+                {currentPath.map((path) => path.toUpperCase()).join(" - ")}
+              </h1>
               <Divider />
               {children}
             </Content>

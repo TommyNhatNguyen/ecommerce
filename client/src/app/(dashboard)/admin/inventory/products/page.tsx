@@ -5,9 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Button, Card, Empty, Tooltip } from "antd";
 import { Pencil, PlusIcon, Trash2Icon } from "lucide-react";
 
-import { useCategory } from "@/app/(dashboard)/admin/(inventory-product)/products/hooks/useCategory";
-import { useDiscounts } from "@/app/(dashboard)/admin/(inventory-product)/products/hooks/useDiscounts";
-import { useProducts } from "@/app/(dashboard)/admin/(inventory-product)/products/hooks/useProduct";
+import { useCategory } from "@/app/(dashboard)/admin/inventory/products/hooks/useCategory";
+import { useDiscounts } from "@/app/(dashboard)/admin/inventory/products/hooks/useDiscounts";
+import { useProducts } from "@/app/(dashboard)/admin/inventory/products/hooks/useProduct";
 
 import CreateCategoryModal from "@/app/shared/components/GeneralModal/components/CreateCategoryModal";
 import CreateDiscountModal from "@/app/shared/components/GeneralModal/components/CreateDiscountModal";
@@ -62,7 +62,7 @@ const ProductPage = (props: Props) => {
     loadingDelete: deleteDiscountLoading,
   } = useDiscounts();
 
-  const { loadingDelete: deleteProductLoading, handleDeleteProduct } =
+  const { loadingSoftDelete: deleteProductLoading, handleSoftDeleteProduct } =
     useProducts();
 
   // Queries for fetching data
@@ -86,8 +86,8 @@ const ProductPage = (props: Props) => {
   });
 
   // Handlers for delete actions
-  const _onDeleteProduct = async (id: string) => {
-    await handleDeleteProduct(id);
+  const _onSoftDeleteProduct = async (id: string) => {
+    await handleSoftDeleteProduct(id);
   };
 
   const _onDeleteCategory = async (id: string) => {
@@ -185,8 +185,9 @@ const ProductPage = (props: Props) => {
                     title={`Delete ${item.name}?`}
                     trigger={"click"}
                     handleDelete={() => {
-                      _onDeleteProduct(item.id);
+                      _onSoftDeleteProduct(item.id);
                     }}
+                    isWithDeleteConfirmPopover={false}
                   />
                 </div>
               </div>

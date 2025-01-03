@@ -1,12 +1,12 @@
 "use client";
 import { TabsProps } from "antd";
 import { ADMIN_ROUTES } from "@/app/constants/routes";
-import { Package } from "lucide-react";
+import { LucideSettings, LucideTrash, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tabs } from "antd";
 import React, { useState } from "react";
 import { LucideBoxes } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 type InventoryProductLayoutPropsType = {
   children: React.ReactNode;
@@ -15,7 +15,10 @@ type InventoryProductLayoutPropsType = {
 const InventoryProductLayout = ({
   children,
 }: InventoryProductLayoutPropsType) => {
-  const [activeTab, setActiveTab] = useState<string>(ADMIN_ROUTES.inventory);
+  const pathname = usePathname();
+  const [activeTab, setActiveTab] = useState<string>(
+    pathname || ADMIN_ROUTES.inventory.index,
+  );
   const router = useRouter();
   const _onChangeTab = (key: string) => {
     setActiveTab(key);
@@ -24,13 +27,23 @@ const InventoryProductLayout = ({
   const tabs: TabsProps["items"] = [
     {
       label: "Inventory",
-      key: ADMIN_ROUTES.inventory,
+      key: ADMIN_ROUTES.inventory.index,
       icon: <Package className="h-4 w-4" />,
     },
     {
       label: "Products",
-      key: ADMIN_ROUTES.products,
+      key: ADMIN_ROUTES.inventory.products,
       icon: <LucideBoxes className="h-4 w-4" />,
+    },
+    {
+      label: "Deleted Products",
+      key: ADMIN_ROUTES.inventory.deleted,
+      icon: <LucideTrash className="h-4 w-4" />,
+    },
+    {
+      label: "Inventory Settings",
+      key: ADMIN_ROUTES.inventory.settings,
+      icon: <LucideSettings className="h-4 w-4" />,
     },
   ];
   return (

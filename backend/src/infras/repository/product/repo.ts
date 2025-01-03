@@ -15,6 +15,7 @@ import {
   BaseOrder,
   BaseSortBy,
   ListResponse,
+  ModelStatus,
 } from 'src/share/models/base-model';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
 import {
@@ -111,7 +112,9 @@ export class PostgresProductRepository implements IProductRepository {
     paging: PagingDTO
   ): Promise<ListResponse<Product[]>> {
     const { page, limit } = paging;
-    const where: any = {};
+    const where: any = {
+      status: { [Op.not]: ModelStatus.DELETED },
+    };
     const order = condition?.order || BaseOrder.DESC;
     const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
 
@@ -120,6 +123,9 @@ export class PostgresProductRepository implements IProductRepository {
       where.price = { ...where.price, [Op.gte]: condition.minPrice };
     if (condition.name) where.name = { [Op.iLike]: condition.name };
     if (condition.status) where.status = condition.status;
+    if (condition.status === ModelStatus.DELETED) {
+      where.status = { [Op.eq]: ModelStatus.DELETED };
+    }
     const include: any[] = [
       {
         model: InventoryPersistence,

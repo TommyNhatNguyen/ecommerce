@@ -3,14 +3,14 @@ import { useNotification } from "@/app/contexts/NotificationContext";
 import { productService } from "@/app/shared/services/products/productService";
 
 export function useProducts() {
-  const [loadingDelete, setLoadingDelete] = useState(false);
-  const [errorDelete, setErrorDelete] = useState<string>("");
+  const [loadingSoftDelete, setLoadingSoftDelete] = useState(false);
+  const [errorSoftDelete, setErrorSoftDelete] = useState<string>("");
   const { notificationApi } = useNotification();
 
-  const handleDeleteProduct = async (id: string) => {
-    setLoadingDelete(true);
+  const handleSoftDeleteProduct = async (id: string) => {
+    setLoadingSoftDelete(true);
     try {
-      const response = await productService.deleteProduct(id);
+      const response = await productService.softDeleteProduct(id);
       if (response) {
         notificationApi.success({
           message: "Delete product success",
@@ -22,15 +22,15 @@ export function useProducts() {
         message: "Delete product failed",
         description: "Please try again",
       });
-      setErrorDelete(error.message);
+      setErrorSoftDelete(error.message);
     } finally {
-      setLoadingDelete(false);
+      setLoadingSoftDelete(false);
     }
   };
 
   return {
-    handleDeleteProduct,
-    loadingDelete,
-    errorDelete,
+    handleSoftDeleteProduct,
+    loadingSoftDelete,
+    errorSoftDelete,
   };
 }

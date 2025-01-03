@@ -250,7 +250,6 @@ const CreateProductModal = ({
           <InputAdmin
             label="Category"
             placeholder="Category"
-            required={true}
             customComponent={(props, ref) => (
               <Select
                 options={categories?.data.map((item) => ({
@@ -335,7 +334,7 @@ const CreateProductModal = ({
                   <InputNumber
                     className="w-full"
                     ref={ref}
-                    formatter={(value) => formatCurrency(Number(value) || 0)}
+                    formatter={(value) => formatCurrency(Number(value))}
                     {...props}
                   />
                 )}

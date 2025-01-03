@@ -19,10 +19,14 @@ export const ADMIN_ROUTES = {
   orders: "/admin/orders",
   sales: "/admin/sales",
   products: "/admin/products",
-  inventory: "/admin/inventory",
+  inventory: {
+    index: "/admin/inventory",
+    products: "/admin/inventory/products",
+    deleted: "/admin/inventory/deleted",
+    settings: "/admin/inventory/settings",
+  },
   customers: "/admin/customers",
   resources: "/admin/resources",
   settings: "/admin/settings",
   permissions: "/admin/permissions",
 };
-
