@@ -47,21 +47,15 @@ const CreateProductModal = ({
   refetch,
 }: CreateProductModalPropsType) => {
   // State management
-  const [createProductForm, setCreateProductForm] = useState<CreateProductDTO>({
-    name: "",
+  const [createProductForm, setCreateProductForm] = useState<
+    Omit<CreateProductDTO, "name" | "price" | "quantity">
+  >({
     categoryIds: [],
-    description: "",
-    price: "",
-    quantity: "",
     discountIds: [],
     status: "ACTIVE",
     imageFileList: [],
   });
   const [uploadImageLoading, setUploadImageLoading] = useState(false);
-  const [isDropdownVisible, setIsDropdownVisible] = useState({
-    category: false,
-    discountCampaign: false,
-  });
 
   // Form handling
   const {
@@ -114,15 +108,16 @@ const CreateProductModal = ({
   const _onClearAllImages = () => {
     setCreateProductForm((prev) => ({ ...prev, imageFileList: [] }));
   };
-
-  const _onCloseModalCreateProduct = () => {
-    handleCloseModalCreateProduct();
+  const _onClearAllFormData = () => {
     reset();
     _onClearAllCategories();
     _onClearAllDiscounts();
     _onClearAllImages();
   };
-
+  const _onCloseModalCreateProduct = () => {
+    handleCloseModalCreateProduct();
+    _onClearAllFormData();
+  };
   const _onSubmitFileList = async () => {
     if (!createProductForm.imageFileList) return;
     setUploadImageLoading(true);
@@ -167,8 +162,6 @@ const CreateProductModal = ({
     await hanldeCreateProduct(payload);
     refetch();
     _onCloseModalCreateProduct();
-    _onClearAllCategories();
-    _onClearAllDiscounts();
   };
 
   const _onChangeCategories = (list: string[]) => {
@@ -176,13 +169,16 @@ const CreateProductModal = ({
   };
 
   const _onCheckAllCategories: CheckboxProps["onChange"] = (e) => {
-    setCreateProductForm((prev) => ({
-      ...prev,
-      categoryIds:
+    setCreateProductForm((prev) => {
+      const categoryIds =
         e.target.checked && categories
           ? categories?.data.map((item) => item.id)
-          : [],
-    }));
+          : [];
+      return {
+        ...prev,
+        categoryIds,
+      };
+    });
   };
 
   const _onChangeDiscountCampaign = (value: string[]) => {
@@ -190,13 +186,16 @@ const CreateProductModal = ({
   };
 
   const _onCheckAllDiscounts: CheckboxProps["onChange"] = (e) => {
-    setCreateProductForm((prev) => ({
-      ...prev,
-      discountIds:
+    setCreateProductForm((prev) => {
+      const discountIds =
         e.target.checked && discounts
           ? discounts?.data.map((item) => item.id)
-          : [],
-    }));
+          : [];
+      return {
+        ...prev,
+        discountIds,
+      };
+    });
   };
 
   const _onChangeStatus = (value: ModelStatus) => {
@@ -211,11 +210,14 @@ const CreateProductModal = ({
   };
 
   const _onRemoveFileList = (file: UploadFile) => {
-    setCreateProductForm((prev) => ({
-      ...prev,
-      imageFileList:
-        prev.imageFileList?.filter((item) => item.uid !== file.uid) || [],
-    }));
+    setCreateProductForm((prev) => {
+      const imageFileList =
+        prev.imageFileList?.filter((item) => item.uid !== file.uid) || [];
+      return {
+        ...prev,
+        imageFileList,
+      };
+    });
   };
   // Render functions
   const _renderTitleModalCreateProduct = () => {
@@ -256,12 +258,6 @@ const CreateProductModal = ({
                   value: item.id,
                 }))}
                 placement="bottomLeft"
-                onDropdownVisibleChange={(open) => {
-                  setIsDropdownVisible((prev) => ({
-                    ...prev,
-                    category: true,
-                  }));
-                }}
                 value={createProductForm.categoryIds}
                 onClear={_onClearAllCategories}
                 placeholder="Select Category"
@@ -387,12 +383,6 @@ const CreateProductModal = ({
                   value: item.id,
                 }))}
                 placement="bottomLeft"
-                onDropdownVisibleChange={(open) => {
-                  setIsDropdownVisible((prev) => ({
-                    ...prev,
-                    discountCampaign: true,
-                  }));
-                }}
                 value={createProductForm.discountIds}
                 onClear={_onClearAllDiscounts}
                 placeholder="Select Discount Campaign"

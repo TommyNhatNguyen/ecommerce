@@ -28,5 +28,6 @@ export function useCreateProductModal() {
       setLoading(false);
     }
   };
+  
   return { hanldeCreateProduct, loading, error };
 }

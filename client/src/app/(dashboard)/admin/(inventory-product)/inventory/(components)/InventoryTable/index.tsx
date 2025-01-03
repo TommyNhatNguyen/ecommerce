@@ -1,6 +1,4 @@
 "use client";
-const defaultImg =
-  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3PTWBSGcbGzM6GCKqlIBRV0dHRJFarQ0eUT8LH4BnRU0NHR0UEFVdIlFRV7TzRksomPY8uykTk/zewQfKw/9znv4yvJynLv4uLiV2dBoDiBf4qP3/ARuCRABEFAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghgg0Aj8i0JO4OzsrPv69Wv+hi2qPHr0qNvf39+iI97soRIh4f3z58/u7du3SXX7Xt7Z2enevHmzfQe+oSN2apSAPj09TSrb+XKI/f379+08+A0cNRE2ANkupk+ACNPvkSPcAAEibACyXUyfABGm3yNHuAECRNgAZLuYPgEirKlHu7u7XdyytGwHAd8jjNyng4OD7vnz51dbPT8/7z58+NB9+/bt6jU/TI+AGWHEnrx48eJ/EsSmHzx40L18+fLyzxF3ZVMjEyDCiEDjMYZZS5wiPXnyZFbJaxMhQIQRGzHvWR7XCyOCXsOmiDAi1HmPMMQjDpbpEiDCiL358eNHurW/5SnWdIBbXiDCiA38/Pnzrce2YyZ4//59F3ePLNMl4PbpiL2J0L979+7yDtHDhw8vtzzvdGnEXdvUigSIsCLAWavHp/+qM0BcXMd/q25n1vF57TYBp0a3mUzilePj4+7k5KSLb6gt6ydAhPUzXnoPR0dHl79WGTNCfBnn1uvSCJdegQhLI1vvCk+fPu2ePXt2tZOYEV6/fn31dz+shwAR1sP1cqvLntbEN9MxA9xcYjsxS1jWR4AIa2Ibzx0tc44fYX/16lV6NDFLXH+YL32jwiACRBiEbf5KcXoTIsQSpzXx4N28Ja4BQoK7rgXiydbHjx/P25TaQAJEGAguWy0+2Q8PD6/Ki4R8EVl+bzBOnZY95fq9rj9zAkTI2SxdidBHqG9+skdw43borCXO/ZcJdraPWdv22uIEiLA4q7nvvCug8WTqzQveOH26fodo7g6uFe/a17W3+nFBAkRYENRdb1vkkz1CH9cPsVy/jrhr27PqMYvENYNlHAIesRiBYwRy0V+8iXP8+/fvX11Mr7L7ECueb/r48eMqm7FuI2BGWDEG8cm+7G3NEOfmdcTQw4h9/55lhm7DekRYKQPZF2ArbXTAyu4kDYB2YxUzwg0gi/41ztHnfQG26HbGel/crVrm7tNY+/1btkOEAZ2M05r4FB7r9GbAIdxaZYrHdOsgJ/wCEQY0J74TmOKnbxxT9n3FgGGWWsVdowHtjt9Nnvf7yQM2aZU/TIAIAxrw6dOnAWtZZcoEnBpNuTuObWMEiLAx1HY0ZQJEmHJ3HNvGCBBhY6jtaMoEiJB0Z29vL6ls58vxPcO8/zfrdo5qvKO+d3Fx8Wu8zf1dW4p/cPzLly/dtv9Ts/EbcvGAHhHyfBIhZ6NSiIBTo0LNNtScABFyNiqFCBChULMNNSdAhJyNSiECRCjUbEPNCRAhZ6NSiAARCjXbUHMCRMjZqBQiQIRCzTbUnAARcjYqhQgQoVCzDTUnQIScjUohAkQo1GxDzQkQIWejUogAEQo121BzAkTI2agUIkCEQs021JwAEXI2KoUIEKFQsw01J0CEnI1KIQJEKNRsQ80JECFno1KIABEKNdtQcwJEyNmoFCJAhELNNtScABFyNiqFCBChULMNNSdAhJyNSiECRCjUbEPNCRAhZ6NSiAARCjXbUHMCRMjZqBQiQIRCzTbUnAARcjYqhQgQoVCzDTUnQIScjUohAkQo1GxDzQkQIWejUogAEQo121BzAkTI2agUIkCEQs021JwAEXI2KoUIEKFQsw01J0CEnI1KIQJEKNRsQ80JECFno1KIABEKNdtQcwJEyNmoFCJAhELNNtScABFyNiqFCBChULMNNSdAhJyNSiECRCjUbEPNCRAhZ6NSiAARCjXbUHMCRMjZqBQiQIRCzTbUnAARcjYqhQgQoVCzDTUnQIScjUohAkQo1GxDzQkQIWejUogAEQo121BzAkTI2agUIkCEQs021JwAEXI2KoUIEKFQsw01J0CEnI1KIQJEKNRsQ80JECFno1KIABEKNdtQcwJEyNmoFCJAhELNNtScABFyNiqFCBChULMNNSdAhJyNSiEC/wGgKKC4YMA4TAAAAABJRU5ErkJggg==";
 import { MenuItem } from "@/app/shared/types/antd.model";
 import { cn } from "@/lib/utils";
 import {
@@ -62,25 +60,28 @@ import {
   formatNumber,
 } from "@/app/shared/utils/utils";
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
+import { defaultImage } from "@/app/shared/resources/images/default-image";
+import { ProductModel } from "@/app/shared/models/products/products.model";
+import { DataType } from "@/app/(dashboard)/admin/(inventory-product)/inventory/hooks/useInventory";
 
 type InventoryTablePropsType = {
+  handleSelectAllRow: (
+    selected: boolean,
+    selectedRows: DataType[],
+    changeRows: DataType[],
+  ) => void;
   handleDeleteProduct: (id: string) => Promise<boolean>;
   deleteProductLoading: boolean;
+  handleSelectRow: (
+    record: DataType,
+    selected: boolean,
+    selectedRows: DataType[],
+  ) => void;
+  handleDeleteSelectedProducts: () => Promise<void>;
+  handleClearAllSelectedRows: () => void;
+  selectedRows: DataType[];
 };
 
-interface DataType {
-  id: string;
-  key: string;
-  name: string;
-  category: string;
-  price: number;
-  quantity: number;
-  discount: number;
-  totalValue: number;
-  status: "ACTIVE" | "INACTIVE" | "DELETED";
-  createdAt: string;
-  images: string[];
-}
 type OnChange = NonNullable<TableProps<DataType>["onChange"]>;
 type Filters = Parameters<OnChange>[1];
 
@@ -88,30 +89,21 @@ type GetSingle<T> = T extends (infer U)[] ? U : never;
 type Sorts = GetSingle<Parameters<OnChange>[2]>;
 
 const InventoryTable = ({
+  handleSelectRow,
+  handleSelectAllRow,
   handleDeleteProduct,
+  handleClearAllSelectedRows,
+  selectedRows,
   deleteProductLoading,
+  handleDeleteSelectedProducts,
 }: InventoryTablePropsType) => {
-  const [isModalCreateProductOpen, setIsModalCreateProductOpen] =
-    useState(false);
-  const _onOpenModalCreateProduct = () => {
-    setIsModalCreateProductOpen(true);
-  };
-  const handleCloseModalCreateProduct = () => {
-    setIsModalCreateProductOpen(false);
-  };
-
-  /**
-   * -----------------------
-   * TABLE
-   * -----------------------
-   */
-  const [defaultProductFormData, setDefaultProductFormData] =
-    useState<CreateProductDTO>();
   const [filteredInfo, setFilteredInfo] = useState<Filters>({});
   const [sortedInfo, setSortedInfo] = useState<Sorts>({});
   const [sortedDate, setSortedDate] = useState<Dayjs[] | null>(null);
-  const [selectedRows, setSelectedRows] = useState<DataType[]>([]);
-
+  const [isModalCreateProductOpen, setIsModalCreateProductOpen] =
+    useState(false);
+  const [inventoryPage, setInventoryPage] = useState(1);
+  const [inventoryLimit, setInventoryLimit] = useState(10);
   const ButtonDeleteSelected = withDeleteConfirmPopover(
     <Button
       type="primary"
@@ -124,7 +116,12 @@ const InventoryTable = ({
       Delete Selected Products
     </Button>,
   );
-
+  const _onOpenModalCreateProduct = () => {
+    setIsModalCreateProductOpen(true);
+  };
+  const handleCloseModalCreateProduct = () => {
+    setIsModalCreateProductOpen(false);
+  };
   const _onDeleteProduct = async (id: string) => {
     await handleDeleteProduct(id);
   };
@@ -133,61 +130,79 @@ const InventoryTable = ({
     selected: boolean,
     selectedRows: DataType[],
   ) => {
-    setSelectedRows(selectedRows);
+    handleSelectRow(record, selected, selectedRows);
   };
   const _onSelectAllRow = (
     selected: boolean,
     selectedRows: DataType[],
     changeRows: DataType[],
   ) => {
-    setSelectedRows(selectedRows);
+    handleSelectAllRow(selected, selectedRows, changeRows);
   };
-  console.log("🚀 ~ selectedRows:", selectedRows);
   const _onDeleteSelectedProducts = async () => {
-    if (selectedRows.length === 0) return;
-    console.log(selectedRows);
-    await Promise.all(
-      selectedRows.map(async (item) => await _onDeleteProduct(item.id)),
-    );
-    setSelectedRows([]);
+    await handleDeleteSelectedProducts();
   };
-  const _handleChangeDate = (dates: Dayjs[], dateStrings: string[]) => {
+  const _onChangeDate = (dates: Dayjs[], dateStrings: string[]) => {
     setSortedDate(dates);
   };
-  const _handleSubmitFilterDate = () => {
+  const _onSubmitFilterDate = () => {
     console.log(sortedDate);
   };
-  const _handleChangeTable: OnChange = (pagination, filters, sorter) => {
-    console.log("Pagination:", pagination);
-    console.log("Filters:", filters);
-    console.log("Sorter:", sorter);
+  const _onChangeTable: OnChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
     setSortedInfo(sorter as Sorts);
   };
-  const clearFilters = () => {
+  const _onClearFilters = () => {
     setFilteredInfo({});
   };
-  const clearAll = () => {
-    setFilteredInfo({});
+  const _onClearSort = () => {
     setSortedInfo({});
-    setSelectedRows([]);
   };
-  const clearSort = () => {
-    setSortedInfo({});
+  const _onClearAll = () => {
+    _onClearFilters();
+    _onClearSort();
+    handleClearAllSelectedRows();
+  };
+  const _onGenerateTableDataSource = (inventories: ProductModel[]) => {
+    let tableDataSource: DataType[] = [];
+    inventories.forEach((item) => {
+      const images = item.image ? item.image.map((image) => image.url) : [];
+      const category = item.category
+        ? item.category?.map((category) => category.name)
+        : [];
+      const discount = item.discount
+        ? item.discount.reduce(
+            (acc, curr) => acc + (curr.discount_percentage || 0),
+            0,
+          )
+        : 0;
+      const totalValue = item.discount
+        ? (item.price * (100 - discount)) / 100
+        : item.price;
+      tableDataSource.push({
+        key: item.id,
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        price: item.price,
+        images: images as string[],
+        category: category as string[],
+        quantity: item.inventory ? item.inventory.quantity || 0 : 0,
+        discount: discount,
+        totalValue: totalValue,
+        status: item.status,
+        createdAt: item.created_at,
+      });
+    });
+    return tableDataSource;
   };
   const { data: categories } = useQuery({
     queryKey: ["categories"],
     queryFn: () => categoriesService.getCategories(),
   });
-  const [inventoryPage, setInventoryPage] = useState(1);
-  const [inventoryLimit, setInventoryLimit] = useState(10);
-  const [inventoryHasMore, setInventoryHasMore] = useState(false);
   const {
     data: inventories,
     isLoading,
-    isFetching,
-    isPlaceholderData,
-    isPending,
     refetch,
   } = useQuery({
     queryKey: [
@@ -206,44 +221,10 @@ const InventoryTable = ({
       }),
     placeholderData: keepPreviousData,
   });
-  useEffect(() => {
-    if (inventories) {
-      const isHasMore =
-        inventories.meta.total_page > inventories.meta.current_page;
-      setInventoryHasMore(isHasMore);
-    }
-  }, [inventories]);
   const { data: inventoriesData, meta } = inventories || {};
-  const { limit, total_count, current_page, total_page } = meta || {};
+  const { limit, total_count, current_page } = meta || {};
   const tableDataSource =
-    inventoriesData &&
-    inventoriesData.map((item) => ({
-      id: item.id,
-      name: item.name,
-      description: item.description,
-      price: item.price,
-      images: item.image ? item.image.map((image) => image.url) : [],
-      category: item.category
-        ? item.category?.map((category) => category.name)
-        : [],
-      quantity: item.inventory ? item.inventory.quantity : 0,
-      discount: item.discount
-        ? item.discount.reduce(
-            (acc, curr) => acc + (curr.discount_percentage || 0),
-            0,
-          )
-        : 0,
-      totalValue: item.discount
-        ? (item.price *
-            item.discount.reduce(
-              (acc, curr) => acc + (curr.discount_percentage || 0),
-              0,
-            )) /
-          100
-        : item.price,
-      status: item.status,
-      createdAt: item.created_at,
-    }));
+    inventoriesData && _onGenerateTableDataSource(inventoriesData);
   const columns: TableProps<DataType>["columns"] = [
     {
       title: null,
@@ -265,7 +246,7 @@ const InventoryTable = ({
                   alt="product"
                   width={150}
                   height={150}
-                  fallback={defaultImg}
+                  fallback={defaultImage}
                   className="object-contain"
                 />
               ))}
@@ -435,23 +416,23 @@ const InventoryTable = ({
               "flex items-center gap-4",
             )}
           >
-            <Button type="default" onClick={clearFilters}>
+            <Button type="default" onClick={_onClearFilters}>
               Clear filters
             </Button>
-            <Button type="default" onClick={clearSort}>
+            <Button type="default" onClick={_onClearSort}>
               Clear sorts
             </Button>
-            <Button type="default" onClick={clearAll}>
+            <Button type="default" onClick={_onClearAll}>
               Clear all
             </Button>
             <div className="flex items-center gap-1">
               <DatePicker.RangePicker
                 format={"DD-MM-YYYY"}
                 onChange={(dates, dateStrings) => {
-                  _handleChangeDate(dates as Dayjs[], dateStrings);
+                  _onChangeDate(dates as Dayjs[], dateStrings);
                 }}
               />
-              <Button type="primary" onClick={_handleSubmitFilterDate}>
+              <Button type="primary" onClick={_onSubmitFilterDate}>
                 Filtered
               </Button>
             </div>
@@ -461,7 +442,7 @@ const InventoryTable = ({
           <Table
             dataSource={tableDataSource as any}
             columns={columns}
-            onChange={_handleChangeTable}
+            onChange={_onChangeTable}
             rowKey={(record) => record.id}
             rowSelection={{
               onSelect: (record, selected, selectedRows, nativeEvent) =>
