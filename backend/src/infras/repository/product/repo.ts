@@ -126,6 +126,21 @@ export class PostgresProductRepository implements IProductRepository {
     if (condition.status === ModelStatus.DELETED) {
       where.status = { [Op.eq]: ModelStatus.DELETED };
     }
+    if (condition.fromCreatedAt && condition.toCreatedAt) {
+      where.created_at = {
+        [Op.between]: [
+          new Date(condition.fromCreatedAt),
+          new Date(condition.toCreatedAt),
+        ],
+      };
+    } else {
+      if (condition.fromCreatedAt) {
+        where.created_at = { [Op.gte]: new Date(condition.fromCreatedAt) };
+      }
+      if (condition.toCreatedAt) {
+        where.created_at = { [Op.lte]: new Date(condition.toCreatedAt) };
+      }
+    }
     const include: any[] = [
       {
         model: InventoryPersistence,

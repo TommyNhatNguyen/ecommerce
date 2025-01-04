@@ -64,6 +64,7 @@ import { defaultImage } from "@/app/shared/resources/images/default-image";
 import { ProductModel } from "@/app/shared/models/products/products.model";
 import { DataType } from "@/app/(dashboard)/admin/inventory/hooks/useInventory";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
+import { DateString } from "@/app/shared/types/datestring.model";
 
 type InventoryTablePropsType = {
   handleSelectAllRow: (
@@ -106,7 +107,13 @@ const InventoryTable = ({
 }: InventoryTablePropsType) => {
   const [filteredInfo, setFilteredInfo] = useState<Filters>({});
   const [sortedInfo, setSortedInfo] = useState<Sorts>({});
-  const [sortedDate, setSortedDate] = useState<Dayjs[] | null>(null);
+  const [sortedDate, setSortedDate] = useState<
+    [start: DateString | null | undefined, end: DateString | null | undefined]
+  >([null, null]);
+  const [renderDate, setRenderDate] = useState<
+    [Dayjs | null | undefined, Dayjs | null | undefined]
+  >([null, null]);
+  const [isFilterDate, setIsFilterDate] = useState(false);
   const [isModalCreateProductOpen, setIsModalCreateProductOpen] =
     useState(false);
   const [inventoryPage, setInventoryPage] = useState(1);
@@ -139,6 +146,7 @@ const InventoryTable = ({
       inventoryLimit,
       updateStatusLoading,
       softDeleteSelectedProductsLoading,
+      isFilterDate,
     ],
     queryFn: () =>
       productService.getProducts({
@@ -147,6 +155,8 @@ const InventoryTable = ({
         includeCategory: true,
         includeDiscount: true,
         includeImage: true,
+        fromCreatedAt: sortedDate[0] || undefined,
+        toCreatedAt: sortedDate[1] || undefined,
       }),
     placeholderData: keepPreviousData,
   });
@@ -179,10 +189,11 @@ const InventoryTable = ({
     await handleSoftDeleteSelectedProducts();
   };
   const _onChangeDate = (dates: Dayjs[], dateStrings: string[]) => {
-    setSortedDate(dates);
+    setRenderDate([dates[0], dates[1]]);
+    setSortedDate([dateStrings[0] as DateString, dateStrings[1] as DateString]);
   };
   const _onSubmitFilterDate = () => {
-    console.log(sortedDate);
+    setIsFilterDate((prev) => !prev);
   };
   const _onChangeTable: OnChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
@@ -190,6 +201,9 @@ const InventoryTable = ({
   };
   const _onClearFilters = () => {
     setFilteredInfo({});
+    setSortedDate([null, null]);
+    setRenderDate([null, null]);
+    setIsFilterDate(false);
   };
   const _onClearSort = () => {
     setSortedInfo({});
@@ -513,7 +527,8 @@ const InventoryTable = ({
             </Button>
             <div className="flex items-center gap-1">
               <DatePicker.RangePicker
-                format={"DD-MM-YYYY"}
+                format={"YYYY-MM-DD"}
+                value={renderDate}
                 onChange={(dates, dateStrings) => {
                   _onChangeDate(dates as Dayjs[], dateStrings);
                 }}

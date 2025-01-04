@@ -1,4 +1,5 @@
 import { ModelStatus } from "@/app/shared/models/others/status.model";
+import { DateString } from "@/app/shared/types/datestring.model";
 import { UploadFile } from "antd";
 
 export type CreateProductDTO = {
@@ -47,6 +48,8 @@ export type GetProductsBodyDTO = {
   categoryIds?: string[];
   order?: BaseOrder;
   sortBy?: BaseSortBy;
+  fromCreatedAt?: DateString;
+  toCreatedAt?: DateString;
   includeDiscount?: boolean;
   includeCategory?: boolean;
   includeVariant?: boolean;

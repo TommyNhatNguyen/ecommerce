@@ -43,6 +43,8 @@ export const ProductConditionDTOSchema = z.object({
   categoryIds: z.array(z.string().uuid()).optional(),
   order: z.nativeEnum(BaseOrder).optional(),
   sortBy: z.nativeEnum(BaseSortBy).optional(),
+  fromCreatedAt: z.string().date().optional(),
+  toCreatedAt: z.string().date().optional(),
   includeDiscount: z
     .string()
     .refine((value) => value === 'true' || value === 'false')
