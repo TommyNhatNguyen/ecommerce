@@ -35,7 +35,7 @@ const withDeleteConfirmPopover = (Component: React.ReactNode) => {
           </Button>
           {isWithDeleteConfirmPopover ? (
             <Popover
-              {...props}
+              trigger="click"
               content={
                 <div className="flex justify-end gap-2">
                   <Button type="default" onClick={_toggleOpenDeleteConfirm}>

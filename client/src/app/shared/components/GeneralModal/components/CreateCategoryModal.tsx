@@ -51,7 +51,7 @@ const CreateCategoryModal = ({
         type: "CATEGORY" as ImageType.CATEGORY,
       });
       if (response) {
-        return response.data.id;
+        return response.id;
       } else {
         throw new Error("Failed to upload image");
       }

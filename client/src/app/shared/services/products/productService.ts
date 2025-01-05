@@ -20,6 +20,15 @@ export const productService = {
     });
     return response.data;
   },
+  getProductById: async (
+    id: string,
+    query: GetProductsBodyDTO,
+  ): Promise<ProductModel> => {
+    const response = await axiosInstance.get(`/products/${id}`, {
+      params: query,
+    });
+    return response.data;
+  },
   deleteProduct: async (id: string): Promise<boolean> => {
     const response = await axiosInstance.delete(`/products/${id}`);
     return !!response.data;

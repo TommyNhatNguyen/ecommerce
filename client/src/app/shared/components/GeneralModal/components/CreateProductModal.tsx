@@ -129,14 +129,14 @@ const CreateProductModal = ({
             type: "PRODUCT" as ImageType.PRODUCT,
           });
           if (response) {
-            return response.data;
+            return response;
           } else {
             throw new Error("Failed to upload image");
           }
         }),
-      );
+      );  
       if (response.length > 0) {
-        const imageIds = response.map((item) => item.id);
+        const imageIds = response.map((item) => item?.id);
         return imageIds;
       } else {
         throw new Error("Failed to upload image");
@@ -157,7 +157,7 @@ const CreateProductModal = ({
     };
     if (createProductForm.imageFileList) {
       const imageIds = await _onSubmitFileList();
-      payload.imageIds = imageIds;
+      payload.imageIds = imageIds as string[];
     }
     await hanldeCreateProduct(payload);
     refetch();
@@ -458,7 +458,6 @@ const CreateProductModal = ({
             )}
           />
         </div>
-        <LoadingComponent isLoading={createProductLoading} />
       </>
     );
   };
@@ -488,6 +487,7 @@ const CreateProductModal = ({
       open={isModalCreateProductOpen}
       onCancel={_onCloseModalCreateProduct}
       onOk={_onConfirmCreateProduct}
+      loading={createProductLoading || uploadImageLoading}
     />
   );
 };

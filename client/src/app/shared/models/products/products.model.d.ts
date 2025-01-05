@@ -31,5 +31,6 @@ export type ProductModel = {
     id?: string;
     type?: string;
     url?: string;
+    cloudinary_id?: string;
   }[];
 };

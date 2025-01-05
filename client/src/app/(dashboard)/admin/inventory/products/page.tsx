@@ -26,6 +26,8 @@ import {
   CreateCategoryDTO,
   CreateCategoryFormDTO,
 } from "@/app/shared/interfaces/categories/category.dto";
+import UpdateProductModal from "@/app/shared/components/GeneralModal/components/UpdateProductModal";
+import { ProductModel } from "@/app/shared/models/products/products.model";
 
 type Props = {};
 
@@ -46,7 +48,9 @@ const ProductPage = (props: Props) => {
     isModalCreateDiscountCampaignOpen,
     setIsModalCreateDiscountCampaignOpen,
   ] = useState(false);
-
+  const [isModalUpdateProductOpen, setIsModalUpdateProductOpen] =
+    useState(false);
+  const [updateProductId, setUpdateProductId] = useState<string>("");
   // Hooks for category, discount, and product management
   const {
     loading: createCategoryLoading,
@@ -79,7 +83,7 @@ const ProductPage = (props: Props) => {
   const {
     data: products,
     isLoading: isLoadingProducts,
-    refetch,
+    refetch: refetchProducts,
   } = useQuery({
     queryKey: ["products", deleteProductLoading],
     queryFn: () => productService.getProducts({}),
@@ -105,6 +109,15 @@ const ProductPage = (props: Props) => {
 
   const handleCloseModalCreateProduct = () => {
     setIsModalCreateProductOpen(false);
+  };
+
+  const _onOpenModalUpdateProduct = (id: string) => {
+    setUpdateProductId(id);
+    setIsModalUpdateProductOpen(true);
+  };
+
+  const handleCloseModalUpdateProduct = () => {
+    setIsModalUpdateProductOpen(false);
   };
 
   const _onOpenModalCreateCategory = () => {
@@ -178,6 +191,7 @@ const ProductPage = (props: Props) => {
                   <Button
                     type="text"
                     className="aspect-square rounded-full p-0"
+                    onClick={() => _onOpenModalUpdateProduct(item.id)}
                   >
                     <Pencil className="h-4 w-4 stroke-yellow-500" />
                   </Button>
@@ -316,7 +330,13 @@ const ProductPage = (props: Props) => {
       <CreateProductModal
         isModalCreateProductOpen={isModalCreateProductOpen}
         handleCloseModalCreateProduct={handleCloseModalCreateProduct}
-        refetch={refetch}
+        refetch={refetchProducts}
+      />
+      <UpdateProductModal
+        isModalUpdateProductOpen={isModalUpdateProductOpen}
+        handleCloseModalUpdateProduct={handleCloseModalUpdateProduct}
+        updateProductId={updateProductId}
+        refetch={refetchProducts}
       />
     </div>
   );

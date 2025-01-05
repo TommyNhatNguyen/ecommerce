@@ -23,6 +23,8 @@ import {
   Popover,
   Tooltip,
   Carousel,
+  Slider,
+  Card,
 } from "antd";
 import {
   ArrowLeftCircle,
@@ -65,6 +67,7 @@ import { ProductModel } from "@/app/shared/models/products/products.model";
 import { DataType } from "@/app/(dashboard)/admin/inventory/hooks/useInventory";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { DateString } from "@/app/shared/types/datestring.model";
+import UpdateProductModal from "@/app/shared/components/GeneralModal/components/UpdateProductModal";
 
 type InventoryTablePropsType = {
   handleSelectAllRow: (
@@ -118,6 +121,9 @@ const InventoryTable = ({
     useState(false);
   const [inventoryPage, setInventoryPage] = useState(1);
   const [inventoryLimit, setInventoryLimit] = useState(10);
+  const [isModalUpdateProductOpen, setIsModalUpdateProductOpen] =
+    useState(false);
+  const [updateProductId, setUpdateProductId] = useState<string>("");
   const ButtonDeleteSelected = withDeleteConfirmPopover(
     <Button
       type="primary"
@@ -137,7 +143,7 @@ const InventoryTable = ({
   const {
     data: inventories,
     isLoading,
-    refetch,
+    refetch: refetchProducts,
   } = useQuery({
     queryKey: [
       "inventories",
@@ -167,6 +173,14 @@ const InventoryTable = ({
   };
   const handleCloseModalCreateProduct = () => {
     setIsModalCreateProductOpen(false);
+  };
+  const _onOpenModalUpdateProduct = (id: string) => {
+    setUpdateProductId(id);
+    setIsModalUpdateProductOpen(true);
+  };
+
+  const handleCloseModalUpdateProduct = () => {
+    setIsModalUpdateProductOpen(false);
   };
   const _onSoftDeleteProduct = async (id: string) => {
     await handleSoftDeleteProduct(id);
@@ -331,6 +345,31 @@ const InventoryTable = ({
       sorter: (a, b) => a.price - b.price,
       sortOrder: sortedInfo.columnKey === "price" ? sortedInfo.order : null,
       render: (_, { price }) => <span>{formatCurrency(price)}</span>,
+      // filterDropdown: () => {
+      //   return (
+      //     <div className="flex flex-col gap-2 rounded-md p-2">
+      //       <Slider
+      //         step={1000000}
+      //         min={0}
+      //         max={100000000}
+      //         onChange={(value) => {
+      //           console.log(value);
+      //         }}
+      //       />
+      //       <div className="flex items-center justify-end gap-1">
+      //         <Button type="primary" onClick={() => {}}>
+      //           Confirm
+      //         </Button>
+      //         <Button type="primary" onClick={() => {}}>
+      //           Clear
+      //         </Button>
+      //         <Button type="primary" onClick={() => {}}>
+      //           Close
+      //         </Button>
+      //       </div>
+      //     </div>
+      //   );
+      // },
     },
     {
       title: "In stock",
@@ -474,10 +513,7 @@ const InventoryTable = ({
             _onSoftDeleteProduct(id);
           }}
           handleEdit={() => {
-            const item =
-              inventoriesData && inventoriesData.find((item) => item.id === id);
-            console.log(item);
-            // setDefaultProductFormData(item);
+            _onOpenModalUpdateProduct(id);
           }}
         />
       ),
@@ -569,7 +605,13 @@ const InventoryTable = ({
       <CreateProductModal
         isModalCreateProductOpen={isModalCreateProductOpen}
         handleCloseModalCreateProduct={handleCloseModalCreateProduct}
-        refetch={refetch}
+        refetch={refetchProducts}
+      />
+      <UpdateProductModal
+        isModalUpdateProductOpen={isModalUpdateProductOpen}
+        handleCloseModalUpdateProduct={handleCloseModalUpdateProduct}
+        updateProductId={updateProductId}
+        refetch={refetchProducts}
       />
     </>
   );

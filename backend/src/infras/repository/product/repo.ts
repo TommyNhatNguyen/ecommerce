@@ -270,6 +270,7 @@ export class PostgresProductRepository implements IProductRepository {
       where: { id },
       returning: true,
     });
+    console.log(imageIds)
     const updatedProduct: any = await this.sequelize.models[
       productModelName
     ].findByPk(id);
@@ -283,6 +284,7 @@ export class PostgresProductRepository implements IProductRepository {
       await updatedProduct.setVariant(variantIds);
     }
     if (typeof imageIds === 'object') {
+      console.log(imageIds);
       await updatedProduct.setImage(imageIds);
     }
     if (typeof quantity === 'number') {
