@@ -1,13 +1,14 @@
 import { cn } from "@/lib/utils";
 import { Input, InputProps, InputRef } from "antd";
 import React, { forwardRef } from "react";
+import { ControllerRenderProps } from "react-hook-form";
 
 type InputAdminPropsType = {
   label: string;
   error?: string;
   required?: boolean;
   customComponent?: (
-    props: InputProps,
+    props: ControllerRenderProps<any, any>,
     ref: React.RefObject<InputRef>,
   ) => React.ReactNode;
   groupClassName?: string;
@@ -32,7 +33,10 @@ const InputAdmin = forwardRef(
           {label}
         </label>
         {customComponent ? (
-          customComponent(props, ref as React.RefObject<InputRef>)
+          customComponent(
+            props as ControllerRenderProps<any, any>,
+            ref as React.RefObject<InputRef>,
+          )
         ) : (
           <Input
             ref={ref}

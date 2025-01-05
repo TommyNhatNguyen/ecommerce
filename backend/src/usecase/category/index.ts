@@ -21,6 +21,14 @@ export class CategoryUseCase implements ICategoryUseCase {
     id: string,
     data: CategoryUpdateDTOSchema
   ): Promise<Category> {
+    const updatedCategory = await this.repository.get(id, {
+      include_image: true,
+      order: BaseOrder.DESC,
+      sortBy: BaseSortBy.CREATED_AT,
+    });
+    if (updatedCategory?.image) {
+      await this.cloudinaryImageRepository.delete(updatedCategory.image.cloudinary_id);
+    }
     const category = await this.repository.update(id, data);
     return category;
   }
@@ -30,9 +38,7 @@ export class CategoryUseCase implements ICategoryUseCase {
       order: BaseOrder.DESC,
       sortBy: BaseSortBy.CREATED_AT,
     });
-    console.log("🚀 ~ CategoryUseCase ~ deleteCategory ~ category.image:", category)
     if (category?.image) {
-      console.log("🚀 ~ CategoryUseCase ~ deleteCategory ~ category.image:", category.image)
       await this.cloudinaryImageRepository.delete(category.image.cloudinary_id);
     }
     await this.repository.delete(id);

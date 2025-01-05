@@ -71,7 +71,7 @@ export class CategoryHttpService {
   async getCategory(req: Request, res: Response) {
     const { id } = req.params;
     const { success, data, error } = CategoryConditionDTOSchema.safeParse(
-      req.body
+      req.query
     );
     if (!success) {
       res.status(400).json({ message: error?.message });
@@ -83,7 +83,7 @@ export class CategoryHttpService {
         res.status(404).json({ message: 'Category not found' });
         return;
       }
-      res.status(200).json({ message: 'Category found',  ...category });
+      res.status(200).json({ message: 'Category found', ...category });
     } catch (error) {
       res.status(500).json({ message: 'Failed to get category' });
       return;
@@ -106,7 +106,6 @@ export class CategoryHttpService {
       return;
     }
     try {
-
       const categories = await this.useCase.listCategory(
         pagingData,
         conditionData

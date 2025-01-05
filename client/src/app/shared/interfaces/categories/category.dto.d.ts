@@ -18,9 +18,17 @@ export type GetCategoriesBodyDTO = {
   name?: string;
   id?: string;
   include_products?: boolean;
+  include_image?: boolean;
   status?: string;
   order?: string;
   sortBy?: string;
   created_at?: string;
   updated_at?: string;
+};
+
+export type UpdateCategoryDTO = {
+  name?: string;
+  description?: string;
+  image_id?: string;
+  status?: ModelStatus;
 };

@@ -28,6 +28,7 @@ import {
 } from "@/app/shared/interfaces/categories/category.dto";
 import UpdateProductModal from "@/app/shared/components/GeneralModal/components/UpdateProductModal";
 import { ProductModel } from "@/app/shared/models/products/products.model";
+import UpdateCategoryModal from "@/app/shared/components/GeneralModal/components/UpdateCategoryModal";
 
 type Props = {};
 
@@ -51,6 +52,9 @@ const ProductPage = (props: Props) => {
   const [isModalUpdateProductOpen, setIsModalUpdateProductOpen] =
     useState(false);
   const [updateProductId, setUpdateProductId] = useState<string>("");
+  const [isModalUpdateCategoryOpen, setIsModalUpdateCategoryOpen] =
+    useState(false);
+  const [updateCategoryId, setUpdateCategoryId] = useState<string>("");
   // Hooks for category, discount, and product management
   const {
     loading: createCategoryLoading,
@@ -70,12 +74,20 @@ const ProductPage = (props: Props) => {
     useProducts();
 
   // Queries for fetching data
-  const { data: categories, isLoading: isLoadingCategories } = useQuery({
+  const {
+    data: categories,
+    isLoading: isLoadingCategories,
+    refetch: refetchCategories,
+  } = useQuery({
     queryKey: ["categories", createCategoryLoading, deleteCategoryLoading],
     queryFn: () => categoriesService.getCategories({}, {}),
   });
 
-  const { data: discounts, isLoading: isLoadingDiscounts } = useQuery({
+  const {
+    data: discounts,
+    isLoading: isLoadingDiscounts,
+    refetch: refetchDiscounts,
+  } = useQuery({
     queryKey: ["discounts", createDiscountLoading, deleteDiscountLoading],
     queryFn: () => discountsService.getDiscounts(),
   });
@@ -118,6 +130,15 @@ const ProductPage = (props: Props) => {
 
   const handleCloseModalUpdateProduct = () => {
     setIsModalUpdateProductOpen(false);
+  };
+
+  const _onOpenModalUpdateCategory = (id: string) => {
+    setUpdateCategoryId(id);
+    setIsModalUpdateCategoryOpen(true);
+  };
+
+  const handleCloseModalUpdateCategory = () => {
+    setIsModalUpdateCategoryOpen(false);
   };
 
   const _onOpenModalCreateCategory = () => {
@@ -239,6 +260,7 @@ const ProductPage = (props: Props) => {
                   <Button
                     type="text"
                     className="aspect-square rounded-full p-0"
+                    onClick={() => _onOpenModalUpdateCategory(item.id)}
                   >
                     <Pencil className="h-4 w-4 stroke-yellow-500" />
                   </Button>
@@ -337,6 +359,12 @@ const ProductPage = (props: Props) => {
         handleCloseModalUpdateProduct={handleCloseModalUpdateProduct}
         updateProductId={updateProductId}
         refetch={refetchProducts}
+      />
+      <UpdateCategoryModal
+        isModalUpdateCategoryOpen={isModalUpdateCategoryOpen}
+        handleCloseModalUpdateCategory={handleCloseModalUpdateCategory}
+        updateCategoryId={updateCategoryId}
+        refetch={refetchCategories}
       />
     </div>
   );

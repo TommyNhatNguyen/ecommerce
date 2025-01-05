@@ -1,6 +1,7 @@
 import {
   CreateCategoryDTO,
   GetCategoriesBodyDTO,
+  UpdateCategoryDTO,
 } from "@/app/shared/interfaces/categories/category.dto";
 import { CategoryModel } from "@/app/shared/models/categories/categories.model";
 import { ListResponseModel } from "@/app/shared/models/others/list-response.model";
@@ -19,6 +20,22 @@ export const categoriesService = {
       params: query,
       data: data,
     });
+    return response.data;
+  },
+  getCategoryById: async (
+    id: string,
+    data?: GetCategoriesBodyDTO,
+  ): Promise<CategoryModel> => {
+    const response = await axiosInstance.get(`/categories/${id}`, {
+      params: data,
+    });
+    return response.data;
+  },
+  updateCategory: async (
+    id: string,
+    data: UpdateCategoryDTO,
+  ): Promise<CategoryModel> => {
+    const response = await axiosInstance.put(`/categories/${id}`, data);
     return response.data;
   },
   deleteCategory: async (id: string): Promise<CategoryModel> => {

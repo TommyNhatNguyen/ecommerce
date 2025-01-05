@@ -8,3 +8,10 @@ export type ImageResponse = {
   updated_at: string;
   created_at: string;
 };
+
+export type ImageModel = {
+  id: string;
+  url: string;
+  cloudinary_id: string;
+  type: ImageType;
+};

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { v7 as uuidv7 } from 'uuid';
-import { BaseOrder, BaseSortBy } from 'src/share/models/base-model';
+import { BaseOrder, BaseSortBy, ModelStatus } from 'src/share/models/base-model';
 
 export const CategoryCreateDTOSchema = z.object({
   id: z
@@ -16,14 +16,23 @@ export const CategoryUpdateDTOSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
   image_id: z.string().uuid().optional(),
+  status: z.nativeEnum(ModelStatus).optional(),
 });
 
 export const CategoryConditionDTOSchema = z.object({
   name: z.string().optional(),
   id: z.string().uuid().optional(),
-  include_products: z.boolean().optional(),
-  include_image: z.boolean().optional(),
-  status: z.string().optional(),
+  include_products: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  include_image: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  status: z.nativeEnum(ModelStatus).optional(),
   order: z.string().optional().default(BaseOrder.DESC),
   sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
   created_at: z.string().optional(),
