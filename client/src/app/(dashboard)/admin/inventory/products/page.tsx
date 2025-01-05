@@ -29,6 +29,7 @@ import {
 import UpdateProductModal from "@/app/shared/components/GeneralModal/components/UpdateProductModal";
 import { ProductModel } from "@/app/shared/models/products/products.model";
 import UpdateCategoryModal from "@/app/shared/components/GeneralModal/components/UpdateCategoryModal";
+import UpdateDiscountModal from "@/app/shared/components/GeneralModal/components/UpdateDiscountModal";
 
 type Props = {};
 
@@ -55,6 +56,12 @@ const ProductPage = (props: Props) => {
   const [isModalUpdateCategoryOpen, setIsModalUpdateCategoryOpen] =
     useState(false);
   const [updateCategoryId, setUpdateCategoryId] = useState<string>("");
+  const [
+    isModalUpdateDiscountCampaignOpen,
+    setIsModalUpdateDiscountCampaignOpen,
+  ] = useState(false);
+  const [updateDiscountCampaignId, setUpdateDiscountCampaignId] =
+    useState<string>("");
   // Hooks for category, discount, and product management
   const {
     loading: createCategoryLoading,
@@ -141,6 +148,15 @@ const ProductPage = (props: Props) => {
     setIsModalUpdateCategoryOpen(false);
   };
 
+  const _onOpenModalUpdateDiscountCampaign = (id: string) => {
+    setUpdateDiscountCampaignId(id);
+    setIsModalUpdateDiscountCampaignOpen(true);
+  };
+
+  const handleCloseModalUpdateDiscountCampaign = () => {
+    setIsModalUpdateDiscountCampaignOpen(false);
+  };
+
   const _onOpenModalCreateCategory = () => {
     setIsModalCreateCategoryOpen(true);
   };
@@ -179,7 +195,7 @@ const ProductPage = (props: Props) => {
     await hanldeCreateDiscount(payload);
     handleCloseModalCreateDiscountCampaign();
   };
-
+  console.log(discounts);
   return (
     <div className="grid min-h-[300px] grid-flow-row grid-cols-3 gap-4">
       {/* Product Card */}
@@ -310,6 +326,7 @@ const ProductPage = (props: Props) => {
                   <Button
                     type="text"
                     className="aspect-square rounded-full p-0"
+                    onClick={() => _onOpenModalUpdateDiscountCampaign(item.id)}
                   >
                     <Pencil className="h-4 w-4 stroke-yellow-500" />
                   </Button>
@@ -365,6 +382,14 @@ const ProductPage = (props: Props) => {
         handleCloseModalUpdateCategory={handleCloseModalUpdateCategory}
         updateCategoryId={updateCategoryId}
         refetch={refetchCategories}
+      />
+      <UpdateDiscountModal
+        isModalUpdateDiscountCampaignOpen={isModalUpdateDiscountCampaignOpen}
+        handleCloseModalUpdateDiscountCampaign={
+          handleCloseModalUpdateDiscountCampaign
+        }
+        updateDiscountCampaignId={updateDiscountCampaignId}
+        refetch={refetchDiscounts}
       />
     </div>
   );

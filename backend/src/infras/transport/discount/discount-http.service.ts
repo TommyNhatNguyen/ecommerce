@@ -1,4 +1,8 @@
-import { DiscountConditionDTOSchema, DiscountCreateDTOSchema, DiscountUpdateDTOSchema } from '@models/discount/discount.dto';
+import {
+  DiscountConditionDTOSchema,
+  DiscountCreateDTOSchema,
+  DiscountUpdateDTOSchema,
+} from '@models/discount/discount.dto';
 
 import { IDiscountUseCase } from '@models/discount/discount.interface';
 import { Request, Response } from 'express';
@@ -18,7 +22,7 @@ export class DiscountHttpService {
       }
       res
         .status(200)
-        .json({ ...discount, message: 'Discount fetched successfully' });
+        .json({ data: discount, message: 'Discount fetched successfully' });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
       return;
@@ -51,7 +55,7 @@ export class DiscountHttpService {
       }
       res
         .status(200)
-        .json({  ...discounts, message: 'Discounts fetched successfully' });
+        .json({ ...discounts, message: 'Discounts fetched successfully' });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
       return;

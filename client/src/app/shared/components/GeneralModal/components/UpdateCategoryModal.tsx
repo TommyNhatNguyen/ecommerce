@@ -208,7 +208,7 @@ const UpdateCategoryModal = ({
           htmlType="submit"
           onClick={handleSubmit(_onConfirmUpdateCategory)}
         >
-          Create
+          Update
         </Button>
       </div>
     );
