@@ -59,7 +59,7 @@ export class PostgresProductRepository implements IProductRepository {
       {
         model: InventoryPersistence,
         as: inventoryModelName,
-        attributes: ['quantity'],
+        exclude: [...EXCLUDE_ATTRIBUTES, 'low_stock_threshold', 'product_id'],
       },
     ];
     if (condition?.includeDiscount) {
@@ -145,7 +145,9 @@ export class PostgresProductRepository implements IProductRepository {
       {
         model: InventoryPersistence,
         as: inventoryModelName,
-        attributes: ['quantity'],
+        attributes: {
+          exclude: [...EXCLUDE_ATTRIBUTES, 'low_stock_threshold', 'product_id'],
+        },
       },
     ];
     if (condition.includeDiscount) {
@@ -220,15 +222,8 @@ export class PostgresProductRepository implements IProductRepository {
       quantity,
       ...rest
     } = data;
-    const payload = { ...data, [inventoryModelName]: { quantity } };
+    const payload = { ...rest };
     const result = await this.sequelize.models[this.modelName].create(payload, {
-      include: [
-        {
-          model: InventoryPersistence,
-          as: inventoryModelName,
-          attributes: ['quantity'],
-        },
-      ],
       returning: true,
     });
     const createdProduct: any = await this.sequelize.models[
@@ -270,7 +265,6 @@ export class PostgresProductRepository implements IProductRepository {
       where: { id },
       returning: true,
     });
-    console.log(imageIds)
     const updatedProduct: any = await this.sequelize.models[
       productModelName
     ].findByPk(id);
@@ -284,13 +278,12 @@ export class PostgresProductRepository implements IProductRepository {
       await updatedProduct.setVariant(variantIds);
     }
     if (typeof imageIds === 'object') {
-      console.log(imageIds);
       await updatedProduct.setImage(imageIds);
     }
-    if (typeof quantity === 'number') {
-      const inventory = await updatedProduct.getInventory();
-      await inventory.update({ quantity: quantity });
-    }
+    // if (typeof quantity === 'number') {
+    //   const inventory = await updatedProduct.getInventory();
+    //   await inventory.update({ quantity: quantity });
+    // }
     return result[1][0].dataValues;
   }
 

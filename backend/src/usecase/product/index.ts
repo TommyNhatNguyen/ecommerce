@@ -1,4 +1,5 @@
 import { IImageCloudinaryRepository } from '@models/image/image.interface';
+import { IInventoryRepository } from '@models/inventory/inventory.interface';
 import {
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
@@ -14,7 +15,11 @@ import { PagingDTO } from 'src/share/models/paging';
 import { v7 as uuidv7 } from 'uuid';
 
 export class ProductUseCase implements IProductUseCase {
-  constructor(private readonly repository: IProductRepository, private readonly cloudinaryImageRepository: IImageCloudinaryRepository) {}
+  constructor(
+    private readonly repository: IProductRepository,
+
+    private readonly cloudinaryImageRepository: IImageCloudinaryRepository
+  ) {}
   async updateProduct(
     id: string,
     data: ProductUpdateDTOSchema
@@ -22,11 +27,13 @@ export class ProductUseCase implements IProductUseCase {
     return await this.repository.update(id, data);
   }
   async deleteProduct(id: string): Promise<boolean> {
-    const product = await this.repository.get(id, {includeImage: true});
+    const product = await this.repository.get(id, { includeImage: true });
     if (product?.image?.length && product.image.length > 0) {
-      await Promise.all(product.image.map(async (image) => {
-        await this.cloudinaryImageRepository.delete(image.cloudinary_id);
-      }));
+      await Promise.all(
+        product.image.map(async (image) => {
+          await this.cloudinaryImageRepository.delete(image.cloudinary_id);
+        })
+      );
     }
     await this.repository.delete(id);
     return true;

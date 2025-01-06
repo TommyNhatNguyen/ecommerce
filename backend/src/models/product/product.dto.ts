@@ -5,6 +5,7 @@ import {
 } from 'src/share/models/base-model';
 import { z } from 'zod';
 import { v7 as uuidv7 } from 'uuid';
+import { StockStatus } from '@models/inventory/inventory.model';
 
 export const ProductCreateDTOSchema = z.object({
   id: z
@@ -18,6 +19,8 @@ export const ProductCreateDTOSchema = z.object({
   variantIds: z.array(z.string().uuid()).optional(),
   imageIds: z.array(z.string().uuid()).optional(),
   quantity: z.number().nonnegative().min(0).optional(),
+  low_stock_threshold: z.number().nonnegative().min(0).optional(),
+  stock_status: z.nativeEnum(StockStatus).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
 });
 
@@ -33,6 +36,8 @@ export const ProductUpdateDTOSchema = z.object({
   variantIds: z.array(z.string().uuid()).optional(),
   imageIds: z.array(z.string().uuid()).optional(),
   quantity: z.number().nonnegative().min(0).optional(),
+  low_stock_threshold: z.number().nonnegative().min(0).optional(),
+  stock_status: z.nativeEnum(StockStatus).optional(),
 });
 
 export const ProductConditionDTOSchema = z.object({

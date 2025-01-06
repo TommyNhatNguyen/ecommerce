@@ -1,3 +1,4 @@
+import { IInventoryUseCase } from '@models/inventory/inventory.interface';
 import {
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
@@ -8,7 +9,10 @@ import { Request, Response } from 'express';
 import { PagingDTOSchema } from 'src/share/models/paging';
 
 export class ProductHttpService {
-  constructor(private readonly productUseCase: IProductUseCase) {}
+  constructor(
+    private readonly productUseCase: IProductUseCase,
+    private readonly inventoryUseCase: IInventoryUseCase
+  ) {}
 
   async createNewProduct(req: Request, res: Response) {
     const { success, data, error } = ProductCreateDTOSchema.safeParse(req.body);
@@ -18,6 +22,11 @@ export class ProductHttpService {
     }
     try {
       const result = await this.productUseCase.createNewProduct(data);
+      await this.inventoryUseCase.createInventory({
+        product_id: result.id,
+        quantity: data.quantity ?? 0,
+        low_stock_threshold: data.low_stock_threshold ?? 0,
+      });
       res.status(200).json({
         message: 'Product created successfully',
         data: result,
@@ -48,6 +57,11 @@ export class ProductHttpService {
         return;
       }
       const result = await this.productUseCase.updateProduct(id, data);
+      product?.inventory?.id &&
+        (await this.inventoryUseCase.updateInventory(product.inventory.id, {
+          quantity: data.quantity,
+          low_stock_threshold: data.low_stock_threshold,
+        }));
       res.status(200).json({
         message: 'Product updated successfully',
         data: result,
@@ -67,7 +81,9 @@ export class ProductHttpService {
     }
 
     try {
-      const product = await this.productUseCase.getProductById(id, {includeImage: true});
+      const product = await this.productUseCase.getProductById(id, {
+        includeImage: true,
+      });
       if (!product) {
         res.status(404).json({ error: 'Product not found' });
         return;
@@ -105,7 +121,7 @@ export class ProductHttpService {
       const result = await this.productUseCase.getProducts(condition, paging);
       res.status(200).json({
         message: 'Products fetched successfully',
-         ...result,
+        ...result,
       });
     } catch (error) {
       res.status(400).json({ error: (error as Error).message });

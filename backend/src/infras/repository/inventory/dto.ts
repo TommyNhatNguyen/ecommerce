@@ -1,3 +1,4 @@
+import { StockStatus } from '@models/inventory/inventory.model';
 import { Sequelize } from 'sequelize';
 import { DataTypes, Model } from 'sequelize';
 import { productModelName } from 'src/infras/repository/product/dto';
@@ -7,6 +8,10 @@ export class InventoryPersistence extends Model {
   declare id: string;
   declare quantity: number;
   declare status: ModelStatus;
+  declare stock_status: StockStatus;
+  declare low_stock_threshold: number;
+  declare created_at: Date;
+  declare updated_at: Date;
 }
 
 export const inventoryModelName = 'inventory';
@@ -27,6 +32,12 @@ export const inventoryInit = (sequelize: Sequelize) => {
         defaultValue: 0,
         validate: { min: 0 },
       },
+      low_stock_threshold: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+        validate: { min: 0 },
+      },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
         allowNull: false,
@@ -41,6 +52,11 @@ export const inventoryInit = (sequelize: Sequelize) => {
         type: DataTypes.DATE,
         allowNull: false,
         defaultValue: new Date(),
+      },
+      stock_status: {
+        type: DataTypes.ENUM(...Object.values(StockStatus)),
+        allowNull: false,
+        defaultValue: StockStatus.IN_STOCK,
       },
     },
     {

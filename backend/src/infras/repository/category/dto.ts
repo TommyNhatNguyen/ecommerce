@@ -26,7 +26,7 @@ export const categoryInit = (sequelize: Sequelize) => {
         allowNull: true,
       },
       image_id: {
-        type: DataTypes.UUID,
+        type: DataTypes.STRING,
         allowNull: true,
         references: {
           model: `${imageModelName}s`,

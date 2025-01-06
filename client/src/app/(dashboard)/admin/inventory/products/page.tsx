@@ -195,7 +195,7 @@ const ProductPage = (props: Props) => {
     await hanldeCreateDiscount(payload);
     handleCloseModalCreateDiscountCampaign();
   };
-  console.log(discounts);
+
   return (
     <div className="grid min-h-[300px] grid-flow-row grid-cols-3 gap-4">
       {/* Product Card */}

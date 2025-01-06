@@ -3,12 +3,12 @@ import {
   InventoryCreateDTOSchema,
   InventoryUpdateDTOSchema,
 } from '@models/inventory/inventory.dto';
-import { InventoryUseCase } from '@models/inventory/inventory.interface';
+import { IInventoryUseCase } from '@models/inventory/inventory.interface';
 import { Request, Response } from 'express';
 import { PagingDTOSchema } from 'src/share/models/paging';
 
 export class InventoryHttpService {
-  constructor(private readonly inventoryUseCase: InventoryUseCase) {}
+  constructor(private readonly inventoryUseCase: IInventoryUseCase) {}
 
   async getInventory(req: Request, res: Response) {
     const { id } = req.params;

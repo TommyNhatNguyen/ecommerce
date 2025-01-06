@@ -7,7 +7,7 @@ import { Inventory } from '@models/inventory/inventory.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
-export interface InventoryUseCase {
+export interface IInventoryUseCase {
   getInventoryById(id: string): Promise<Inventory>;
   getInventoryList(
     paging: PagingDTO,
@@ -16,11 +16,16 @@ export interface InventoryUseCase {
   createInventory(data: InventoryCreateDTO): Promise<Inventory>;
   updateInventory(id: string, data: InventoryUpdateDTO): Promise<Inventory>;
   deleteInventory(id: string): Promise<boolean>;
+  updateInventoryStockStatus(
+    id: string,
+    data: Required<Pick<InventoryUpdateDTO, 'low_stock_threshold'>>
+  ): Promise<Inventory>;
 }
 
-export interface InventoryRepository
+export interface IInventoryRepository
   extends IQueryRepository,
-    ICommandRepository {}
+    ICommandRepository {
+}
 
 export interface IQueryRepository {
   get(id: string): Promise<Inventory>;

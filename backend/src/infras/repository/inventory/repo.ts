@@ -3,13 +3,13 @@ import {
   InventoryCreateDTO,
   InventoryUpdateDTO,
 } from '@models/inventory/inventory.dto';
-import { InventoryRepository } from '@models/inventory/inventory.interface';
+import { IInventoryRepository } from '@models/inventory/inventory.interface';
 import { Inventory } from '@models/inventory/inventory.model';
 import { Sequelize } from 'sequelize';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
-export class PostgresInventoryRepository implements InventoryRepository {
+export class PostgresInventoryRepository implements IInventoryRepository {
   constructor(
     private readonly sequelize: Sequelize,
     private readonly modelName: string
