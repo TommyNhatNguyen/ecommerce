@@ -213,10 +213,12 @@ ReviewPersistence.belongsTo(ProductPersistence, {
 
 ProductPersistence.hasOne(InventoryPersistence, {
   foreignKey: 'product_id',
+  onDelete: 'cascade',
 });
 
 InventoryPersistence.belongsTo(ProductPersistence, {
   foreignKey: 'product_id',
+  onDelete: 'cascade',
 });
 
 CategoryPersistence.belongsTo(ImagePersistence, {
