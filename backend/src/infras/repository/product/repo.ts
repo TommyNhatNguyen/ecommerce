@@ -59,7 +59,7 @@ export class PostgresProductRepository implements IProductRepository {
       {
         model: InventoryPersistence,
         as: inventoryModelName,
-        exclude: [...EXCLUDE_ATTRIBUTES, 'low_stock_threshold', 'product_id'],
+        exclude: [...EXCLUDE_ATTRIBUTES, 'product_id'],
       },
     ];
     if (condition?.includeDiscount) {
@@ -146,7 +146,7 @@ export class PostgresProductRepository implements IProductRepository {
         model: InventoryPersistence,
         as: inventoryModelName,
         attributes: {
-          exclude: [...EXCLUDE_ATTRIBUTES, 'low_stock_threshold', 'product_id'],
+          exclude: [...EXCLUDE_ATTRIBUTES, 'product_id'],
         },
       },
     ];

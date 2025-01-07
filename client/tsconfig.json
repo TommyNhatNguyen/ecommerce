@@ -19,7 +19,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@models/*": ["./src/app/shared/models/*"],
+      "@constants/*": ["./src/app/constants/*"],
+      "@utils/*": ["./src/app/utils/*"]
     }
   },
   "include": [
@@ -30,7 +33,7 @@
     "**/*.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "**/*.*.ts"
+    "**/*.*.ts",
   ],
   "exclude": ["node_modules"]
 }

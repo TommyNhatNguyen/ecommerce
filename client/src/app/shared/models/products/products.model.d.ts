@@ -1,4 +1,5 @@
 import { CategoryModel } from "@/app/shared/models/categories/categories.model";
+import { StockStatus } from "@/app/shared/models/inventories/stock-status";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 
 export type ProductModel = {
@@ -10,7 +11,10 @@ export type ProductModel = {
   created_at: string;
   updated_at: string;
   inventory?: {
+    id?: string;
     quantity?: number;
+    low_stock_threshold?: number;
+    stock_status?: StockStatus;
   };
   discount?: {
     id?: string;
