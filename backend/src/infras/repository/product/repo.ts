@@ -3,6 +3,7 @@ import {
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
   ProductGetStatsDTO,
+  ProductStatsSortBy,
   ProductStatsType,
   ProductUpdateDTOSchema,
 } from '@models/product/product.dto';
@@ -64,10 +65,19 @@ export class PostgresProductRepository implements IProductRepository {
       group.push('discount.name');
       attributes.push('discount.name');
     }
+    if (condition?.groupBy === ProductStatsType.STATUS) {
+      group.push('product.status');
+      attributes.push('product.status');
+    }
+    if (condition?.groupBy === ProductStatsType.STOCK_STATUS) {
+      group.push('inventory.stock_status');
+      attributes.push('inventory.stock_status');
+    }
     const data = await this.sequelize.models[this.modelName].findAll({
       attributes: [
         ...attributes,
         [sequelize.fn('SUM', sequelize.col('inventory.quantity')), 'total'],
+        [sequelize.fn('COUNT', sequelize.col('product.id')), 'product_count'],
       ],
       group: group,
       raw: true,
@@ -163,8 +173,19 @@ export class PostgresProductRepository implements IProductRepository {
       status: { [Op.not]: ModelStatus.DELETED },
     };
     const order = condition?.order || BaseOrder.DESC;
-    const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
-
+    const sortBy =
+      (condition?.sortBy != ProductStatsSortBy.INVENTORY_QUANTITY &&
+        condition?.sortBy != ProductStatsSortBy.DISCOUNT_PERCENTAGE &&
+        condition?.sortBy) ||
+      BaseSortBy.CREATED_AT;
+    const inventorySortBy =
+      condition?.sortBy == ProductStatsSortBy.INVENTORY_QUANTITY
+        ? condition?.sortBy.split('_')[1]
+        : BaseSortBy.CREATED_AT;
+    const discountSortBy =
+      condition?.sortBy == ProductStatsSortBy.DISCOUNT_PERCENTAGE
+        ? condition?.sortBy.split('_')[1]
+        : BaseSortBy.CREATED_AT;
     if (condition.maxPrice) where.price = { [Op.lte]: condition.maxPrice };
     if (condition.minPrice)
       where.price = { ...where.price, [Op.gte]: condition.minPrice };
@@ -195,6 +216,7 @@ export class PostgresProductRepository implements IProductRepository {
         attributes: {
           exclude: [...EXCLUDE_ATTRIBUTES, 'product_id'],
         },
+        order: [[inventorySortBy, order]],
       },
     ];
     if (condition.includeDiscount) {
@@ -203,6 +225,7 @@ export class PostgresProductRepository implements IProductRepository {
         as: discountModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
+        order: [[discountSortBy, order]],
       });
     }
     if (condition.includeCategory) {

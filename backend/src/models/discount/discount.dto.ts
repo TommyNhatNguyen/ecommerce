@@ -48,6 +48,7 @@ export const DiscountConditionDTOSchema = z.object({
       z.literal('status'),
       z.literal('created_at'),
       z.literal('updated_at'),
+      z.literal('discount_percentage'),
     ])
     .optional(),
 });

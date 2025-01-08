@@ -6,7 +6,7 @@ import {
 import { IInventoryRepository } from '@models/inventory/inventory.interface';
 import { Inventory } from '@models/inventory/inventory.model';
 import { Sequelize } from 'sequelize';
-import { ListResponse } from 'src/share/models/base-model';
+import { BaseOrder, BaseSortBy, ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
 export class PostgresInventoryRepository implements IInventoryRepository {
@@ -23,12 +23,14 @@ export class PostgresInventoryRepository implements IInventoryRepository {
     condition: InventoryConditionDTO
   ): Promise<ListResponse<Inventory[]>> {
     const { page, limit } = paging;
+    const order = condition?.order || BaseOrder.DESC;
+    const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
     const inventory = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({
-      where: condition,
       limit,
       offset: (page - 1) * limit,
+      order: [[sortBy, order]],
     });
     return {
       data: inventory.rows.map((row) => row.dataValues),

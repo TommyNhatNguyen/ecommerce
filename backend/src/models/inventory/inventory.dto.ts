@@ -1,4 +1,4 @@
-import { ModelStatus } from 'src/share/models/base-model';
+import { BaseOrder, BaseSortBy, ModelStatus } from 'src/share/models/base-model';
 import z from 'zod';
 import { v7 as uuidv7 } from 'uuid';
 import { StockStatus } from '@models/inventory/inventory.model';
@@ -23,6 +23,12 @@ export const InventoryUpdateDTOSchema = z.object({
   updated_at: z.date().optional(),
 });
 
+export enum InventorySortBy {
+  QUANTITY = 'quantity',
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
+
 export const InventoryConditionDTOSchema = z.object({
   quantity: z.number().min(0).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
@@ -30,6 +36,8 @@ export const InventoryConditionDTOSchema = z.object({
   low_stock_threshold: z.number().min(0).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
+  sortBy: z.nativeEnum(InventorySortBy).optional(),
+  order: z.nativeEnum(BaseOrder).optional(),
 });
 
 export type InventoryCreateDTO = z.infer<typeof InventoryCreateDTOSchema>;

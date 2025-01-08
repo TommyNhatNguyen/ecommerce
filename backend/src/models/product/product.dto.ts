@@ -40,6 +40,14 @@ export const ProductUpdateDTOSchema = z.object({
   stock_status: z.nativeEnum(StockStatus).optional(),
 });
 
+export enum ProductStatsSortBy {
+  PRODUCT_PRICE = 'price',
+  INVENTORY_QUANTITY = 'inventory_quantity',
+  DISCOUNT_PERCENTAGE = 'discount_percentage',
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
+
 export const ProductConditionDTOSchema = z.object({
   status: z.nativeEnum(ModelStatus).optional(),
   minPrice: z.union([z.number().nonnegative().min(0), z.string()]).optional(),
@@ -47,7 +55,7 @@ export const ProductConditionDTOSchema = z.object({
   name: z.string().optional(),
   categoryIds: z.array(z.string().uuid()).optional(),
   order: z.nativeEnum(BaseOrder).optional(),
-  sortBy: z.nativeEnum(BaseSortBy).optional(),
+  sortBy: z.nativeEnum(ProductStatsSortBy).optional(),
   fromCreatedAt: z.string().date().optional(),
   toCreatedAt: z.string().date().optional(),
   includeDiscount: z
@@ -80,6 +88,8 @@ export const ProductConditionDTOSchema = z.object({
 export enum ProductStatsType {
   CATEGORY = 'category',
   DISCOUNT = 'discount',
+  STATUS = 'status',
+  STOCK_STATUS = 'stock_status',
 }
 
 export const ProductGetStatsDTOSchema = z.object({
