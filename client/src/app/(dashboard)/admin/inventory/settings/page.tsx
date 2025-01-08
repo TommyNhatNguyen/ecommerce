@@ -7,7 +7,15 @@ import { defaultImage } from "@/app/shared/resources/images/default-image";
 import { productService } from "@/app/shared/services/products/productService";
 import { formatCurrency } from "@/app/shared/utils/utils";
 import { useQuery } from "@tanstack/react-query";
-import { Button, Image, InputNumber, Pagination, Tag, Tooltip } from "antd";
+import {
+  Button,
+  Divider,
+  Image,
+  InputNumber,
+  Pagination,
+  Tag,
+  Tooltip,
+} from "antd";
 import { Divide, PlusIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -79,98 +87,102 @@ const SettingsPage = (props: Props) => {
             const imageUrl = image?.[0]?.url || defaultImage;
             const categoryNames = category?.map((item) => item.name) || [];
             return (
-              <div
-                key={id}
-                className="mt-4 flex items-center justify-between gap-2"
-              >
-                <div className="flex flex-1 gap-2">
-                  <Image
-                    src={imageUrl}
-                    alt="default"
-                    width={100}
-                    height={100}
-                    className="object-contain"
-                  />
-                  <div className="flex flex-1 flex-col gap-1">
-                    <Tooltip title={description}>
-                      <h3 className="text-lg font-medium">{name}</h3>
-                    </Tooltip>
-                    <p>
-                      Price:{" "}
-                      <span className="font-bold">
-                        {formatCurrency(price || 0)}
-                      </span>
-                    </p>
-                    <p>
-                      Quantity:{" "}
-                      <span className="font-bold">{quantity || 0}</span>
-                    </p>
-                    <p>
-                      Category:{" "}
-                      <span className="font-bold">
-                        {categoryNames.map((item) => (
-                          <Tag color="blue" key={item}>
-                            {item}
-                          </Tag>
-                        ))}
-                      </span>
-                    </p>
+              <>
+                <Divider />
+                <div
+                  key={id}
+                  className="flex items-center justify-between gap-2"
+                >
+                  <div className="flex flex-1 gap-2">
+                    <Image
+                      src={imageUrl}
+                      alt="default"
+                      width={100}
+                      height={100}
+                      className="object-contain"
+                    />
+                    <div className="flex flex-1 flex-col gap-1">
+                      <Tooltip title={description}>
+                        <h3 className="text-lg font-medium">{name}</h3>
+                      </Tooltip>
+                      <p>
+                        Price:{" "}
+                        <span className="font-bold">
+                          {formatCurrency(price || 0)}
+                        </span>
+                      </p>
+                      <p>
+                        Quantity:{" "}
+                        <span className="font-bold">{quantity || 0}</span>
+                      </p>
+                      <p>
+                        Category:{" "}
+                        <span className="font-bold">
+                          {categoryNames.map((item) => (
+                            <Tag color="blue" key={item}>
+                              {item}
+                            </Tag>
+                          ))}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-end gap-1">
+                    <Controller
+                      control={control}
+                      name={`low_stock_threshold${inventoryId}`}
+                      render={({ field, formState: { errors } }) => (
+                        <InputAdmin
+                          {...field}
+                          error={
+                            errors[`low_stock_threshold${inventoryId}`]
+                              ?.message as string
+                          }
+                          label={() => {
+                            return (
+                              <p className="flex items-center gap-1">
+                                Stock Status:{" "}
+                                <span className="font-bold">{stockStatus}</span>
+                              </p>
+                            );
+                          }}
+                          customComponent={(props, ref: any) => {
+                            return (
+                              <InputNumber
+                                min={0}
+                                className="h-full w-full"
+                                {...props}
+                                ref={ref}
+                                disabled={loading}
+                              />
+                            );
+                          }}
+                        />
+                      )}
+                    />
+
+                    <Button
+                      type="primary"
+                      disabled={loading}
+                      onClick={handleSubmit((data) =>
+                        _onUpdateLowStockThreshold(
+                          inventoryId || "",
+                          data[`low_stock_threshold${inventoryId}`] || 0,
+                        ),
+                      )}
+                    >
+                      <PlusIcon className="h-4 w-4" />
+                      Update
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-end gap-1">
-                  <Controller
-                    control={control}
-                    name={`low_stock_threshold${inventoryId}`}
-                    render={({ field, formState: { errors } }) => (
-                      <InputAdmin
-                        {...field}
-                        error={
-                          errors[`low_stock_threshold${inventoryId}`]
-                            ?.message as string
-                        }
-                        label={() => {
-                          return (
-                            <p className="flex items-center gap-1">
-                              Stock Status:{" "}
-                              <span className="font-bold">{stockStatus}</span>
-                            </p>
-                          );
-                        }}
-                        customComponent={(props, ref: any) => {
-                          return (
-                            <InputNumber
-                              min={0}
-                              className="h-full w-full"
-                              {...props}
-                              ref={ref}
-                              disabled={loading}
-                            />
-                          );
-                        }}
-                      />
-                    )}
-                  />
-
-                  <Button
-                    type="primary"
-                    disabled={loading}
-                    onClick={handleSubmit((data) =>
-                      _onUpdateLowStockThreshold(
-                        inventoryId || "",
-                        data[`low_stock_threshold${inventoryId}`] || 0,
-                      ),
-                    )}
-                  >
-                    <PlusIcon className="h-4 w-4" />
-                    Update
-                  </Button>
-                </div>
-              </div>
+              </>
             );
           })}
       </div>
       <div className="mt-4">
         <Pagination
+          className="justify-end"
           total={total_count || 0}
           showTotal={(total, range) =>
             `${range[0]}-${range[1]} of ${total} items`

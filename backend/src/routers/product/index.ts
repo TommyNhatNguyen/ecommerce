@@ -29,5 +29,6 @@ export const setupProductRouter = (sequelize: Sequelize) => {
   router.post('/products', httpService.createNewProduct.bind(httpService));
   router.put('/products/:id', httpService.updateProduct.bind(httpService));
   router.delete('/products/:id', httpService.deleteProduct.bind(httpService));
+  router.get('/statistics/products', httpService.getProductStatistics.bind(httpService));
   return router;
 };

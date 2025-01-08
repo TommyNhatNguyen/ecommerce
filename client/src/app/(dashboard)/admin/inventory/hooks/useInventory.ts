@@ -17,6 +17,7 @@ export interface DataType {
   status: "ACTIVE" | "INACTIVE" | "DELETED";
   createdAt: string;
   images: string[];
+  stock_status: ProductModel["inventory"]["stock_status"];
 }
 export function useInventory() {
   const [selectedRows, setSelectedRows] = useState<DataType[]>([]);

@@ -68,6 +68,8 @@ import { DataType } from "@/app/(dashboard)/admin/inventory/hooks/useInventory";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { DateString } from "@/app/shared/types/datestring.model";
 import UpdateProductModal from "@/app/shared/components/GeneralModal/components/UpdateProductModal";
+import { StockStatus } from "@/app/shared/models/inventories/stock-status";
+import { STOCK_STATUS } from "@/app/constants/stock-status";
 
 type InventoryTablePropsType = {
   handleSelectAllRow: (
@@ -254,6 +256,7 @@ const InventoryTable = ({
         totalValue: totalValue,
         status: item.status,
         createdAt: item.created_at,
+        stock_status: item.inventory?.stock_status || StockStatus.IN_STOCK,
       });
     });
     return tableDataSource;
@@ -377,16 +380,31 @@ const InventoryTable = ({
       dataIndex: "quantity",
       sorter: (a, b) => a.quantity - b.quantity,
       sortOrder: sortedInfo.columnKey === "quantity" ? sortedInfo.order : null,
-      render: (_, { quantity }) => (
-        <span
-          className={cn(
-            "font-bold",
-            quantity === 0 ? "text-red-500" : "text-green-500",
-          )}
-        >
-          {quantity === 0 ? "Out of stock" : formatNumber(quantity)}
-        </span>
-      ),
+      render: (_, { quantity, stock_status }) => {
+        const stockStatus = {
+          textColor:
+            stock_status === StockStatus.OUT_OF_STOCK
+              ? "text-red-500"
+              : stock_status === StockStatus.LOW_STOCK
+                ? "text-yellow-500"
+                : "text-green-500",
+          text:
+            stock_status === StockStatus.OUT_OF_STOCK
+              ? STOCK_STATUS.OUT_OF_STOCK
+              : stock_status === StockStatus.LOW_STOCK
+                ? STOCK_STATUS.LOW_STOCK
+                : STOCK_STATUS.IN_STOCK,
+        };
+        const stockQuantity = formatNumber(quantity || 0);
+        return (
+          <Tooltip
+            title={stockStatus.text}
+            className={cn("font-bold", stockStatus.textColor)}
+          >
+            {stockQuantity}
+          </Tooltip>
+        );
+      },
     },
     {
       title: "Discount",

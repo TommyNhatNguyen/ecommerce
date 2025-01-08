@@ -2,6 +2,8 @@ import { IProductRepository } from '@models/product/product.interface';
 import {
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
+  ProductGetStatsDTO,
+  ProductStatsType,
   ProductUpdateDTOSchema,
 } from '@models/product/product.dto';
 import { Product } from '@models/product/product.model';
@@ -44,12 +46,57 @@ import {
   reviewModelName,
   ReviewPersistence,
 } from 'src/infras/repository/review/dto';
+import sequelize from 'sequelize';
 
 export class PostgresProductRepository implements IProductRepository {
   constructor(
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+  async getTotalInventoryByGroup(condition?: ProductGetStatsDTO): Promise<any> {
+    let attributes: any[] = [];
+    let group: any[] = [];
+    if (condition?.groupBy === ProductStatsType.CATEGORY) {
+      group.push('category.name');
+      attributes.push('category.name');
+    }
+    if (condition?.groupBy === ProductStatsType.DISCOUNT) {
+      group.push('discount.name');
+      attributes.push('discount.name');
+    }
+    const data = await this.sequelize.models[this.modelName].findAll({
+      attributes: [
+        ...attributes,
+        [sequelize.fn('SUM', sequelize.col('inventory.quantity')), 'total'],
+      ],
+      group: group,
+      raw: true,
+      include: [
+        {
+          model: CategoryPersistence,
+          as: categoryModelName,
+          attributes: [],
+          through: { attributes: [] },
+        },
+        {
+          model: DiscountPersistence,
+          as: discountModelName,
+          attributes: [],
+          through: { attributes: [] },
+        },
+        {
+          model: InventoryPersistence,
+          as: inventoryModelName,
+          attributes: [],
+        },
+      ],
+    });
+    return data;
+  }
+  async countTotalProduct(): Promise<number> {
+    const count = await this.sequelize.models[this.modelName].count();
+    return count;
+  }
 
   async get(
     id: string,
@@ -280,10 +327,6 @@ export class PostgresProductRepository implements IProductRepository {
     if (typeof imageIds === 'object') {
       await updatedProduct.setImage(imageIds);
     }
-    // if (typeof quantity === 'number') {
-    //   const inventory = await updatedProduct.getInventory();
-    //   await inventory.update({ quantity: quantity });
-    // }
     return result[1][0].dataValues;
   }
 

@@ -3,6 +3,7 @@ import { IInventoryRepository } from '@models/inventory/inventory.interface';
 import {
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
+  ProductGetStatsDTO,
   ProductUpdateDTOSchema,
 } from '@models/product/product.dto';
 import {
@@ -17,9 +18,14 @@ import { v7 as uuidv7 } from 'uuid';
 export class ProductUseCase implements IProductUseCase {
   constructor(
     private readonly repository: IProductRepository,
-
     private readonly cloudinaryImageRepository: IImageCloudinaryRepository
   ) {}
+  async getTotalInventoryByGroup(condition?: ProductGetStatsDTO): Promise<any> {
+    return await this.repository.getTotalInventoryByGroup(condition);
+  }
+  async countTotalProduct(): Promise<number> {
+    return await this.repository.countTotalProduct();
+  }
   async updateProduct(
     id: string,
     data: ProductUpdateDTOSchema

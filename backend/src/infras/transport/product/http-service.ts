@@ -2,6 +2,7 @@ import { IInventoryUseCase } from '@models/inventory/inventory.interface';
 import {
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
+  ProductGetStatsDTOSchema,
   ProductUpdateDTOSchema,
 } from '@models/product/product.dto';
 import { IProductUseCase } from '@models/product/product.interface';
@@ -149,6 +150,36 @@ export class ProductHttpService {
       res.status(200).json({
         message: 'Product fetched successfully',
         ...result,
+      });
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
+      return;
+    }
+  }
+
+  async getProductStatistics(req: Request, res: Response) {
+    const {
+      success: conditionSuccess,
+      data: condition,
+      error: conditionError,
+    } = ProductGetStatsDTOSchema.safeParse(req.query);
+    if (!conditionSuccess) {
+      res.status(400).json({ error: conditionError?.message });
+      return;
+    }
+    try {
+      const totalProducts = await this.productUseCase.countTotalProduct();
+      const totalInventoryQuantity = await this.productUseCase.getTotalInventoryByGroup(condition);
+      if (!totalProducts) {
+        res.status(404).json({ error: 'Product not found' });
+        return;
+      }
+      res.status(200).json({
+        message: 'Product statistics fetched successfully',
+        data: {
+          totalProducts,
+          totalInventoryQuantity,
+        },
       });
     } catch (error) {
       res.status(500).json({ error: (error as Error).message });

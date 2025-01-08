@@ -10,11 +10,11 @@ export type ProductModel = {
   status: ModelStatus;
   created_at: string;
   updated_at: string;
-  inventory?: {
+  inventory: {
     id?: string;
     quantity?: number;
     low_stock_threshold?: number;
-    stock_status?: StockStatus;
+    stock_status: StockStatus;
   };
   discount?: {
     id?: string;

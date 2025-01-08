@@ -77,8 +77,18 @@ export const ProductConditionDTOSchema = z.object({
     .optional(),
 });
 
+export enum ProductStatsType {
+  CATEGORY = 'category',
+  DISCOUNT = 'discount',
+}
+
+export const ProductGetStatsDTOSchema = z.object({
+  groupBy: z.nativeEnum(ProductStatsType).optional(),
+});
+
 export type ProductCreateDTOSchema = z.infer<typeof ProductCreateDTOSchema>;
 export type ProductUpdateDTOSchema = z.infer<typeof ProductUpdateDTOSchema>;
 export type ProductConditionDTOSchema = z.infer<
   typeof ProductConditionDTOSchema
 >;
+export type ProductGetStatsDTO = z.infer<typeof ProductGetStatsDTOSchema>;
