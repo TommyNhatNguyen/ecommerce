@@ -1,10 +1,14 @@
 import {
   CreateProductDTO,
   GetProductsBodyDTO,
+  ProductGetStatsCondition,
   UpdateProductDTO,
 } from "@/app/shared/interfaces/products/product.dto";
 import { ListResponseModel } from "@/app/shared/models/others/list-response.model";
-import { ProductModel } from "@/app/shared/models/products/products.model";
+import {
+  ProductModel,
+  ProductStatsModel,
+} from "@/app/shared/models/products/products.model";
 import { axiosInstance } from "@/app/shared/utils/axiosInstance";
 
 export const productService = {
@@ -44,6 +48,14 @@ export const productService = {
     data: UpdateProductDTO,
   ): Promise<ProductModel> => {
     const response = await axiosInstance.put(`/products/${id}`, data);
+    return response.data;
+  },
+  getProductStatistics: async (
+    query?: ProductGetStatsCondition,
+  ): Promise<{ data: ProductStatsModel }> => {
+    const response = await axiosInstance.get("/statistics/products", {
+      params: query,
+    });
     return response.data;
   },
 };

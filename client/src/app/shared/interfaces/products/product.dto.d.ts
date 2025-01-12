@@ -1,3 +1,4 @@
+import { PRODUCT_STATS_GROUP_BY } from "@/app/constants/product-stats";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { DateString } from "@/app/shared/types/datestring.model";
 import { UploadFile } from "antd";
@@ -55,4 +56,15 @@ export type GetProductsBodyDTO = {
   includeVariant?: boolean;
   includeImage?: boolean;
   includeReview?: boolean;
+};
+
+export enum ProductStatsType {
+  CATEGORY = "category",
+  DISCOUNT = "discount",
+  STATUS = "status",
+  STOCK_STATUS = "stock_status",
+}
+
+export type ProductGetStatsCondition = {
+  groupBy: ProductStatsType;
 };

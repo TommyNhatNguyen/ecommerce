@@ -1,3 +1,10 @@
 .ant-image-preview-img {
   object-fit: contain;
 }
+
+.ant-modal {
+  .ant-modal-content {
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+}

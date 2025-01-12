@@ -38,3 +38,11 @@ export type ProductModel = {
     cloudinary_id?: string;
   }[];
 };
+
+export type ProductStatsModel = {
+  totalInventoryQuantity: {
+    total: number;
+    product_count?: number;
+    name?: string;
+  }[];
+};

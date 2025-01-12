@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="--dashboard">
       <body
-        className={`${openSans.variable} ${openSansMedium.variable} ${openSansBold.variable} antialiased --dashboard`}
+        className={`${openSans.variable} ${openSansMedium.variable} ${openSansBold.variable} --dashboard antialiased`}
       >
         <DashboardLayout>{children}</DashboardLayout>
       </body>

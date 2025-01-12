@@ -44,6 +44,7 @@ export enum ProductStatsSortBy {
   PRODUCT_PRICE = 'price',
   INVENTORY_QUANTITY = 'inventory_quantity',
   DISCOUNT_PERCENTAGE = 'discount_percentage',
+  INVENTORY_VALUE = 'inventory_value',
   ASC = 'ASC',
   DESC = 'DESC',
 }

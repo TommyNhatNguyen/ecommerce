@@ -168,16 +168,16 @@ export class ProductHttpService {
       return;
     }
     try {
-      const totalProducts = await this.productUseCase.countTotalProduct();
-      const totalInventoryQuantity = await this.productUseCase.getTotalInventoryByGroup(condition);
-      if (!totalProducts) {
+      // const totalProducts = await this.productUseCase.countTotalProduct();
+      const totalInventoryQuantity =
+        await this.productUseCase.getTotalInventoryByGroup(condition);
+      if (!totalInventoryQuantity) {
         res.status(404).json({ error: 'Product not found' });
         return;
       }
       res.status(200).json({
         message: 'Product statistics fetched successfully',
         data: {
-          totalProducts,
           totalInventoryQuantity,
         },
       });

@@ -4,6 +4,7 @@ import {
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
   ProductGetStatsDTO,
+  ProductStatsSortBy,
   ProductUpdateDTOSchema,
 } from '@models/product/product.dto';
 import {
@@ -11,7 +12,7 @@ import {
   IProductUseCase,
 } from '@models/product/product.interface';
 import { Product } from '@models/product/product.model';
-import { ListResponse, ModelStatus } from 'src/share/models/base-model';
+import { BaseOrder, ListResponse, ModelStatus } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { v7 as uuidv7 } from 'uuid';
 
@@ -49,6 +50,24 @@ export class ProductUseCase implements IProductUseCase {
     paging: PagingDTO
   ): Promise<ListResponse<Product[]>> {
     const data = await this.repository.list(condition, paging);
+    if (condition.sortBy === ProductStatsSortBy.INVENTORY_VALUE && data.data.length > 0) {
+      const inventoryValue = data.data.map((item, index) => ({
+        inventory_value: item.inventory?.quantity || 0 * item.price || 0,
+        index,
+      }));
+      const sortedIndex = inventoryValue
+        .sort((a, b) => {
+          if (condition.order === BaseOrder.ASC) {
+            return a.inventory_value - b.inventory_value;
+          }
+          return b.inventory_value - a.inventory_value;
+        })
+        .map((item) => item.index);
+      return {
+        ...data,
+        data: sortedIndex.map((index) => data.data[index]),
+      };
+    }
     return data;
   }
   async getProductById(

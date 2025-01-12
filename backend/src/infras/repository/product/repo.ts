@@ -57,50 +57,58 @@ export class PostgresProductRepository implements IProductRepository {
   async getTotalInventoryByGroup(condition?: ProductGetStatsDTO): Promise<any> {
     let attributes: any[] = [];
     let group: any[] = [];
+    let include: any[] = [
+      {
+        model: InventoryPersistence,
+        as: inventoryModelName,
+        attributes: [],
+      },
+    ];
     if (condition?.groupBy === ProductStatsType.CATEGORY) {
       group.push('category.name');
-      attributes.push('category.name');
+      attributes.push([sequelize.col('category.name'), 'name']);
+      include.push({
+        model: CategoryPersistence,
+        as: categoryModelName,
+        attributes: [],
+        through: { attributes: [] },
+      });
     }
     if (condition?.groupBy === ProductStatsType.DISCOUNT) {
       group.push('discount.name');
-      attributes.push('discount.name');
+      attributes.push([sequelize.col('discount.name'), 'name']);
+      include.push({
+        model: DiscountPersistence,
+        as: discountModelName,
+        attributes: [],
+        through: { attributes: [] },
+      });
     }
     if (condition?.groupBy === ProductStatsType.STATUS) {
       group.push('product.status');
-      attributes.push('product.status');
+      attributes.push([sequelize.col('product.status'), 'name']);
     }
     if (condition?.groupBy === ProductStatsType.STOCK_STATUS) {
       group.push('inventory.stock_status');
-      attributes.push('inventory.stock_status');
+      attributes.push([sequelize.col('inventory.stock_status'), 'name']);
     }
     const data = await this.sequelize.models[this.modelName].findAll({
       attributes: [
         ...attributes,
         [sequelize.fn('SUM', sequelize.col('inventory.quantity')), 'total'],
-        [sequelize.fn('COUNT', sequelize.col('product.id')), 'product_count'],
+        [
+          sequelize.fn(
+            'COUNT',
+            sequelize.fn('DISTINCT', sequelize.col('product.id'))
+          ),
+          'product_count',
+        ],
       ],
       group: group,
       raw: true,
-      include: [
-        {
-          model: CategoryPersistence,
-          as: categoryModelName,
-          attributes: [],
-          through: { attributes: [] },
-        },
-        {
-          model: DiscountPersistence,
-          as: discountModelName,
-          attributes: [],
-          through: { attributes: [] },
-        },
-        {
-          model: InventoryPersistence,
-          as: inventoryModelName,
-          attributes: [],
-        },
-      ],
+      include: include,
     });
+    console.log(data);
     return data;
   }
   async countTotalProduct(): Promise<number> {
@@ -175,6 +183,7 @@ export class PostgresProductRepository implements IProductRepository {
     const order = condition?.order || BaseOrder.DESC;
     const sortBy =
       (condition?.sortBy != ProductStatsSortBy.INVENTORY_QUANTITY &&
+        condition?.sortBy != ProductStatsSortBy.INVENTORY_VALUE &&
         condition?.sortBy != ProductStatsSortBy.DISCOUNT_PERCENTAGE &&
         condition?.sortBy) ||
       BaseSortBy.CREATED_AT;
