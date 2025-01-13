@@ -39,6 +39,13 @@ export type UpdateProductDTO = {
   quantity?: number | string;
 };
 
+export enum ProductStatsSortBy {
+  PRODUCT_PRICE = "price",
+  INVENTORY_QUANTITY = "inventory_quantity",
+  DISCOUNT_PERCENTAGE = "discount_percentage",
+  INVENTORY_VALUE = "inventory_value",
+}
+
 export type GetProductsBodyDTO = {
   limit?: number;
   page?: number;
@@ -48,7 +55,7 @@ export type GetProductsBodyDTO = {
   name?: string;
   categoryIds?: string[];
   order?: BaseOrder;
-  sortBy?: BaseSortBy;
+  sortBy?: ProductStatsSortBy | BaseSortBy;
   fromCreatedAt?: DateString;
   toCreatedAt?: DateString;
   includeDiscount?: boolean;

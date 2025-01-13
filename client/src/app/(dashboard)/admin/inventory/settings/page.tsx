@@ -87,10 +87,9 @@ const SettingsPage = (props: Props) => {
             const imageUrl = image?.[0]?.url || defaultImage;
             const categoryNames = category?.map((item) => item.name) || [];
             return (
-              <>
+              <React.Fragment key={id}>
                 <Divider />
                 <div
-                  key={id}
                   className="flex items-center justify-between gap-2"
                 >
                   <div className="flex flex-1 gap-2">
@@ -176,7 +175,7 @@ const SettingsPage = (props: Props) => {
                     </Button>
                   </div>
                 </div>
-              </>
+              </React.Fragment>
             );
           })}
       </div>

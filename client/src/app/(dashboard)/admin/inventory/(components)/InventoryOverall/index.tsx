@@ -2,16 +2,22 @@
 import {
   PRODUCT_STATS_GROUP_BY,
   PRODUCT_STATS_GROUP_BY_MAP_LABEL,
+  PRODUCT_STATS_SORT_BY,
+  PRODUCT_STATS_SORT_BY_MAP_LABEL,
 } from "@/app/constants/product-stats";
 import Dropdown from "@/app/shared/components/Dropdown";
 import { useCreateProductModal } from "@/app/shared/components/GeneralModal/hooks/useCreateProductModal";
-import { ProductStatsType } from "@/app/shared/interfaces/products/product.dto";
+import {
+  ProductStatsSortBy,
+  ProductStatsType,
+} from "@/app/shared/interfaces/products/product.dto";
 import { productService } from "@/app/shared/services/products/productService";
+import { useDebounce } from "@/app/shared/hooks/useDebounce";
 import { formatCurrency, formatNumber } from "@/app/shared/utils/utils";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { Divider, Select } from "antd";
-import React, { useState } from "react";
+import { Divider, InputNumber, Select } from "antd";
+import React, { useEffect, useState } from "react";
 
 type Props = {};
 
@@ -19,6 +25,11 @@ const InventoryOverall = (props: Props) => {
   const [groupBy, setGroupBy] = useState<string>(
     PRODUCT_STATS_GROUP_BY.CATEGORY,
   );
+  const [sortBy, setSortBy] = useState<string>(
+    PRODUCT_STATS_SORT_BY.INVENTORY_QUANTITY,
+  );
+  const [topBotLimit, setTopBotLimit] = useState<number>(10);
+  const debouncedTopBotLimit = useDebounce(topBotLimit, 300);
   const { data } = useQuery({
     queryKey: ["product-stats"],
     queryFn: () => productService.getProductStatistics(),
@@ -30,12 +41,37 @@ const InventoryOverall = (props: Props) => {
         groupBy: groupBy as ProductStatsType,
       }),
   });
+  const { data: top10Products } = useQuery({
+    queryKey: ["top-10-products", sortBy, debouncedTopBotLimit],
+    queryFn: () =>
+      productService.getProducts({
+        limit: debouncedTopBotLimit,
+        sortBy: sortBy as ProductStatsSortBy,
+        order: "DESC",
+      }),
+  });
+  const { data: bottm10Products } = useQuery({
+    queryKey: ["bottm-10-products", sortBy, debouncedTopBotLimit],
+    queryFn: () =>
+      productService.getProducts({
+        limit: debouncedTopBotLimit,
+        sortBy: sortBy as ProductStatsSortBy,
+        order: "ASC",
+      }),
+  });
   const { totalInventoryQuantity } = data?.data || {};
   const { totalInventoryQuantity: totalInventoryQuantityByCategory } =
     inventoryByCategory?.data || {};
   const _onGroupByChange = (value: string) => {
     setGroupBy(value);
   };
+  const _onSortByChange = (value: string) => {
+    setSortBy(value);
+  };
+  const _onTopBotLimitChange = (value: number) => {
+    setTopBotLimit(value);
+  };
+
   return (
     <div className={cn("inventory-page__overall", "rounded-lg bg-white p-4")}>
       <h2
@@ -114,13 +150,62 @@ const InventoryOverall = (props: Props) => {
           </div>
         </div>
         <div className="inventory-page__overall-sort flex flex-1 flex-col gap-2 self-start">
-          <h4 className="text-sm font-semibold">Top 10 products</h4>
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <h5>Top 10 products by quantity</h5>
+          <div>
+            <h4 className="text-sm font-semibold">
+              Top/Bottom {topBotLimit} products inventory by{" "}
+              {PRODUCT_STATS_SORT_BY_MAP_LABEL[sortBy]}
+            </h4>
+            <div className="mt-2 flex items-center gap-2">
+              <div className="flex items-center gap-2">
+                <h5 className="text-sm font-medium">Sort By:</h5>
+                <Select
+                  title="Sort By"
+                  options={Object.values(PRODUCT_STATS_SORT_BY).map(
+                    (value) => ({
+                      label: PRODUCT_STATS_SORT_BY_MAP_LABEL[value],
+                      value: value,
+                    }),
+                  )}
+                  value={sortBy}
+                  onChange={_onSortByChange}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <h5 className="text-sm font-medium">Num show:</h5>
+                <InputNumber
+                  title="Top/Bottom"
+                  value={topBotLimit}
+                  onChange={(value) => _onTopBotLimitChange(Number(value))}
+                />
+              </div>
             </div>
-            <div>
-              <h5>Bottom 10 products by SKUs</h5>
+          </div>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="flex flex-col gap-2">
+              <h5 className="text-sm font-medium">Top {topBotLimit}</h5>
+              <div className="grid max-h-[100px] min-h-[100px] grid-cols-2 gap-4 overflow-y-auto">
+                {top10Products?.data?.map((item) => {
+                  return (
+                    <InventoryItem
+                      title={item?.name || ""}
+                      value={item?.inventory?.quantity || 0}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <h5 className="text-sm font-medium">Bottom {topBotLimit}</h5>
+              <div className="grid max-h-[100px] min-h-[100px] grid-cols-2 gap-4 overflow-y-auto">
+                {bottm10Products?.data?.map((item) => {
+                  return (
+                    <InventoryItem
+                      title={item?.name || ""}
+                      value={item?.inventory?.quantity || 0}
+                    />
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
@@ -135,7 +220,7 @@ type InventoryItemProps = {
   title: string;
   value: string | number;
   lastUpdated?: string;
-  titleColor: string;
+  titleColor?: string;
 };
 
 const InventoryItem = ({
