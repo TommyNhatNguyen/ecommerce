@@ -3,7 +3,8 @@ import z from 'zod';
 
 export const OrderSchema = z.object({
   id: z.string().uuid(),
-  customer_id: z.string().uuid(),
+  customer_id: z.string().uuid().nullable().optional(),
+  customer_name: z.string(),
   shipping_phone: z.string().min(5).max(15),
   shipping_email: z.string().email().nullable().optional(),
   shipping_address: z.string(),

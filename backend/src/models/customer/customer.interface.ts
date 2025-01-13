@@ -16,7 +16,7 @@ export interface ICustomerRepository extends IQueryRepository, ICommandRepositor
 export interface IQueryRepository {
   getCustomerById(
     id: string,
-    condition: CustomerConditionDTO
+    condition?: CustomerConditionDTO
   ): Promise<Customer>;
   getCustomerList(
     paging: PagingDTO,

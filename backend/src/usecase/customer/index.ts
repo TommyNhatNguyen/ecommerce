@@ -21,5 +21,4 @@ export class CustomerUseCase implements ICustomerUseCase {
   async deleteCustomer(id: string): Promise<boolean> {
     return await this.customerRepository.deleteCustomer(id)
   }
-
 }

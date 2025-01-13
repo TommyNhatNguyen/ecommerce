@@ -46,15 +46,11 @@ export class OrderHttpService {
       error: errorPaging,
     } = PagingDTOSchema.safeParse(req.query);
     if (!successCondition || !successPaging) {
-      res
-        .status(400)
-        .json({
-          success: false,
-          message:
-            errorCondition?.message ||
-            errorPaging?.message ||
-            'Invalid request',
-        });
+      res.status(400).json({
+        success: false,
+        message:
+          errorCondition?.message || errorPaging?.message || 'Invalid request',
+      });
       return;
     }
     const paging = {
@@ -67,7 +63,7 @@ export class OrderHttpService {
         res.status(404).json({ success: false, message: 'Orders not found' });
         return;
       }
-      res.status(200).json({ success: true, data: orders });
+      res.status(200).json({ success: true, ...orders });
     } catch (error) {
       res
         .status(500)
@@ -77,7 +73,9 @@ export class OrderHttpService {
   }
 
   async create(req: Request, res: Response) {
-    const { success, data, error } = OrderCreateDTOSchema.safeParse(req.body);
+    const { success, data, error } = OrderCreateDTOSchema.omit({
+      total_price: true,
+    }).safeParse(req.body);
     if (!success) {
       res.status(400).json({ success: false, message: error.message });
       return;

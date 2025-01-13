@@ -3,7 +3,7 @@ import z from "zod";
 
 export const IShippingCreateDTOSchema = z.object({
   type: z.string(),
-  cost: z.number().min(0),
+  cost: z.number().min(-1),
 })
 
 export const IShippingUpdateDTOSchema = z.object({

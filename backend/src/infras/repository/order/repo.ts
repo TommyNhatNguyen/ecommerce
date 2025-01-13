@@ -78,6 +78,7 @@ export class PostgresOrderRepository implements IOrderRepository {
       where: condition,
       limit,
       offset: (page - 1) * limit,
+      distinct: true,
       include: [
         {
           model: CustomerPersistence,
@@ -137,6 +138,7 @@ export class PostgresOrderRepository implements IOrderRepository {
           transaction: transaction,
         }
       );
+      console.log(order)
       await ProductOrderPersistence.bulkCreate(
         product_orders.map((product) => ({
           ...product,
@@ -150,6 +152,7 @@ export class PostgresOrderRepository implements IOrderRepository {
       await transaction.commit();
       return order.dataValues;
     } catch (error) {
+      console.log(error)
       await transaction.rollback();
       throw error;
     }

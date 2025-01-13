@@ -484,8 +484,12 @@ const InventoryTable = ({
       dataIndex: "totalInventoryValue",
       sorter: (a, b) => a.totalInventoryValue - b.totalInventoryValue,
       sortOrder:
-        sortedInfo.columnKey === "totalInventoryValue" ? sortedInfo.order : null,
-      render: (_, { totalInventoryValue }) => <span>{formatCurrency(totalInventoryValue)}</span>,
+        sortedInfo.columnKey === "totalInventoryValue"
+          ? sortedInfo.order
+          : null,
+      render: (_, { totalInventoryValue }) => (
+        <span>{formatCurrency(totalInventoryValue)}</span>
+      ),
     },
     {
       title: "Created At",
@@ -639,6 +643,7 @@ const InventoryTable = ({
               onSelectAll: (selected, selectedRows, changeRows) =>
                 _onSelectAllRow(selected, selectedRows, changeRows),
             }}
+            scroll={{ x: "100vw" }}
             pagination={{
               current: current_page,
               pageSize: limit,

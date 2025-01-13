@@ -1,3 +1,5 @@
+import { ICustomerRepository } from '@models/customer/customer.interface';
+import { Customer } from '@models/customer/customer.model';
 import {
   OrderConditionDTO,
   OrderCreateDTO,
@@ -13,7 +15,8 @@ import { PagingDTO } from 'src/share/models/paging';
 export class OrderUseCase implements IOrderUseCase {
   constructor(
     private readonly orderRepository: IOrderRepository,
-    private readonly productRepository: IProductRepository
+    private readonly productRepository: IProductRepository,
+    private readonly customerRepository: ICustomerRepository
   ) {}
   async getById(id: string, condition: OrderConditionDTO): Promise<Order> {
     return await this.orderRepository.getById(id, condition);
@@ -24,9 +27,19 @@ export class OrderUseCase implements IOrderUseCase {
   ): Promise<ListResponse<Order[]>> {
     return await this.orderRepository.getList(paging, condition);
   }
-  async create(data: OrderCreateDTO): Promise<Order> {
-    const { product_orders, total_price, ...rest } = data;
+  async create(data: Omit<OrderCreateDTO, 'total_price'>): Promise<Order> {
+    const { product_orders, customer_id, customer_name, shipping_phone, ...rest } = data;
     const productFoundList: Product[] = [];
+    // Check if customer exists
+    let customer : Customer | null = null;
+    if (!customer_id) {
+      customer = await this.customerRepository.createCustomer({
+        phone: data.shipping_phone,
+        last_name: data.customer_name,
+      })
+    } else {
+      customer = await this.customerRepository.getCustomerById(customer_id);
+    }
     // Check if product exists
     for (const item of product_orders) {
       const { product_id } = item;
@@ -39,25 +52,21 @@ export class OrderUseCase implements IOrderUseCase {
         productFoundList.push(productFound);
       }
     }
-    // Check if each product has correct subtotal
-    for (const item of product_orders) {
-      const { product_id, quantity, subtotal } = item;
-      const productFound = productFoundList.find(
-        (product) => product.id === product_id
-      );
-      if (productFound!.price * quantity !== subtotal) {
-        return null as any;
-      }
-    }
-    // Check if total price is correct
-    const totalPriceInput = product_orders.reduce(
-      (acc, item) => acc + item.subtotal,
-      0
-    );
-    if (totalPriceInput !== total_price) {
-      return null as any;
-    }
-    return await this.orderRepository.create(data);
+    const payload: OrderCreateDTO = {
+      customer_id: customer_id ? customer_id : customer.id,
+      customer_name: customer_name ? customer_name : customer.last_name,
+      shipping_phone: shipping_phone ? shipping_phone : customer.phone,
+      ...rest,
+      total_price: productFoundList.reduce(
+        (acc, item, index) => acc + item.price * product_orders[index].quantity,
+        0
+      ),
+      product_orders: product_orders.map((product, index) => ({
+        ...product,
+        subtotal: productFoundList[index].price * product.quantity,
+      })),
+    };
+    return await this.orderRepository.create(payload);
   }
   async update(id: string, data: OrderUpdateDTO): Promise<Order> {
     return await this.orderRepository.update(id, data);

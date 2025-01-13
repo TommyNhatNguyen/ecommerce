@@ -33,6 +33,8 @@ import LoadingComponent from "@/app/shared/components/LoadingComponent";
 import { PlusIcon, TrashIcon } from "lucide-react";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import { useInventoryDelete } from "@/app/(dashboard)/admin/inventory/hooks/useInventoryDelete";
+import { STOCK_STATUS } from "@/app/constants/stock-status";
+import { StockStatus } from "@/app/shared/models/inventories/stock-status";
 
 type DeletedProductPagePropsType = {};
 type OnChange = NonNullable<TableProps<DataType>["onChange"]>;
@@ -113,9 +115,11 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
         category: item.category,
         quantity: item.inventory ? item.inventory.quantity || 0 : 0,
         discounts: item.discount,
-        totalValue: totalValue,
+        totalInventoryValue: totalValue,
         status: item.status,
         createdAt: item.created_at,
+        stock_status: item.inventory?.stock_status,
+        cost: item.inventory?.cost || 0,
       });
     });
     return tableDataSource;
@@ -226,21 +230,44 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
       render: (_, { price }) => <span>{formatCurrency(price)}</span>,
     },
     {
+      title: "Cost",
+      dataIndex: "cost",
+      key: "cost",
+      sorter: (a, b) => a.cost - b.cost,
+      sortOrder: sortedInfo.columnKey === "cost" ? sortedInfo.order : null,
+      render: (_, { cost }) => <span>{formatCurrency(cost)}</span>,
+    },
+    {
       title: "In stock",
       key: "quantity",
       dataIndex: "quantity",
       sorter: (a, b) => a.quantity - b.quantity,
       sortOrder: sortedInfo.columnKey === "quantity" ? sortedInfo.order : null,
-      render: (_, { quantity }) => (
-        <span
-          className={cn(
-            "font-bold",
-            quantity === 0 ? "text-red-500" : "text-green-500",
-          )}
-        >
-          {quantity === 0 ? "Out of stock" : formatNumber(quantity)}
-        </span>
-      ),
+      render: (_, { quantity, stock_status }) => {
+        const stockStatus = {
+          textColor:
+            stock_status === StockStatus.OUT_OF_STOCK
+              ? "text-red-500"
+              : stock_status === StockStatus.LOW_STOCK
+                ? "text-yellow-500"
+                : "text-green-500",
+          text:
+            stock_status === StockStatus.OUT_OF_STOCK
+              ? STOCK_STATUS.OUT_OF_STOCK
+              : stock_status === StockStatus.LOW_STOCK
+                ? STOCK_STATUS.LOW_STOCK
+                : STOCK_STATUS.IN_STOCK,
+        };
+        const stockQuantity = formatNumber(quantity || 0);
+        return (
+          <Tooltip
+            title={stockStatus.text}
+            className={cn("font-bold", stockStatus.textColor)}
+          >
+            {stockQuantity}
+          </Tooltip>
+        );
+      },
     },
     {
       title: "Discount",
@@ -282,12 +309,16 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
     },
     {
       title: "Total Value",
-      key: "totalValue",
-      dataIndex: "totalValue",
-      sorter: (a, b) => a.totalValue - b.totalValue,
+      key: "totalInventoryValue",
+      dataIndex: "totalInventoryValue",
+      sorter: (a, b) => a.totalInventoryValue - b.totalInventoryValue,
       sortOrder:
-        sortedInfo.columnKey === "totalValue" ? sortedInfo.order : null,
-      render: (_, { totalValue }) => <span>{formatCurrency(totalValue)}</span>,
+        sortedInfo.columnKey === "totalInventoryValue"
+          ? sortedInfo.order
+          : null,
+      render: (_, { totalInventoryValue }) => (
+        <span>{formatCurrency(totalInventoryValue)}</span>
+      ),
     },
     {
       title: "Created At",
@@ -393,6 +424,7 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
             onSelectAll: (selected, selectedRows, changeRows) =>
               _onSelectAllRow(selected, selectedRows, changeRows),
           }}
+          scroll={{ x: "100vw" }}
           pagination={{
             current: current_page,
             pageSize: limit,

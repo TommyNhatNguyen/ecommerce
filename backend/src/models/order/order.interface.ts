@@ -6,7 +6,7 @@ import { PagingDTO } from "src/share/models/paging";
 export interface IOrderUseCase {
   getById(id: string, condition: OrderConditionDTO): Promise<Order>;
   getList(paging: PagingDTO, condition: OrderConditionDTO): Promise<ListResponse<Order[]>>;
-  create(data: OrderCreateDTO): Promise<Order>;
+  create(data: Omit<OrderCreateDTO, 'total_price' | 'customer_id'>): Promise<Order>;
   update(id: string, data: OrderUpdateDTO): Promise<Order>;
   delete(id: string): Promise<boolean>;
 }

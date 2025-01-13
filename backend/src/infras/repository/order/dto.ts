@@ -28,7 +28,8 @@ export const orderInit = (sequelize: Sequelize) => {
         allowNull: false,
         defaultValue: () => uuidv7(),
       },
-      customer_id: { type: DataTypes.STRING, allowNull: false },
+      customer_id: { type: DataTypes.STRING, allowNull: true },
+      customer_name: { type: DataTypes.STRING, allowNull: false },
       shipping_phone: { type: DataTypes.STRING, allowNull: false },
       shipping_email: { type: DataTypes.STRING, allowNull: true },
       shipping_address: {

@@ -1,6 +1,6 @@
 "use client";
-import InventoryOverall from "@/app/(dashboard)/admin/inventory/(components)/InventoryOverall";
-import InventoryTable from "@/app/(dashboard)/admin/inventory/(components)/InventoryTable";
+import InventoryOverall from "@/app/(dashboard)/admin/inventory/components/InventoryOverall";
+import InventoryTable from "@/app/(dashboard)/admin/inventory/components/InventoryTable";
 import { useInventory } from "@/app/(dashboard)/admin/inventory/hooks/useInventory";
 import React, { useState } from "react";
 

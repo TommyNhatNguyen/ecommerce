@@ -3,7 +3,7 @@ import z from "zod";
 
 export const PaymentCreateDTOSchema = z.object({
   type: z.string(),
-  fee: z.number().min(0),
+  fee: z.number().min(-1),
 })
 
 export const PaymentUpdateDTOSchema = z.object({
