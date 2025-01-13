@@ -16,7 +16,16 @@ export const ROUTES = {
 
 export const ADMIN_ROUTES = {
   dashboard: "/admin/dashboard",
-  orders: "/admin/orders",
+  orders: {
+    index: "/admin/orders",
+    pending: "/admin/orders/pending",
+    confirmed: "/admin/orders/confirmed",
+    shipped: "/admin/orders/shipped",
+    delivered: "/admin/orders/delivered",
+    failed: "/admin/orders/failed",
+    deleted: "/admin/orders/deleted",
+    settings: "/admin/orders/settings",
+  },
   sales: "/admin/sales",
   products: "/admin/products",
   inventory: {

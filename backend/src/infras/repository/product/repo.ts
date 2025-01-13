@@ -181,20 +181,30 @@ export class PostgresProductRepository implements IProductRepository {
       status: { [Op.not]: ModelStatus.DELETED },
     };
     const order = condition?.order || BaseOrder.DESC;
-    const sortBy =
+    let sortBy: any =
       (condition?.sortBy != ProductStatsSortBy.INVENTORY_QUANTITY &&
         condition?.sortBy != ProductStatsSortBy.INVENTORY_VALUE &&
         condition?.sortBy != ProductStatsSortBy.DISCOUNT_PERCENTAGE &&
         condition?.sortBy) ||
       BaseSortBy.CREATED_AT;
-    const inventorySortBy =
-      condition?.sortBy == ProductStatsSortBy.INVENTORY_QUANTITY
-        ? condition?.sortBy.split('_')[1]
-        : BaseSortBy.CREATED_AT;
-    const discountSortBy =
-      condition?.sortBy == ProductStatsSortBy.DISCOUNT_PERCENTAGE
-        ? condition?.sortBy.split('_')[1]
-        : BaseSortBy.CREATED_AT;
+    let customOrder: any = '';
+    const inventorySortBy = condition?.sortBy ==
+      ProductStatsSortBy.INVENTORY_QUANTITY && [
+      { model: InventoryPersistence, as: inventoryModelName },
+      condition?.sortBy.split('_')[1],
+    ];
+    const discountSortBy = condition?.sortBy ==
+      ProductStatsSortBy.DISCOUNT_PERCENTAGE && [
+      { model: DiscountPersistence, as: discountModelName },
+      condition?.sortBy,
+    ];
+    if (inventorySortBy) {
+      customOrder = [[...inventorySortBy, order]];
+    }
+    if (discountSortBy) {
+      customOrder = [[...discountSortBy, order]];
+      condition.includeDiscount = true;
+    }
     if (condition.maxPrice) where.price = { [Op.lte]: condition.maxPrice };
     if (condition.minPrice)
       where.price = { ...where.price, [Op.gte]: condition.minPrice };
@@ -225,16 +235,15 @@ export class PostgresProductRepository implements IProductRepository {
         attributes: {
           exclude: [...EXCLUDE_ATTRIBUTES, 'product_id'],
         },
-        order: [[inventorySortBy, order]],
       },
     ];
+
     if (condition.includeDiscount) {
       include.push({
         model: DiscountPersistence,
         as: discountModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
-        order: [[discountSortBy, order]],
       });
     }
     if (condition.includeCategory) {
@@ -268,13 +277,14 @@ export class PostgresProductRepository implements IProductRepository {
         attributes: { exclude: [...EXCLUDE_ATTRIBUTES, 'product_id', 'id'] },
       });
     }
+
     const { rows: productRows, count: countRows } = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({
       where,
       limit,
       offset: (page - 1) * limit,
-      order: [[sortBy, order]],
+      order: customOrder ? customOrder : [[sortBy, order]],
       distinct: true,
       include,
     });

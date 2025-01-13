@@ -9,6 +9,7 @@ export const InventoryCreateDTOSchema = z.object({
     .default(() => uuidv7())
     .optional(),
   quantity: z.number().min(0),
+  cost: z.number().min(0),
   product_id: z.string().uuid(),
   low_stock_threshold: z.number().min(0).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
@@ -16,6 +17,7 @@ export const InventoryCreateDTOSchema = z.object({
 
 export const InventoryUpdateDTOSchema = z.object({
   quantity: z.number().min(0).optional(),
+  cost: z.number().min(0).optional(),
   low_stock_threshold: z.number().min(0).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
@@ -36,6 +38,7 @@ export const InventoryConditionDTOSchema = z.object({
   low_stock_threshold: z.number().min(0).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
+  cost: z.number().min(0).optional(),
   sortBy: z.nativeEnum(InventorySortBy).optional(),
   order: z.nativeEnum(BaseOrder).optional(),
 });

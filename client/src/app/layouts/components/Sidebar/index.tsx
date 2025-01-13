@@ -36,7 +36,7 @@ const items = [
   },
   {
     title: "Orders",
-    url: ADMIN_ROUTES.orders,
+    url: ADMIN_ROUTES.orders.index,
     icon: FileTextIcon,
   },
   {
@@ -46,7 +46,7 @@ const items = [
   },
   {
     title: "Inventory",
-    url: ADMIN_ROUTES.inventory,
+    url: ADMIN_ROUTES.inventory.index,
     icon: PackageIcon,
   },
   {

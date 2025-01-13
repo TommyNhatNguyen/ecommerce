@@ -10,6 +10,7 @@ export enum StockStatus {
 export const InventorySchema = z.object({
   id: z.string().uuid(),
   quantity: z.number().min(0),
+  cost: z.number().min(0),
   status: z.nativeEnum(ModelStatus),
   created_at: z.date(),
   updated_at: z.date(),

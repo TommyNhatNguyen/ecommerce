@@ -13,6 +13,7 @@ export type CreateProductDTO = {
   imageFileList?: UploadFile[];
   quantity: number | string;
   status: "ACTIVE" | "INACTIVE" | "DELETED";
+  cost?: number | string;
 };
 
 export type CreateProductBodyDTO = {
@@ -25,6 +26,7 @@ export type CreateProductBodyDTO = {
   imageIds?: string[];
   quantity: number | string;
   status: "ACTIVE" | "INACTIVE" | "DELETED";
+  cost: number | string;
 };
 
 export type UpdateProductDTO = {
@@ -37,6 +39,7 @@ export type UpdateProductDTO = {
   variantIds?: string[];
   imageIds?: string[];
   quantity?: number | string;
+  cost?: number | string;
 };
 
 export enum ProductStatsSortBy {

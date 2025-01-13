@@ -341,6 +341,39 @@ const CreateProductModal = ({
               />
             )}
           />
+          
+          <Controller
+            control={control}
+            name="cost"
+            rules={{
+              required: {
+                value: true,
+                message: ERROR_MESSAGE.REQUIRED,
+              },
+              pattern: {
+                value: /^[0-9]*\.?[0-9]*$/,
+                message: ERROR_MESSAGE.INVALID_NUMBER,
+              },
+            }}
+            render={({ field }) => (
+              <InputAdmin
+                label="Cost"
+                required={true}
+                placeholder="Cost"
+                error={errors.cost?.message as string}
+                {...field}
+                customComponent={(props: any, ref: any) => (
+                  <InputNumber
+                    className="w-full"
+                    ref={ref}
+                    formatter={(value) => formatCurrency(Number(value))}
+                    {...props}
+                  />
+                )}
+              />
+            )}
+          />
+
           <Controller
             control={control}
             name="quantity"

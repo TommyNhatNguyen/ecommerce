@@ -34,7 +34,7 @@ export class InventoryUseCase implements IInventoryUseCase {
 
   async updateInventoryStockStatus(
     id: string,
-    data: Pick<InventoryUpdateDTO, 'low_stock_threshold' | 'quantity'>
+    data: Pick<InventoryUpdateDTO, 'low_stock_threshold' | 'quantity' | 'cost'>
   ): Promise<Inventory> {
     const payload: InventoryUpdateDTO = { ...data };
     const updatedInventory = await this.inventoryRepository.get(id);
@@ -60,6 +60,7 @@ export class InventoryUseCase implements IInventoryUseCase {
     return await this.updateInventoryStockStatus(id, {
       low_stock_threshold: data.low_stock_threshold,
       quantity: data.quantity,
+      cost: data.cost,
     });
   }
 

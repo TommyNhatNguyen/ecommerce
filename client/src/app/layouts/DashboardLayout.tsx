@@ -47,7 +47,7 @@ const items: MenuItem[] = [
     icon: <LayoutDashboard size={16} />,
   },
   {
-    key: ADMIN_ROUTES.orders,
+    key: ADMIN_ROUTES.orders.index,
     label: "Orders",
     icon: <ShoppingCart size={16} />,
   },
@@ -90,6 +90,7 @@ const dropdownItems: MenuItem[] = [
 
 const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   const pathname = usePathname();
+  console.log(pathname);
   const currentPath = pathname.split("/").slice(1);
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
@@ -115,7 +116,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
             <Menu
               items={items}
               inlineCollapsed={collapsed}
-              selectedKeys={[pathname]}
+              selectedKeys={[`/${pathname.split("/").slice(1, 3).join("/")}`]}
               onSelect={(e) => handleSelect(e.key)}
               mode="inline"
             />

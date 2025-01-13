@@ -32,6 +32,12 @@ export const inventoryInit = (sequelize: Sequelize) => {
         defaultValue: 0,
         validate: { min: 0 },
       },
+      cost: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0,
+        validate: { min: 0 },
+      },
       low_stock_threshold: {
         type: DataTypes.INTEGER,
         allowNull: false,

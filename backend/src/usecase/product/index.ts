@@ -52,15 +52,16 @@ export class ProductUseCase implements IProductUseCase {
     const data = await this.repository.list(condition, paging);
     if (condition.sortBy === ProductStatsSortBy.INVENTORY_VALUE && data.data.length > 0) {
       const inventoryValue = data.data.map((item, index) => ({
-        inventory_value: item.inventory?.quantity || 0 * item.price || 0,
+        inventory_value:
+          item.inventory?.quantity || 0 * (item.inventory?.cost || 0),
         index,
       }));
       const sortedIndex = inventoryValue
         .sort((a, b) => {
           if (condition.order === BaseOrder.ASC) {
-            return a.inventory_value - b.inventory_value;
+            return b.inventory_value - a.inventory_value;
           }
-          return b.inventory_value - a.inventory_value;
+          return a.inventory_value - b.inventory_value;
         })
         .map((item) => item.index);
       return {

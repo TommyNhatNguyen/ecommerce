@@ -21,6 +21,7 @@ export const ProductCreateDTOSchema = z.object({
   quantity: z.number().nonnegative().min(0).optional(),
   low_stock_threshold: z.number().nonnegative().min(0).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
+  cost: z.number().nonnegative().min(0).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
 });
 
@@ -38,6 +39,7 @@ export const ProductUpdateDTOSchema = z.object({
   quantity: z.number().nonnegative().min(0).optional(),
   low_stock_threshold: z.number().nonnegative().min(0).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
+  cost: z.number().nonnegative().min(0).optional(),
 });
 
 export enum ProductStatsSortBy {

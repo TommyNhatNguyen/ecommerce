@@ -80,7 +80,8 @@ const SettingsPage = (props: Props) => {
           products.map((item) => {
             const { id, category, inventory, name, image, price, description } =
               item;
-            const { quantity, stock_status, id: inventoryId } = inventory || {};
+            const { quantity, stock_status, id: inventoryId, cost } =
+              inventory || {};
             const stockStatus =
               STOCK_STATUS[stock_status as keyof typeof STOCK_STATUS] ||
               "OUT_OF_STOCK";
@@ -108,6 +109,12 @@ const SettingsPage = (props: Props) => {
                         Price:{" "}
                         <span className="font-bold">
                           {formatCurrency(price || 0)}
+                        </span>
+                      </p>
+                      <p>
+                        Cost:{" "}
+                        <span className="font-bold">
+                          {formatCurrency(cost || 0)}
                         </span>
                       </p>
                       <p>

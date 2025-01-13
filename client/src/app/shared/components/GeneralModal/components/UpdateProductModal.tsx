@@ -102,6 +102,7 @@ const UpdateProductModal = ({
       quantity: "",
       discountIds: [],
       status: "",
+      cost: "",
     },
   });
   useEffect(() => {
@@ -123,6 +124,11 @@ const UpdateProductModal = ({
         updateProductData.discount?.map((item) => item.id || "") || [],
       );
       setValue("status", updateProductData.status || "");
+      setValue(
+        "cost",
+        // @ts-ignore
+        updateProductData.inventory?.cost || "",
+      );
       setCurrentImageFileList(updateProductData?.image || []);
     }
   }, [updateProductData]);
@@ -167,6 +173,7 @@ const UpdateProductModal = ({
       categoryIds: data.categoryIds,
       discountIds: data.discountIds,
       status: data.status,
+      cost: Number(data.cost),
     };
     if (imageFileList.length > 0 || currentImageIds.length > 0) {
       const imageIds = (await _onSubmitFileList()) || [];
@@ -305,6 +312,37 @@ const UpdateProductModal = ({
                 required={true}
                 placeholder="Price"
                 error={errors.price?.message as string}
+                {...field}
+                customComponent={(props: any, ref: any) => (
+                  <InputNumber
+                    className="w-full"
+                    ref={ref}
+                    formatter={(value) => formatCurrency(Number(value))}
+                    {...props}
+                  />
+                )}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="cost"
+            rules={{
+              required: {
+                value: true,
+                message: ERROR_MESSAGE.REQUIRED,
+              },
+              pattern: {
+                value: /^[0-9]*\.?[0-9]*$/,
+                message: ERROR_MESSAGE.INVALID_NUMBER,
+              },
+            }}
+            render={({ field }) => (
+              <InputAdmin
+                label="Cost"
+                required={true}
+                placeholder="Cost"
+                error={errors.cost?.message as string}
                 {...field}
                 customComponent={(props: any, ref: any) => (
                   <InputNumber

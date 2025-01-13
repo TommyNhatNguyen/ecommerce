@@ -187,6 +187,7 @@ const InventoryOverall = (props: Props) => {
                 {top10Products?.data?.map((item) => {
                   return (
                     <InventoryItem
+                      key={item?.id}
                       title={item?.name || ""}
                       value={item?.inventory?.quantity || 0}
                     />
@@ -200,6 +201,7 @@ const InventoryOverall = (props: Props) => {
                 {bottm10Products?.data?.map((item) => {
                   return (
                     <InventoryItem
+                      key={item?.id}
                       title={item?.name || ""}
                       value={item?.inventory?.quantity || 0}
                     />

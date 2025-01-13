@@ -11,9 +11,10 @@ export interface DataType {
   description: string;
   category: ProductModel["category"];
   price: number;
+  cost: number;
   quantity: number;
   discounts: ProductModel["discount"];
-  totalValue: number;
+  totalInventoryValue: number;
   status: "ACTIVE" | "INACTIVE" | "DELETED";
   createdAt: string;
   images: string[];

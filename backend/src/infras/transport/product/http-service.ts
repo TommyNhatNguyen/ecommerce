@@ -27,6 +27,7 @@ export class ProductHttpService {
         product_id: result.id,
         quantity: data.quantity ?? 0,
         low_stock_threshold: data.low_stock_threshold ?? 0,
+        cost: data.cost ?? 0,
       });
       res.status(200).json({
         message: 'Product created successfully',
@@ -62,6 +63,7 @@ export class ProductHttpService {
         (await this.inventoryUseCase.updateInventory(product.inventory.id, {
           quantity: data.quantity,
           low_stock_threshold: data.low_stock_threshold,
+          cost: data.cost,
         }));
       res.status(200).json({
         message: 'Product updated successfully',

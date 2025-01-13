@@ -239,21 +239,22 @@ const InventoryTable = ({
         item.image && item.image.length > 0
           ? item.image.map((image) => image.url)
           : [defaultImage];
-      const totalValue =
-        item.price && item.inventory?.quantity
-          ? item.price * (item.inventory?.quantity || 1)
-          : item.price;
+      const totalInventoryValue =
+        item.inventory?.cost && item.inventory?.quantity
+          ? item.inventory?.cost * (item.inventory?.quantity || 1)
+          : item.inventory?.cost;
       tableDataSource.push({
         key: item.id,
         id: item.id,
         name: item.name,
         description: item.description,
         price: item.price,
+        cost: item.inventory ? item.inventory.cost || 0 : 0,
         images: images as string[],
         category: item.category,
         quantity: item.inventory ? item.inventory.quantity || 0 : 0,
         discounts: item.discount,
-        totalValue: totalValue,
+        totalInventoryValue: totalInventoryValue || 0,
         status: item.status,
         createdAt: item.created_at,
         stock_status: item.inventory?.stock_status || StockStatus.IN_STOCK,
@@ -375,6 +376,39 @@ const InventoryTable = ({
       // },
     },
     {
+      title: "Cost",
+      dataIndex: "cost",
+      key: "cost",
+      sorter: (a, b) => a.cost - b.cost,
+      sortOrder: sortedInfo.columnKey === "cost" ? sortedInfo.order : null,
+      render: (_, { cost }) => <span>{formatCurrency(cost)}</span>,
+      // filterDropdown: () => {
+      //   return (
+      //     <div className="flex flex-col gap-2 rounded-md p-2">
+      //       <Slider
+      //         step={1000000}
+      //         min={0}
+      //         max={100000000}
+      //         onChange={(value) => {
+      //           console.log(value);
+      //         }}
+      //       />
+      //       <div className="flex items-center justify-end gap-1">
+      //         <Button type="primary" onClick={() => {}}>
+      //           Confirm
+      //         </Button>
+      //         <Button type="primary" onClick={() => {}}>
+      //           Clear
+      //         </Button>
+      //         <Button type="primary" onClick={() => {}}>
+      //           Close
+      //         </Button>
+      //       </div>
+      //     </div>
+      //   );
+      // },
+    },
+    {
       title: "In stock",
       key: "quantity",
       dataIndex: "quantity",
@@ -445,13 +479,13 @@ const InventoryTable = ({
       },
     },
     {
-      title: "Total Value",
-      key: "totalValue",
-      dataIndex: "totalValue",
-      sorter: (a, b) => a.totalValue - b.totalValue,
+      title: "Total Inventory Value",
+      key: "totalInventoryValue",
+      dataIndex: "totalInventoryValue",
+      sorter: (a, b) => a.totalInventoryValue - b.totalInventoryValue,
       sortOrder:
-        sortedInfo.columnKey === "totalValue" ? sortedInfo.order : null,
-      render: (_, { totalValue }) => <span>{formatCurrency(totalValue)}</span>,
+        sortedInfo.columnKey === "totalInventoryValue" ? sortedInfo.order : null,
+      render: (_, { totalInventoryValue }) => <span>{formatCurrency(totalInventoryValue)}</span>,
     },
     {
       title: "Created At",

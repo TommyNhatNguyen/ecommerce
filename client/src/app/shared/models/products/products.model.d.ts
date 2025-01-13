@@ -15,6 +15,7 @@ export type ProductModel = {
     quantity?: number;
     low_stock_threshold?: number;
     stock_status: StockStatus;
+    cost?: number;
   };
   discount?: {
     id?: string;
