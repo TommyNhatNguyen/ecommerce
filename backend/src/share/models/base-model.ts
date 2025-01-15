@@ -34,6 +34,11 @@ export enum OrderState {
   CANCELLED_BY_ADMIN = 'CANCELLED_BY_ADMIN',
 }
 
+export enum NumberType {
+  PERCENTAGE = 'percentage',
+  FIXED = 'fixed',
+}
+
 export enum ShippingMethod {
   STANDARD = 'STANDARD',
   EXPRESS = 'EXPRESS',
