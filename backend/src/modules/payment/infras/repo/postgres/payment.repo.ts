@@ -1,11 +1,11 @@
+import { Sequelize } from 'sequelize';
 import {
   PaymentConditionDTO,
   PaymentCreateDTO,
   PaymentUpdateDTO,
-} from '@models/payment/payment.dto';
-import { IPaymentRepository } from '@models/payment/payment.interface';
-import { Payment } from '@models/payment/payment.model';
-import { Sequelize } from 'sequelize';
+} from 'src/modules/payment/models/payment.dto';
+import { IPaymentRepository } from 'src/modules/payment/models/payment.interface';
+import { Payment } from 'src/modules/payment/models/payment.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 

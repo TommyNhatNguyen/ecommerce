@@ -52,11 +52,6 @@ import { CustomerPersistence } from 'src/infras/repository/customer/dto';
 import { setupShippingRouter } from 'src/routers/shipping';
 import { ShippingPersistence } from 'src/infras/repository/shipping/dto';
 import { shippingModelName } from 'src/infras/repository/shipping/dto';
-import { setupPaymentRouter } from 'src/routers/payment';
-import {
-  paymentModelName,
-  PaymentPersistence,
-} from 'src/infras/repository/payment/dto';
 import { setupUserRouter } from 'src/routers/user';
 import { setupRoleRouter } from 'src/routers/role';
 import { userModelName, UserPersistence } from 'src/infras/repository/user/dto';
@@ -71,13 +66,16 @@ import { setupOrderDetailRouter } from 'src/modules/order_detail';
 import { OrderDetailPersistence } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import { orderDetailModelName } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import { setupCartRouter } from 'src/modules/cart';
+import { setupPaymentRouter } from 'src/modules/payment';
+import { paymentModelName } from 'src/modules/payment/infras/repo/postgres/payment.dto';
+import { PaymentPersistence } from 'src/modules/payment/infras/repo/postgres/payment.dto';
 config();
 
 (async () => {
   try {
     await sequelize.authenticate();
     console.log('Connection has been established successfully.');
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ alter: true });
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
@@ -119,6 +117,20 @@ OrderDetailPersistence.hasOne(OrderPersistence, {
 OrderPersistence.belongsTo(OrderDetailPersistence, {
   foreignKey: 'order_detail_id',
   as: orderDetailModelName.toLowerCase(),
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
+
+PaymentPersistence.hasOne(OrderDetailPersistence, {
+  foreignKey: 'payment_id',
+  as: orderDetailModelName.toLowerCase(),
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
+
+OrderDetailPersistence.belongsTo(PaymentPersistence, {
+  foreignKey: 'payment_id',
+  as: paymentModelName.toLowerCase(),
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE',
 });

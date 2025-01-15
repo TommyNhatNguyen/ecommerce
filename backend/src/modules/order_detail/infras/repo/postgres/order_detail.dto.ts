@@ -60,6 +60,7 @@ export const orderDetailInit = (sequelize: Sequelize) => {
       payment_id: {
         type: DataTypes.UUID,
         allowNull: false,
+        unique: true,
       },
       customer_id: {
         type: DataTypes.UUID,

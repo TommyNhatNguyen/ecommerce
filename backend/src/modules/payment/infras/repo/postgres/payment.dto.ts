@@ -4,8 +4,12 @@ import { ModelStatus, PaymentMethod } from 'src/share/models/base-model';
 import { v7 as uuidv7 } from 'uuid';
 export class PaymentPersistence extends Model {
   declare id: string;
-  declare type: PaymentMethod;
+  declare payment_method_id: string;
+  declare paid_amount: number;
+  declare paid_all_date: string | null;
   declare status: ModelStatus;
+  declare created_at: string;
+  declare updated_at: string;
 }
 
 export const paymentModelName = 'payment';
@@ -14,23 +18,27 @@ export const paymentInit = (sequelize: Sequelize) => {
   PaymentPersistence.init(
     {
       id: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         primaryKey: true,
         unique: true,
         allowNull: false,
         defaultValue: () => uuidv7(),
       },
-      type: {
+      payment_method_id: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
       },
-      fee: {
+      paid_amount: {
         type: DataTypes.FLOAT,
         allowNull: false,
         defaultValue: 0,
         validate: { min: 0 },
       },
+      paid_all_date: {
+        type: DataTypes.DATE,
+        defaultValue: null,
+      },
+
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
         allowNull: false,
