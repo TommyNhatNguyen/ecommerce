@@ -74,6 +74,7 @@ import { CartPersistence } from 'src/modules/cart/infras/repo/postgres/cart.dto'
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { DiscountPersistence } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { setupCostRouter } from 'src/modules/cost';
+import { setupPaymentMethodRouter } from 'src/modules/payment_method';
 config();
 
 (async () => {
@@ -112,6 +113,7 @@ app.use('/v1', setupPermissionRouter(sequelize));
 app.use('/v1', setupOrderDetailRouter(sequelize));
 app.use('/v1', setupCartRouter(sequelize));
 app.use('/v1', setupCostRouter(sequelize));
+app.use('/v1', setupPaymentMethodRouter(sequelize));
 
 OrderDetailPersistence.hasOne(OrderPersistence, {
   foreignKey: 'order_detail_id',
