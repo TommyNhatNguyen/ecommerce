@@ -70,6 +70,7 @@ import {
 import { setupOrderDetailRouter } from 'src/modules/order_detail';
 import { OrderDetailPersistence } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import { orderDetailModelName } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
+import { setupCartRouter } from 'src/modules/cart';
 config();
 
 (async () => {
@@ -106,6 +107,7 @@ app.use('/v1', setupUserRouter(sequelize));
 app.use('/v1', setupRoleRouter(sequelize));
 app.use('/v1', setupPermissionRouter(sequelize));
 app.use('/v1', setupOrderDetailRouter(sequelize));
+app.use('/v1', setupCartRouter(sequelize));
 
 OrderDetailPersistence.hasOne(OrderPersistence, {
   foreignKey: 'order_detail_id',
