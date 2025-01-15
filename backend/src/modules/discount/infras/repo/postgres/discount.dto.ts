@@ -1,12 +1,16 @@
 import { Sequelize } from 'sequelize';
 import { DataTypes, Model } from 'sequelize';
+import { DiscountScope } from 'src/modules/discount/models/discount.model';
+import { DiscountType } from 'src/modules/discount/models/discount.model';
 import { ModelStatus } from 'src/share/models/base-model';
 
 export class DiscountPersistence extends Model {
   declare id: string;
   declare name: string;
   declare description: string;
-  declare discount_percentage: number;
+  declare amount: number;
+  declare type: DiscountType;
+  declare scope: DiscountScope;
   declare start_date: Date;
   declare end_date: Date;
   declare status: ModelStatus;
@@ -25,10 +29,18 @@ export const discountInit = (sequelize: Sequelize) => {
       },
       name: { type: DataTypes.STRING, allowNull: false, unique: true },
       description: { type: DataTypes.STRING, allowNull: true },
-      discount_percentage: {
+      amount: {
         type: DataTypes.FLOAT,
         allowNull: false,
-        validate: { min: 0, max: 100 },
+        validate: { min: 0 },
+      },
+      type: {
+        type: DataTypes.ENUM(...Object.values(DiscountType)),
+        allowNull: false,
+      },
+      scope: {
+        type: DataTypes.ENUM(...Object.values(DiscountScope)),
+        allowNull: false,
       },
       start_date: { type: DataTypes.DATE, allowNull: false },
       end_date: { type: DataTypes.DATE, allowNull: false },

@@ -1,8 +1,15 @@
-import { DiscountConditionDTOSchema, DiscountCreateDTOSchema, DiscountUpdateDTOSchema } from "@models/discount/discount.dto";
-import { IDiscountRepository, IDiscountUseCase } from "@models/discount/discount.interface";
-import { Discount } from "@models/discount/discount.model";
-import { ListResponse } from "src/share/models/base-model";
-import { PagingDTO } from "src/share/models/paging";
+import {
+  DiscountConditionDTOSchema,
+  DiscountCreateDTOSchema,
+  DiscountUpdateDTOSchema,
+} from 'src/modules/discount/models/discount.dto';
+import { Discount } from 'src/modules/discount/models/discount.model';
+import {
+  IDiscountRepository,
+  IDiscountUseCase,
+} from 'src/modules/discount/models/discount.interface';
+import { ListResponse } from 'src/share/models/base-model';
+import { PagingDTO } from 'src/share/models/paging';
 
 export class DiscountUseCase implements IDiscountUseCase {
   constructor(private readonly repository: IDiscountRepository) {}

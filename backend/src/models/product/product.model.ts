@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { ModelStatus } from 'src/share/models/base-model';
 import { CategorySchema } from '@models/category/category.model';
 import { categoryModelName } from 'src/infras/repository/category/dto';
-import { discountModelName } from 'src/infras/repository/discount/dto';
+import { discountModelName } from 'src/modules/discount/infras/repo/discount/dto';
 import { DiscountSchema } from '@models/discount/discount.model';
 import { imageModelName } from 'src/infras/repository/image/dto';
 import { ImageSchema } from '@models/image/image.model';

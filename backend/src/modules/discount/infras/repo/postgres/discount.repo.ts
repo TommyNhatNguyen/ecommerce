@@ -1,17 +1,17 @@
+import { Sequelize } from 'sequelize';
+import { PagingDTO } from 'src/share/models/paging';
 import {
   DiscountConditionDTOSchema,
   DiscountCreateDTOSchema,
   DiscountUpdateDTOSchema,
-} from '@models/discount/discount.dto';
-import { IDiscountRepository } from '@models/discount/discount.interface';
-import { Discount } from '@models/discount/discount.model';
-import { Sequelize } from 'sequelize';
+} from 'src/modules/discount/models/discount.dto';
+import { Discount } from 'src/modules/discount/models/discount.model';
 import {
   BaseOrder,
   BaseSortBy,
   ListResponse,
 } from 'src/share/models/base-model';
-import { PagingDTO } from 'src/share/models/paging';
+import { IDiscountRepository } from 'src/modules/discount/models/discount.interface';
 
 export class PostgresDiscountRepository implements IDiscountRepository {
   constructor(
@@ -30,10 +30,11 @@ export class PostgresDiscountRepository implements IDiscountRepository {
     ].findAndCountAll({
       limit,
       offset: (page - 1) * limit,
+      distinct: true,
       order: [[sortBy, order]],
     });
     return {
-      data: rows as unknown as Discount[],
+      data: rows.map((row) => row.dataValues),
       meta: {
         total_count: count,
         current_page: page,
@@ -44,10 +45,7 @@ export class PostgresDiscountRepository implements IDiscountRepository {
   }
   async get(id: string): Promise<Discount | null> {
     const discount = await this.sequelize.models[this.modelName].findByPk(id);
-    if (discount) {
-      return discount as unknown as Discount;
-    }
-    return null;
+    return discount?.dataValues || null;
   }
   async insert(data: DiscountCreateDTOSchema): Promise<Discount> {
     const discount = await this.sequelize.models[this.modelName].create(data, {

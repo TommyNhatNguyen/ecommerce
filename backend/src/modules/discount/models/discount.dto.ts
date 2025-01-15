@@ -5,11 +5,13 @@ import {
 } from 'src/share/models/base-model';
 import z from 'zod';
 import { v7 as uuidv7 } from 'uuid';
+import { DiscountType } from 'src/modules/discount/models/discount.model';
+import { DiscountScope } from 'src/modules/discount/models/discount.model';
 
 export const DiscountConditionDTOSchema = z.object({
   name: z.string().optional(),
-  min_discount_percentage: z.number().optional(),
-  max_discount_percentage: z.number().optional(),
+  min_amount: z.number().optional(),
+  max_amount: z.number().optional(),
   start_date: z
     .string()
     .refine(
@@ -41,14 +43,14 @@ export const DiscountConditionDTOSchema = z.object({
   sortBy: z
     .union([
       z.nativeEnum(BaseSortBy),
-      z.literal('min_discount_percentage'),
-      z.literal('max_discount_percentage'),
+      z.literal('min_amount'),
+      z.literal('max_amount'),
       z.literal('start_date'),
       z.literal('end_date'),
       z.literal('status'),
       z.literal('created_at'),
       z.literal('updated_at'),
-      z.literal('discount_percentage'),
+      z.literal('amount'),
     ])
     .optional(),
 });
@@ -61,7 +63,9 @@ export const DiscountCreateDTOSchema = z
       .default(() => uuidv7()),
     name: z.string(),
     description: z.string().optional(),
-    discount_percentage: z.number().min(0).max(100).default(0),
+    amount: z.number().min(0).default(0),
+    type: z.nativeEnum(DiscountType),
+    scope: z.nativeEnum(DiscountScope),
     start_date: z
       .string()
       .refine(
@@ -97,7 +101,9 @@ export const DiscountUpdateDTOSchema = z
   .object({
     name: z.string().optional(),
     description: z.string().optional(),
-    discount_percentage: z.number().min(0).max(100).optional(),
+    amount: z.number().min(0).optional(),
+    type: z.nativeEnum(DiscountType).optional(),
+    scope: z.nativeEnum(DiscountScope).optional(),
     start_date: z
       .string()
       .refine(

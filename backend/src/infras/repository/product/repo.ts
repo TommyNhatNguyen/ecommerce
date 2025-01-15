@@ -30,7 +30,7 @@ import {
 import {
   discountModelName,
   DiscountPersistence,
-} from 'src/infras/repository/discount/dto';
+} from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import {
   variantModelName,
   VariantPersistence,

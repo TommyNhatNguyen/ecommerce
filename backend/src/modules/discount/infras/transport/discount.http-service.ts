@@ -1,18 +1,16 @@
+import { Request, Response } from 'express';
+import { PagingDTOSchema } from 'src/share/models/paging';
+import { IDiscountUseCase } from 'src/modules/discount/models/discount.interface';
 import {
   DiscountConditionDTOSchema,
   DiscountCreateDTOSchema,
   DiscountUpdateDTOSchema,
-} from '@models/discount/discount.dto';
-
-import { IDiscountUseCase } from '@models/discount/discount.interface';
-import { Request, Response } from 'express';
-import { PagingDTOSchema } from 'src/share/models/paging';
-import { DiscountUseCase } from 'src/usecase/discount';
+} from 'src/modules/discount/models/discount.dto';
 
 export class DiscountHttpService {
   constructor(private readonly useCase: IDiscountUseCase) {}
 
-  async getDiscounts(req: Request, res: Response) {
+  async getDiscount(req: Request, res: Response) {
     const { id } = req.params;
     try {
       const discount = await this.useCase.getDiscount(id);
@@ -22,14 +20,14 @@ export class DiscountHttpService {
       }
       res
         .status(200)
-        .json({ data: discount, message: 'Discount fetched successfully' });
+        .json({ ...discount, message: 'Discount fetched successfully' });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
       return;
     }
   }
 
-  async listDiscounts(req: Request, res: Response) {
+  async listDiscount(req: Request, res: Response) {
     const {
       success: pagingSuccess,
       data: pagingData,
@@ -78,8 +76,8 @@ export class DiscountHttpService {
     try {
       const discount = await this.useCase.createDiscount(payload);
       res
-        .status(200)
-        .json({ data: discount, message: 'Discount created successfully' });
+        .status(201)
+        .json({ ...discount, message: 'Discount created successfully' });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
       return;
@@ -104,7 +102,7 @@ export class DiscountHttpService {
       const discount = await this.useCase.updateDiscount(id, data);
       res
         .status(200)
-        .json({ data: discount, message: 'Discount updated successfully' });
+        .json({ ...discount, message: 'Discount updated successfully' });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
       return;
@@ -119,7 +117,10 @@ export class DiscountHttpService {
         return;
       }
       await this.useCase.deleteDiscount(id);
-      res.status(200).json({ message: 'Discount deleted successfully' });
+      res.status(200).json({
+        message: 'Discount deleted successfully',
+        ...selectedDiscount,
+      });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
       return;

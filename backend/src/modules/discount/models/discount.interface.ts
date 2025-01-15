@@ -1,12 +1,13 @@
-
-import { DiscountConditionDTOSchema, DiscountCreateDTOSchema, DiscountUpdateDTOSchema } from "@models/discount/discount.dto";
-import { Discount } from "@models/discount/discount.model";
-
+import { DiscountConditionDTOSchema, DiscountCreateDTOSchema, DiscountUpdateDTOSchema } from "src/modules/discount/models/discount.dto";
+import { Discount } from "src/modules/discount/models/discount.model";
 import { ListResponse } from "src/share/models/base-model";
 import { PagingDTO } from "src/share/models/paging";
 
 export interface IDiscountUseCase {
-  listDiscount(paging: PagingDTO, condition: DiscountConditionDTOSchema): Promise<ListResponse<Discount[]>>;
+  listDiscount(
+    paging: PagingDTO,
+    condition: DiscountConditionDTOSchema
+  ): Promise<ListResponse<Discount[]>>;
   getDiscount(id: string): Promise<Discount | null>;
   createDiscount(data: DiscountCreateDTOSchema): Promise<Discount>;
   updateDiscount(id: string, data: DiscountUpdateDTOSchema): Promise<Discount>;

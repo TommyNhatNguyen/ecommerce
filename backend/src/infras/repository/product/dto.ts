@@ -90,6 +90,13 @@ export class ProductDiscountPersistence extends Model {
   declare id: string;
   declare product_id: string;
   declare discount_id: string;
+  declare discount_amount: number;
+  declare discount_name: string;
+  declare discount_start_date: Date;
+  declare discount_end_date: Date;
+  declare product_name: string;
+  declare price_before_discount: number;
+  declare price_after_discount: number;
   declare status: ModelStatus;
   declare created_at: Date;
   declare updated_at: Date;
@@ -100,6 +107,33 @@ export function initProductDiscount(sequelize: Sequelize) {
     {
       product_id: { type: DataTypes.STRING, allowNull: false },
       discount_id: { type: DataTypes.STRING, allowNull: false },
+      discount_amount: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+        defaultValue: 0,
+      },
+      discount_name: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        defaultValue: '',
+      },
+      discount_start_date: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        defaultValue: null,
+      },
+      discount_end_date: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        defaultValue: null,
+      },
+      product_name: { type: DataTypes.STRING, allowNull: false },
+      price_before_discount: { type: DataTypes.FLOAT, allowNull: false },
+      price_after_discount: {
+        type: DataTypes.FLOAT,
+        allowNull: true,
+        defaultValue: 0,
+      },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
         allowNull: false,

@@ -1,11 +1,23 @@
 import { ModelStatus } from 'src/share/models/base-model';
 import z from 'zod';
 
+export enum DiscountType {
+  PERCENTAGE = 'percentage',
+  FIXED = 'fixed',
+}
+
+export enum DiscountScope {
+  PRODUCT = 'product',
+  ORDER = 'order',
+}
+
 export const DiscountSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
   description: z.string().optional(),
-  discount_percentage: z.number().min(0).max(100).default(0),
+  amount: z.number().min(0).default(0),
+  type: z.nativeEnum(DiscountType),
+  scope: z.nativeEnum(DiscountScope),
   start_date: z
     .string()
     .refine(

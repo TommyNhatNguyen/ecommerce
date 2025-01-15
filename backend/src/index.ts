@@ -18,11 +18,7 @@ import {
   ProductPersistence,
   productVariantModelName,
 } from 'src/infras/repository/product/dto';
-import { setupDiscountRouter } from 'src/routers/discount';
-import {
-  discountModelName,
-  DiscountPersistence,
-} from 'src/infras/repository/discount/dto';
+import { setupDiscountRouter } from 'src/modules/discount';
 import { setupVariantRouter } from 'src/routers/variant';
 import {
   variantModelName,
@@ -73,6 +69,8 @@ import {
 } from 'src/modules/customer/infras/repo/postgres/customer.dto';
 import { cartModelName } from 'src/modules/cart/infras/repo/postgres/cart.dto';
 import { CartPersistence } from 'src/modules/cart/infras/repo/postgres/cart.dto';
+import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
+import { DiscountPersistence } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 config();
 
 (async () => {
