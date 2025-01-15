@@ -78,6 +78,10 @@ export class OrderDetailHttpService {
     const { success, data, error } = OrderDetailCreateDTOSchema.omit({
       subtotal: true,
       total_costs: true,
+      total_shipping_fee: true,
+      total_payment_fee: true,
+      payment_id: true,
+      total: true,
     }).safeParse(req.body);
     if (!success) {
       res.status(400).json({ success: false, message: error.message });

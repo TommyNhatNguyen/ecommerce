@@ -15,7 +15,9 @@ export const CostUpdateDTOSchema = CostSchema.omit({
 
 export const CostConditionDTOSchema = CostSchema.omit({
   id: true,
-}).partial();
+}).partial().extend({
+  ids: z.array(z.string().uuid()).optional(),
+});
 
 export type CostCreateDTO = z.infer<typeof CostCreateDTOSchema>;
 export type CostUpdateDTO = z.infer<typeof CostUpdateDTOSchema>;

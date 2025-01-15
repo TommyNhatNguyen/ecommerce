@@ -10,5 +10,5 @@ export const PaymentMethodSchema = z.object({
   updated_at: z.date(),
 });
 
-export type PaymentMethod = z.infer<typeof PaymentMethodSchema>;
+export type PaymentMethodModel = z.infer<typeof PaymentMethodSchema>;
 

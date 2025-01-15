@@ -56,6 +56,7 @@ import {
 } from 'src/infras/repository/permission/dto';
 import { setupOrderDetailRouter } from 'src/modules/order_detail';
 import {
+  orderDetailCostModelName,
   OrderDetailPersistence,
   orderDetailProductModelName,
   OrderDetailProductPersistence,
@@ -75,6 +76,11 @@ import { discountModelName } from 'src/modules/discount/infras/repo/postgres/dis
 import { DiscountPersistence } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { setupCostRouter } from 'src/modules/cost';
 import { setupPaymentMethodRouter } from 'src/modules/payment_method';
+import {
+  paymentMethodModelName,
+  PaymentMethodPersistence,
+} from 'src/modules/payment_method/infras/postgres/repo/payment_method.dto';
+import { costModelName, CostPersistence } from 'src/modules/cost/infras/repo/postgres/cost.dto';
 config();
 
 (async () => {
@@ -115,6 +121,20 @@ app.use('/v1', setupCartRouter(sequelize));
 app.use('/v1', setupCostRouter(sequelize));
 app.use('/v1', setupPaymentMethodRouter(sequelize));
 
+PaymentMethodPersistence.hasOne(PaymentPersistence, {
+  foreignKey: 'payment_method_id',
+  as: paymentMethodModelName.toLowerCase(),
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
+
+PaymentPersistence.belongsTo(PaymentMethodPersistence, {
+  foreignKey: 'id',
+  as: paymentModelName.toLowerCase(),
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
+
 OrderDetailPersistence.hasOne(OrderPersistence, {
   foreignKey: 'order_detail_id',
   as: orderModelName.toLowerCase(),
@@ -139,6 +159,20 @@ OrderDetailPersistence.belongsToMany(ProductPersistence, {
 ProductPersistence.belongsToMany(OrderDetailPersistence, {
   through: orderDetailProductModelName,
   foreignKey: 'product_id',
+  otherKey: 'order_detail_id',
+  as: orderDetailModelName.toLowerCase(),
+});
+
+OrderDetailPersistence.belongsToMany(CostPersistence, {
+  through: orderDetailCostModelName,
+  foreignKey: 'order_detail_id',
+  otherKey: 'cost_id',
+  as: costModelName.toLowerCase(),
+});
+
+CostPersistence.belongsToMany(OrderDetailPersistence, {
+  through: orderDetailCostModelName,
+  foreignKey: 'cost_id',
   otherKey: 'order_detail_id',
   as: orderDetailModelName.toLowerCase(),
 });

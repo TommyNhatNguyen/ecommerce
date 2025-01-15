@@ -4,7 +4,7 @@ import z from 'zod';
 export const PaymentCreateDTOSchema = z.object({
   payment_method_id: z.string().uuid(),
   paid_amount: z.number().min(0),
-  paid_all_date: z.string().datetime().nullable().default(null).optional(),
+  paid_all_date: z.date().nullable().default(null).optional(),
 });
 
 export const PaymentUpdateDTOSchema = PaymentSchema.omit({

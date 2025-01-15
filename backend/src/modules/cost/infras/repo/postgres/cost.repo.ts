@@ -8,6 +8,8 @@ import {
 import { ICostRepository } from 'src/modules/cost/models/cost.interface';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
+import { Op } from 'sequelize';
+import { WhereOptions } from '@sequelize/core';
 
 export class PostgresCostRepository implements ICostRepository {
   constructor(
@@ -22,11 +24,17 @@ export class PostgresCostRepository implements ICostRepository {
     paging: PagingDTO,
     condition: CostConditionDTO
   ): Promise<ListResponse<Cost[]>> {
+    let where: WhereOptions = {};
+    if (condition.ids) {
+      where.id = {
+        [Op.in]: condition.ids,
+      };
+    }
     const { page, limit } = paging;
     const { rows, count } = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({
-      where: condition,
+      where: where,
       limit,
       offset: (page - 1) * limit,
       distinct: true,

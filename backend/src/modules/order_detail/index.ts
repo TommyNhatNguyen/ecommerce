@@ -22,6 +22,12 @@ import { PostgresPaymentRepository } from 'src/modules/payment/infras/repo/postg
 import { paymentModelName } from 'src/modules/payment/infras/repo/postgres/payment.dto';
 import { PaymentUseCase } from 'src/modules/payment/usecase';
 import { PostgresShippingRepository } from 'src/modules/shipping/infras/postgres/repo/shipping.repo';
+import { paymentMethodModelName } from 'src/modules/payment_method/infras/postgres/repo/payment_method.dto';
+import { PostgresPaymentMethodRepository } from 'src/modules/payment_method/infras/postgres/repo/payment_method.repo';
+import { PaymentMethodUseCase } from 'src/modules/payment_method/usecase';
+import { CostUseCase } from 'src/modules/cost/usecase';
+import { costModelName } from 'src/modules/cost/infras/repo/postgres/cost.dto';
+import { PostgresCostRepository } from 'src/modules/cost/infras/repo/postgres/cost.repo';
 export function setupOrderDetailRouter(sequelize: Sequelize) {
   orderDetailInit(sequelize);
   orderDetailProductInit(sequelize);
@@ -47,6 +53,11 @@ export function setupOrderDetailRouter(sequelize: Sequelize) {
     sequelize,
     paymentModelName
   );
+  const paymentMethodRepository = new PostgresPaymentMethodRepository(
+    sequelize,
+    paymentMethodModelName
+  );
+  const costRepository = new PostgresCostRepository(sequelize, costModelName);
   const productUseCase = new ProductUseCase(
     productRepository,
     orderDetailRepository
@@ -55,14 +66,20 @@ export function setupOrderDetailRouter(sequelize: Sequelize) {
     customerRepository,
     cartRepository
   );
+  const costUseCase = new CostUseCase(costRepository);
   const shippingUseCase = new ShippingUseCase(shippingRepository);
   const paymentUseCase = new PaymentUseCase(paymentRepository);
+  const paymentMethodUseCase = new PaymentMethodUseCase(
+    paymentMethodRepository
+  );
   const orderDetailUseCase = new OrderDetailUseCase(
     orderDetailRepository,
     customerUseCase,
     productUseCase,
     shippingUseCase,
-    paymentUseCase
+    paymentUseCase,
+    paymentMethodUseCase,
+    costUseCase
   );
   const orderDetailHttpService = new OrderDetailHttpService(orderDetailUseCase);
   router.get(

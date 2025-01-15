@@ -1,6 +1,6 @@
 import { DataTypes, Sequelize } from 'sequelize';
 import { Model } from 'sequelize';
-import { ModelStatus } from 'src/share/models/base-model';
+import { ModelStatus, NumberType } from 'src/share/models/base-model';
 import { v7 as uuidv7 } from 'uuid';
 export class OrderDetailPersistence extends Model {
   declare id: string;
@@ -9,7 +9,7 @@ export class OrderDetailPersistence extends Model {
   declare total_payment_fee: number;
   declare total_costs: number;
   declare total: number;
-  declare shipping_id: string;
+  declare shipping_method_id: string;
   declare payment_id: string;
   declare customer_id: string;
   declare customer_name: string;
@@ -53,7 +53,7 @@ export const orderDetailInit = (sequelize: Sequelize) => {
         type: DataTypes.FLOAT,
         allowNull: false,
       },
-      shipping_id: {
+      shipping_method_id: {
         type: DataTypes.UUID,
         allowNull: false,
       },
@@ -163,6 +163,67 @@ export function orderDetailProductInit(sequelize: Sequelize) {
       tableName: orderDetailProductModelName,
       timestamps: false,
       modelName: orderDetailProductModelName,
+    }
+  );
+}
+
+export class OrderDetailCostPersistence extends Model {
+  declare order_detail_id: string;
+  declare cost_id: string;
+  declare cost_type: string;
+  declare cost_amount: number;
+  declare cost_name: string;
+  declare status: ModelStatus;
+  declare created_at: Date;
+  declare updated_at: Date;
+}
+
+export const orderDetailCostModelName = 'order_detail_cost';
+
+export function orderDetailCostInit(sequelize: Sequelize) {
+  OrderDetailCostPersistence.init(
+    {
+      order_detail_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      cost_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      cost_type: {
+        type: DataTypes.ENUM(...Object.values(NumberType)),
+        allowNull: false,
+      },
+      cost_amount: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
+      cost_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      status: {
+        type: DataTypes.ENUM(...Object.values(ModelStatus)),
+        allowNull: false,
+        defaultValue: ModelStatus.ACTIVE,
+      },
+      created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+    },
+    {
+      sequelize,
+      tableName: orderDetailCostModelName,
+      timestamps: false,
+      modelName: orderDetailCostModelName,
     }
   );
 }

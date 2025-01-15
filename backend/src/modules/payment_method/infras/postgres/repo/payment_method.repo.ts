@@ -4,17 +4,18 @@ import { IShippingConditionDTO, IShippingUpdateDTO } from 'src/modules/shipping/
 import { IShippingCreateDTO } from 'src/modules/shipping/models/shipping.dto';
 import { Shipping } from 'src/modules/shipping/models/shipping.model';
 import { IShippingRepository } from 'src/modules/shipping/models/shipping.interface';
-import { ListResponse, PaymentMethod } from 'src/share/models/base-model';
+import { ListResponse,  } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { IPaymentMethodRepository } from 'src/modules/payment_method/models/payment_method.interface';
 import { IPaymentMethodConditionDTO, IPaymentMethodCreateDTO, IPaymentMethodUpdateDTO } from 'src/modules/payment_method/models/payment_method.dto';
+import { PaymentMethodModel } from 'src/modules/payment_method/models/payment_method.model';
 
 export class PostgresPaymentMethodRepository implements IPaymentMethodRepository {
   constructor(
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
-  async createPayment(data: IPaymentMethodCreateDTO): Promise<PaymentMethod> {
+  async createPayment(data: IPaymentMethodCreateDTO): Promise<PaymentMethodModel> {
     const payment = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });
@@ -23,7 +24,7 @@ export class PostgresPaymentMethodRepository implements IPaymentMethodRepository
   async updatePayment(
     id: string,
     data: IPaymentMethodUpdateDTO
-  ): Promise<PaymentMethod> {
+  ): Promise<PaymentMethodModel> {
 
     const payment = await this.sequelize.models[this.modelName].update(data, {
       where: { id },
@@ -40,7 +41,7 @@ export class PostgresPaymentMethodRepository implements IPaymentMethodRepository
   async getPaymentById(
     id: string,
     condition: IPaymentMethodConditionDTO
-  ): Promise<PaymentMethod | null> {
+  ): Promise<PaymentMethodModel | null> {
     const where: any = { };
     const { type, minCost, maxCost, status, created_at, updated_at } = condition || {};
     if (type) where.type = type;
@@ -56,7 +57,7 @@ export class PostgresPaymentMethodRepository implements IPaymentMethodRepository
   async getPaymentList(
     paging: PagingDTO,
     condition: IPaymentMethodConditionDTO
-  ): Promise<ListResponse<PaymentMethod[]>> {
+  ): Promise<ListResponse<PaymentMethodModel[]>> {
     const { page, limit } = paging;
     const where: any = {};
     if (condition.type) where.type = condition.type;

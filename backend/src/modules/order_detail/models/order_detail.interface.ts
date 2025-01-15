@@ -13,7 +13,12 @@ export interface IOrderDetailUseCase {
     paging: PagingDTO,
     condition: OrderDetailConditionDTO
   ): Promise<ListResponse<OrderDetail[]>>;
-  create(data: Omit<OrderDetailCreateDTO, 'subtotal' | 'total_costs'>): Promise<OrderDetail>;
+  create(
+    data: Omit<
+      OrderDetailCreateDTO,
+      'subtotal' | 'total_costs' | 'total_shipping_fee' | 'total_payment_fee' | 'payment_id' | 'total'
+    >
+  ): Promise<OrderDetail>;
   update(id: string, data: OrderDetailUpdateDTO): Promise<OrderDetail>;
   delete(id: string): Promise<boolean>;
 }
@@ -32,7 +37,7 @@ export interface IQueryRepository {
 
 export interface ICommandRepository {
   create(
-    data: Omit<OrderDetailCreateDTO, 'products_detail'>
+    data: Omit<OrderDetailCreateDTO, 'products_detail' | 'payment_info' | 'costs_detail'>
   ): Promise<OrderDetail>;
   update(id: string, data: OrderDetailUpdateDTO): Promise<OrderDetail>;
   delete(id: string): Promise<boolean>;

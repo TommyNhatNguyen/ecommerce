@@ -10,18 +10,25 @@ import { OrderDetail } from 'src/modules/order_detail/models/order_detail.model'
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { ICustomerUseCase } from 'src/modules/customer/models/customer.interface';
-import { ORDER_DETAIL_ERROR, ORDER_DETAIL_PRODUCT_ERROR } from 'src/modules/order_detail/models/order_detail.error';
+import {
+  ORDER_DETAIL_ERROR,
+  ORDER_DETAIL_PRODUCT_ERROR,
+} from 'src/modules/order_detail/models/order_detail.error';
 import { IShippingUseCase } from 'src/modules/shipping/models/shipping.interface';
 import { IPaymentUseCase } from 'src/modules/payment/models/payment.interface';
 import { IProductUseCase } from '@models/product/product.interface';
+import { IPaymentMethodUseCase } from 'src/modules/payment_method/models/payment_method.interface';
+import { ICostUseCase } from 'src/modules/cost/models/cost.interface';
 
 export class OrderDetailUseCase implements IOrderDetailUseCase {
   constructor(
     private readonly orderDetailRepository: IOrderDetailRepository,
-    private readonly customerUseCase: ICustomerUseCase, 
+    private readonly customerUseCase: ICustomerUseCase,
     private readonly productUseCase: IProductUseCase,
     private readonly shippingUseCase: IShippingUseCase,
-    private readonly paymentUseCase: IPaymentUseCase
+    private readonly paymentUseCase: IPaymentUseCase,
+    private readonly paymentMethodUseCase: IPaymentMethodUseCase,
+    private readonly costUseCase: ICostUseCase
   ) {}
   async getById(
     id: string,
@@ -36,7 +43,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
     return await this.orderDetailRepository.getList(paging, condition);
   }
   async create(data: OrderDetailCreateDTO): Promise<OrderDetail> {
-    const { products_detail, customer_id, ...rest } = data;
+    const { products_detail, customer_id, payment_info,costs_detail, ...rest } = data;
 
     const payload = {
       ...rest,
@@ -63,7 +70,6 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
       );
       if (products.data.length !== products_detail.length)
         throw ORDER_DETAIL_PRODUCT_ERROR;
-      console.log(products);
       payload.subtotal = products.data.reduce((acc, product) => {
         const productDetail = products_detail.find((p) => p.id === product.id);
         if (!productDetail) throw ORDER_DETAIL_PRODUCT_ERROR;
@@ -73,21 +79,48 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
       throw ORDER_DETAIL_ERROR;
     }
     if (payload.shipping_method_id) {
-        const shipping = await this.shippingUseCase.getShippingById(
-          payload.shipping_method_id
-        );
+      const shipping = await this.shippingUseCase.getShippingById(
+        payload.shipping_method_id
+      );
       payload.total_shipping_fee = shipping?.cost ?? 0;
     }
 
-    //    "subtotal": 100,
-    // "total_shipping_fee": 10,
-    // "total_payment_fee": 10,
-    // "total_costs": 0,
-    // "total": 1000,
-    payload.total =
-      payload.subtotal -
-      (payload.total_shipping_fee +
-        payload.total_costs);
+    if (costs_detail && costs_detail.length > 0) {
+      const costs = await this.costUseCase.getList(
+        { page: 1, limit: costs_detail.length },
+        {
+          ids: costs_detail.map((cost) => cost.id),
+        }
+      );
+      if (costs.data.length !== costs_detail.length)
+        throw ORDER_DETAIL_ERROR;
+      payload.total_costs = costs.data.reduce((acc, cost) => {
+        return acc + cost.cost;
+      }, 0);
+    }
+
+    if (payment_info?.payment_method_id) {
+      const paymentMethod = await this.paymentMethodUseCase.getById(
+        payment_info?.payment_method_id
+      );
+      if (!paymentMethod) throw ORDER_DETAIL_ERROR;
+      payload.total_payment_fee = paymentMethod?.cost ?? 0;
+      payload.total =
+        payload.subtotal -
+        (payload.total_shipping_fee +
+          payload.total_payment_fee +
+          payload.total_costs);
+      const payment = await this.paymentUseCase.createPayment({
+        paid_amount: payment_info?.paid_amount ?? 0,
+        payment_method_id: payment_info?.payment_method_id,
+        paid_all_date:
+          payment_info?.paid_amount === payload.total
+            ? new Date()
+            : null,
+      });
+      payload.payment_id = payment.id;
+    }
+    console.log(payload);
     return await this.orderDetailRepository.create(payload);
   }
   async update(id: string, data: OrderDetailUpdateDTO): Promise<OrderDetail> {

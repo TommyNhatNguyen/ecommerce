@@ -2,7 +2,8 @@ import { IShippingCreateDTO } from 'src/modules/shipping/models/shipping.dto';
 import { IShippingUpdateDTO } from 'src/modules/shipping/models/shipping.dto';
 import { IShippingConditionDTO } from 'src/modules/shipping/models/shipping.dto';
 import { Shipping } from 'src/modules/shipping/models/shipping.model';
-import { ListResponse, PaymentMethod } from 'src/share/models/base-model';
+import { ListResponse,  } from 'src/share/models/base-model';
+import { PaymentMethodModel } from './payment_method.model';
 import { PagingDTO } from 'src/share/models/paging';
 import {
   IPaymentMethodCreateDTO,
@@ -14,16 +15,16 @@ export interface IPaymentMethodUseCase {
   getById(
     id: string,
     condition?: IPaymentMethodConditionDTO
-  ): Promise<PaymentMethod | null>;
+  ): Promise<PaymentMethodModel | null>;
   getPaymentList(
     paging: PagingDTO,
     condition?: IPaymentMethodConditionDTO
-  ): Promise<ListResponse<PaymentMethod[]>>;
-  createPayment(data: IPaymentMethodCreateDTO): Promise<PaymentMethod>;
+  ): Promise<ListResponse<PaymentMethodModel[]>>;
+  createPayment(data: IPaymentMethodCreateDTO): Promise<PaymentMethodModel>;
   updatePayment(
     id: string,
     data: IPaymentMethodUpdateDTO
-  ): Promise<PaymentMethod>;
+  ): Promise<PaymentMethodModel>;
   deletePayment(id: string): Promise<boolean>;
 }
 
@@ -35,15 +36,15 @@ export interface IQueryRepository {
   getPaymentById(
     id: string,
     condition?: IPaymentMethodConditionDTO
-  ): Promise<PaymentMethod | null>;
+  ): Promise<PaymentMethodModel | null>;
   getPaymentList(
     paging: PagingDTO,
     condition?: IPaymentMethodConditionDTO
-  ): Promise<ListResponse<PaymentMethod[]>>;
+  ): Promise<ListResponse<PaymentMethodModel[]>>;
 }
 
 export interface ICommandRepository {
-  createPayment(data: IPaymentMethodCreateDTO): Promise<PaymentMethod>;
-  updatePayment(id: string, data: IPaymentMethodUpdateDTO): Promise<PaymentMethod>;
+  createPayment(data: IPaymentMethodCreateDTO): Promise<PaymentMethodModel>;
+  updatePayment(id: string, data: IPaymentMethodUpdateDTO): Promise<PaymentMethodModel>;
   deletePayment(id: string): Promise<boolean>;
 }
