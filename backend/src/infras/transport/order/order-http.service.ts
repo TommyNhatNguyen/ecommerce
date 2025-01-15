@@ -25,7 +25,7 @@ export class OrderHttpService {
         res.status(404).json({ success: false, message: 'Order not found' });
         return;
       }
-      res.status(200).json({ success: true, data: order });
+      res.status(200).json({ success: true, ...order });
     } catch (error) {
       res
         .status(500)
@@ -73,9 +73,7 @@ export class OrderHttpService {
   }
 
   async create(req: Request, res: Response) {
-    const { success, data, error } = OrderCreateDTOSchema.omit({
-      total_price: true,
-    }).safeParse(req.body);
+    const { success, data, error } = OrderCreateDTOSchema.safeParse(req.body);
     if (!success) {
       res.status(400).json({ success: false, message: error.message });
       return;

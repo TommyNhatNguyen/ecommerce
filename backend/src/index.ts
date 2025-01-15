@@ -41,8 +41,10 @@ import {
 import { reviewModelName } from 'src/infras/repository/review/dto';
 import { setupReviewRouter } from 'src/routers/review';
 import { ReviewPersistence } from 'src/infras/repository/review/dto';
-import { orderModelName } from 'src/infras/repository/order/dto';
-import { OrderPersistence } from 'src/infras/repository/order/dto';
+import {
+  orderModelName,
+  OrderPersistence,
+} from 'src/infras/repository/order/dto';
 import { setupOrderRouter } from 'src/routers/order';
 import { setupCustomerRouter } from 'src/routers/customer';
 import { customerModelName } from 'src/infras/repository/customer/dto';
@@ -65,13 +67,16 @@ import {
   PermissionPersistence,
   permissionRoleModelName,
 } from 'src/infras/repository/permission/dto';
+import { setupOrderDetailRouter } from 'src/modules/order_detail';
+import { OrderDetailPersistence } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
+import { orderDetailModelName } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 config();
 
 (async () => {
   try {
     await sequelize.authenticate();
     console.log('Connection has been established successfully.');
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: true });
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
@@ -100,6 +105,21 @@ app.use('/v1', setupPaymentRouter(sequelize));
 app.use('/v1', setupUserRouter(sequelize));
 app.use('/v1', setupRoleRouter(sequelize));
 app.use('/v1', setupPermissionRouter(sequelize));
+app.use('/v1', setupOrderDetailRouter(sequelize));
+
+OrderDetailPersistence.hasOne(OrderPersistence, {
+  foreignKey: 'order_detail_id',
+  as: orderModelName.toLowerCase(),
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
+
+OrderPersistence.belongsTo(OrderDetailPersistence, {
+  foreignKey: 'order_detail_id',
+  as: orderDetailModelName.toLowerCase(),
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
 
 ProductPersistence.belongsToMany(CategoryPersistence, {
   through: productCategoryModelName,
@@ -157,53 +177,9 @@ ImagePersistence.belongsToMany(ProductPersistence, {
   as: productModelName.toLowerCase(),
 });
 
-ProductPersistence.belongsToMany(OrderPersistence, {
-  through: productOrderModelName,
-  foreignKey: 'product_id',
-  otherKey: 'order_id',
-  as: orderModelName.toLowerCase(),
-});
-
-OrderPersistence.belongsToMany(ProductPersistence, {
-  through: productOrderModelName,
-  foreignKey: 'order_id',
-  otherKey: 'product_id',
-  as: productModelName.toLowerCase(),
-});
-
 ProductPersistence.hasMany(ReviewPersistence, {
   foreignKey: 'product_id',
   as: reviewModelName.toLowerCase(),
-});
-
-OrderPersistence.belongsTo(CustomerPersistence, {
-  foreignKey: 'customer_id',
-  as: customerModelName.toLowerCase(),
-});
-
-CustomerPersistence.hasMany(OrderPersistence, {
-  foreignKey: 'customer_id',
-  as: orderModelName.toLowerCase(),
-});
-
-OrderPersistence.belongsTo(ShippingPersistence, {
-  foreignKey: 'shipping_method_id',
-  as: shippingModelName.toLowerCase(),
-});
-
-ShippingPersistence.hasOne(OrderPersistence, {
-  foreignKey: 'shipping_method_id',
-  as: orderModelName.toLowerCase(),
-});
-
-OrderPersistence.belongsTo(PaymentPersistence, {
-  foreignKey: 'payment_method_id',
-  as: paymentModelName.toLowerCase(),
-});
-
-PaymentPersistence.hasOne(OrderPersistence, {
-  foreignKey: 'payment_method_id',
-  as: orderModelName.toLowerCase(),
 });
 
 ReviewPersistence.belongsTo(ProductPersistence, {

@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import LoadingComponent from "@/app/shared/components/LoadingComponent";
 
 type ActionGroupPropsType = {
-  handleDelete: (...args: any[]) => void;
+  handleDelete?: (...args: any[]) => void;
   handleEdit?: (...args: any[]) => void;
   content?: React.ReactNode;
   loading?: boolean;

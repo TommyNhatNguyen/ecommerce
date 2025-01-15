@@ -32,6 +32,7 @@ export interface OrderModel {
   shipping_email: string;
   shipping_address: string;
   order_state: OrderState;
+  description: string;
   total_price: number;
   shipping_method_id: string;
   payment_method_id: string;

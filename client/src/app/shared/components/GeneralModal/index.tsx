@@ -1,4 +1,5 @@
 import LoadingComponent from "@/app/shared/components/LoadingComponent";
+import { cn } from "@/lib/utils";
 import { Modal, ModalProps, Spin } from "antd";
 import { LoaderPinwheel } from "lucide-react";
 import React from "react";
@@ -8,6 +9,7 @@ type GeneralModalProps = {
   renderTitle: () => React.ReactNode;
   renderFooter: () => React.ReactNode;
   renderContent: () => React.ReactNode;
+  className?: string;
 } & ModalProps;
 
 const GeneralModal = ({
@@ -15,6 +17,7 @@ const GeneralModal = ({
   renderTitle,
   renderFooter,
   renderContent,
+  className,
   ...props
 }: GeneralModalProps) => {
   const _renderTitle = () => {
@@ -45,7 +48,7 @@ const GeneralModal = ({
       maskClosable={true}
       footer={_renderFooter()}
       title={_renderTitle()}
-      className="relative min-w-[60%]"
+      className={cn("relative min-w-[60%]", className)}
     >
       {_renderContent()}
     </Modal>

@@ -17,7 +17,7 @@ type InputAdminPropsType = {
 const InputAdmin = forwardRef(
   (
     {
-      label = '',
+      label = "",
       error,
       required = false,
       customComponent,

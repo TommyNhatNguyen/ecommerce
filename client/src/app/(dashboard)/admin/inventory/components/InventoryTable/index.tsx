@@ -349,31 +349,6 @@ const InventoryTable = ({
       sorter: (a, b) => a.price - b.price,
       sortOrder: sortedInfo.columnKey === "price" ? sortedInfo.order : null,
       render: (_, { price }) => <span>{formatCurrency(price)}</span>,
-      // filterDropdown: () => {
-      //   return (
-      //     <div className="flex flex-col gap-2 rounded-md p-2">
-      //       <Slider
-      //         step={1000000}
-      //         min={0}
-      //         max={100000000}
-      //         onChange={(value) => {
-      //           console.log(value);
-      //         }}
-      //       />
-      //       <div className="flex items-center justify-end gap-1">
-      //         <Button type="primary" onClick={() => {}}>
-      //           Confirm
-      //         </Button>
-      //         <Button type="primary" onClick={() => {}}>
-      //           Clear
-      //         </Button>
-      //         <Button type="primary" onClick={() => {}}>
-      //           Close
-      //         </Button>
-      //       </div>
-      //     </div>
-      //   );
-      // },
     },
     {
       title: "Cost",
@@ -519,7 +494,6 @@ const InventoryTable = ({
       filteredValue: filteredInfo.status || null,
       onFilter: (value, record) => record.status === value,
       render: (_, { status, id }) => {
-        console.log(status);
         return (
           <Select
             options={statusOptions}
@@ -542,13 +516,6 @@ const InventoryTable = ({
               return (
                 <div className="min-w-fit">
                   <div>{menu}</div>
-                  {/* <Button
-                    type="primary"
-                    className="w-full"
-                    onClick={() => _onUpdateStatus(id)}
-                  >
-                    Submit
-                  </Button> */}
                 </div>
               );
             }}

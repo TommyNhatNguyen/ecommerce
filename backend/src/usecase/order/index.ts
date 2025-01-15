@@ -14,9 +14,7 @@ import { PagingDTO } from 'src/share/models/paging';
 
 export class OrderUseCase implements IOrderUseCase {
   constructor(
-    private readonly orderRepository: IOrderRepository,
-    private readonly productRepository: IProductRepository,
-    private readonly customerRepository: ICustomerRepository
+    private readonly orderRepository: IOrderRepository
   ) {}
   async getById(id: string, condition: OrderConditionDTO): Promise<Order> {
     return await this.orderRepository.getById(id, condition);
@@ -27,46 +25,8 @@ export class OrderUseCase implements IOrderUseCase {
   ): Promise<ListResponse<Order[]>> {
     return await this.orderRepository.getList(paging, condition);
   }
-  async create(data: Omit<OrderCreateDTO, 'total_price'>): Promise<Order> {
-    const { product_orders, customer_id, customer_name, shipping_phone, ...rest } = data;
-    const productFoundList: Product[] = [];
-    // Check if customer exists
-    let customer : Customer | null = null;
-    if (!customer_id) {
-      customer = await this.customerRepository.createCustomer({
-        phone: data.shipping_phone,
-        last_name: data.customer_name,
-      })
-    } else {
-      customer = await this.customerRepository.getCustomerById(customer_id);
-    }
-    // Check if product exists
-    for (const item of product_orders) {
-      const { product_id } = item;
-      const productFound = await this.productRepository.get(product_id, {
-        includeDiscount: true,
-      });
-      if (!productFound) {
-        return null as any;
-      } else {
-        productFoundList.push(productFound);
-      }
-    }
-    const payload: OrderCreateDTO = {
-      customer_id: customer_id ? customer_id : customer.id,
-      customer_name: customer_name ? customer_name : customer.last_name,
-      shipping_phone: shipping_phone ? shipping_phone : customer.phone,
-      ...rest,
-      total_price: productFoundList.reduce(
-        (acc, item, index) => acc + item.price * product_orders[index].quantity,
-        0
-      ),
-      product_orders: product_orders.map((product, index) => ({
-        ...product,
-        subtotal: productFoundList[index].price * product.quantity,
-      })),
-    };
-    return await this.orderRepository.create(payload);
+  async create(data: OrderCreateDTO): Promise<Order> {
+    return await this.orderRepository.create(data);
   }
   async update(id: string, data: OrderUpdateDTO): Promise<Order> {
     return await this.orderRepository.update(id, data);
