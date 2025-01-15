@@ -16,8 +16,8 @@ export function setupCartRouter(sequelize: Sequelize) {
   const cartHttpService = new CartHttpService(cartUseCase);
   router.get('/cart/:id', cartHttpService.getById.bind(cartHttpService));
   router.get('/cart', cartHttpService.getList.bind(cartHttpService));
-  router.post('/cart', cartHttpService.create.bind(cartHttpService));
+  // router.post('/cart', cartHttpService.create.bind(cartHttpService));
   router.put('/cart/:id', cartHttpService.update.bind(cartHttpService));
-  router.delete('/cart/:id', cartHttpService.delete.bind(cartHttpService));
+  // router.delete('/cart/:id', cartHttpService.delete.bind(cartHttpService));
   return router;
 }

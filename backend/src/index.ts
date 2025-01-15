@@ -46,9 +46,7 @@ import {
   OrderPersistence,
 } from 'src/infras/repository/order/dto';
 import { setupOrderRouter } from 'src/routers/order';
-import { setupCustomerRouter } from 'src/routers/customer';
-import { customerModelName } from 'src/infras/repository/customer/dto';
-import { CustomerPersistence } from 'src/infras/repository/customer/dto';
+import { setupCustomerRouter } from 'src/modules/customer';
 import { setupShippingRouter } from 'src/routers/shipping';
 import { ShippingPersistence } from 'src/infras/repository/shipping/dto';
 import { shippingModelName } from 'src/infras/repository/shipping/dto';
@@ -69,6 +67,12 @@ import { setupCartRouter } from 'src/modules/cart';
 import { setupPaymentRouter } from 'src/modules/payment';
 import { paymentModelName } from 'src/modules/payment/infras/repo/postgres/payment.dto';
 import { PaymentPersistence } from 'src/modules/payment/infras/repo/postgres/payment.dto';
+import {
+  customerModelName,
+  CustomerPersistence,
+} from 'src/modules/customer/infras/repo/postgres/customer.dto';
+import { cartModelName } from 'src/modules/cart/infras/repo/postgres/cart.dto';
+import { CartPersistence } from 'src/modules/cart/infras/repo/postgres/cart.dto';
 config();
 
 (async () => {
@@ -131,6 +135,20 @@ PaymentPersistence.hasOne(OrderDetailPersistence, {
 OrderDetailPersistence.belongsTo(PaymentPersistence, {
   foreignKey: 'payment_id',
   as: paymentModelName.toLowerCase(),
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
+
+CartPersistence.hasOne(CustomerPersistence, {
+  foreignKey: 'cart_id',
+  as: customerModelName.toLowerCase(),
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
+
+CustomerPersistence.belongsTo(CartPersistence, {
+  foreignKey: 'cart_id',
+  as: cartModelName.toLowerCase(),
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE',
 });

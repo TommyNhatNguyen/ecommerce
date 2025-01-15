@@ -1,10 +1,10 @@
+import { Request, Response } from 'express';
 import {
   CustomerConditionDTOSchema,
   CustomerCreateDTOSchema,
   CustomerUpdateDTOSchema,
-} from '@models/customer/customer.dto';
-import { ICustomerUseCase } from '@models/customer/customer.interface';
-import { Request, Response } from 'express';
+} from 'src/modules/customer/models/customer.dto';
+import { ICustomerUseCase } from 'src/modules/customer/models/customer.interface';
 import { PagingDTOSchema } from 'src/share/models/paging';
 
 export class CustomerHttpService {
@@ -33,7 +33,10 @@ export class CustomerHttpService {
         res.status(404).json({ message: 'Customer not found' });
         return;
       }
-      res.status(200).json(customerList);
+      res.status(200).json({
+        message: 'Customer list fetched successfully',
+        ...customerList,
+      });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
       return;
@@ -59,7 +62,10 @@ export class CustomerHttpService {
         res.status(404).json({ message: 'Customer not found' });
         return;
       }
-      res.status(200).json(customer);
+      res.status(200).json({
+        message: 'Customer fetched successfully',
+        ...customer,
+      });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
       return;
@@ -70,7 +76,7 @@ export class CustomerHttpService {
       success: dataSuccess,
       data: dataData,
       error: dataError,
-    } = CustomerCreateDTOSchema.safeParse(req.body);
+    } = CustomerCreateDTOSchema.omit({ cart_id: true }).safeParse(req.body);
     if (!dataSuccess) {
       res.status(400).json({ message: 'Invalid data' });
       return;
@@ -81,7 +87,10 @@ export class CustomerHttpService {
         res.status(404).json({ message: 'Customer not found' });
         return;
       }
-      res.status(200).json(customer);
+      res.status(200).json({
+        message: 'Customer created successfully',
+        ...customer,
+      });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
       return;
@@ -104,7 +113,10 @@ export class CustomerHttpService {
         res.status(404).json({ message: 'Customer not found' });
         return;
       }
-      res.status(200).json(customer);
+      res.status(200).json({
+        message: 'Customer updated successfully',
+        ...customer,
+      });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
       return;
@@ -113,12 +125,19 @@ export class CustomerHttpService {
   async deleteCustomer(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const customer = await this.customerUseCase.deleteCustomer(id);
-      if (!customer) {
+      const deletedCustomer = await this.customerUseCase.getCustomerById(
+        id,
+        {}
+      );
+      if (!deletedCustomer) {
         res.status(404).json({ message: 'Customer not found' });
         return;
       }
-      res.status(200).json(customer);
+      await this.customerUseCase.deleteCustomer(id);
+      res.status(200).json({
+        message: 'Customer deleted successfully',
+        ...deletedCustomer,
+      });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
       return;

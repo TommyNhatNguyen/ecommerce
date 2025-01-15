@@ -1,5 +1,3 @@
-import { ICustomerRepository } from '@models/customer/customer.interface';
-import { Customer } from '@models/customer/customer.model';
 import {
   OrderConditionDTO,
   OrderCreateDTO,

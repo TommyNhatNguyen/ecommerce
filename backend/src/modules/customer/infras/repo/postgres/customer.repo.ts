@@ -1,11 +1,7 @@
-import {
-  CustomerConditionDTO,
-  CustomerCreateDTO,
-  CustomerUpdateDTO,
-} from '@models/customer/customer.dto';
-import { ICustomerRepository } from '@models/customer/customer.interface';
-import { Customer } from '@models/customer/customer.model';
 import { Sequelize } from 'sequelize';
+import { Customer } from 'src/modules/customer/models/customer.model';
+import { CustomerConditionDTO, CustomerCreateDTO, CustomerUpdateDTO } from 'src/modules/customer/models/customer.dto';
+import { ICustomerRepository } from 'src/modules/customer/models/customer.interface';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
@@ -31,6 +27,8 @@ export class CustomerRepository implements ICustomerRepository {
     ].findAndCountAll({
       limit,
       offset: (page - 1) * limit,
+      distinct: true,
+      where: condition,
     });
     return {
       data: rows.map((row) => row.dataValues),

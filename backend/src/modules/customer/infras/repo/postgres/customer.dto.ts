@@ -9,6 +9,12 @@ export class CustomerPersistence extends Model {
   declare phone: string;
   declare address: string;
   declare status: ModelStatus;
+  declare cart_id: string;
+  declare first_name: string;
+  declare last_name: string;
+  declare city_id: string;
+  declare province_id: string;
+  declare country_id: string;
 }
 
 export const customerModelName = 'customer';
@@ -17,11 +23,16 @@ export const customerInit = (sequelize: Sequelize) => {
   CustomerPersistence.init(
     {
       id: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         primaryKey: true,
         unique: true,
         allowNull: false,
         defaultValue: () => uuidv7(),
+      },
+      cart_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        unique: true,
       },
       first_name: { type: DataTypes.STRING, allowNull: true },
       last_name: { type: DataTypes.STRING, allowNull: false },
