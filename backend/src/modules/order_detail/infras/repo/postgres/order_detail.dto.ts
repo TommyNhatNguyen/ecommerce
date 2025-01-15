@@ -1,6 +1,6 @@
-import { DataTypes, Sequelize } from "sequelize";
-import { Model } from "sequelize";
-import { ModelStatus } from "src/share/models/base-model";
+import { DataTypes, Sequelize } from 'sequelize';
+import { Model } from 'sequelize';
+import { ModelStatus } from 'src/share/models/base-model';
 import { v7 as uuidv7 } from 'uuid';
 export class OrderDetailPersistence extends Model {
   declare id: string;
@@ -95,6 +95,74 @@ export const orderDetailInit = (sequelize: Sequelize) => {
       createdAt: 'created_at',
       updatedAt: 'updated_at',
       modelName: orderDetailModelName,
+    }
+  );
+};
+
+export class OrderDetailProductPersistence extends Model {
+  declare id: string;
+  declare order_detail_id: string;
+  declare product_id: string;
+  declare quantity: number;
+  declare price: number;
+  declare subtotal: number;
+  declare discount_amount: number;
+  declare status: ModelStatus;
+  declare created_at: Date;
+  declare updated_at: Date;
+}
+
+export const orderDetailProductModelName = 'order_detail_product';
+
+export function orderDetailProductInit(sequelize: Sequelize) {
+  OrderDetailProductPersistence.init(
+    {
+      order_detail_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      product_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      quantity: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      price: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
+      subtotal: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
+      discount_amount: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      status: {
+        type: DataTypes.ENUM(...Object.values(ModelStatus)),
+        allowNull: false,
+        defaultValue: ModelStatus.ACTIVE,
+      },
+      created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+    },
+    {
+      sequelize,
+      tableName: orderDetailProductModelName,
+      timestamps: false,
+      modelName: orderDetailProductModelName,
     }
   );
 }

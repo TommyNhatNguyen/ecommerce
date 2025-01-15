@@ -40,7 +40,6 @@ export class CustomerUseCase implements ICustomerUseCase {
     if (cart) {
       data.cart_id = cart.id;
     }
-    console.log(data, cart);
     return await this.customerRepository.createCustomer(data);
   }
   async updateCustomer(id: string, data: CustomerUpdateDTO): Promise<Customer> {

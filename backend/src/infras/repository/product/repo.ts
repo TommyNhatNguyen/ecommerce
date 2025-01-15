@@ -213,6 +213,9 @@ export class PostgresProductRepository implements IProductRepository {
     if (condition.status === ModelStatus.DELETED) {
       where.status = { [Op.eq]: ModelStatus.DELETED };
     }
+    if (condition.ids) {
+      where.id = { [Op.in]: condition.ids };
+    }
     if (condition.fromCreatedAt && condition.toCreatedAt) {
       where.created_at = {
         [Op.between]: [

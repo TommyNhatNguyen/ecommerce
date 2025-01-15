@@ -6,8 +6,9 @@ import {
   OrderDetailUpdateDTOSchema,
 } from 'src/modules/order_detail/models/order_detail.dto';
 import { PagingDTOSchema } from 'src/share/models/paging';
+import { IOrderDetailUseCase } from 'src/modules/order_detail/models/order_detail.interface';
 export class OrderDetailHttpService {
-  constructor(private readonly orderDetailUsecase: OrderDetailUseCase) {}
+  constructor(private readonly orderDetailUsecase: IOrderDetailUseCase) {}
 
   async getById(req: Request, res: Response) {
     const { id } = req.params;
@@ -74,9 +75,10 @@ export class OrderDetailHttpService {
   }
 
   async create(req: Request, res: Response) {
-    const { success, data, error } = OrderDetailCreateDTOSchema.safeParse(
-      req.body
-    );
+    const { success, data, error } = OrderDetailCreateDTOSchema.omit({
+      subtotal: true,
+      total_costs: true,
+    }).safeParse(req.body);
     if (!success) {
       res.status(400).json({ success: false, message: error.message });
       return;

@@ -1,10 +1,7 @@
-import {
-  IShippingConditionDTOSchema,
-  IShippingCreateDTOSchema,
-  IShippingUpdateDTOSchema,
-} from '@models/shipping/shipping.dto';
-import { IShippingUseCase } from '@models/shipping/shipping.interface';
+
 import { Request, Response } from 'express';
+import { IShippingConditionDTOSchema, IShippingCreateDTOSchema, IShippingUpdateDTOSchema } from 'src/modules/shipping/models/shipping.dto';
+import { IShippingUseCase } from 'src/modules/shipping/models/shipping.interface';
 import { PagingDTOSchema } from 'src/share/models/paging';
 
 export class ShippingHttpService {

@@ -5,7 +5,7 @@ import { ICustomerRepository } from 'src/modules/customer/models/customer.interf
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
-export class CustomerRepository implements ICustomerRepository {
+export class PostgresCustomerRepository implements ICustomerRepository {
   constructor(
     private readonly sequelize: Sequelize,
     private readonly modelName: string
@@ -41,6 +41,7 @@ export class CustomerRepository implements ICustomerRepository {
     };
   }
   async createCustomer(data: CustomerCreateDTO): Promise<Customer> {
+    console.log(data)
     const customer = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });

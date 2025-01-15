@@ -52,6 +52,7 @@ export enum ProductStatsSortBy {
 }
 
 export const ProductConditionDTOSchema = z.object({
+  ids: z.array(z.string().uuid()).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   minPrice: z.union([z.number().nonnegative().min(0), z.string()]).optional(),
   maxPrice: z.union([z.number().nonnegative().min(0), z.string()]).optional(),

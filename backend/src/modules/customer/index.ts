@@ -4,14 +4,14 @@ import { cartModelName } from 'src/modules/cart/infras/repo/postgres/cart.dto';
 import { PostgresCartRepository } from 'src/modules/cart/infras/repo/postgres/cart.repo';
 import { customerModelName } from 'src/modules/customer/infras/repo/postgres/customer.dto';
 import { customerInit } from 'src/modules/customer/infras/repo/postgres/customer.dto';
-import { CustomerRepository } from 'src/modules/customer/infras/repo/postgres/customer.repo';
+import { PostgresCustomerRepository } from 'src/modules/customer/infras/repo/postgres/customer.repo';
 import { CustomerHttpService } from 'src/modules/customer/infras/transport/customer.http-service';
 import { CustomerUseCase } from 'src/modules/customer/usecase';
 
 export const setupCustomerRouter = (sequelize: Sequelize) => {
   customerInit(sequelize);
   const router = Router();
-  const customerRepository = new CustomerRepository(
+  const customerRepository = new PostgresCustomerRepository(
     sequelize,
     customerModelName
   );

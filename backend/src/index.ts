@@ -43,9 +43,7 @@ import {
 } from 'src/infras/repository/order/dto';
 import { setupOrderRouter } from 'src/routers/order';
 import { setupCustomerRouter } from 'src/modules/customer';
-import { setupShippingRouter } from 'src/routers/shipping';
-import { ShippingPersistence } from 'src/infras/repository/shipping/dto';
-import { shippingModelName } from 'src/infras/repository/shipping/dto';
+import { setupShippingRouter } from 'src/modules/shipping';
 import { setupUserRouter } from 'src/routers/user';
 import { setupRoleRouter } from 'src/routers/role';
 import { userModelName, UserPersistence } from 'src/infras/repository/user/dto';
@@ -57,7 +55,11 @@ import {
   permissionRoleModelName,
 } from 'src/infras/repository/permission/dto';
 import { setupOrderDetailRouter } from 'src/modules/order_detail';
-import { OrderDetailPersistence } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
+import {
+  OrderDetailPersistence,
+  orderDetailProductModelName,
+  OrderDetailProductPersistence,
+} from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import { orderDetailModelName } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import { setupCartRouter } from 'src/modules/cart';
 import { setupPaymentRouter } from 'src/modules/payment';
@@ -123,6 +125,20 @@ OrderPersistence.belongsTo(OrderDetailPersistence, {
   as: orderDetailModelName.toLowerCase(),
   onDelete: 'CASCADE',
   onUpdate: 'CASCADE',
+});
+
+OrderDetailPersistence.belongsToMany(ProductPersistence, {
+  through: orderDetailProductModelName,
+  foreignKey: 'order_detail_id',
+  otherKey: 'product_id',
+  as: productModelName.toLowerCase(),
+});
+
+ProductPersistence.belongsToMany(OrderDetailPersistence, {
+  through: orderDetailProductModelName,
+  foreignKey: 'product_id',
+  otherKey: 'order_detail_id',
+  as: orderDetailModelName.toLowerCase(),
 });
 
 PaymentPersistence.hasOne(OrderDetailPersistence, {

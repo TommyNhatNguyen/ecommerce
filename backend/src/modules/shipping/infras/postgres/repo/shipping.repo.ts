@@ -1,11 +1,9 @@
-import {
-  IShippingCreateDTO,
-  IShippingUpdateDTO,
-  IShippingConditionDTO,
-} from '@models/shipping/shipping.dto';
-import { IShippingRepository } from '@models/shipping/shipping.interface';
-import { Shipping } from '@models/shipping/shipping.model';
+
 import { Op, Sequelize } from 'sequelize';
+import { IShippingConditionDTO, IShippingUpdateDTO } from 'src/modules/shipping/models/shipping.dto';
+import { IShippingCreateDTO } from 'src/modules/shipping/models/shipping.dto';
+import { Shipping } from 'src/modules/shipping/models/shipping.model';
+import { IShippingRepository } from 'src/modules/shipping/models/shipping.interface';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 

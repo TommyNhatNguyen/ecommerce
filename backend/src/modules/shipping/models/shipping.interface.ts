@@ -1,5 +1,8 @@
-import { IShippingConditionDTO, IShippingCreateDTO, IShippingUpdateDTO } from "@models/shipping/shipping.dto";
-import { Shipping } from "@models/shipping/shipping.model";
+
+import { IShippingCreateDTO } from "src/modules/shipping/models/shipping.dto";
+import { IShippingUpdateDTO } from "src/modules/shipping/models/shipping.dto";
+import { IShippingConditionDTO } from "src/modules/shipping/models/shipping.dto";
+import { Shipping } from "src/modules/shipping/models/shipping.model";
 import { ListResponse } from "src/share/models/base-model";
 import { PagingDTO } from "src/share/models/paging";
 
