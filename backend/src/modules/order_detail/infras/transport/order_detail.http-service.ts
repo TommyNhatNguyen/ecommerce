@@ -92,6 +92,7 @@ export class OrderDetailHttpService {
       const orderDetail = await this.orderDetailUsecase.create(data);
       res.status(200).json({ success: true, ...orderDetail });
     } catch (error) {
+      console.log(error);
       res
         .status(500)
         .json({ success: false, message: 'Internal server error' });

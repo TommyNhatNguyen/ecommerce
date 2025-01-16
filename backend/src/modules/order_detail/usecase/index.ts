@@ -1,6 +1,8 @@
 import { PostgresCustomerRepository } from 'src/modules/customer/infras/repo/postgres/customer.repo';
 import { IOrderDetailRepository } from 'src/modules/order_detail/models/order_detail.interface';
 import {
+  OrderDetailAddCostsDTO,
+  OrderDetailAddDiscountsDTO,
   OrderDetailAddProductsDTO,
   OrderDetailConditionDTO,
   OrderDetailCreateDTO,
@@ -12,6 +14,7 @@ import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { ICustomerUseCase } from 'src/modules/customer/models/customer.interface';
 import {
+  ORDER_DETAIL_DISCOUNT_ERROR,
   ORDER_DETAIL_ERROR,
   ORDER_DETAIL_PRODUCT_ERROR,
 } from 'src/modules/order_detail/models/order_detail.error';
@@ -20,17 +23,21 @@ import { IPaymentUseCase } from 'src/modules/payment/models/payment.interface';
 import { IProductUseCase } from '@models/product/product.interface';
 import { IPaymentMethodUseCase } from 'src/modules/payment_method/models/payment_method.interface';
 import { ICostUseCase } from 'src/modules/cost/models/cost.interface';
+import { IDiscountUseCase } from 'src/modules/discount/models/discount.interface';
 
 export class OrderDetailUseCase implements IOrderDetailUseCase {
   constructor(
     private readonly orderDetailRepository: IOrderDetailRepository,
     private readonly orderDetailProductRepository: IOrderDetailRepository,
+    private readonly orderDetailDiscountRepository: IOrderDetailRepository,
+    private readonly orderDetailCostRepository: IOrderDetailRepository,
     private readonly customerUseCase: ICustomerUseCase,
     private readonly productUseCase: IProductUseCase,
     private readonly shippingUseCase: IShippingUseCase,
     private readonly paymentUseCase: IPaymentUseCase,
     private readonly paymentMethodUseCase: IPaymentMethodUseCase,
-    private readonly costUseCase: ICostUseCase
+    private readonly costUseCase: ICostUseCase,
+    private readonly discountUseCase: IDiscountUseCase
   ) {}
   async getById(
     id: string,
@@ -50,9 +57,12 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
       customer_id,
       payment_info,
       costs_detail,
+      order_discounts,
       ...rest
     } = data;
     const orderDetailProducts: OrderDetailAddProductsDTO[] = [];
+    const orderDetailDiscounts: OrderDetailAddDiscountsDTO[] = [];
+    const orderDetailCosts: OrderDetailAddCostsDTO[] = [];
     const payload = {
       ...rest,
       customer_id: customer_id || '',
@@ -97,6 +107,9 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
             product.price *
             (products_detail.find((p) => p.id === product.id)?.quantity ?? 0),
           discount_amount: 0,
+          total:
+            product.price *
+            (products_detail.find((p) => p.id === product.id)?.quantity ?? 0),
         }))
       );
     }
@@ -118,9 +131,16 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         }
       );
       if (costs.data.length !== costs_detail.length) throw ORDER_DETAIL_ERROR;
-      payload.total_costs = costs.data.reduce((acc, cost) => {
-        return acc + cost.cost;
-      }, 0);
+      payload.total_costs =
+        costs.data.reduce((acc, cost) => {
+          return acc + cost.cost;
+        }, 0) || 0;
+      orderDetailCosts.push(
+        ...costs.data.map((cost) => ({
+          order_detail_id: '',
+          cost_id: cost.id,
+        }))
+      );
     }
 
     // ---- PAYMENT ----
@@ -135,11 +155,6 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         (payload.total_shipping_fee +
           payload.total_payment_fee +
           payload.total_costs);
-      console.log(
-        payment_info?.paid_amount,
-        payment_info?.payment_method_id,
-        payment_info?.paid_amount === payload.total ? new Date() : null
-      );
       const payment = await this.paymentUseCase.createPayment({
         paid_amount: payment_info?.paid_amount ?? 0,
         payment_method_id: payment_info?.payment_method_id,
@@ -148,10 +163,41 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
       });
       payload.payment_id = payment.id;
     }
+
+    // ---- DISCOUNTS ----
+    if (order_discounts && order_discounts.length > 0) {
+      const discounts = await this.discountUseCase.listDiscount(
+        { page: 1, limit: order_discounts.length },
+        { ids: order_discounts.map((discount) => discount.id) }
+      );
+      if (discounts.data.length !== order_discounts.length)
+        throw ORDER_DETAIL_DISCOUNT_ERROR;
+      payload.total_discount = discounts.data.reduce((acc, discount) => {
+        return acc + discount.amount;
+      }, 0);
+      orderDetailDiscounts.push(
+        ...discounts.data.map((discount) => ({
+          order_detail_id: '',
+          discount_id: discount.id,
+        }))
+      );
+    }
     const orderDetail = await this.orderDetailRepository.create(payload);
     await this.orderDetailProductRepository.addProducts(
       orderDetailProducts.map((product) => ({
         ...product,
+        order_detail_id: orderDetail.id,
+      }))
+    );
+    await this.orderDetailDiscountRepository.addDiscounts(
+      orderDetailDiscounts.map((discount) => ({
+        ...discount,
+        order_detail_id: orderDetail.id,
+      }))
+    );
+    await this.orderDetailCostRepository.addCosts(
+      orderDetailCosts.map((cost) => ({
+        ...cost,
         order_detail_id: orderDetail.id,
       }))
     );

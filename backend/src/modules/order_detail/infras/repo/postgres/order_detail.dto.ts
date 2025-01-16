@@ -1,5 +1,6 @@
 import { DataTypes, Sequelize } from 'sequelize';
 import { Model } from 'sequelize';
+import { DiscountType } from 'src/modules/discount/models/discount.model';
 import { ModelStatus, NumberType } from 'src/share/models/base-model';
 import { v7 as uuidv7 } from 'uuid';
 export class OrderDetailPersistence extends Model {
@@ -48,6 +49,11 @@ export const orderDetailInit = (sequelize: Sequelize) => {
       total_costs: {
         type: DataTypes.FLOAT,
         allowNull: false,
+      },
+      total_discount: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0,
       },
       total: {
         type: DataTypes.FLOAT,
@@ -136,6 +142,10 @@ export function orderDetailProductInit(sequelize: Sequelize) {
         type: DataTypes.FLOAT,
         allowNull: false,
       },
+      total: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+      },
       discount_amount: {
         type: DataTypes.FLOAT,
         allowNull: false,
@@ -190,18 +200,6 @@ export function orderDetailCostInit(sequelize: Sequelize) {
         type: DataTypes.UUID,
         allowNull: false,
       },
-      cost_type: {
-        type: DataTypes.ENUM(...Object.values(NumberType)),
-        allowNull: false,
-      },
-      cost_amount: {
-        type: DataTypes.FLOAT,
-        allowNull: false,
-      },
-      cost_name: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
         allowNull: false,
@@ -223,6 +221,55 @@ export function orderDetailCostInit(sequelize: Sequelize) {
       tableName: 'order_detail_cost',
       timestamps: false,
       modelName: orderDetailCostModelName,
+    }
+  );
+}
+
+export class PostgresOrderDetailDiscountPersistence extends Model {
+  declare order_detail_id: string;
+  declare cost_id: string;
+  declare cost_type: string;
+  declare cost_amount: number;
+  declare cost_name: string;
+  declare status: ModelStatus;
+  declare created_at: Date;
+  declare updated_at: Date;
+}
+
+export const orderDetailDiscountModelName = 'orderdetaildiscount';
+
+export function orderDetailDiscountInit(sequelize: Sequelize) {
+  PostgresOrderDetailDiscountPersistence.init(
+    {
+      order_detail_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      discount_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      status: {
+        type: DataTypes.ENUM(...Object.values(ModelStatus)),
+        allowNull: false,
+        defaultValue: ModelStatus.ACTIVE,
+      },
+      created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+    },
+    {
+      sequelize,
+      tableName: 'order_detail_discount',
+      timestamps: false,
+      modelName: orderDetailDiscountModelName,
     }
   );
 }

@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import { PagingDTO } from 'src/share/models/paging';
 import {
   DiscountConditionDTOSchema,
@@ -12,6 +12,7 @@ import {
   ListResponse,
 } from 'src/share/models/base-model';
 import { IDiscountRepository } from 'src/modules/discount/models/discount.interface';
+import { WhereOptions } from '@sequelize/core';
 
 export class PostgresDiscountRepository implements IDiscountRepository {
   constructor(
@@ -22,12 +23,19 @@ export class PostgresDiscountRepository implements IDiscountRepository {
     paging: PagingDTO,
     condition: DiscountConditionDTOSchema
   ): Promise<ListResponse<Discount[]>> {
+    let where: WhereOptions = {};
+    if (condition.ids && condition.ids.length > 0) {
+      where.id = {
+        [Op.in]: condition.ids,
+      };
+    }
     const { page, limit } = paging;
     const order = condition?.order || BaseOrder.DESC;
     const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
     const { rows, count } = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({
+      where,
       limit,
       offset: (page - 1) * limit,
       distinct: true,

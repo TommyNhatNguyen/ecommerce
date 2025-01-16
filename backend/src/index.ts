@@ -57,6 +57,7 @@ import {
 import { setupOrderDetailRouter } from 'src/modules/order_detail';
 import {
   orderDetailCostModelName,
+  orderDetailDiscountModelName,
   OrderDetailPersistence,
   orderDetailProductModelName,
   PostgresOrderDetailProductPersistence,
@@ -90,7 +91,7 @@ config();
   try {
     await sequelize.authenticate();
     console.log('Connection has been established successfully.');
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: true });
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
@@ -172,6 +173,20 @@ OrderDetailPersistence.belongsToMany(CostPersistence, {
 CostPersistence.belongsToMany(OrderDetailPersistence, {
   through: orderDetailCostModelName,
   foreignKey: 'cost_id',
+  otherKey: 'order_detail_id',
+  as: orderDetailModelName.toLowerCase(),
+});
+
+OrderDetailPersistence.belongsToMany(DiscountPersistence, {
+  through: orderDetailDiscountModelName,
+  foreignKey: 'order_detail_id',
+  otherKey: 'discount_id',
+  as: discountModelName.toLowerCase(),
+});
+
+DiscountPersistence.belongsToMany(OrderDetailPersistence, {
+  through: orderDetailDiscountModelName,
+  foreignKey: 'discount_id',
   otherKey: 'order_detail_id',
   as: orderDetailModelName.toLowerCase(),
 });

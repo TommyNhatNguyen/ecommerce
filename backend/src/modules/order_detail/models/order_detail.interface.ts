@@ -1,4 +1,6 @@
 import {
+  OrderDetailAddCostsDTO,
+  OrderDetailAddDiscountsDTO,
   OrderDetailAddProductsDTO,
   OrderDetailConditionDTO,
   OrderDetailCreateDTO,
@@ -23,6 +25,7 @@ export interface IOrderDetailUseCase {
       | 'total_payment_fee'
       | 'payment_id'
       | 'total'
+      | 'total_discount'
     >
   ): Promise<OrderDetail>;
   update(id: string, data: OrderDetailUpdateDTO): Promise<OrderDetail>;
@@ -33,6 +36,8 @@ export interface IOrderDetailRepository
   extends IQueryRepository,
     ICommandRepository {
   addProducts(data: OrderDetailAddProductsDTO[]): Promise<boolean>;
+  addDiscounts(data: OrderDetailAddDiscountsDTO[]): Promise<boolean>;
+  addCosts(data: OrderDetailAddCostsDTO[]): Promise<boolean>;
 }
 
 export interface IQueryRepository {
@@ -47,7 +52,7 @@ export interface ICommandRepository {
   create(
     data: Omit<
       OrderDetailCreateDTO,
-      'products_detail' | 'payment_info' | 'costs_detail'
+      'products_detail' | 'payment_info' | 'costs_detail' | 'order_discounts'
     >
   ): Promise<OrderDetail>;
   update(id: string, data: OrderDetailUpdateDTO): Promise<OrderDetail>;

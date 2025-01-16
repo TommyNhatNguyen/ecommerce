@@ -7,6 +7,7 @@ export const OrderDetailSchema = z.object({
   total_shipping_fee: z.number(),
   total_payment_fee: z.number(),
   total_costs: z.number(),
+  total_discount: z.number(),
   total: z.number(),
   shipping_id: z.string().uuid(),
   payment_id: z.string().uuid(),

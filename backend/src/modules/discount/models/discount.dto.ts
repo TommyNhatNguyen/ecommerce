@@ -9,6 +9,7 @@ import { DiscountType } from 'src/modules/discount/models/discount.model';
 import { DiscountScope } from 'src/modules/discount/models/discount.model';
 
 export const DiscountConditionDTOSchema = z.object({
+  ids: z.array(z.string().uuid()).optional(),
   name: z.string().optional(),
   min_amount: z.number().optional(),
   max_amount: z.number().optional(),

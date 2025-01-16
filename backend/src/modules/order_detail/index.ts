@@ -3,6 +3,9 @@ import { Sequelize } from 'sequelize';
 import { customerModelName } from 'src/modules/customer/infras/repo/postgres/customer.dto';
 import {
   orderDetailCostInit,
+  orderDetailCostModelName,
+  orderDetailDiscountInit,
+  orderDetailDiscountModelName,
   orderDetailInit,
   orderDetailModelName,
   orderDetailProductInit,
@@ -32,10 +35,14 @@ import { PaymentMethodUseCase } from 'src/modules/payment_method/usecase';
 import { CostUseCase } from 'src/modules/cost/usecase';
 import { costModelName } from 'src/modules/cost/infras/repo/postgres/cost.dto';
 import { PostgresCostRepository } from 'src/modules/cost/infras/repo/postgres/cost.repo';
+import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/postgres/discount.repo';
+import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
+import { DiscountUseCase } from 'src/modules/discount/usecase';
 export function setupOrderDetailRouter(sequelize: Sequelize) {
   orderDetailInit(sequelize);
   orderDetailProductInit(sequelize);
   orderDetailCostInit(sequelize);
+  orderDetailDiscountInit(sequelize)
   const router = Router();
   const orderDetailRepository = new PostgresOrderDetailRepository(
     sequelize,
@@ -44,6 +51,14 @@ export function setupOrderDetailRouter(sequelize: Sequelize) {
   const orderDetailProductRepository = new PostgresOrderDetailRepository(
     sequelize,
     orderDetailProductModelName
+  );
+  const orderDetailDiscountRepository = new PostgresOrderDetailRepository(
+    sequelize,
+    orderDetailDiscountModelName
+  );
+  const orderDetailCostRepository = new PostgresOrderDetailRepository(
+    sequelize,
+    orderDetailCostModelName
   );
   const customerRepository = new PostgresCustomerRepository(
     sequelize,
@@ -67,6 +82,10 @@ export function setupOrderDetailRouter(sequelize: Sequelize) {
     paymentMethodModelName
   );
   const costRepository = new PostgresCostRepository(sequelize, costModelName);
+  const discountRepository = new PostgresDiscountRepository(
+    sequelize,
+    discountModelName
+  );
   const productUseCase = new ProductUseCase(
     productRepository,
     orderDetailRepository
@@ -81,15 +100,19 @@ export function setupOrderDetailRouter(sequelize: Sequelize) {
   const paymentMethodUseCase = new PaymentMethodUseCase(
     paymentMethodRepository
   );
+  const discountUseCase = new DiscountUseCase(discountRepository);
   const orderDetailUseCase = new OrderDetailUseCase(
     orderDetailRepository,
     orderDetailProductRepository,
+    orderDetailDiscountRepository,
+    orderDetailCostRepository,
     customerUseCase,
     productUseCase,
     shippingUseCase,
     paymentUseCase,
     paymentMethodUseCase,
-    costUseCase
+    costUseCase,
+    discountUseCase,
   );
   const orderDetailHttpService = new OrderDetailHttpService(orderDetailUseCase);
   router.get(
