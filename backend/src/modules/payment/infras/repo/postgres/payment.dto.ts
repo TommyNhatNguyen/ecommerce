@@ -25,7 +25,7 @@ export const paymentInit = (sequelize: Sequelize) => {
         defaultValue: () => uuidv7(),
       },
       payment_method_id: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         allowNull: false,
       },
       paid_amount: {

@@ -99,8 +99,7 @@ export const orderDetailInit = (sequelize: Sequelize) => {
   );
 };
 
-export class OrderDetailProductPersistence extends Model {
-  declare id: string;
+export class PostgresOrderDetailProductPersistence extends Model {
   declare order_detail_id: string;
   declare product_id: string;
   declare quantity: number;
@@ -112,10 +111,10 @@ export class OrderDetailProductPersistence extends Model {
   declare updated_at: Date;
 }
 
-export const orderDetailProductModelName = 'order_detail_product';
+export const orderDetailProductModelName = 'orderdetailproduct';
 
 export function orderDetailProductInit(sequelize: Sequelize) {
-  OrderDetailProductPersistence.init(
+  PostgresOrderDetailProductPersistence.init(
     {
       order_detail_id: {
         type: DataTypes.UUID,
@@ -160,14 +159,14 @@ export function orderDetailProductInit(sequelize: Sequelize) {
     },
     {
       sequelize,
-      tableName: orderDetailProductModelName,
+      tableName: 'order_detail_product',
       timestamps: false,
       modelName: orderDetailProductModelName,
     }
   );
 }
 
-export class OrderDetailCostPersistence extends Model {
+export class PostgresOrderDetailCostPersistence extends Model {
   declare order_detail_id: string;
   declare cost_id: string;
   declare cost_type: string;
@@ -178,10 +177,10 @@ export class OrderDetailCostPersistence extends Model {
   declare updated_at: Date;
 }
 
-export const orderDetailCostModelName = 'order_detail_cost';
+export const orderDetailCostModelName = 'orderdetailcost';
 
 export function orderDetailCostInit(sequelize: Sequelize) {
-  OrderDetailCostPersistence.init(
+  PostgresOrderDetailCostPersistence.init(
     {
       order_detail_id: {
         type: DataTypes.UUID,
@@ -221,7 +220,7 @@ export function orderDetailCostInit(sequelize: Sequelize) {
     },
     {
       sequelize,
-      tableName: orderDetailCostModelName,
+      tableName: 'order_detail_cost',
       timestamps: false,
       modelName: orderDetailCostModelName,
     }

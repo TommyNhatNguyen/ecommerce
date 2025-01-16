@@ -1,5 +1,6 @@
 import { ModelStatus } from 'src/share/models/base-model';
 import { DataTypes, Model, Sequelize } from 'sequelize';
+import { v7 as uuidv7 } from 'uuid';
 export class ProductPersistence extends Model {
   declare id: string;
   declare name: string;
@@ -18,6 +19,7 @@ export function init(sequelize: Sequelize) {
         primaryKey: true,
         unique: true,
         allowNull: false,
+        defaultValue: () => uuidv7(),
       },
       name: { type: DataTypes.STRING, allowNull: false },
       description: { type: DataTypes.TEXT, allowNull: true },

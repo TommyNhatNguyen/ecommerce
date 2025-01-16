@@ -15,7 +15,7 @@ export const paymentMethodInit = (sequelize: Sequelize) => {
   PaymentMethodPersistence.init(
     {
       id: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         primaryKey: true,
         unique: true,
         allowNull: false,

@@ -1,4 +1,5 @@
 import {
+  OrderDetailAddProductsDTO,
   OrderDetailConditionDTO,
   OrderDetailCreateDTO,
   OrderDetailUpdateDTO,
@@ -16,7 +17,12 @@ export interface IOrderDetailUseCase {
   create(
     data: Omit<
       OrderDetailCreateDTO,
-      'subtotal' | 'total_costs' | 'total_shipping_fee' | 'total_payment_fee' | 'payment_id' | 'total'
+      | 'subtotal'
+      | 'total_costs'
+      | 'total_shipping_fee'
+      | 'total_payment_fee'
+      | 'payment_id'
+      | 'total'
     >
   ): Promise<OrderDetail>;
   update(id: string, data: OrderDetailUpdateDTO): Promise<OrderDetail>;
@@ -25,7 +31,9 @@ export interface IOrderDetailUseCase {
 
 export interface IOrderDetailRepository
   extends IQueryRepository,
-    ICommandRepository {}
+    ICommandRepository {
+  addProducts(data: OrderDetailAddProductsDTO[]): Promise<boolean>;
+}
 
 export interface IQueryRepository {
   getById(id: string, condition: OrderDetailConditionDTO): Promise<OrderDetail>;
@@ -37,7 +45,10 @@ export interface IQueryRepository {
 
 export interface ICommandRepository {
   create(
-    data: Omit<OrderDetailCreateDTO, 'products_detail' | 'payment_info' | 'costs_detail'>
+    data: Omit<
+      OrderDetailCreateDTO,
+      'products_detail' | 'payment_info' | 'costs_detail'
+    >
   ): Promise<OrderDetail>;
   update(id: string, data: OrderDetailUpdateDTO): Promise<OrderDetail>;
   delete(id: string): Promise<boolean>;

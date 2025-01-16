@@ -2,9 +2,13 @@ import { Router } from 'express';
 import { Sequelize } from 'sequelize';
 import { customerModelName } from 'src/modules/customer/infras/repo/postgres/customer.dto';
 import {
+  orderDetailCostInit,
   orderDetailInit,
   orderDetailModelName,
   orderDetailProductInit,
+  orderDetailProductModelName,
+  PostgresOrderDetailCostPersistence,
+  PostgresOrderDetailProductPersistence,
 } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import { PostgresOrderDetailRepository } from 'src/modules/order_detail/infras/repo/postgres/order_detail.repo';
 import { OrderDetailHttpService } from 'src/modules/order_detail/infras/transport/order_detail.http-service';
@@ -31,10 +35,15 @@ import { PostgresCostRepository } from 'src/modules/cost/infras/repo/postgres/co
 export function setupOrderDetailRouter(sequelize: Sequelize) {
   orderDetailInit(sequelize);
   orderDetailProductInit(sequelize);
+  orderDetailCostInit(sequelize);
   const router = Router();
   const orderDetailRepository = new PostgresOrderDetailRepository(
     sequelize,
     orderDetailModelName
+  );
+  const orderDetailProductRepository = new PostgresOrderDetailRepository(
+    sequelize,
+    orderDetailProductModelName
   );
   const customerRepository = new PostgresCustomerRepository(
     sequelize,
@@ -74,6 +83,7 @@ export function setupOrderDetailRouter(sequelize: Sequelize) {
   );
   const orderDetailUseCase = new OrderDetailUseCase(
     orderDetailRepository,
+    orderDetailProductRepository,
     customerUseCase,
     productUseCase,
     shippingUseCase,

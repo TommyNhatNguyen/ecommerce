@@ -35,6 +35,13 @@ export const OrderDetailCreateDTOSchema = z.object({
   ),
 });
 
+export const OrderDetailAddProductsDTOSchema = z.object({
+  quantity: z.number(),
+  price: z.number(),
+  subtotal: z.number(),
+  discount_amount: z.number().default(0),
+});
+
 export const OrderDetailUpdateDTOSchema = OrderDetailSchema.omit({
   id: true,
 }).partial();
@@ -47,4 +54,7 @@ export type OrderDetailCreateDTO = z.infer<typeof OrderDetailCreateDTOSchema>;
 export type OrderDetailUpdateDTO = z.infer<typeof OrderDetailUpdateDTOSchema>;
 export type OrderDetailConditionDTO = z.infer<
   typeof OrderDetailConditionDTOSchema
+>;
+export type OrderDetailAddProductsDTO = z.infer<
+  typeof OrderDetailAddProductsDTOSchema
 >;

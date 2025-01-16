@@ -1,6 +1,7 @@
 import { PostgresCustomerRepository } from 'src/modules/customer/infras/repo/postgres/customer.repo';
 import { IOrderDetailRepository } from 'src/modules/order_detail/models/order_detail.interface';
 import {
+  OrderDetailAddProductsDTO,
   OrderDetailConditionDTO,
   OrderDetailCreateDTO,
   OrderDetailUpdateDTO,
@@ -23,6 +24,7 @@ import { ICostUseCase } from 'src/modules/cost/models/cost.interface';
 export class OrderDetailUseCase implements IOrderDetailUseCase {
   constructor(
     private readonly orderDetailRepository: IOrderDetailRepository,
+    private readonly orderDetailProductRepository: IOrderDetailRepository,
     private readonly customerUseCase: ICustomerUseCase,
     private readonly productUseCase: IProductUseCase,
     private readonly shippingUseCase: IShippingUseCase,
@@ -43,12 +45,19 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
     return await this.orderDetailRepository.getList(paging, condition);
   }
   async create(data: OrderDetailCreateDTO): Promise<OrderDetail> {
-    const { products_detail, customer_id, payment_info,costs_detail, ...rest } = data;
-
+    const {
+      products_detail,
+      customer_id,
+      payment_info,
+      costs_detail,
+      ...rest
+    } = data;
+    const orderDetailProducts: OrderDetailAddProductsDTO[] = [];
     const payload = {
       ...rest,
       customer_id: customer_id || '',
     };
+    // ---- CUSTOMER ----
     if (!customer_id) {
       const newCustomer = await this.customerUseCase.createCustomer({
         last_name: rest.customer_name,
@@ -60,6 +69,8 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         payload.customer_id = newCustomer.id;
       }
     }
+
+    // ---- PRODUCTS ----
     if (products_detail.length > 0) {
       const productIds = products_detail.map((product) => product.id);
       const products = await this.productUseCase.getProducts(
@@ -75,9 +86,22 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         if (!productDetail) throw ORDER_DETAIL_PRODUCT_ERROR;
         return acc + product.price * (productDetail?.quantity ?? 0);
       }, 0);
-    } else {
-      throw ORDER_DETAIL_ERROR;
+      orderDetailProducts.push(
+        ...products.data.map((product) => ({
+          order_detail_id: '',
+          product_id: product.id,
+          quantity:
+            products_detail.find((p) => p.id === product.id)?.quantity ?? 0,
+          price: product.price,
+          subtotal:
+            product.price *
+            (products_detail.find((p) => p.id === product.id)?.quantity ?? 0),
+          discount_amount: 0,
+        }))
+      );
     }
+
+    // ---- SHIPPING ----
     if (payload.shipping_method_id) {
       const shipping = await this.shippingUseCase.getShippingById(
         payload.shipping_method_id
@@ -85,6 +109,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
       payload.total_shipping_fee = shipping?.cost ?? 0;
     }
 
+    // ---- COSTS ----
     if (costs_detail && costs_detail.length > 0) {
       const costs = await this.costUseCase.getList(
         { page: 1, limit: costs_detail.length },
@@ -92,13 +117,13 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
           ids: costs_detail.map((cost) => cost.id),
         }
       );
-      if (costs.data.length !== costs_detail.length)
-        throw ORDER_DETAIL_ERROR;
+      if (costs.data.length !== costs_detail.length) throw ORDER_DETAIL_ERROR;
       payload.total_costs = costs.data.reduce((acc, cost) => {
         return acc + cost.cost;
       }, 0);
     }
 
+    // ---- PAYMENT ----
     if (payment_info?.payment_method_id) {
       const paymentMethod = await this.paymentMethodUseCase.getById(
         payment_info?.payment_method_id
@@ -110,18 +135,27 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         (payload.total_shipping_fee +
           payload.total_payment_fee +
           payload.total_costs);
+      console.log(
+        payment_info?.paid_amount,
+        payment_info?.payment_method_id,
+        payment_info?.paid_amount === payload.total ? new Date() : null
+      );
       const payment = await this.paymentUseCase.createPayment({
         paid_amount: payment_info?.paid_amount ?? 0,
         payment_method_id: payment_info?.payment_method_id,
         paid_all_date:
-          payment_info?.paid_amount === payload.total
-            ? new Date()
-            : null,
+          payment_info?.paid_amount === payload.total ? new Date() : null,
       });
       payload.payment_id = payment.id;
     }
-    console.log(payload);
-    return await this.orderDetailRepository.create(payload);
+    const orderDetail = await this.orderDetailRepository.create(payload);
+    await this.orderDetailProductRepository.addProducts(
+      orderDetailProducts.map((product) => ({
+        ...product,
+        order_detail_id: orderDetail.id,
+      }))
+    );
+    return orderDetail;
   }
   async update(id: string, data: OrderDetailUpdateDTO): Promise<OrderDetail> {
     return await this.orderDetailRepository.update(id, data);

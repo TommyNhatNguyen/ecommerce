@@ -59,7 +59,7 @@ import {
   orderDetailCostModelName,
   OrderDetailPersistence,
   orderDetailProductModelName,
-  OrderDetailProductPersistence,
+  PostgresOrderDetailProductPersistence,
 } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import { orderDetailModelName } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import { setupCartRouter } from 'src/modules/cart';
@@ -80,7 +80,10 @@ import {
   paymentMethodModelName,
   PaymentMethodPersistence,
 } from 'src/modules/payment_method/infras/postgres/repo/payment_method.dto';
-import { costModelName, CostPersistence } from 'src/modules/cost/infras/repo/postgres/cost.dto';
+import {
+  costModelName,
+  CostPersistence,
+} from 'src/modules/cost/infras/repo/postgres/cost.dto';
 config();
 
 (async () => {
@@ -124,15 +127,11 @@ app.use('/v1', setupPaymentMethodRouter(sequelize));
 PaymentMethodPersistence.hasOne(PaymentPersistence, {
   foreignKey: 'payment_method_id',
   as: paymentMethodModelName.toLowerCase(),
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE',
 });
 
 PaymentPersistence.belongsTo(PaymentMethodPersistence, {
   foreignKey: 'id',
   as: paymentModelName.toLowerCase(),
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE',
 });
 
 OrderDetailPersistence.hasOne(OrderPersistence, {
@@ -180,22 +179,17 @@ CostPersistence.belongsToMany(OrderDetailPersistence, {
 PaymentPersistence.hasOne(OrderDetailPersistence, {
   foreignKey: 'payment_id',
   as: orderDetailModelName.toLowerCase(),
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE',
 });
 
 OrderDetailPersistence.belongsTo(PaymentPersistence, {
   foreignKey: 'payment_id',
   as: paymentModelName.toLowerCase(),
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE',
 });
 
 CartPersistence.hasOne(CustomerPersistence, {
   foreignKey: 'cart_id',
   as: customerModelName.toLowerCase(),
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE',
+  onDelete: 'RESTRICT',
 });
 
 CustomerPersistence.belongsTo(CartPersistence, {
