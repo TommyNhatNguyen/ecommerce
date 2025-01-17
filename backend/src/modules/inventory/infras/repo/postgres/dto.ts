@@ -1,6 +1,7 @@
-import { StockStatus } from '@models/inventory/inventory.model';
+
 import { Sequelize } from 'sequelize';
 import { DataTypes, Model } from 'sequelize';
+import { StockStatus } from 'src/modules/inventory/models/inventory.model';
 import { ModelStatus } from 'src/share/models/base-model';
 import { v7 as uuidv7 } from 'uuid';
 export class InventoryPersistence extends Model {
@@ -19,7 +20,7 @@ export const inventoryInit = (sequelize: Sequelize) => {
   InventoryPersistence.init(
     {
       id: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         primaryKey: true,
         unique: true,
         allowNull: false,

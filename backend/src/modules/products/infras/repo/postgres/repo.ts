@@ -27,7 +27,7 @@ import {
 import {
   inventoryModelName,
   InventoryPersistence,
-} from 'src/infras/repository/inventory/dto';
+} from 'src/modules/inventory/infras/repo/postgres/dto';
 import {
   reviewModelName,
   ReviewPersistence,
@@ -43,10 +43,10 @@ import {
   ProductStatsType,
   ProductUpdateDTOSchema,
   ProductVariantCreateDTO,
-} from 'src/modules/products/product/product.dto';
-import { IProductRepository } from 'src/modules/products/product/product.interface';
-import { ProductGetStatsDTO } from 'src/modules/products/product/product.dto';
-import { Product } from 'src/modules/products/product/product.model';
+} from 'src/modules/products/models/product.dto';
+import { IProductRepository } from 'src/modules/products/models/product.interface';
+import { ProductGetStatsDTO } from 'src/modules/products/models/product.dto';
+import { Product } from 'src/modules/products/models/product.model';
 import { productModelName } from 'src/modules/products/infras/repo/postgres/dto';
 import { customerModelName } from 'src/modules/customer/infras/repo/postgres/customer.dto';
 import { CustomerPersistence } from 'src/modules/customer/infras/repo/postgres/customer.dto';

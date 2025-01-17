@@ -27,11 +27,11 @@ import {
   imageModelName,
   ImagePersistence,
 } from 'src/infras/repository/image/dto';
-import { setupInventoryRouter } from 'src/routers/inventory';
+import { setupInventoryRouter } from 'src/modules/inventory';
 import {
   inventoryModelName,
   InventoryPersistence,
-} from 'src/infras/repository/inventory/dto';
+} from 'src/modules/inventory/infras/repo/postgres/dto';
 import { reviewModelName } from 'src/infras/repository/review/dto';
 import { setupReviewRouter } from 'src/routers/review';
 import { ReviewPersistence } from 'src/infras/repository/review/dto';

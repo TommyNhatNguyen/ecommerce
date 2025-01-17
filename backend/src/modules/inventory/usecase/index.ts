@@ -2,12 +2,12 @@ import {
   InventoryConditionDTO,
   InventoryCreateDTO,
   InventoryUpdateDTO,
-} from '@models/inventory/inventory.dto';
+} from 'src/modules/inventory/models/inventory.dto';
 import {
   IInventoryRepository,
   IInventoryUseCase,
-} from '@models/inventory/inventory.interface';
-import { Inventory, StockStatus } from '@models/inventory/inventory.model';
+} from 'src/modules/inventory/models/inventory.interface';
+import { Inventory, StockStatus } from 'src/modules/inventory/models/inventory.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 

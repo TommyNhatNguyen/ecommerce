@@ -1,13 +1,16 @@
-import { IInventoryUseCase } from '@models/inventory/inventory.interface';
 import { Request, Response } from 'express';
-import { ProductConditionDTOSchema, ProductCreateDTOSchema, ProductGetStatsDTOSchema, ProductUpdateDTOSchema } from 'src/modules/products/product/product.dto';
-import { IProductUseCase } from 'src/modules/products/product/product.interface';
+import {
+  ProductConditionDTOSchema,
+  ProductCreateDTOSchema,
+  ProductGetStatsDTOSchema,
+  ProductUpdateDTOSchema,
+} from 'src/modules/products/models/product.dto';
+import { IProductUseCase } from 'src/modules/products/models/product.interface';
 import { PagingDTOSchema } from 'src/share/models/paging';
 
 export class ProductHttpService {
   constructor(
-    private readonly productUseCase: IProductUseCase,
-    private readonly inventoryUseCase: IInventoryUseCase
+    private readonly productUseCase: IProductUseCase
   ) {}
 
   async createNewProduct(req: Request, res: Response) {
@@ -18,12 +21,6 @@ export class ProductHttpService {
     }
     try {
       const result = await this.productUseCase.createNewProduct(data);
-      await this.inventoryUseCase.createInventory({
-        product_id: result.id,
-        quantity: data.quantity ?? 0,
-        low_stock_threshold: data.low_stock_threshold ?? 0,
-        cost: data.cost ?? 0,
-      });
       res.status(200).json({
         message: 'Product created successfully',
         data: result,
@@ -55,12 +52,6 @@ export class ProductHttpService {
         return;
       }
       const result = await this.productUseCase.updateProduct(id, data);
-      product?.inventory?.id &&
-        (await this.inventoryUseCase.updateInventory(product.inventory.id, {
-          quantity: data.quantity,
-          low_stock_threshold: data.low_stock_threshold,
-          cost: data.cost,
-        }));
       res.status(200).json({
         message: 'Product updated successfully',
         data: result,

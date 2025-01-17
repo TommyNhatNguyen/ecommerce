@@ -11,7 +11,7 @@ import {
 } from 'src/modules/cart/models/cart.dto';
 import { Cart } from 'src/modules/cart/models/cart.model';
 import { CART_PRODUCT_ERROR } from 'src/modules/cart/models/cart.error';
-import { IProductUseCase } from 'src/modules/products/product/product.interface';
+import { IProductUseCase } from 'src/modules/products/models/product.interface';
 
 export class CartUseCase implements ICartUseCase {
   constructor(

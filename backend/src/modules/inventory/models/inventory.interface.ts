@@ -1,9 +1,6 @@
-import {
-  InventoryConditionDTO,
-  InventoryCreateDTO,
-  InventoryUpdateDTO,
-} from '@models/inventory/inventory.dto';
-import { Inventory } from '@models/inventory/inventory.model';
+import { InventoryConditionDTO, InventoryUpdateDTO } from 'src/modules/inventory/models/inventory.dto';
+import { InventoryCreateDTO } from 'src/modules/inventory/models/inventory.dto';
+import { Inventory } from 'src/modules/inventory/models/inventory.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
@@ -24,8 +21,7 @@ export interface IInventoryUseCase {
 
 export interface IInventoryRepository
   extends IQueryRepository,
-    ICommandRepository {
-}
+    ICommandRepository {}
 
 export interface IQueryRepository {
   get(id: string): Promise<Inventory>;

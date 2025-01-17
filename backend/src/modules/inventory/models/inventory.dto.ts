@@ -1,13 +1,12 @@
-import { BaseOrder, BaseSortBy, ModelStatus } from 'src/share/models/base-model';
+import {
+  BaseOrder,
+  BaseSortBy,
+  ModelStatus,
+} from 'src/share/models/base-model';
 import z from 'zod';
 import { v7 as uuidv7 } from 'uuid';
-import { StockStatus } from '@models/inventory/inventory.model';
+import { StockStatus } from 'src/modules/inventory/models/inventory.model';
 export const InventoryCreateDTOSchema = z.object({
-  id: z
-    .string()
-    .uuid()
-    .default(() => uuidv7())
-    .optional(),
   quantity: z.number().min(0),
   cost: z.number().min(0),
   product_id: z.string().uuid(),

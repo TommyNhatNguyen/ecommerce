@@ -1,11 +1,8 @@
-import {
-  InventoryConditionDTOSchema,
-  InventoryCreateDTOSchema,
-  InventoryUpdateDTOSchema,
-} from '@models/inventory/inventory.dto';
-import { IInventoryUseCase } from '@models/inventory/inventory.interface';
+import { IInventoryUseCase } from 'src/modules/inventory/models/inventory.interface';
 import { Request, Response } from 'express';
 import { PagingDTOSchema } from 'src/share/models/paging';
+import { InventoryCreateDTOSchema, InventoryUpdateDTOSchema } from 'src/modules/inventory/models/inventory.dto';
+import { InventoryConditionDTOSchema } from 'src/modules/inventory/models/inventory.dto';
 
 export class InventoryHttpService {
   constructor(private readonly inventoryUseCase: IInventoryUseCase) {}

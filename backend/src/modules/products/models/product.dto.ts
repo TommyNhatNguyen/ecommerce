@@ -5,7 +5,7 @@ import {
 } from 'src/share/models/base-model';
 import { z } from 'zod';
 import { v7 as uuidv7 } from 'uuid';
-import { StockStatus } from '@models/inventory/inventory.model';
+import { StockStatus } from 'src/modules/inventory/models/inventory.model';
 
 export const ProductCreateDTOSchema = z.object({
   id: z
@@ -135,9 +135,7 @@ export type ProductCategoryCreateDTO = z.infer<
 export type ProductDiscountCreateDTO = z.infer<
   typeof ProductDiscountCreateDTOSchema
 >;
-export type ProductImageCreateDTO = z.infer<
-  typeof ProductImageCreateDTOSchema
->;
+export type ProductImageCreateDTO = z.infer<typeof ProductImageCreateDTOSchema>;
 export type ProductVariantCreateDTO = z.infer<
   typeof ProductVariantCreateDTOSchema
 >;

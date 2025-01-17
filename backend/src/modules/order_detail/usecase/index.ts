@@ -23,7 +23,7 @@ import { IPaymentUseCase } from 'src/modules/payment/models/payment.interface';
 import { IPaymentMethodUseCase } from 'src/modules/payment_method/models/payment_method.interface';
 import { ICostUseCase } from 'src/modules/cost/models/cost.interface';
 import { IDiscountUseCase } from 'src/modules/discount/models/discount.interface';
-import { IProductUseCase } from 'src/modules/products/product/product.interface';
+import { IProductUseCase } from 'src/modules/products/models/product.interface';
 
 export class OrderDetailUseCase implements IOrderDetailUseCase {
   constructor(

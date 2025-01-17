@@ -5,12 +5,12 @@ import {
   ProductGetStatsDTO,
   ProductStatsSortBy,
   ProductUpdateDTOSchema,
-} from '../product/product.dto';
+} from '../models/product.dto';
 import {
   IProductRepository,
   IProductUseCase,
-} from '../product/product.interface';
-import { Product } from '../product/product.model';
+} from '../models/product.interface';
+import { Product } from '../models/product.model';
 import {
   BaseOrder,
   ListResponse,
@@ -18,7 +18,8 @@ import {
 } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { IDiscountRepository } from 'src/modules/discount/models/discount.interface';
-import { DISCOUNT_NOT_FOUND_ERROR } from 'src/modules/products/product/errors';
+import { DISCOUNT_NOT_FOUND_ERROR } from 'src/modules/products/models/errors';
+import { IInventoryUseCase } from 'src/modules/inventory/models/inventory.interface';
 
 export class ProductUseCase implements IProductUseCase {
   constructor(
@@ -26,6 +27,7 @@ export class ProductUseCase implements IProductUseCase {
     private readonly cloudinaryImageRepository: IImageCloudinaryRepository,
     private readonly productCategoryRepository: IProductRepository,
     private readonly productDiscountRepository: IProductRepository,
+    private readonly inventoryUseCase: IInventoryUseCase,
     private readonly productVariantRepository?: IProductRepository,
     private readonly discountRepository?: IDiscountRepository,
     private readonly imageRepository?: IProductRepository
@@ -91,6 +93,13 @@ export class ProductUseCase implements IProductUseCase {
   }
   async createNewProduct(data: ProductCreateDTOSchema): Promise<Product> {
     const product = await this.repository.insert(data);
+    // --- INVENTORY ---
+    await this.inventoryUseCase.createInventory({
+      product_id: product.id,
+      quantity: data.quantity ?? 0,
+      low_stock_threshold: data.low_stock_threshold ?? 0,
+      cost: data.cost ?? 0,
+    });
     // --- CATEGORY ---
     if (data.categoryIds) {
       await this.productCategoryRepository.addCategories(
@@ -134,7 +143,7 @@ export class ProductUseCase implements IProductUseCase {
         }))
       );
     }
-    // --- VARIANTS --- 
+    // --- VARIANTS ---
     if (data.variantIds && this.productVariantRepository) {
       await this.productVariantRepository.addVariants(
         data.variantIds.map((id) => ({

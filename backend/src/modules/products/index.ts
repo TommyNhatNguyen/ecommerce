@@ -17,9 +17,9 @@ import { ProductUseCase } from 'src/modules/products/usecase';
 import { ProductHttpService } from 'src/modules/products/infras/transport/products.http-service';
 import { CloudinaryImageRepository } from 'src/infras/repository/image/repo';
 import cloudinary from 'src/share/cloudinary';
-import { inventoryModelName } from 'src/infras/repository/inventory/dto';
-import { PostgresInventoryRepository } from 'src/infras/repository/inventory/repo';
-import { InventoryUseCase } from 'src/usecase/inventory';
+import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
+import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
+import { InventoryUseCase } from 'src/modules/inventory/usecase';
 import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/postgres/discount.repo';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 
@@ -55,17 +55,18 @@ export const setupProductRouter = (sequelize: Sequelize) => {
     sequelize,
     productVariantModelName
   );
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository);
   const useCase = new ProductUseCase(
     repository,
     cloudinaryRepository,
     productCategoryRepository,
     productDiscountRepository,
+    inventoryUseCase,
     productVariantRepository,
     discountRepository,
     imageRepository
   );
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository);
-  const httpService = new ProductHttpService(useCase, inventoryUseCase);
+  const httpService = new ProductHttpService(useCase);
   const router = Router();
   router.get('/products', httpService.getProducts.bind(httpService));
   router.get('/products/:id', httpService.getProductById.bind(httpService));

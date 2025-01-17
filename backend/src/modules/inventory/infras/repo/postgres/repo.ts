@@ -1,13 +1,14 @@
-import {
-  InventoryConditionDTO,
-  InventoryCreateDTO,
-  InventoryUpdateDTO,
-} from '@models/inventory/inventory.dto';
-import { IInventoryRepository } from '@models/inventory/inventory.interface';
-import { Inventory } from '@models/inventory/inventory.model';
+
 import { Sequelize } from 'sequelize';
-import { BaseOrder, BaseSortBy, ListResponse } from 'src/share/models/base-model';
+import { IInventoryRepository } from 'src/modules/inventory/models/inventory.interface';
+import {
+  BaseOrder,
+  BaseSortBy,
+  ListResponse,
+} from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
+import { Inventory } from 'src/modules/inventory/models/inventory.model';
+import { InventoryConditionDTO, InventoryCreateDTO, InventoryUpdateDTO } from 'src/modules/inventory/models/inventory.dto';
 
 export class PostgresInventoryRepository implements IInventoryRepository {
   constructor(
