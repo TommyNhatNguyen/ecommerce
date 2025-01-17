@@ -85,13 +85,17 @@ import {
   costModelName,
   CostPersistence,
 } from 'src/modules/cost/infras/repo/postgres/cost.dto';
+import {
+  shippingModelName,
+  ShippingPersistence,
+} from 'src/modules/shipping/infras/postgres/repo/shipping.dto';
 config();
 
 (async () => {
   try {
     await sequelize.authenticate();
     console.log('Connection has been established successfully.');
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ alter: true });
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
@@ -199,6 +203,16 @@ PaymentPersistence.hasOne(OrderDetailPersistence, {
 OrderDetailPersistence.belongsTo(PaymentPersistence, {
   foreignKey: 'payment_id',
   as: paymentModelName.toLowerCase(),
+});
+
+OrderDetailPersistence.belongsTo(ShippingPersistence, {
+  foreignKey: 'shipping_method_id',
+  as: shippingModelName.toLowerCase(),
+});
+
+ShippingPersistence.hasOne(OrderDetailPersistence, {
+  foreignKey: 'shipping_method_id',
+  as: orderDetailModelName.toLowerCase(),
 });
 
 CartPersistence.hasOne(CustomerPersistence, {

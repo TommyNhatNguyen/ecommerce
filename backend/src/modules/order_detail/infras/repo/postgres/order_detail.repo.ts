@@ -3,6 +3,7 @@ import {
   productModelName,
   ProductPersistence,
 } from 'src/infras/repository/product/dto';
+import { costModelName, CostPersistence } from 'src/modules/cost/infras/repo/postgres/cost.dto';
 import { DiscountPersistence } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { orderDetailProductModelName } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
@@ -68,6 +69,15 @@ export class PostgresOrderDetailRepository implements IOrderDetailRepository {
           through: {
             attributes: [],
             as: 'order_discounts',
+          },
+        },
+        {
+          model: CostPersistence,
+          as: costModelName,
+          attributes: ['id', 'name', 'cost'],
+          through: {
+            attributes: [],
+            as: 'order_costs',
           },
         },
       ],

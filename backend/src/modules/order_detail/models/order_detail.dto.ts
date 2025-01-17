@@ -25,9 +25,6 @@ export const OrderDetailCreateDTOSchema = z.object({
     .array(
       z.object({
         id: z.string().uuid(),
-        cost_type: z.nativeEnum(NumberType),
-        cost_amount: z.number().default(0),
-        cost_name: z.string().optional(),
       })
     )
     .optional(),
@@ -37,11 +34,13 @@ export const OrderDetailCreateDTOSchema = z.object({
       quantity: z.number(),
     })
   ),
-  order_discounts: z.array(
-    z.object({
-      id: z.string().uuid(),
-    })
-  ),
+  order_discounts: z
+    .array(
+      z.object({
+        id: z.string().uuid(),
+      })
+    )
+    .optional(),
 });
 
 export const OrderDetailAddProductsDTOSchema = z.object({

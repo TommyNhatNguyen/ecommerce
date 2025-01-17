@@ -151,10 +151,10 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
       if (!paymentMethod) throw ORDER_DETAIL_ERROR;
       payload.total_payment_fee = paymentMethod?.cost ?? 0;
       payload.total =
-        payload.subtotal -
-        (payload.total_shipping_fee +
-          payload.total_payment_fee +
-          payload.total_costs);
+        (payload.subtotal || 0) -
+        ((payload.total_shipping_fee || 0) +
+          (payload.total_payment_fee || 0) +
+          (payload.total_costs || 0));
       const payment = await this.paymentUseCase.createPayment({
         paid_amount: payment_info?.paid_amount ?? 0,
         payment_method_id: payment_info?.payment_method_id,

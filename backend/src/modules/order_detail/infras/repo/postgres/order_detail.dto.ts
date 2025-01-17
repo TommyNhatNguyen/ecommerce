@@ -41,14 +41,17 @@ export const orderDetailInit = (sequelize: Sequelize) => {
       total_shipping_fee: {
         type: DataTypes.FLOAT,
         allowNull: false,
+        defaultValue: 0,
       },
       total_payment_fee: {
         type: DataTypes.FLOAT,
         allowNull: false,
+        defaultValue: 0,
       },
       total_costs: {
         type: DataTypes.FLOAT,
         allowNull: false,
+        defaultValue: 0,
       },
       total_discount: {
         type: DataTypes.FLOAT,
