@@ -311,6 +311,16 @@ ReviewPersistence.belongsTo(ProductPersistence, {
   as: productModelName.toLowerCase(),
 });
 
+ReviewPersistence.belongsTo(CustomerPersistence, {
+  foreignKey: 'customer_id',
+  as: customerModelName.toLowerCase(),
+});
+
+CustomerPersistence.hasOne(ReviewPersistence, {
+  foreignKey: 'customer_id',
+  as: reviewModelName.toLowerCase(),
+});
+
 ProductPersistence.hasOne(InventoryPersistence, {
   foreignKey: 'product_id',
   onDelete: 'cascade',

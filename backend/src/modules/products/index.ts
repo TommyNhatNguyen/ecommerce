@@ -7,6 +7,7 @@ import {
   initProductVariant,
   productCategoryModelName,
   productDiscountModelName,
+  productImageModelName,
   productModelName,
 } from 'src/modules/products/infras/repo/postgres/dto';
 import { Sequelize } from 'sequelize';
@@ -45,12 +46,17 @@ export const setupProductRouter = (sequelize: Sequelize) => {
     inventoryModelName
   );
   const cloudinaryRepository = new CloudinaryImageRepository(cloudinary);
+  const imageRepository = new PostgresProductRepository(
+    sequelize,
+    productImageModelName
+  );
   const useCase = new ProductUseCase(
     repository,
     cloudinaryRepository,
     productCategoryRepository,
     productDiscountRepository,
-    discountRepository
+    discountRepository,
+    imageRepository
   );
   const inventoryUseCase = new InventoryUseCase(inventoryRepository);
   const httpService = new ProductHttpService(useCase, inventoryUseCase);

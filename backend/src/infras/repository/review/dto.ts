@@ -16,13 +16,14 @@ export const reviewInit = (sequelize: Sequelize) => {
   ReviewPersistence.init(
     {
       id: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         primaryKey: true,
         unique: true,
         allowNull: false,
         defaultValue: () => uuidv7(),
       },
-      customer_id: { type: DataTypes.STRING, allowNull: false },
+      customer_id: { type: DataTypes.UUID, allowNull: false },
+      product_id: { type: DataTypes.UUID, allowNull: false },
       rating: {
         type: DataTypes.INTEGER,
         allowNull: false,

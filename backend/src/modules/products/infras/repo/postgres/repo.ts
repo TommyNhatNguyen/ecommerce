@@ -38,6 +38,7 @@ import {
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
   ProductDiscountCreateDTO,
+  ProductImageCreateDTO,
   ProductStatsSortBy,
   ProductStatsType,
   ProductUpdateDTOSchema,
@@ -52,6 +53,10 @@ export class PostgresProductRepository implements IProductRepository {
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+  async addImages(data: ProductImageCreateDTO[]): Promise<boolean> {
+    await this.sequelize.models[this.modelName].bulkCreate(data);
+    return true;
+  }
   async addDiscounts(data: ProductDiscountCreateDTO[]): Promise<boolean> {
     await this.sequelize.models[this.modelName].bulkCreate(data);
     return true;
@@ -314,7 +319,7 @@ export class PostgresProductRepository implements IProductRepository {
   }
 
   async insert(data: ProductCreateDTOSchema): Promise<Product> {
-    const { variantIds, imageIds, quantity, ...rest } = data;
+    const { variantIds, quantity, ...rest } = data;
     const payload = { ...rest };
     const result = await this.sequelize.models[this.modelName].create(payload, {
       returning: true,
@@ -332,9 +337,6 @@ export class PostgresProductRepository implements IProductRepository {
     });
     if (variantIds) {
       await createdProduct.setVariant(variantIds);
-    }
-    if (imageIds) {
-      await createdProduct.setImage(imageIds);
     }
     return result.dataValues as Product;
   }

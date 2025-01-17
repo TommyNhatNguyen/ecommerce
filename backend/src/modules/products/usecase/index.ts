@@ -26,7 +26,8 @@ export class ProductUseCase implements IProductUseCase {
     private readonly cloudinaryImageRepository: IImageCloudinaryRepository,
     private readonly productCategoryRepository: IProductRepository,
     private readonly productDiscountRepository: IProductRepository,
-    private readonly discountRepository?: IDiscountRepository
+    private readonly discountRepository?: IDiscountRepository,
+    private readonly imageRepository?: IProductRepository
   ) {}
   async getTotalInventoryByGroup(condition?: ProductGetStatsDTO): Promise<any> {
     return await this.repository.getTotalInventoryByGroup(condition);
@@ -123,6 +124,17 @@ export class ProductUseCase implements IProductUseCase {
         }))
       );
     }
+    // --- IMAGE ---
+    if (data.imageIds) {
+      await this.imageRepository?.addImages(
+        data.imageIds.map((id) => ({
+          product_id: product.id,
+          image_id: id,
+        }))
+      );
+    }
+    // --- REVIEW --- 
+    
     return product;
   }
 }
