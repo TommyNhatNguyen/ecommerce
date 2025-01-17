@@ -33,9 +33,6 @@ export const ProductCategoryCreateDTOSchema = z.object({
 export const ProductDiscountCreateDTOSchema = z.object({
   product_id: z.string().uuid(),
   discount_id: z.string().uuid(),
-  discount_amount: z.number().nonnegative().min(0).optional(),
-  price_before_discount: z.number().nonnegative().min(0).optional(),
-  price_after_discount: z.number().nonnegative().min(0).optional(),
 });
 
 export const ProductVariantCreateDTOSchema = z.object({

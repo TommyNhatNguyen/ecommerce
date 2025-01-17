@@ -98,7 +98,7 @@ config();
     // await sequelize.drop();
     await sequelize.authenticate();
     console.log('Connection has been established successfully.');
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: true });
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }

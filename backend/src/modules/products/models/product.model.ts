@@ -5,7 +5,7 @@ import { categoryModelName } from 'src/infras/repository/category/dto';
 import { imageModelName } from 'src/infras/repository/image/dto';
 import { ImageSchema } from '@models/image/image.model';
 import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
-import { InventorySchema } from 'src/modules/inventory/infras/inventory/inventory.model';
+import { InventorySchema } from 'src/modules/inventory/models/inventory.model';
 import { reviewModelName } from 'src/infras/repository/review/dto';
 import { ReviewSchema } from '@models/review/review.model';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';

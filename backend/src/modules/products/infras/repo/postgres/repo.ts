@@ -266,9 +266,7 @@ export class PostgresProductRepository implements IProductRepository {
         model: DiscountPersistence,
         as: discountModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
-        through: {
-          attributes: ['price_after_discount'],
-        },
+        through: { attributes: [] },
       });
     }
     if (condition.includeCategory) {

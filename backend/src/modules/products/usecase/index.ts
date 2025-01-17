@@ -111,26 +111,10 @@ export class ProductUseCase implements IProductUseCase {
     }
     // --- DISCOUNT ---
     if (data.discountIds) {
-      const discounts = await this.discountRepository?.list(
-        {
-          page: 1,
-          limit: data.discountIds.length,
-        },
-        {
-          ids: data.discountIds,
-        }
-      );
-      if (!discounts || discounts.data.length !== data.discountIds.length) {
-        throw DISCOUNT_NOT_FOUND_ERROR;
-      }
       await this.productDiscountRepository.addDiscounts(
         data.discountIds.map((id) => ({
           product_id: product.id,
           discount_id: id,
-          price_after_discount:
-            product.price -
-            (discounts.data.find((discount) => discount.id === id)?.amount ||
-              0),
         }))
       );
     }
