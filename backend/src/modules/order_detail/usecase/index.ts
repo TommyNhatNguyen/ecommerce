@@ -24,6 +24,7 @@ import { IPaymentMethodUseCase } from 'src/modules/payment_method/models/payment
 import { ICostUseCase } from 'src/modules/cost/models/cost.interface';
 import { IDiscountUseCase } from 'src/modules/discount/models/discount.interface';
 import { IProductUseCase } from 'src/modules/products/models/product.interface';
+import { DiscountType } from 'src/modules/discount/models/discount.model';
 
 export class OrderDetailUseCase implements IOrderDetailUseCase {
   constructor(
@@ -86,6 +87,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
       const products = await this.productUseCase.getProducts(
         {
           ids: productIds,
+          includeDiscount: true,
         },
         { page: 1, limit: products_detail.length }
       );
@@ -96,8 +98,34 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         if (!productDetail) throw ORDER_DETAIL_PRODUCT_ERROR;
         return acc + product.price * (productDetail?.quantity ?? 0);
       }, 0);
+      const discountAmountList = products.data.map((product) => {
+        const productDetail = products_detail.find((p) => p.id === product.id);
+        if (!productDetail) throw ORDER_DETAIL_PRODUCT_ERROR;
+        const discountFixed = product.discount?.filter(
+          (d) => d.type === DiscountType.FIXED
+        );
+        const discountPercentage = product.discount?.filter(
+          (d) => d.type === DiscountType.PERCENTAGE
+        );
+        const discountByFixedAmount =
+          discountFixed?.reduce((acc, discount) => {
+            return acc + discount.amount * (productDetail.quantity ?? 0);
+          }, 0) ?? 0;
+        const discountByPercentageAmount =
+          discountPercentage?.reduce((acc, discount) => {
+            return (
+              acc +
+              (product.price *
+                (productDetail.quantity ?? 0) *
+                discount.amount) /
+                100
+            );
+          }, 0) ?? 0;
+        return discountByFixedAmount + discountByPercentageAmount;
+      });
+      console.log(discountAmountList);
       orderDetailProducts.push(
-        ...products.data.map((product) => ({
+        ...products.data.map((product, index) => ({
           order_detail_id: '',
           product_id: product.id,
           quantity:
@@ -106,10 +134,12 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
           subtotal:
             product.price *
             (products_detail.find((p) => p.id === product.id)?.quantity ?? 0),
-          discount_amount: 0,
+          discount_amount: discountAmountList[index],
           total:
             product.price *
-            (products_detail.find((p) => p.id === product.id)?.quantity ?? 0),
+              (products_detail.find((p) => p.id === product.id)?.quantity ??
+                0) -
+            discountAmountList[index],
         }))
       );
     }
@@ -150,11 +180,6 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
       );
       if (!paymentMethod) throw ORDER_DETAIL_ERROR;
       payload.total_payment_fee = paymentMethod?.cost ?? 0;
-      payload.total =
-        (payload.subtotal || 0) -
-        ((payload.total_shipping_fee || 0) +
-          (payload.total_payment_fee || 0) +
-          (payload.total_costs || 0));
       const payment = await this.paymentUseCase.createPayment({
         paid_amount: payment_info?.paid_amount ?? 0,
         payment_method_id: payment_info?.payment_method_id,
@@ -173,8 +198,14 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
       if (discounts.data.length !== order_discounts.length)
         throw ORDER_DETAIL_DISCOUNT_ERROR;
       payload.total_discount = discounts.data.reduce((acc, discount) => {
-        return acc + discount.amount;
-      }, 0);
+        let totalDiscount = 0;
+        if (discount.type === DiscountType.FIXED) {
+          totalDiscount += discount.amount;
+        } else {
+          totalDiscount += (payload.subtotal * discount.amount) / 100;
+        }
+        return acc + totalDiscount;
+      }, 0) + orderDetailProducts.reduce((acc, product) => acc + product.discount_amount, 0);
       orderDetailDiscounts.push(
         ...discounts.data.map((discount) => ({
           order_detail_id: '',
@@ -182,7 +213,18 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         }))
       );
     }
+
+    payload.total =
+      (payload.subtotal || 0) -
+      ((payload.total_shipping_fee || 0) +
+        (payload.total_payment_fee || 0) +
+        (payload.total_costs || 0) +
+        (payload.total_discount || 0));
+    console.log(payload);
+    console.log(orderDetailProducts.reduce((acc, product) => acc + product.discount_amount, 0));
+    // --- CREATE ORDER DETAIL ---
     const orderDetail = await this.orderDetailRepository.create(payload);
+    console.log(orderDetailProducts);
     await this.orderDetailProductRepository.addProducts(
       orderDetailProducts.map((product) => ({
         ...product,
@@ -201,7 +243,6 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         order_detail_id: orderDetail.id,
       }))
     );
-    console.log(orderDetail);
     return orderDetail;
   }
   async update(id: string, data: OrderDetailUpdateDTO): Promise<OrderDetail> {
