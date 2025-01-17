@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize';
 import {
   productModelName,
   ProductPersistence,
-} from 'src/infras/repository/product/dto';
+} from 'src/modules/products/infras/repo/postgres/dto';
 import { costModelName, CostPersistence } from 'src/modules/cost/infras/repo/postgres/cost.dto';
 import { DiscountPersistence } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';

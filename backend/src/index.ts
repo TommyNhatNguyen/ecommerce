@@ -3,7 +3,7 @@ import express from 'express';
 import { config } from 'dotenv';
 import path from 'path';
 import { sequelize } from 'src/share/sequelize';
-import { setupProductRouter } from 'src/routers/product';
+import { setupProductRouter } from 'src/modules/products';
 import setupCategoryRouter from 'src/routers/category';
 import {
   categoryModelName,
@@ -17,7 +17,7 @@ import {
   productOrderModelName,
   ProductPersistence,
   productVariantModelName,
-} from 'src/infras/repository/product/dto';
+} from 'src/modules/products/infras/repo/postgres/dto';
 import { setupDiscountRouter } from 'src/modules/discount';
 import { setupVariantRouter } from 'src/routers/variant';
 import {
@@ -96,9 +96,10 @@ config();
 
 (async () => {
   try {
+    // await sequelize.drop();
     await sequelize.authenticate();
     console.log('Connection has been established successfully.');
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: true });
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
@@ -245,8 +246,8 @@ ProductPersistence.belongsToMany(CartPersistence, {
   as: cartModelName.toLowerCase(),
 });
 
-ProductPersistence.belongsToMany(CartPersistence, {
-  through: cartProductModelName,
+ProductPersistence.belongsToMany(CategoryPersistence, {
+  through: productCategoryModelName,
   foreignKey: 'product_id',
   otherKey: 'category_id',
   as: categoryModelName.toLowerCase(),

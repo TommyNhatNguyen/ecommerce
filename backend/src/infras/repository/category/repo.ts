@@ -10,10 +10,8 @@ import {
   imageModelName,
   ImagePersistence,
 } from 'src/infras/repository/image/dto';
-import {
-  productModelName,
-  ProductPersistence,
-} from 'src/infras/repository/product/dto';
+import { productModelName } from 'src/modules/products/infras/repo/postgres/dto';
+import { ProductPersistence } from 'src/modules/products/infras/repo/postgres/dto';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
 import {
   BaseOrder,

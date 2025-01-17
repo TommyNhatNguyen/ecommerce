@@ -14,7 +14,6 @@ export const ProductCreateDTOSchema = z.object({
     .default(() => uuidv7()),
   name: z.string(),
   price: z.number().nonnegative().min(0),
-  categoryIds: z.array(z.string().uuid()).optional(),
   discountIds: z.array(z.string().uuid()).optional(),
   variantIds: z.array(z.string().uuid()).optional(),
   imageIds: z.array(z.string().uuid()).optional(),
@@ -23,6 +22,12 @@ export const ProductCreateDTOSchema = z.object({
   stock_status: z.nativeEnum(StockStatus).optional(),
   cost: z.number().nonnegative().min(0).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
+  categoryIds: z.array(z.string().uuid()).optional(),
+});
+
+export const ProductCategoryCreateDTOSchema = z.object({
+  product_id: z.string().uuid(),
+  category_id: z.string().uuid(),
 });
 
 export const ProductUpdateDTOSchema = z.object({
@@ -106,3 +111,6 @@ export type ProductConditionDTOSchema = z.infer<
   typeof ProductConditionDTOSchema
 >;
 export type ProductGetStatsDTO = z.infer<typeof ProductGetStatsDTOSchema>;
+export type ProductCategoryCreateDTO = z.infer<
+  typeof ProductCategoryCreateDTOSchema
+>;

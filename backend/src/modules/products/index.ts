@@ -1,9 +1,18 @@
 import { Router } from 'express';
-import { init, initProductCategory, initProductDiscount, initProductImage,  initProductOrder,  initProductVariant, productModelName } from 'src/infras/repository/product/dto';
+import {
+  init,
+  initProductCategory,
+  initProductDiscount,
+  initProductImage,
+  initProductOrder,
+  initProductVariant,
+  productCategoryModelName,
+  productModelName,
+} from 'src/modules/products/infras/repo/postgres/dto';
 import { Sequelize } from 'sequelize';
-import { PostgresProductRepository } from 'src/infras/repository/product/repo';
-import { ProductUseCase } from 'src/usecase/product';
-import { ProductHttpService } from 'src/infras/transport/product/http-service';
+import { PostgresProductRepository } from 'src/modules/products/infras/repo/postgres/repo';
+import { ProductUseCase } from 'src/modules/products/usecase';
+import { ProductHttpService } from 'src/modules/products/infras/transport/products.http-service';
 import { CloudinaryImageRepository } from 'src/infras/repository/image/repo';
 import cloudinary from 'src/share/cloudinary';
 import { inventoryModelName } from 'src/infras/repository/inventory/dto';
@@ -18,9 +27,20 @@ export const setupProductRouter = (sequelize: Sequelize) => {
   initProductImage(sequelize);
   initProductOrder(sequelize);
   const repository = new PostgresProductRepository(sequelize, productModelName);
-  const inventoryRepository = new PostgresInventoryRepository(sequelize, inventoryModelName);
+  const productCategoryRepository = new PostgresProductRepository(
+    sequelize,
+    productCategoryModelName
+  );
+  const inventoryRepository = new PostgresInventoryRepository(
+    sequelize,
+    inventoryModelName
+  );
   const cloudinaryRepository = new CloudinaryImageRepository(cloudinary);
-  const useCase = new ProductUseCase(repository,  cloudinaryRepository);
+  const useCase = new ProductUseCase(
+    repository,
+    cloudinaryRepository,
+    productCategoryRepository
+  );
   const inventoryUseCase = new InventoryUseCase(inventoryRepository);
   const httpService = new ProductHttpService(useCase, inventoryUseCase);
   const router = Router();
@@ -29,6 +49,9 @@ export const setupProductRouter = (sequelize: Sequelize) => {
   router.post('/products', httpService.createNewProduct.bind(httpService));
   router.put('/products/:id', httpService.updateProduct.bind(httpService));
   router.delete('/products/:id', httpService.deleteProduct.bind(httpService));
-  router.get('/statistics/products', httpService.getProductStatistics.bind(httpService));
+  router.get(
+    '/statistics/products',
+    httpService.getProductStatistics.bind(httpService)
+  );
   return router;
 };

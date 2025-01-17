@@ -1,13 +1,4 @@
-import { IProductRepository } from '@models/product/product.interface';
-import {
-  ProductConditionDTOSchema,
-  ProductCreateDTOSchema,
-  ProductGetStatsDTO,
-  ProductStatsSortBy,
-  ProductStatsType,
-  ProductUpdateDTOSchema,
-} from '@models/product/product.dto';
-import { Product } from '@models/product/product.model';
+
 import { PagingDTO } from 'src/share/models/paging';
 import { Sequelize, Op, Model } from 'sequelize';
 import {
@@ -21,12 +12,7 @@ import {
   ModelStatus,
 } from 'src/share/models/base-model';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
-import {
-  productCategoryModelName,
-  productDiscountModelName,
-  ProductDiscountPersistence,
-  productModelName,
-} from 'src/infras/repository/product/dto';
+
 import {
   discountModelName,
   DiscountPersistence,
@@ -48,12 +34,21 @@ import {
   ReviewPersistence,
 } from 'src/infras/repository/review/dto';
 import sequelize from 'sequelize';
+import { ProductCategoryCreateDTO, ProductConditionDTOSchema, ProductCreateDTOSchema, ProductStatsSortBy, ProductStatsType, ProductUpdateDTOSchema } from 'src/modules/products/product/product.dto';
+import { IProductRepository } from 'src/modules/products/product/product.interface';
+import { ProductGetStatsDTO } from 'src/modules/products/product/product.dto';
+import { Product } from 'src/modules/products/product/product.model';
+import { productModelName } from 'src/modules/products/infras/repo/postgres/dto';
 
 export class PostgresProductRepository implements IProductRepository {
   constructor(
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+  async addCategories(data: ProductCategoryCreateDTO[]): Promise<boolean> {
+    await this.sequelize.models[this.modelName].bulkCreate(data);
+    return true;
+  }
   async getTotalInventoryByGroup(condition?: ProductGetStatsDTO): Promise<any> {
     let attributes: any[] = [];
     let group: any[] = [];
@@ -307,7 +302,6 @@ export class PostgresProductRepository implements IProductRepository {
 
   async insert(data: ProductCreateDTOSchema): Promise<Product> {
     const {
-      categoryIds,
       discountIds,
       variantIds,
       imageIds,
@@ -329,9 +323,6 @@ export class PostgresProductRepository implements IProductRepository {
         },
       ],
     });
-    if (categoryIds) {
-      await createdProduct.setCategory(categoryIds);
-    }
     if (discountIds) {
       await createdProduct.setDiscount(discountIds);
     }

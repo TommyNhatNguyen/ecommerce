@@ -1,7 +1,6 @@
 import { StockStatus } from '@models/inventory/inventory.model';
 import { Sequelize } from 'sequelize';
 import { DataTypes, Model } from 'sequelize';
-import { productModelName } from 'src/infras/repository/product/dto';
 import { ModelStatus } from 'src/share/models/base-model';
 import { v7 as uuidv7 } from 'uuid';
 export class InventoryPersistence extends Model {

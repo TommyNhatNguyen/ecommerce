@@ -5,8 +5,6 @@ import {
 } from '@models/order/order.dto';
 import { IOrderRepository, IOrderUseCase } from '@models/order/order.interface';
 import { Order } from '@models/order/order.model';
-import { IProductRepository } from '@models/product/product.interface';
-import { Product } from '@models/product/product.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 

@@ -48,7 +48,6 @@ export function init(sequelize: Sequelize) {
  */
 export const productCategoryModelName = 'productcategory';
 export class ProductCategoryPersistence extends Model {
-  declare id: string;
   declare product_id: string;
   declare category_id: string;
   declare status: ModelStatus;

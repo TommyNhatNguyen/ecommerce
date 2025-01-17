@@ -1,12 +1,7 @@
 import { IInventoryUseCase } from '@models/inventory/inventory.interface';
-import {
-  ProductConditionDTOSchema,
-  ProductCreateDTOSchema,
-  ProductGetStatsDTOSchema,
-  ProductUpdateDTOSchema,
-} from '@models/product/product.dto';
-import { IProductUseCase } from '@models/product/product.interface';
 import { Request, Response } from 'express';
+import { ProductConditionDTOSchema, ProductCreateDTOSchema, ProductGetStatsDTOSchema, ProductUpdateDTOSchema } from 'src/modules/products/product/product.dto';
+import { IProductUseCase } from 'src/modules/products/product/product.interface';
 import { PagingDTOSchema } from 'src/share/models/paging';
 
 export class ProductHttpService {
@@ -34,6 +29,7 @@ export class ProductHttpService {
         data: result,
       });
     } catch (error) {
+      console.log(error);
       res.status(500).json({ error: (error as Error).message });
       return;
     }

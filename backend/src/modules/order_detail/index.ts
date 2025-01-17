@@ -20,9 +20,6 @@ import { PostgresCustomerRepository } from 'src/modules/customer/infras/repo/pos
 import { CustomerUseCase } from 'src/modules/customer/usecase';
 import { cartModelName } from 'src/modules/cart/infras/repo/postgres/cart.dto';
 import { PostgresCartRepository } from 'src/modules/cart/infras/repo/postgres/cart.repo';
-import { PostgresProductRepository } from 'src/infras/repository/product/repo';
-import { productModelName } from 'src/infras/repository/product/dto';
-import { ProductUseCase } from 'src/usecase/product';
 import { ShippingUseCase } from 'src/modules/shipping/usecase';
 import { shippingModelName } from 'src/modules/shipping/infras/postgres/repo/shipping.dto';
 import { PostgresPaymentRepository } from 'src/modules/payment/infras/repo/postgres/payment.repo';
@@ -38,6 +35,11 @@ import { PostgresCostRepository } from 'src/modules/cost/infras/repo/postgres/co
 import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/postgres/discount.repo';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { DiscountUseCase } from 'src/modules/discount/usecase';
+import { PostgresProductRepository } from 'src/modules/products/infras/repo/postgres/repo';
+import { productCategoryModelName, productModelName } from 'src/modules/products/infras/repo/postgres/dto';
+import { ProductUseCase } from 'src/modules/products/usecase';
+import { CloudinaryImageRepository } from 'src/infras/repository/image/repo';
+import cloudinary from 'src/share/cloudinary';
 export function setupOrderDetailRouter(sequelize: Sequelize) {
   orderDetailInit(sequelize);
   orderDetailProductInit(sequelize);
@@ -86,9 +88,15 @@ export function setupOrderDetailRouter(sequelize: Sequelize) {
     sequelize,
     discountModelName
   );
+  const cloudinaryRepository = new CloudinaryImageRepository(cloudinary);
+  const productCategoryRepository = new PostgresProductRepository(
+    sequelize,
+    productCategoryModelName
+  );
   const productUseCase = new ProductUseCase(
     productRepository,
-    orderDetailRepository
+    cloudinaryRepository,
+    productCategoryRepository
   );
   const customerUseCase = new CustomerUseCase(
     customerRepository,

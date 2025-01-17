@@ -1,25 +1,28 @@
 import { IImageCloudinaryRepository } from '@models/image/image.interface';
-import { IInventoryRepository } from '@models/inventory/inventory.interface';
 import {
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
   ProductGetStatsDTO,
   ProductStatsSortBy,
   ProductUpdateDTOSchema,
-} from '@models/product/product.dto';
+} from '../product/product.dto';
 import {
   IProductRepository,
   IProductUseCase,
-} from '@models/product/product.interface';
-import { Product } from '@models/product/product.model';
-import { BaseOrder, ListResponse, ModelStatus } from 'src/share/models/base-model';
+} from '../product/product.interface';
+import { Product } from '../product/product.model';
+import {
+  BaseOrder,
+  ListResponse,
+  ModelStatus,
+} from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
-import { v7 as uuidv7 } from 'uuid';
 
 export class ProductUseCase implements IProductUseCase {
   constructor(
     private readonly repository: IProductRepository,
-    private readonly cloudinaryImageRepository: IImageCloudinaryRepository
+    private readonly cloudinaryImageRepository: IImageCloudinaryRepository,
+    private readonly productCategoryRepository: IProductRepository
   ) {}
   async getTotalInventoryByGroup(condition?: ProductGetStatsDTO): Promise<any> {
     return await this.repository.getTotalInventoryByGroup(condition);
@@ -50,7 +53,10 @@ export class ProductUseCase implements IProductUseCase {
     paging: PagingDTO
   ): Promise<ListResponse<Product[]>> {
     const data = await this.repository.list(condition, paging);
-    if (condition.sortBy === ProductStatsSortBy.INVENTORY_VALUE && data.data.length > 0) {
+    if (
+      condition.sortBy === ProductStatsSortBy.INVENTORY_VALUE &&
+      data.data.length > 0
+    ) {
       const inventoryValue = data.data.map((item, index) => ({
         inventory_value:
           item.inventory?.quantity || 0 * (item.inventory?.cost || 0),
@@ -79,6 +85,15 @@ export class ProductUseCase implements IProductUseCase {
   }
 
   async createNewProduct(data: ProductCreateDTOSchema): Promise<Product> {
-    return await this.repository.insert(data);
+    const product = await this.repository.insert(data);
+    if (data.categoryIds) {
+      await this.productCategoryRepository.addCategories(
+        data.categoryIds.map((id) => ({
+          product_id: product.id,
+          category_id: id,
+        }))
+      );
+    }
+    return product;
   }
 }

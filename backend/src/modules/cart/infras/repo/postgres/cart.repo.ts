@@ -1,9 +1,5 @@
 import { Sequelize } from 'sequelize';
 import {
-  productModelName,
-  ProductPersistence,
-} from 'src/infras/repository/product/dto';
-import {
   CartAddProductsDTO,
   CartConditionDTO,
   CartCreateDTO,
@@ -11,6 +7,8 @@ import {
 } from 'src/modules/cart/models/cart.dto';
 import { ICartRepository } from 'src/modules/cart/models/cart.interface';
 import { Cart } from 'src/modules/cart/models/cart.model';
+import { productModelName } from 'src/modules/products/infras/repo/postgres/dto';
+import { ProductPersistence } from 'src/modules/products/infras/repo/postgres/dto';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
