@@ -8,7 +8,7 @@ import LoadingComponent from "@/app/shared/components/LoadingComponent";
 type ActionGroupPropsType = {
   handleDelete?: (...args: any[]) => void;
   handleEdit?: (...args: any[]) => void;
-  content?: React.ReactNode;
+  customContent?: (args: any) => React.ReactNode;
   loading?: boolean;
   isWithDeleteConfirmPopover?: boolean;
   deleteConfirmPopoverProps?: PopoverProps;
@@ -21,7 +21,7 @@ const ButtonDeleteWithPopover = withDeleteConfirmPopover(
 const ActionGroup = ({
   handleDelete,
   handleEdit,
-  content,
+  customContent,
   loading = false,
   isWithDeleteConfirmPopover = false,
   deleteConfirmPopoverProps,
@@ -44,9 +44,9 @@ const ActionGroup = ({
       open={open}
       onOpenChange={_onToggleOpen}
       content={
-        content ? (
+        customContent ? (
           <div className="relative flex items-center gap-2">
-            {content}
+            {customContent(_onToggleOpen)}
             {loading && <LoadingComponent isLoading={loading} />}
           </div>
         ) : (

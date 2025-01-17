@@ -3,7 +3,7 @@ import { DataTypes, Model } from 'sequelize';
 import { DiscountScope } from 'src/modules/discount/models/discount.model';
 import { DiscountType } from 'src/modules/discount/models/discount.model';
 import { ModelStatus } from 'src/share/models/base-model';
-
+import { v7 as uuidv7 } from 'uuid';
 export class DiscountPersistence extends Model {
   declare id: string;
   declare name: string;
@@ -26,9 +26,10 @@ export const discountInit = (sequelize: Sequelize) => {
         primaryKey: true,
         unique: true,
         allowNull: false,
+        defaultValue: () => uuidv7(),
       },
       name: { type: DataTypes.STRING, allowNull: false, unique: true },
-      description: { type: DataTypes.STRING, allowNull: true },
+      description: { type: DataTypes.TEXT, allowNull: true },
       amount: {
         type: DataTypes.FLOAT,
         allowNull: false,

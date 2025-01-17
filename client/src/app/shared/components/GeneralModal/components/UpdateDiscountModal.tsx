@@ -4,12 +4,16 @@ import GeneralModal from "@/app/shared/components/GeneralModal";
 import { DiscountModel } from "@/app/shared/models/discounts/discounts.model";
 import { discountsService } from "@/app/shared/services/discounts/discountsService";
 import { useQuery } from "@tanstack/react-query";
-import { Button, DatePicker, Input, InputNumber } from "antd";
+import { Button, DatePicker, Input, InputNumber, Select } from "antd";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import dayjs from "dayjs";
 import { useUpdateDiscountModal } from "@/app/shared/components/GeneralModal/hooks/useUpdateDiscountModal";
 import { UpdateDiscountDTO } from "@/app/shared/interfaces/discounts/discounts.dto";
+import { DISCOUNT_SCOPE, DISCOUNT_TYPE } from "@/app/constants/enum";
+import { formatCurrency } from "@/app/shared/utils/utils";
+import { formatDiscountPercentage } from "@/app/shared/utils/utils";
+import { watch } from "node:fs";
 
 type UpdateDiscountModalPropsType = {
   isModalUpdateDiscountCampaignOpen: boolean;
@@ -21,7 +25,7 @@ type UpdateDiscountModalPropsType = {
 const UpdateDiscountModal = ({
   isModalUpdateDiscountCampaignOpen = false,
   handleCloseModalUpdateDiscountCampaign,
-  updateDiscountCampaignId,
+  updateDiscountCampaignId = "",
   refetch,
 }: UpdateDiscountModalPropsType) => {
   const { updateDiscountLoading, updateDiscountError, handleUpdateDiscount } =
@@ -35,14 +39,22 @@ const UpdateDiscountModal = ({
     queryFn: () => discountsService.getDiscountById(updateDiscountCampaignId),
     enabled: !!updateDiscountCampaignId && !!isModalUpdateDiscountCampaignOpen,
   });
-  const { control, handleSubmit, reset } = useForm<DiscountModel>({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+    watch,
+  } = useForm<DiscountModel>({
     defaultValues: discount,
   });
+  console.log(discount);
   useEffect(() => {
+    console.log(discount);
     if (discount) {
       reset(discount);
     }
-  }, [discount]);
+  }, [discount, isLoadingDiscount]);
   const loading = false;
 
   const _onCloseModalUpdateDiscountCampaign = () => {
@@ -53,7 +65,9 @@ const UpdateDiscountModal = ({
     const payload: UpdateDiscountDTO = {
       name: data.name,
       description: data.description || "",
-      discount_percentage: data.discount_percentage || 0,
+      amount: data.amount || 0,
+      type: data.type || DISCOUNT_TYPE.PERCENTAGE,
+      scope: data.scope || DISCOUNT_SCOPE.PRODUCT,
       start_date: data.start_date ? new Date(data.start_date) : new Date(),
       end_date: data.end_date ? new Date(data.end_date) : new Date(),
     };
@@ -101,43 +115,120 @@ const UpdateDiscountModal = ({
             />
           )}
         />
-        <Controller
-          control={control}
-          name="discount_percentage"
-          rules={{
-            required: {
-              value: true,
-              message: ERROR_MESSAGE.REQUIRED,
-            },
-            min: {
-              value: 0,
-              message: "Discount percentage must be greater than 0%",
-            },
-            max: {
-              value: 100,
-              message: "Discount percentage must be less than 100%",
-            },
-          }}
-          render={({ field, formState: { errors } }) => (
-            <InputAdmin
-              label="Discount Percentage"
-              placeholder="Discount Percentage"
-              required={true}
-              error={errors.discount_percentage?.message as string}
-              {...field}
-              customComponent={(props: any, ref: any) => (
-                <InputNumber
-                  min={0}
-                  max={100}
-                  className="w-full"
-                  formatter={(value) => `${value}%`}
-                  ref={ref}
-                  {...props}
-                />
-              )}
-            />
-          )}
-        />
+        <div className="flex items-start gap-2">
+          <Controller
+            control={control}
+            name="type"
+            rules={{
+              required: {
+                value: true,
+                message: ERROR_MESSAGE.REQUIRED,
+              },
+            }}
+            render={({ field }) => (
+              <InputAdmin
+                label="Discount Type"
+                placeholder="Discount Type"
+                required={true}
+                error={errors.type?.message as string}
+                {...field}
+                customComponent={(props: any, ref: any) => (
+                  <Select
+                    options={Object.values(DISCOUNT_TYPE).map((type) => ({
+                      label: type,
+                      value: type,
+                    }))}
+                    labelRender={({ label }) => (
+                      <div className="capitalize">{label}</div>
+                    )}
+                    optionRender={({ label }) => (
+                      <div className="capitalize">{label}</div>
+                    )}
+                    {...props}
+                    ref={ref}
+                  />
+                )}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="scope"
+            rules={{
+              required: {
+                value: true,
+                message: ERROR_MESSAGE.REQUIRED,
+              },
+            }}
+            render={({ field }) => (
+              <InputAdmin
+                label="Discount Scope"
+                placeholder="Discount Scope"
+                required={true}
+                error={errors.scope?.message as string}
+                {...field}
+                customComponent={(props: any, ref: any) => (
+                  <Select
+                    options={Object.values(DISCOUNT_SCOPE).map((scope) => ({
+                      label: scope,
+                      value: scope,
+                    }))}
+                    optionRender={({ label }) => (
+                      <div className="capitalize">{label}</div>
+                    )}
+                    labelRender={({ label }) => (
+                      <div className="capitalize">{label}</div>
+                    )}
+                    {...props}
+                    ref={ref}
+                  />
+                )}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="amount"
+            rules={{
+              required: {
+                value: true,
+                message: ERROR_MESSAGE.REQUIRED,
+              },
+              min: {
+                value: 0,
+                message: "Discount amount must be greater than 0",
+              },
+            }}
+            render={({ field }) => (
+              <InputAdmin
+                label="Discount Amount"
+                placeholder="Discount Amount"
+                groupClassName="flex-1"
+                required={true}
+                error={errors.amount?.message as string}
+                {...field}
+                customComponent={(props: any, ref: any) => (
+                  <InputNumber
+                    min={0}
+                    max={
+                      watch("type") === DISCOUNT_TYPE.PERCENTAGE
+                        ? 100
+                        : undefined
+                    }
+                    className="w-full"
+                    ref={ref}
+                    {...props}
+                    formatter={(value) =>
+                      watch("type") === DISCOUNT_TYPE.PERCENTAGE
+                        ? `${formatDiscountPercentage(Number(value))}`
+                        : `${formatCurrency(Number(value))}`
+                    }
+                  />
+                )}
+              />
+            )}
+          />
+        </div>
         <div className="flex gap-2">
           <Controller
             control={control}

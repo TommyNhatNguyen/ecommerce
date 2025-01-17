@@ -1,11 +1,15 @@
 import { ERROR_MESSAGE } from "@/app/constants/errors";
-import { DatePicker, InputNumber } from "antd";
+import { DatePicker, InputNumber, Select } from "antd";
 import GeneralModal from "@/app/shared/components/GeneralModal";
 import InputAdmin from "@/app/shared/components/InputAdmin";
 import { Button, Input } from "antd";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { formatDiscountPercentage } from "@/app/shared/utils/utils";
+import {
+  formatCurrency,
+  formatDiscountPercentage,
+} from "@/app/shared/utils/utils";
+import { DISCOUNT_SCOPE, DISCOUNT_TYPE } from "@/app/constants/enum";
 
 type CreateDiscountModalPropsType = {
   isModalCreateDiscountCampaignOpen: boolean;
@@ -25,8 +29,8 @@ const CreateDiscountModal = ({
     formState: { errors },
     reset,
     control,
+    watch,
   } = useForm();
-
   const _onCloseModalCreateDiscountCampaign = () => {
     handleCloseModalCreateDiscountCampaign();
     reset();
@@ -36,7 +40,6 @@ const CreateDiscountModal = ({
     handleSubmitCreateDiscountCampaignForm(data);
     reset();
   };
-
   const _renderFooterModalCreateDiscountCampaign = () => {
     return (
       <div className="flex items-center justify-end gap-2">
@@ -94,43 +97,120 @@ const CreateDiscountModal = ({
             />
           )}
         />
-        <Controller
-          control={control}
-          name="discountPercentage"
-          rules={{
-            required: {
-              value: true,
-              message: ERROR_MESSAGE.REQUIRED,
-            },
-            min: {
-              value: 0,
-              message: "Discount percentage must be greater than 0%",
-            },
-            max: {
-              value: 100,
-              message: "Discount percentage must be less than 100%",
-            },
-          }}
-          render={({ field }) => (
-            <InputAdmin
-              label="Discount Percentage"
-              placeholder="Discount Percentage"
-              required={true}
-              error={errors.discountPercentage?.message as string}
-              {...field}
-              customComponent={(props: any, ref: any) => (
-                <InputNumber
-                  min={0}
-                  max={100}
-                  className="w-full"
-                  formatter={(value) => `${value}%`}
-                  ref={ref}
-                  {...props}
-                />
-              )}
-            />
-          )}
-        />
+        <div className="flex items-start gap-2">
+          <Controller
+            control={control}
+            name="type"
+            rules={{
+              required: {
+                value: true,
+                message: ERROR_MESSAGE.REQUIRED,
+              },
+            }}
+            render={({ field }) => (
+              <InputAdmin
+                label="Discount Type"
+                placeholder="Discount Type"
+                required={true}
+                error={errors.type?.message as string}
+                {...field}
+                customComponent={(props: any, ref: any) => (
+                  <Select
+                    options={Object.values(DISCOUNT_TYPE).map((type) => ({
+                      label: type,
+                      value: type,
+                    }))}
+                    labelRender={({ label }) => (
+                      <div className="capitalize">{label}</div>
+                    )}
+                    optionRender={({ label }) => (
+                      <div className="capitalize">{label}</div>
+                    )}
+                    {...props}
+                    ref={ref}
+                  />
+                )}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="scope"
+            rules={{
+              required: {
+                value: true,
+                message: ERROR_MESSAGE.REQUIRED,
+              },
+            }}
+            render={({ field }) => (
+              <InputAdmin
+                label="Discount Scope"
+                placeholder="Discount Scope"
+                required={true}
+                error={errors.scope?.message as string}
+                {...field}
+                customComponent={(props: any, ref: any) => (
+                  <Select
+                    options={Object.values(DISCOUNT_SCOPE).map((scope) => ({
+                      label: scope,
+                      value: scope,
+                    }))}
+                    optionRender={({ label }) => (
+                      <div className="capitalize">{label}</div>
+                    )}
+                    labelRender={({ label }) => (
+                      <div className="capitalize">{label}</div>
+                    )}
+                    {...props}
+                    ref={ref}
+                  />
+                )}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="amount"
+            rules={{
+              required: {
+                value: true,
+                message: ERROR_MESSAGE.REQUIRED,
+              },
+              min: {
+                value: 0,
+                message: "Discount amount must be greater than 0",
+              },
+            }}
+            render={({ field }) => (
+              <InputAdmin
+                label="Discount Amount"
+                placeholder="Discount Amount"
+                groupClassName="flex-1"
+                required={true}
+                error={errors.amount?.message as string}
+                {...field}
+                customComponent={(props: any, ref: any) => (
+                  <InputNumber
+                    min={0}
+                    max={
+                      watch("type") === DISCOUNT_TYPE.PERCENTAGE
+                        ? 100
+                        : undefined
+                    }
+                    className="w-full"
+                    ref={ref}
+                    {...props}
+                    formatter={(value) =>
+                      watch("type") === DISCOUNT_TYPE.PERCENTAGE
+                        ? `${formatDiscountPercentage(Number(value))}`
+                        : `${formatCurrency(Number(value))}`
+                    }
+                  />
+                )}
+              />
+            )}
+          />
+        </div>
         <div className="flex gap-2">
           <Controller
             control={control}

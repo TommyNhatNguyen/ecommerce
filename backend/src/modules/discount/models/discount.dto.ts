@@ -58,10 +58,6 @@ export const DiscountConditionDTOSchema = z.object({
 
 export const DiscountCreateDTOSchema = z
   .object({
-    id: z
-      .string()
-      .uuid()
-      .default(() => uuidv7()),
     name: z.string(),
     description: z.string().optional(),
     amount: z.number().min(0).default(0),

@@ -1,3 +1,3 @@
 export function getDateFormat() {
-  return "YYYY-MM-DDTHH:mm:ss.sssZ";
+  return "YYYY-MM-DD HH:mm:ss";
 }

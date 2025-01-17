@@ -1,4 +1,7 @@
-import { CreateDiscountDTO, UpdateDiscountDTO } from "@/app/shared/interfaces/discounts/discounts.dto";
+import {
+  CreateDiscountDTO,
+  UpdateDiscountDTO,
+} from "@/app/shared/interfaces/discounts/discounts.dto";
 import { DiscountModel } from "@/app/shared/models/discounts/discounts.model";
 import { ListResponseModel } from "@/app/shared/models/others/list-response.model";
 import { axiosInstance } from "@/app/shared/utils/axiosInstance";
@@ -14,9 +17,12 @@ export const discountsService = {
   },
   getDiscountById: async (id: string): Promise<DiscountModel> => {
     const response = await axiosInstance.get(`/discounts/${id}`);
-    return response.data.data;
+    return response.data;
   },
-  updateDiscount: async (id: string, data: UpdateDiscountDTO): Promise<DiscountModel> => {
+  updateDiscount: async (
+    id: string,
+    data: UpdateDiscountDTO,
+  ): Promise<DiscountModel> => {
     const response = await axiosInstance.put(`/discounts/${id}`, data);
     return response.data;
   },

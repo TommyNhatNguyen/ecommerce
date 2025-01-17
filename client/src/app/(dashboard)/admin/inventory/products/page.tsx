@@ -30,6 +30,12 @@ import UpdateProductModal from "@/app/shared/components/GeneralModal/components/
 import { ProductModel } from "@/app/shared/models/products/products.model";
 import UpdateCategoryModal from "@/app/shared/components/GeneralModal/components/UpdateCategoryModal";
 import UpdateDiscountModal from "@/app/shared/components/GeneralModal/components/UpdateDiscountModal";
+import {
+  formatCurrency,
+  formatDiscountPercentage,
+} from "@/app/shared/utils/utils";
+import { DISCOUNT_SCOPE, DISCOUNT_TYPE } from "@/app/constants/enum";
+import ActionGroup from "@/app/shared/components/ActionGroup";
 
 type Props = {};
 
@@ -188,7 +194,9 @@ const ProductPage = (props: Props) => {
     const payload: CreateDiscountDTO = {
       name: data.name,
       description: data.description,
-      discount_percentage: Number(data.discountPercentage),
+      amount: Number(data.amount),
+      type: data.type,
+      scope: data.scope,
       start_date: data.startDate.format(getDateFormat()),
       end_date: data.endDate.format(getDateFormat()),
     };
@@ -314,33 +322,104 @@ const ProductPage = (props: Props) => {
           </Button>
         }
       >
-        {discounts &&
-          discounts.data.map((item) => (
-            <Tooltip title={`${item.discount_percentage || 0}%`} key={item.id}>
-              <div
-                className="flex w-full items-center justify-between"
-                key={item.id}
-              >
-                {item.name}
-                <div className="flex items-center gap-1">
-                  <Button
-                    type="text"
-                    className="aspect-square rounded-full p-0"
-                    onClick={() => _onOpenModalUpdateDiscountCampaign(item.id)}
+        <div className="grid grid-cols-2">
+          <div className="flex flex-col gap-2 border-r border-solid border-zinc-500/30 pr-2">
+            <h5 className="font-medium">Product discount</h5>
+            {discounts &&
+              discounts.data
+                .filter((item) => item.scope === DISCOUNT_SCOPE.PRODUCT)
+                .map((item) => (
+                  <Tooltip
+                    title={`${
+                      item.type === DISCOUNT_TYPE.PERCENTAGE
+                        ? `${formatDiscountPercentage(item.amount || 0)}`
+                        : `${formatCurrency(item.amount || 0)}`
+                    }`}
+                    key={item.id}
                   >
-                    <Pencil className="h-4 w-4 stroke-yellow-500" />
-                  </Button>
-                  <ButtonDeleteWithPopover
-                    title={`Delete ${item.name}?`}
-                    trigger={"click"}
-                    handleDelete={() => {
-                      _onDeleteDiscount(item.id);
-                    }}
-                  />
-                </div>
-              </div>
-            </Tooltip>
-          ))}
+                    <div
+                      className="flex w-full items-center justify-between"
+                      key={item.id}
+                    >
+                      {item.name}
+                      <ActionGroup
+                        customContent={(toggleOpen) => (
+                          <div className="flex items-center gap-1">
+                            <Button
+                              type="text"
+                              className="aspect-square rounded-full p-0"
+                              onClick={() => {
+                                toggleOpen();
+                                _onOpenModalUpdateDiscountCampaign(item.id);
+                              }}
+                            >
+                              <Pencil className="h-4 w-4 stroke-yellow-500" />
+                            </Button>
+                            <ButtonDeleteWithPopover
+                              title={`Delete ${item.name}?`}
+                              trigger={"click"}
+                              handleDelete={() => {
+                                toggleOpen();
+                                _onDeleteDiscount(item.id);
+                              }}
+                            />
+                          </div>
+                        )}
+                      />
+                    </div>
+                  </Tooltip>
+                ))}
+          </div>
+          <div className="flex flex-col gap-2 pl-2">
+            <h5 className="font-medium">Order discount</h5>
+            {discounts &&
+              discounts.data
+                .filter((item) => item.scope === DISCOUNT_SCOPE.ORDER)
+                .map((item) => (
+                  <Tooltip
+                    title={`${
+                      item.type === DISCOUNT_TYPE.PERCENTAGE
+                        ? `${formatDiscountPercentage(item.amount || 0)}`
+                        : `${formatCurrency(item.amount || 0)}`
+                    }`}
+                    key={item.id}
+                  >
+                    <div
+                      className="flex w-full items-center justify-between"
+                      key={item.id}
+                    >
+                      {item.name}
+                      <ActionGroup
+                        customContent={(toggleOpen) => {
+                          return (
+                            <div className="flex items-center gap-1">
+                              <Button
+                                type="text"
+                                className="aspect-square rounded-full p-0"
+                                onClick={() => {
+                                  toggleOpen();
+                                  _onOpenModalUpdateDiscountCampaign(item.id);
+                                }}
+                              >
+                                <Pencil className="h-4 w-4 stroke-yellow-500" />
+                              </Button>
+                              <ButtonDeleteWithPopover
+                                title={`Delete ${item.name}?`}
+                                trigger={"click"}
+                                handleDelete={() => {
+                                  toggleOpen();
+                                  _onDeleteDiscount(item.id);
+                                }}
+                              />
+                            </div>
+                          );
+                        }}
+                      />
+                    </div>
+                  </Tooltip>
+                ))}
+          </div>
+        </div>
         {discounts && discounts.data.length === 0 && (
           <div className="flex h-full items-center justify-center">
             <Empty description="No discounts found" />

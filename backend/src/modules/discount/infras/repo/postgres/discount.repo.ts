@@ -56,6 +56,7 @@ export class PostgresDiscountRepository implements IDiscountRepository {
     return discount?.dataValues || null;
   }
   async insert(data: DiscountCreateDTOSchema): Promise<Discount> {
+    console.log(data);
     const discount = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });

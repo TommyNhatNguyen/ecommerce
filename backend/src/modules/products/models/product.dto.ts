@@ -13,6 +13,7 @@ export const ProductCreateDTOSchema = z.object({
     .uuid()
     .default(() => uuidv7()),
   name: z.string(),
+  description: z.string().optional(),
   price: z.number().nonnegative().min(0),
   quantity: z.number().nonnegative().min(0).optional(),
   low_stock_threshold: z.number().nonnegative().min(0).optional(),

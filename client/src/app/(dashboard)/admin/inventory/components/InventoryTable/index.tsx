@@ -233,7 +233,9 @@ const InventoryTable = ({
     await handleUpdateStatus(id, status);
   };
   const _onGenerateTableDataSource = (inventories: ProductModel[]) => {
+    console.log("🚀 ~ const_onGenerateTableDataSource= ~ inventories:", inventories)
     let tableDataSource: DataType[] = [];
+    
     inventories.forEach((item) => {
       const images =
         item.image && item.image.length > 0
