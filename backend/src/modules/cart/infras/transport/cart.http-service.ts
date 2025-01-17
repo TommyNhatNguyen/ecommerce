@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import {
+  CartAddNewProductsDTOSchema,
   CartConditionDTOSchema,
   CartCreateDTOSchema,
   CartUpdateDTOSchema,
@@ -8,6 +9,27 @@ import { PagingDTOSchema } from 'src/share/models/paging';
 import { CartUseCase } from 'src/modules/cart/usecase';
 export class CartHttpService {
   constructor(private readonly cartUsecase: CartUseCase) {}
+
+  async addProductsToCart(req: Request, res: Response) {
+    const { id } = req.params;
+    const { success, data, error } = CartAddNewProductsDTOSchema.safeParse(
+      req.body
+    );
+    if (!success) {
+      res.status(400).json({ success: false, message: error.message });
+      return;
+    }
+    try {
+      const updatedCart = await this.cartUsecase.addProductsToCart(id, data);
+      res.status(200).json({ success: true, ...updatedCart });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .json({ success: false, message: 'Internal server error' });
+      return;
+    }
+  }
 
   async getById(req: Request, res: Response) {
     const { id } = req.params;
@@ -59,6 +81,7 @@ export class CartHttpService {
       }
       res.status(200).json({ success: true, ...cart });
     } catch (error) {
+      console.log(error);
       res
         .status(500)
         .json({ success: false, message: 'Internal server error' });

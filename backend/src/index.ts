@@ -71,7 +71,10 @@ import {
   customerModelName,
   CustomerPersistence,
 } from 'src/modules/customer/infras/repo/postgres/customer.dto';
-import { cartModelName } from 'src/modules/cart/infras/repo/postgres/cart.dto';
+import {
+  cartModelName,
+  cartProductModelName,
+} from 'src/modules/cart/infras/repo/postgres/cart.dto';
 import { CartPersistence } from 'src/modules/cart/infras/repo/postgres/cart.dto';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { DiscountPersistence } from 'src/modules/discount/infras/repo/postgres/discount.dto';
@@ -228,8 +231,22 @@ CustomerPersistence.belongsTo(CartPersistence, {
   onUpdate: 'CASCADE',
 });
 
-ProductPersistence.belongsToMany(CategoryPersistence, {
-  through: productCategoryModelName,
+CartPersistence.belongsToMany(ProductPersistence, {
+  through: cartProductModelName,
+  foreignKey: 'cart_id',
+  otherKey: 'product_id',
+  as: productModelName.toLowerCase(),
+});
+
+ProductPersistence.belongsToMany(CartPersistence, {
+  through: cartProductModelName,
+  foreignKey: 'product_id',
+  otherKey: 'cart_id',
+  as: cartModelName.toLowerCase(),
+});
+
+ProductPersistence.belongsToMany(CartPersistence, {
+  through: cartProductModelName,
   foreignKey: 'product_id',
   otherKey: 'category_id',
   as: categoryModelName.toLowerCase(),

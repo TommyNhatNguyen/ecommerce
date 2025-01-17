@@ -1,0 +1,1 @@
+export const CART_PRODUCT_ERROR = new Error('Product is required');

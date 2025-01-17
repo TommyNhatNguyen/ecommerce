@@ -1,6 +1,6 @@
-import { DataTypes, Sequelize } from "sequelize";
-import { Model } from "sequelize";
-import { ModelStatus } from "src/share/models/base-model";
+import { DataTypes, Sequelize } from 'sequelize';
+import { Model } from 'sequelize';
+import { ModelStatus } from 'src/share/models/base-model';
 import { v7 as uuidv7 } from 'uuid';
 export class CartPersistence extends Model {
   declare id: string;
@@ -66,4 +66,71 @@ export const cartInit = (sequelize: Sequelize) => {
       modelName: cartModelName,
     }
   );
+};
+
+export class CartProductPersistence extends Model {
+  declare cart_id: string;
+  declare product_id: string;
+  declare quantity: number;
+  declare subtotal: number;
+  declare discount_amount: number;
+  declare total: number;
 }
+
+export const cartProductModelName = 'cart_product';
+
+export const cartProductInit = (sequelize: Sequelize) => {
+  CartProductPersistence.init(
+    {
+      cart_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      product_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
+      quantity: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      subtotal: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      discount_amount: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      total: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      status: {
+        type: DataTypes.ENUM(...Object.values(ModelStatus)),
+        allowNull: false,
+        defaultValue: ModelStatus.ACTIVE,
+      },
+      created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: new Date(),
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: new Date(),
+      },
+    },
+    {
+      sequelize,
+      tableName: cartProductModelName,
+      timestamps: false,
+      modelName: cartProductModelName,
+    }
+  );
+};

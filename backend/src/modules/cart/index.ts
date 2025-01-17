@@ -4,20 +4,49 @@ import { PostgresCartRepository } from 'src/modules/cart/infras/repo/postgres/ca
 import {
   cartInit,
   cartModelName,
+  cartProductInit,
+  cartProductModelName,
 } from 'src/modules/cart/infras/repo/postgres/cart.dto';
 import { CartUseCase } from 'src/modules/cart/usecase';
 import { CartHttpService } from 'src/modules/cart/infras/transport/cart.http-service';
+import { productModelName } from 'src/infras/repository/product/dto';
+import { PostgresProductRepository } from 'src/infras/repository/product/repo';
+import { ProductUseCase } from 'src/usecase/product';
+import cloudinary from 'src/share/cloudinary';
+import { CloudinaryImageRepository } from 'src/infras/repository/image/repo';
 
 export function setupCartRouter(sequelize: Sequelize) {
   cartInit(sequelize);
+  cartProductInit(sequelize);
   const router = Router();
   const cartRepository = new PostgresCartRepository(sequelize, cartModelName);
-  const cartUseCase = new CartUseCase(cartRepository);
+  const cartProductRepository = new PostgresCartRepository(
+    sequelize,
+    cartProductModelName
+  );
+  const productRepository = new PostgresProductRepository(
+    sequelize,
+    productModelName
+  );
+  const cloudinaryRepository = new CloudinaryImageRepository(cloudinary);
+  const productUseCase = new ProductUseCase(
+    productRepository,
+    cloudinaryRepository
+  );
+  const cartUseCase = new CartUseCase(
+    cartRepository,
+    cartProductRepository,
+    productUseCase
+  );
   const cartHttpService = new CartHttpService(cartUseCase);
   router.get('/cart/:id', cartHttpService.getById.bind(cartHttpService));
   router.get('/cart', cartHttpService.getList.bind(cartHttpService));
   // router.post('/cart', cartHttpService.create.bind(cartHttpService));
   router.put('/cart/:id', cartHttpService.update.bind(cartHttpService));
+  router.post(
+    '/cart/:id/products',
+    cartHttpService.addProductsToCart.bind(cartHttpService)
+  );
   // router.delete('/cart/:id', cartHttpService.delete.bind(cartHttpService));
   return router;
 }

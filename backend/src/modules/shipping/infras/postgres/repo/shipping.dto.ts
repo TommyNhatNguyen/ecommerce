@@ -15,11 +15,11 @@ export const shippingInit = (sequelize: Sequelize) => {
   ShippingPersistence.init(
     {
       id: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         primaryKey: true,
         unique: true,
         allowNull: false,
-        defaultValue: uuidv7(),
+        defaultValue: () => uuidv7(),
       },
       type: {
         type: DataTypes.STRING,
