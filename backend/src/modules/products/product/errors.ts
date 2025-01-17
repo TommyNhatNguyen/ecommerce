@@ -4,3 +4,4 @@ export class ProductNotFoundError extends Error {
     this.name = 'ProductNotFoundError';
   }
 }
+export const DISCOUNT_NOT_FOUND_ERROR = new Error('Discount not found');

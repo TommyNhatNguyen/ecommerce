@@ -14,7 +14,6 @@ export const ProductCreateDTOSchema = z.object({
     .default(() => uuidv7()),
   name: z.string(),
   price: z.number().nonnegative().min(0),
-  discountIds: z.array(z.string().uuid()).optional(),
   variantIds: z.array(z.string().uuid()).optional(),
   imageIds: z.array(z.string().uuid()).optional(),
   quantity: z.number().nonnegative().min(0).optional(),
@@ -23,11 +22,20 @@ export const ProductCreateDTOSchema = z.object({
   cost: z.number().nonnegative().min(0).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   categoryIds: z.array(z.string().uuid()).optional(),
+  discountIds: z.array(z.string().uuid()).optional(),
 });
 
 export const ProductCategoryCreateDTOSchema = z.object({
   product_id: z.string().uuid(),
   category_id: z.string().uuid(),
+});
+
+export const ProductDiscountCreateDTOSchema = z.object({
+  product_id: z.string().uuid(),
+  discount_id: z.string().uuid(),
+  discount_amount: z.number().nonnegative().min(0).optional(),
+  price_before_discount: z.number().nonnegative().min(0).optional(),
+  price_after_discount: z.number().nonnegative().min(0).optional(),
 });
 
 export const ProductUpdateDTOSchema = z.object({
@@ -113,4 +121,7 @@ export type ProductConditionDTOSchema = z.infer<
 export type ProductGetStatsDTO = z.infer<typeof ProductGetStatsDTOSchema>;
 export type ProductCategoryCreateDTO = z.infer<
   typeof ProductCategoryCreateDTOSchema
+>;
+export type ProductDiscountCreateDTO = z.infer<
+  typeof ProductDiscountCreateDTOSchema
 >;

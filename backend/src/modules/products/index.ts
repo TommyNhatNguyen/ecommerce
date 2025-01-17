@@ -7,6 +7,7 @@ import {
   initProductOrder,
   initProductVariant,
   productCategoryModelName,
+  productDiscountModelName,
   productModelName,
 } from 'src/modules/products/infras/repo/postgres/dto';
 import { Sequelize } from 'sequelize';
@@ -18,6 +19,8 @@ import cloudinary from 'src/share/cloudinary';
 import { inventoryModelName } from 'src/infras/repository/inventory/dto';
 import { PostgresInventoryRepository } from 'src/infras/repository/inventory/repo';
 import { InventoryUseCase } from 'src/usecase/inventory';
+import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/postgres/discount.repo';
+import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 
 export const setupProductRouter = (sequelize: Sequelize) => {
   init(sequelize);
@@ -31,6 +34,14 @@ export const setupProductRouter = (sequelize: Sequelize) => {
     sequelize,
     productCategoryModelName
   );
+  const productDiscountRepository = new PostgresProductRepository(
+    sequelize,
+    productDiscountModelName
+  );
+  const discountRepository = new PostgresDiscountRepository(
+    sequelize,
+    discountModelName
+  );
   const inventoryRepository = new PostgresInventoryRepository(
     sequelize,
     inventoryModelName
@@ -39,7 +50,9 @@ export const setupProductRouter = (sequelize: Sequelize) => {
   const useCase = new ProductUseCase(
     repository,
     cloudinaryRepository,
-    productCategoryRepository
+    productCategoryRepository,
+    productDiscountRepository,
+    discountRepository
   );
   const inventoryUseCase = new InventoryUseCase(inventoryRepository);
   const httpService = new ProductHttpService(useCase, inventoryUseCase);

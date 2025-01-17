@@ -2,6 +2,7 @@ import {
   ProductCategoryCreateDTO,
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
+  ProductDiscountCreateDTO,
   ProductGetStatsDTO,
   ProductUpdateDTOSchema,
 } from './product.dto';
@@ -30,6 +31,7 @@ export interface IProductRepository
   countTotalProduct(): Promise<number>;
   getTotalInventoryByGroup(condition?: ProductGetStatsDTO): Promise<any>;
   addCategories(data: ProductCategoryCreateDTO[]): Promise<boolean>;
+  addDiscounts(data: ProductDiscountCreateDTO[]): Promise<boolean>;
 }
 
 export interface IQueryRepository {

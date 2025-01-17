@@ -36,7 +36,7 @@ import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/pos
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { DiscountUseCase } from 'src/modules/discount/usecase';
 import { PostgresProductRepository } from 'src/modules/products/infras/repo/postgres/repo';
-import { productCategoryModelName, productModelName } from 'src/modules/products/infras/repo/postgres/dto';
+import { productCategoryModelName, productDiscountModelName, productModelName } from 'src/modules/products/infras/repo/postgres/dto';
 import { ProductUseCase } from 'src/modules/products/usecase';
 import { CloudinaryImageRepository } from 'src/infras/repository/image/repo';
 import cloudinary from 'src/share/cloudinary';
@@ -93,10 +93,15 @@ export function setupOrderDetailRouter(sequelize: Sequelize) {
     sequelize,
     productCategoryModelName
   );
+  const productDiscountRepository = new PostgresProductRepository(
+    sequelize,
+    productDiscountModelName
+  );
   const productUseCase = new ProductUseCase(
     productRepository,
     cloudinaryRepository,
-    productCategoryRepository
+    productCategoryRepository,
+    productDiscountRepository
   );
   const customerUseCase = new CustomerUseCase(
     customerRepository,

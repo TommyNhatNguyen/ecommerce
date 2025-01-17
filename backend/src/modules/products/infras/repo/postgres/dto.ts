@@ -108,28 +108,6 @@ export function initProductDiscount(sequelize: Sequelize) {
     {
       product_id: { type: DataTypes.STRING, allowNull: false },
       discount_id: { type: DataTypes.STRING, allowNull: false },
-      discount_amount: {
-        type: DataTypes.FLOAT,
-        allowNull: true,
-        defaultValue: 0,
-      },
-      discount_name: {
-        type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: '',
-      },
-      discount_start_date: {
-        type: DataTypes.DATE,
-        allowNull: true,
-        defaultValue: null,
-      },
-      discount_end_date: {
-        type: DataTypes.DATE,
-        allowNull: true,
-        defaultValue: null,
-      },
-      product_name: { type: DataTypes.STRING, allowNull: false },
-      price_before_discount: { type: DataTypes.FLOAT, allowNull: false },
       price_after_discount: {
         type: DataTypes.FLOAT,
         allowNull: true,

@@ -9,7 +9,7 @@ import {
 } from 'src/modules/cart/infras/repo/postgres/cart.dto';
 import { CartUseCase } from 'src/modules/cart/usecase';
 import { CartHttpService } from 'src/modules/cart/infras/transport/cart.http-service';
-import { productCategoryModelName, productModelName } from 'src/modules/products/infras/repo/postgres/dto';
+import { productCategoryModelName, productDiscountModelName, productModelName } from 'src/modules/products/infras/repo/postgres/dto';
 import { PostgresProductRepository } from 'src/modules/products/infras/repo/postgres/repo';
 import { ProductUseCase } from 'src/modules/products/usecase';
 import cloudinary from 'src/share/cloudinary';
@@ -33,10 +33,15 @@ export function setupCartRouter(sequelize: Sequelize) {
     sequelize,
     productCategoryModelName
   );
+  const productDiscountRepository = new PostgresProductRepository(
+    sequelize,
+    productDiscountModelName
+  );
   const productUseCase = new ProductUseCase(
     productRepository,
     cloudinaryRepository,
-    productCategoryRepository
+    productCategoryRepository,
+    productDiscountRepository
   );
   const cartUseCase = new CartUseCase(
     cartRepository,

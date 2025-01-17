@@ -17,12 +17,16 @@ import {
   ModelStatus,
 } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
+import { IDiscountRepository } from 'src/modules/discount/models/discount.interface';
+import { DISCOUNT_NOT_FOUND_ERROR } from 'src/modules/products/product/errors';
 
 export class ProductUseCase implements IProductUseCase {
   constructor(
     private readonly repository: IProductRepository,
     private readonly cloudinaryImageRepository: IImageCloudinaryRepository,
-    private readonly productCategoryRepository: IProductRepository
+    private readonly productCategoryRepository: IProductRepository,
+    private readonly productDiscountRepository: IProductRepository,
+    private readonly discountRepository?: IDiscountRepository
   ) {}
   async getTotalInventoryByGroup(condition?: ProductGetStatsDTO): Promise<any> {
     return await this.repository.getTotalInventoryByGroup(condition);
@@ -83,14 +87,39 @@ export class ProductUseCase implements IProductUseCase {
   ): Promise<Product | null> {
     return await this.repository.get(id, condition);
   }
-
   async createNewProduct(data: ProductCreateDTOSchema): Promise<Product> {
     const product = await this.repository.insert(data);
+    // --- CATEGORY ---
     if (data.categoryIds) {
       await this.productCategoryRepository.addCategories(
         data.categoryIds.map((id) => ({
           product_id: product.id,
           category_id: id,
+        }))
+      );
+    }
+    // --- DISCOUNT ---
+    if (data.discountIds) {
+      const discounts = await this.discountRepository?.list(
+        {
+          page: 1,
+          limit: data.discountIds.length,
+        },
+        {
+          ids: data.discountIds,
+        }
+      );
+      if (!discounts || discounts.data.length !== data.discountIds.length) {
+        throw DISCOUNT_NOT_FOUND_ERROR;
+      }
+      await this.productDiscountRepository.addDiscounts(
+        data.discountIds.map((id) => ({
+          product_id: product.id,
+          discount_id: id,
+          price_after_discount:
+            product.price -
+            (discounts.data.find((discount) => discount.id === id)?.amount ||
+              0),
         }))
       );
     }

@@ -1,4 +1,3 @@
-
 import { PagingDTO } from 'src/share/models/paging';
 import { Sequelize, Op, Model } from 'sequelize';
 import {
@@ -34,7 +33,15 @@ import {
   ReviewPersistence,
 } from 'src/infras/repository/review/dto';
 import sequelize from 'sequelize';
-import { ProductCategoryCreateDTO, ProductConditionDTOSchema, ProductCreateDTOSchema, ProductStatsSortBy, ProductStatsType, ProductUpdateDTOSchema } from 'src/modules/products/product/product.dto';
+import {
+  ProductCategoryCreateDTO,
+  ProductConditionDTOSchema,
+  ProductCreateDTOSchema,
+  ProductDiscountCreateDTO,
+  ProductStatsSortBy,
+  ProductStatsType,
+  ProductUpdateDTOSchema,
+} from 'src/modules/products/product/product.dto';
 import { IProductRepository } from 'src/modules/products/product/product.interface';
 import { ProductGetStatsDTO } from 'src/modules/products/product/product.dto';
 import { Product } from 'src/modules/products/product/product.model';
@@ -45,6 +52,10 @@ export class PostgresProductRepository implements IProductRepository {
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+  async addDiscounts(data: ProductDiscountCreateDTO[]): Promise<boolean> {
+    await this.sequelize.models[this.modelName].bulkCreate(data);
+    return true;
+  }
   async addCategories(data: ProductCategoryCreateDTO[]): Promise<boolean> {
     await this.sequelize.models[this.modelName].bulkCreate(data);
     return true;
@@ -241,7 +252,9 @@ export class PostgresProductRepository implements IProductRepository {
         model: DiscountPersistence,
         as: discountModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
-        through: { attributes: [] },
+        through: {
+          attributes: ['price_after_discount'],
+        },
       });
     }
     if (condition.includeCategory) {
@@ -301,13 +314,7 @@ export class PostgresProductRepository implements IProductRepository {
   }
 
   async insert(data: ProductCreateDTOSchema): Promise<Product> {
-    const {
-      discountIds,
-      variantIds,
-      imageIds,
-      quantity,
-      ...rest
-    } = data;
+    const { variantIds, imageIds, quantity, ...rest } = data;
     const payload = { ...rest };
     const result = await this.sequelize.models[this.modelName].create(payload, {
       returning: true,
@@ -323,9 +330,6 @@ export class PostgresProductRepository implements IProductRepository {
         },
       ],
     });
-    if (discountIds) {
-      await createdProduct.setDiscount(discountIds);
-    }
     if (variantIds) {
       await createdProduct.setVariant(variantIds);
     }
