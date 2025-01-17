@@ -2,12 +2,12 @@ import {
   VariantCreateDTO,
   VariantUpdateDTO,
   VariantConditionDTO,
-} from '@models/variant/variant.dto';
+} from 'src/modules/variant/models/variant.dto';
 import {
   IVariantRepository,
   IVariantUseCase,
-} from '@models/variant/variant.interface';
-import { Variant } from '@models/variant/variant.model';
+} from 'src/modules/variant/models/variant.interface';
+import { Variant } from 'src/modules/variant/models/variant.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 

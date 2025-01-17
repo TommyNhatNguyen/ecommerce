@@ -18,11 +18,10 @@ import {
   productVariantModelName,
 } from 'src/modules/products/infras/repo/postgres/dto';
 import { setupDiscountRouter } from 'src/modules/discount';
-import { setupVariantRouter } from 'src/routers/variant';
 import {
   variantModelName,
   VariantPersistence,
-} from 'src/infras/repository/variant/dto';
+} from 'src/modules/variant/infras/repo/postgres/dto';
 import { setupImageRouter } from 'src/routers/image';
 import {
   imageModelName,
@@ -91,6 +90,7 @@ import {
   shippingModelName,
   ShippingPersistence,
 } from 'src/modules/shipping/infras/postgres/repo/shipping.dto';
+import { setupVariantRouter } from 'src/modules/variant';
 config();
 
 (async () => {

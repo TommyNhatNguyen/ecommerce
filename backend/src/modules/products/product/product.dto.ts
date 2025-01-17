@@ -14,7 +14,6 @@ export const ProductCreateDTOSchema = z.object({
     .default(() => uuidv7()),
   name: z.string(),
   price: z.number().nonnegative().min(0),
-  variantIds: z.array(z.string().uuid()).optional(),
   quantity: z.number().nonnegative().min(0).optional(),
   low_stock_threshold: z.number().nonnegative().min(0).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
@@ -23,6 +22,7 @@ export const ProductCreateDTOSchema = z.object({
   categoryIds: z.array(z.string().uuid()).optional(),
   discountIds: z.array(z.string().uuid()).optional(),
   imageIds: z.array(z.string().uuid()).optional(),
+  variantIds: z.array(z.string().uuid()).optional(),
 });
 
 export const ProductCategoryCreateDTOSchema = z.object({
@@ -36,6 +36,11 @@ export const ProductDiscountCreateDTOSchema = z.object({
   discount_amount: z.number().nonnegative().min(0).optional(),
   price_before_discount: z.number().nonnegative().min(0).optional(),
   price_after_discount: z.number().nonnegative().min(0).optional(),
+});
+
+export const ProductVariantCreateDTOSchema = z.object({
+  product_id: z.string().uuid(),
+  variant_id: z.string().uuid(),
 });
 
 export const ProductImageCreateDTOSchema = z.object({
@@ -132,4 +137,7 @@ export type ProductDiscountCreateDTO = z.infer<
 >;
 export type ProductImageCreateDTO = z.infer<
   typeof ProductImageCreateDTOSchema
+>;
+export type ProductVariantCreateDTO = z.infer<
+  typeof ProductVariantCreateDTOSchema
 >;

@@ -58,8 +58,8 @@ export class ProductCategoryPersistence extends Model {
 export function initProductCategory(sequelize: Sequelize) {
   ProductCategoryPersistence.init(
     {
-      product_id: { type: DataTypes.STRING, allowNull: false },
-      category_id: { type: DataTypes.STRING, allowNull: false },
+      product_id: { type: DataTypes.UUID, allowNull: false },
+      category_id: { type: DataTypes.UUID, allowNull: false },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
         allowNull: false,
@@ -106,8 +106,8 @@ export class ProductDiscountPersistence extends Model {
 export function initProductDiscount(sequelize: Sequelize) {
   ProductDiscountPersistence.init(
     {
-      product_id: { type: DataTypes.STRING, allowNull: false },
-      discount_id: { type: DataTypes.STRING, allowNull: false },
+      product_id: { type: DataTypes.UUID, allowNull: false },
+      discount_id: { type: DataTypes.UUID, allowNull: false },
       price_after_discount: {
         type: DataTypes.FLOAT,
         allowNull: true,
@@ -152,8 +152,8 @@ export class ProductVariantPersistence extends Model {
 export function initProductVariant(sequelize: Sequelize) {
   ProductVariantPersistence.init(
     {
-      product_id: { type: DataTypes.STRING, allowNull: false },
-      variant_id: { type: DataTypes.STRING, allowNull: false },
+      product_id: { type: DataTypes.UUID, allowNull: false },
+      variant_id: { type: DataTypes.UUID, allowNull: false },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
         allowNull: false,
@@ -193,8 +193,8 @@ export class ProductImagePersistence extends Model {
 export function initProductImage(sequelize: Sequelize) {
   ProductImagePersistence.init(
     {
-      product_id: { type: DataTypes.STRING, allowNull: false },
-      image_id: { type: DataTypes.STRING, allowNull: false },
+      product_id: { type: DataTypes.UUID, allowNull: false },
+      image_id: { type: DataTypes.UUID, allowNull: false },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
         allowNull: false,

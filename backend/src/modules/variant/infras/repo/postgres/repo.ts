@@ -2,9 +2,9 @@ import {
   VariantConditionDTO,
   VariantCreateDTO,
   VariantUpdateDTO,
-} from '@models/variant/variant.dto';
-import { IVariantRepository } from '@models/variant/variant.interface';
-import { Variant } from '@models/variant/variant.model';
+} from 'src/modules/variant/models/variant.dto';
+import { IVariantRepository } from 'src/modules/variant/models/variant.interface';
+import { Variant } from 'src/modules/variant/models/variant.model';
 import { Sequelize } from 'sequelize';
 import {
   BaseSortBy,

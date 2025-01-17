@@ -19,7 +19,7 @@ import {
 import {
   variantModelName,
   VariantPersistence,
-} from 'src/infras/repository/variant/dto';
+} from 'src/modules/variant/infras/repo/postgres/dto';
 import {
   imageModelName,
   ImagePersistence,
@@ -42,17 +42,26 @@ import {
   ProductStatsSortBy,
   ProductStatsType,
   ProductUpdateDTOSchema,
+  ProductVariantCreateDTO,
 } from 'src/modules/products/product/product.dto';
 import { IProductRepository } from 'src/modules/products/product/product.interface';
 import { ProductGetStatsDTO } from 'src/modules/products/product/product.dto';
 import { Product } from 'src/modules/products/product/product.model';
 import { productModelName } from 'src/modules/products/infras/repo/postgres/dto';
+import { customerModelName } from 'src/modules/customer/infras/repo/postgres/customer.dto';
+import { CustomerPersistence } from 'src/modules/customer/infras/repo/postgres/customer.dto';
 
 export class PostgresProductRepository implements IProductRepository {
   constructor(
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+  async addVariants(data: ProductVariantCreateDTO[]): Promise<boolean> {
+    console.log(data);
+    console.log(this.sequelize.models[this.modelName]);
+    await this.sequelize.models[this.modelName].bulkCreate(data);
+    return true;
+  }
   async addImages(data: ProductImageCreateDTO[]): Promise<boolean> {
     await this.sequelize.models[this.modelName].bulkCreate(data);
     return true;
@@ -290,7 +299,16 @@ export class PostgresProductRepository implements IProductRepository {
       include.push({
         model: ReviewPersistence,
         as: reviewModelName,
-        attributes: { exclude: [...EXCLUDE_ATTRIBUTES, 'product_id', 'id'] },
+        attributes: {
+          exclude: [...EXCLUDE_ATTRIBUTES, 'product_id', 'customer_id'],
+        },
+        include: [
+          {
+            model: CustomerPersistence,
+            as: customerModelName,
+            attributes: ['id', 'last_name', 'first_name', 'phone'],
+          },
+        ],
       });
     }
 
@@ -319,25 +337,11 @@ export class PostgresProductRepository implements IProductRepository {
   }
 
   async insert(data: ProductCreateDTOSchema): Promise<Product> {
-    const { variantIds, quantity, ...rest } = data;
+    const { quantity, ...rest } = data;
     const payload = { ...rest };
     const result = await this.sequelize.models[this.modelName].create(payload, {
       returning: true,
     });
-    const createdProduct: any = await this.sequelize.models[
-      productModelName
-    ].findByPk(rest.id, {
-      include: [
-        {
-          model: InventoryPersistence,
-          as: inventoryModelName,
-          attributes: { exclude: EXCLUDE_ATTRIBUTES },
-        },
-      ],
-    });
-    if (variantIds) {
-      await createdProduct.setVariant(variantIds);
-    }
     return result.dataValues as Product;
   }
 

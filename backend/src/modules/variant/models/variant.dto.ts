@@ -3,6 +3,7 @@ import z from "zod";
 import { v7 as uuidv7 } from 'uuid';
 export const VariantConditionDTOSchema = z.object({
   name: z.string().optional(),
+  value: z.string().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
@@ -11,13 +12,14 @@ export const VariantConditionDTOSchema = z.object({
 })
 
 export const VariantCreateDTOSchema = z.object({
-  id: z.string().uuid().default(() => uuidv7()),
   name: z.string(),
+  value: z.string(),
 })
 
 export const VariantUpdateDTOSchema = z.object({
-  name: z.string(),
-  status: z.nativeEnum(ModelStatus),
+  name: z.string().optional(),
+  value: z.string().optional(),
+  status: z.nativeEnum(ModelStatus).optional(),
 })
 
 export type VariantConditionDTO = z.infer<typeof VariantConditionDTOSchema>;

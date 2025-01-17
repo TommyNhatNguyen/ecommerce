@@ -6,6 +6,7 @@ import {
   ProductGetStatsDTO,
   ProductImageCreateDTO,
   ProductUpdateDTOSchema,
+  ProductVariantCreateDTO,
 } from './product.dto';
 import { Product } from './product.model';
 import { ListResponse } from 'src/share/models/base-model';
@@ -34,6 +35,7 @@ export interface IProductRepository
   addCategories(data: ProductCategoryCreateDTO[]): Promise<boolean>;
   addDiscounts(data: ProductDiscountCreateDTO[]): Promise<boolean>;
   addImages(data: ProductImageCreateDTO[]): Promise<boolean>;
+  addVariants(data: ProductVariantCreateDTO[]): Promise<boolean>;
 }
 
 export interface IQueryRepository {

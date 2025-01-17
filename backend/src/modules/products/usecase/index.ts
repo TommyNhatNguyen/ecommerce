@@ -26,6 +26,7 @@ export class ProductUseCase implements IProductUseCase {
     private readonly cloudinaryImageRepository: IImageCloudinaryRepository,
     private readonly productCategoryRepository: IProductRepository,
     private readonly productDiscountRepository: IProductRepository,
+    private readonly productVariantRepository?: IProductRepository,
     private readonly discountRepository?: IDiscountRepository,
     private readonly imageRepository?: IProductRepository
   ) {}
@@ -133,8 +134,15 @@ export class ProductUseCase implements IProductUseCase {
         }))
       );
     }
-    // --- REVIEW --- 
-    
+    // --- VARIANTS --- 
+    if (data.variantIds && this.productVariantRepository) {
+      await this.productVariantRepository.addVariants(
+        data.variantIds.map((id) => ({
+          product_id: product.id,
+          variant_id: id,
+        }))
+      );
+    }
     return product;
   }
 }

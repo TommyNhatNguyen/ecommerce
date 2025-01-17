@@ -1,10 +1,7 @@
 import { Request, Response } from 'express';
-import { IVariantUseCase } from '@models/variant/variant.interface';
-import {
-  VariantConditionDTOSchema,
-  VariantCreateDTOSchema,
-  VariantUpdateDTOSchema,
-} from '@models/variant/variant.dto';
+import { VariantCreateDTOSchema, VariantUpdateDTOSchema } from 'src/modules/variant/models/variant.dto';
+import { VariantConditionDTOSchema } from 'src/modules/variant/models/variant.dto';
+import { IVariantUseCase } from 'src/modules/variant/models/variant.interface';
 import { PagingDTOSchema } from 'src/share/models/paging';
 
 export class VariantHttpService {
