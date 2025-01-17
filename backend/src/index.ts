@@ -14,7 +14,6 @@ import {
   productDiscountModelName,
   productImageModelName,
   productModelName,
-  productOrderModelName,
   ProductPersistence,
   productVariantModelName,
 } from 'src/modules/products/infras/repo/postgres/dto';

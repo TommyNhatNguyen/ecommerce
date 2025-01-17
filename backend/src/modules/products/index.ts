@@ -4,7 +4,6 @@ import {
   initProductCategory,
   initProductDiscount,
   initProductImage,
-  initProductOrder,
   initProductVariant,
   productCategoryModelName,
   productDiscountModelName,
@@ -28,7 +27,6 @@ export const setupProductRouter = (sequelize: Sequelize) => {
   initProductDiscount(sequelize);
   initProductVariant(sequelize);
   initProductImage(sequelize);
-  initProductOrder(sequelize);
   const repository = new PostgresProductRepository(sequelize, productModelName);
   const productCategoryRepository = new PostgresProductRepository(
     sequelize,
