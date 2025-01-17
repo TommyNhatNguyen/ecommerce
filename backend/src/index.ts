@@ -38,8 +38,8 @@ import { ReviewPersistence } from 'src/infras/repository/review/dto';
 import {
   orderModelName,
   OrderPersistence,
-} from 'src/infras/repository/order/dto';
-import { setupOrderRouter } from 'src/routers/order';
+} from 'src/modules/order/infras/repo/postgres/dto';
+import { setupOrderRouter } from 'src/modules/order';
 import { setupCustomerRouter } from 'src/modules/customer';
 import { setupShippingRouter } from 'src/modules/shipping';
 import { setupUserRouter } from 'src/routers/user';
@@ -98,7 +98,7 @@ config();
     // await sequelize.drop();
     await sequelize.authenticate();
     console.log('Connection has been established successfully.');
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ alter: true });
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }

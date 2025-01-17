@@ -2,8 +2,8 @@ import {
   OrderConditionDTOSchema,
   OrderCreateDTOSchema,
   OrderUpdateDTOSchema,
-} from '@models/order/order.dto';
-import { IOrderUseCase } from '@models/order/order.interface';
+} from 'src/modules/order/models/order.dto';
+import { IOrderUseCase } from 'src/modules/order/models/order.interface';
 import { Request, Response } from 'express';
 import { PagingDTOSchema } from 'src/share/models/paging';
 
@@ -73,7 +73,7 @@ export class OrderHttpService {
   }
 
   async create(req: Request, res: Response) {
-    const { success, data, error } = OrderCreateDTOSchema.safeParse(req.body);
+    const { success, data, error } = OrderCreateDTOSchema.omit({order_detail_id: true}).safeParse(req.body);
     if (!success) {
       res.status(400).json({ success: false, message: error.message });
       return;
@@ -88,6 +88,7 @@ export class OrderHttpService {
       }
       res.status(200).json({ success: true, data: order });
     } catch (error) {
+      console.log(error);
       res
         .status(500)
         .json({ success: false, message: 'Internal server error' });

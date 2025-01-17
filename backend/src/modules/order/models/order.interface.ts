@@ -1,9 +1,7 @@
-import {
-  OrderConditionDTO,
-  OrderCreateDTO,
-  OrderUpdateDTO,
-} from '@models/order/order.dto';
-import { Order } from '@models/order/order.model';
+
+import { OrderConditionDTO, OrderUpdateDTO } from 'src/modules/order/models/order.dto';
+import { OrderCreateDTO } from 'src/modules/order/models/order.dto';
+import { Order } from 'src/modules/order/models/order.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
@@ -14,7 +12,7 @@ export interface IOrderUseCase {
     condition: OrderConditionDTO
   ): Promise<ListResponse<Order[]>>;
   create(
-    data: Omit<OrderCreateDTO, 'total_price' | 'customer_id'>
+    data: Omit<OrderCreateDTO, 'total_price' | 'customer_id' | 'order_detail_id'>
   ): Promise<Order>;
   update(id: string, data: OrderUpdateDTO): Promise<Order>;
   delete(id: string): Promise<boolean>;
@@ -33,7 +31,7 @@ export interface IQueryRepository {
 }
 
 export interface ICommandRepository {
-  create(data: OrderCreateDTO): Promise<Order>;
+  create(data:Omit<OrderCreateDTO, 'order_detail_info'>): Promise<Order>;
   update(id: string, data: OrderUpdateDTO): Promise<Order>;
   delete(id: string): Promise<boolean>;
 }

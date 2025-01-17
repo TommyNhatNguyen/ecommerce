@@ -1,3 +1,4 @@
+import { OrderDetailCreateDTOSchema } from 'src/modules/order_detail/models/order_detail.dto';
 import { ModelStatus, OrderState } from 'src/share/models/base-model';
 import z from 'zod';
 
@@ -5,6 +6,7 @@ export const OrderCreateDTOSchema = z.object({
   order_detail_id: z.string().uuid(),
   description: z.string().optional(),
   order_state: z.nativeEnum(OrderState).default(OrderState.PENDING).optional(),
+  order_detail_info: z.object(OrderDetailCreateDTOSchema.shape),
 });
 
 export const OrderUpdateDTOSchema = z.object({

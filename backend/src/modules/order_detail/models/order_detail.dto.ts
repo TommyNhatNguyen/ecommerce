@@ -4,14 +4,14 @@ import { NumberType } from 'src/share/models/base-model';
 import z from 'zod';
 
 export const OrderDetailCreateDTOSchema = z.object({
-  subtotal: z.number(),
+  subtotal: z.number().default(0),
   total_shipping_fee: z.number().default(0),
   total_payment_fee: z.number().default(0),
   total_costs: z.number().default(0),
   total_discount: z.number().default(0),
   total: z.number().default(0),
   shipping_method_id: z.string().uuid(),
-  payment_id: z.string().uuid(),
+  payment_id: z.string().uuid().optional(),
   payment_info: z.object({
     payment_method_id: z.string().uuid(),
     paid_amount: z.number(),

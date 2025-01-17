@@ -201,6 +201,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         order_detail_id: orderDetail.id,
       }))
     );
+    console.log(orderDetail);
     return orderDetail;
   }
   async update(id: string, data: OrderDetailUpdateDTO): Promise<OrderDetail> {

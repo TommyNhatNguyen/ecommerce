@@ -1,13 +1,13 @@
-import { IOrderRepository } from '@models/order/order.interface';
+import { IOrderRepository } from 'src/modules/order/models/order.interface';
 import {
   OrderConditionDTO,
   OrderCreateDTO,
   OrderUpdateDTO,
-} from '@models/order/order.dto';
+} from 'src/modules/order/models/order.dto';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { Sequelize } from 'sequelize';
-import { Order } from '@models/order/order.model';
+import { Order } from 'src/modules/order/models/order.model';
 export class PostgresOrderRepository implements IOrderRepository {
   constructor(
     private readonly sequelize: Sequelize,
