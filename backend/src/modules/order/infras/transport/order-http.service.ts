@@ -65,6 +65,7 @@ export class OrderHttpService {
       }
       res.status(200).json({ success: true, ...orders });
     } catch (error) {
+      console.log(error);
       res
         .status(500)
         .json({ success: false, message: 'Internal server error' });

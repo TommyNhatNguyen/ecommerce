@@ -1,3 +1,4 @@
+import { DiscountScope, DiscountType } from "@/app/shared/interfaces/discounts/discounts.dto";
 import { CategoryModel } from "@/app/shared/models/categories/categories.model";
 import { StockStatus } from "@/app/shared/models/inventories/stock-status";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
@@ -20,8 +21,9 @@ export type ProductModel = {
   discount?: {
     id?: string;
     name?: string;
-    type?: string;
-    discount_percentage?: number;
+    type?: DiscountType;
+    scope?: DiscountScope;
+    amount?: number;
     description?: string;
     end_date?: string;
     start_date?: string;

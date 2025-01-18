@@ -57,8 +57,6 @@ export class PostgresProductRepository implements IProductRepository {
     private readonly modelName: string
   ) {}
   async addVariants(data: ProductVariantCreateDTO[]): Promise<boolean> {
-    console.log(data);
-    console.log(this.sequelize.models[this.modelName]);
     await this.sequelize.models[this.modelName].bulkCreate(data);
     return true;
   }
@@ -95,7 +93,6 @@ export class PostgresProductRepository implements IProductRepository {
       });
     }
     if (condition?.groupBy === ProductStatsType.DISCOUNT) {
-      group.push('discount.name');
       attributes.push([sequelize.col('discount.name'), 'name']);
       include.push({
         model: DiscountPersistence,
@@ -128,7 +125,6 @@ export class PostgresProductRepository implements IProductRepository {
       raw: true,
       include: include,
     });
-    console.log(data);
     return data;
   }
   async countTotalProduct(): Promise<number> {
@@ -204,7 +200,7 @@ export class PostgresProductRepository implements IProductRepository {
     let sortBy: any =
       (condition?.sortBy != ProductStatsSortBy.INVENTORY_QUANTITY &&
         condition?.sortBy != ProductStatsSortBy.INVENTORY_VALUE &&
-        condition?.sortBy != ProductStatsSortBy.DISCOUNT_PERCENTAGE &&
+        condition?.sortBy != ProductStatsSortBy.DISCOUNT_AMOUNT &&
         condition?.sortBy) ||
       BaseSortBy.CREATED_AT;
     let customOrder: any = '';
@@ -214,7 +210,7 @@ export class PostgresProductRepository implements IProductRepository {
       condition?.sortBy.split('_')[1],
     ];
     const discountSortBy = condition?.sortBy ==
-      ProductStatsSortBy.DISCOUNT_PERCENTAGE && [
+      ProductStatsSortBy.DISCOUNT_AMOUNT && [
       { model: DiscountPersistence, as: discountModelName },
       condition?.sortBy,
     ];

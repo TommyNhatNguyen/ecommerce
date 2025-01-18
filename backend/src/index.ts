@@ -133,14 +133,14 @@ app.use('/v1', setupCostRouter(sequelize));
 app.use('/v1', setupPaymentMethodRouter(sequelize));
 
 PaymentMethodPersistence.hasOne(PaymentPersistence, {
-  foreignKey: 'payment_method_id',
-  as: paymentMethodModelName.toLowerCase(),
-});
-
-PaymentPersistence.belongsTo(PaymentMethodPersistence, {
   foreignKey: 'id',
   as: paymentModelName.toLowerCase(),
 });
+
+PaymentPersistence.belongsTo(PaymentMethodPersistence, {
+  foreignKey: 'payment_method_id',
+  as: paymentMethodModelName.toLowerCase(),
+})
 
 OrderDetailPersistence.hasOne(OrderPersistence, {
   foreignKey: 'order_detail_id',

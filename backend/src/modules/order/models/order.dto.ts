@@ -21,6 +21,36 @@ export const OrderConditionDTOSchema = z.object({
   status: z.nativeEnum(ModelStatus).optional(),
   created_at: z.string().datetime().optional(),
   updated_at: z.string().datetime().optional(),
+  includeOrderDetail: z
+    .boolean()
+    .or(z.string().refine((value) => value === 'true' || value === 'false'))
+    .transform((value) => value === 'true')
+    .optional(),
+  includeDiscount: z
+    .boolean()
+    .or(z.string().refine((value) => value === 'true' || value === 'false'))
+    .transform((value) => value === 'true')
+    .optional(),
+  includeCost: z
+    .boolean()
+    .or(z.string().refine((value) => value === 'true' || value === 'false'))
+    .transform((value) => value === 'true')
+    .optional(),
+  includeProducts: z
+    .boolean()
+    .or(z.string().refine((value) => value === 'true' || value === 'false'))
+    .transform((value) => value === 'true')
+    .optional(),
+  includeShipping: z
+    .boolean()
+    .or(z.string().refine((value) => value === 'true' || value === 'false'))
+    .transform((value) => value === 'true')
+    .optional(),
+  includePayment: z
+    .boolean()
+    .or(z.string().refine((value) => value === 'true' || value === 'false'))
+    .transform((value) => value === 'true')
+    .optional(),
 });
 
 export type OrderCreateDTO = z.infer<typeof OrderCreateDTOSchema>;

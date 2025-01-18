@@ -27,10 +27,12 @@ import {
   TableProps,
   Tooltip,
 } from "antd";
-import { Trash2Icon } from "lucide-react";
+import { ChevronDown, Trash2Icon } from "lucide-react";
 import { formatDate } from "date-fns";
 import React, { useState } from "react";
 import OrderDetailModal from "@/app/shared/components/GeneralModal/components/OrderDetailModal";
+import { DISCOUNT_TYPE } from "@/app/constants/enum";
+import { CostModel } from "@/app/shared/models/cost/cost.model";
 
 type OrderTablePropsType = {
   handleChangeOrderState: (order_id: string, order_state: OrderState) => void;
@@ -56,30 +58,49 @@ export type OrderTableDataType = {
   key: string;
   id: string;
   order_state: string;
+  description: string;
+  cost: CostModel[];
   customer_name: string;
-  shipping_address: string;
-  shipping_phone: string;
-  shipping_method: string;
-  payment_method: string;
-  total_price: number;
-  total_discount: number;
+  customer_phone: string;
+  customer_email: string;
+  customer_address: string;
+  subtotal: number;
   total_shipping_fee: number;
   total_payment_fee: number;
+  total_costs: number;
+  total_discount: number;
   total: number;
+  discount: DiscountModel[];
+  product_discount: DiscountModel[];
+  shipping: {
+    type: string;
+    cost: number;
+  };
+  payment: {
+    type: string;
+    cost: number;
+  };
+  payment_info: {
+    paid_amount: number;
+    paid_all_date: string | null;
+  };
   created_at: string;
   status: string;
 };
 export type ProductTableDataType = {
   key: string;
   id: string;
-  images: ImageModel[];
+  order_id: string;
+  image: ImageModel[];
   name: string;
-  price: number;
-  quantity: number;
-  subtotal: number;
-  discount: number;
-  total: number;
-  discounts_list: DiscountModel[];
+  discount: DiscountModel[];
+  product_details: {
+    quantity: number;
+    price: number;
+    subtotal: number;
+    discount_amount: number;
+    total: number;
+  };
 };
 type OnChange = NonNullable<TableProps<OrderTableDataType>["onChange"]>;
 type Filters = Parameters<OnChange>[1];
@@ -113,6 +134,12 @@ const OrderTable = ({
       orderService.getList({
         page: orderPage,
         limit: orderLimit,
+        includeOrderDetail: true,
+        includeDiscount: true,
+        includeCost: true,
+        includeProducts: true,
+        includeShipping: true,
+        includePayment: true,
       }),
   });
   const { meta, data: ordersData } = ordersDataResponse || {};
@@ -157,77 +184,62 @@ const OrderTable = ({
   ) => {
     handleChangeOrderStatus(order_id, order_status);
   };
-  const orderDataSource = ordersData?.map((order) => ({
-    key: order.id,
-    id: order.id,
-    order_state: order.order_state,
-    customer_name: order.customer_name,
-    shipping_address: order.shipping_address,
-    shipping_phone: order.shipping_phone,
-    shipping_method: order.shipping.type,
-    payment_method: order.payment.type,
-    total_price: order.total_price,
-    total_discount: order.product.reduce(
-      (acc, product) =>
-        acc +
-        ((product.discount?.reduce(
-          (discountAcc, discount) =>
-            discountAcc + (discount.discount_percentage || 0),
-          0,
-        ) || 0) /
-          100) *
-          product.order_detail.subtotal,
-      0,
-    ),
-    total_shipping_fee: order.shipping.cost,
-    total_payment_fee: order.payment.fee,
-    total:
-      order.total_price -
-      order.product.reduce(
-        (acc, product) =>
-          acc +
-          ((product.discount?.reduce(
-            (discountAcc, discount) =>
-              discountAcc + (discount.discount_percentage || 0),
-            0,
-          ) || 0) /
-            100) *
-            product.order_detail.subtotal,
-        0,
-      ) -
-      order.shipping.cost -
-      order.payment.fee,
-    created_at: order.created_at,
-    status: order.status,
-  }));
-  const productDataSource =
-    ordersData?.flatMap((order) =>
-      order.product.map((product) => ({
-        key: product.id,
-        order_id: order.id,
-        id: product.id,
-        images: product.image as ImageModel[],
-        name: product.name,
-        price: product.price,
-        quantity: product.order_detail.quantity,
-        subtotal: product.order_detail.subtotal,
-        discount:
-          (product.price *
-            (product.discount?.reduce(
-              (acc, discount) => acc + (discount.discount_percentage || 0),
-              0,
-            ) || 0)) /
-          100,
-        total:
-          product.order_detail.subtotal -
-          (product.price *
-            (product.discount?.reduce(
-              (acc, discount) => acc + (discount.discount_percentage || 0),
-              0,
-            ) || 0)) /
-            100,
-        discounts_list: product.discount as DiscountModel[],
-      })),
+  const orderDataSource: OrderTableDataType[] | undefined =
+    ordersData?.map((order) => ({
+      key: order.id,
+      id: order.id || "",
+      order_state: order.order_state || "",
+      description: order.description || "",
+      cost: order.order_detail.cost as CostModel[],
+      customer_name: order.order_detail.customer_name || "",
+      customer_phone: order.order_detail.customer_phone || "",
+      customer_email: order.order_detail.customer_email || "",
+      customer_address: order.order_detail.customer_address || "",
+      subtotal: order.order_detail.subtotal || 0,
+      total_shipping_fee: order.order_detail.total_shipping_fee || 0,
+      total_payment_fee: order.order_detail.total_payment_fee || 0,
+      total_costs: order.order_detail.total_costs || 0,
+      total_discount: order.order_detail.total_discount || 0,
+      total: order.order_detail.total || 0,
+      discount: order.order_detail.discount || [],
+      product_discount:
+        order.order_detail.product?.flatMap(
+          (product) =>
+            product.discount?.map((discount) => ({
+              id: discount.id,
+              name: discount.name,
+              amount: discount.amount,
+              type: discount.type,
+              scope: discount.scope,
+            })) as DiscountModel[],
+        ) || [],
+      shipping: {
+        type: order.order_detail.shipping?.type || "",
+        cost: order.order_detail.shipping?.cost || 0,
+      },
+      payment: {
+        type: order.order_detail.payment?.payment_method?.type || "",
+        cost: order.order_detail.payment?.payment_method?.cost || 0,
+      },
+      payment_info: {
+        paid_amount: order.order_detail.payment?.paid_amount || 0,
+        paid_all_date: order.order_detail.payment?.paid_all_date || "",
+      },
+      created_at: order.created_at,
+      status: order.status,
+    })) || [];
+  const productDataSource: ProductTableDataType[] | undefined =
+    ordersData?.flatMap(
+      (order) =>
+        order.order_detail.product?.map((product) => ({
+          key: product.id,
+          id: product.id || "",
+          order_id: order.id || "",
+          image: (product.image as ImageModel[]) || [],
+          name: product.name || "",
+          product_details: product.product_details || [],
+          discount: product.discount as DiscountModel[],
+        })) || [],
     ) || [];
   const orderColumns: TableColumnType<OrderTableDataType>[] = [
     {
@@ -251,8 +263,20 @@ const OrderTable = ({
       title: "Customer Name",
       dataIndex: "customer_name",
       key: "customer_name",
-      render: (_, { customer_name }) => (
-        <Tooltip title={customer_name} className="text-ellipsis">
+      render: (
+        _,
+        { customer_name, customer_address, customer_email, customer_phone },
+      ) => (
+        <Tooltip
+          title={
+            <div className="flex flex-col gap-1">
+              <span>Address: {customer_address}</span>
+              <span>Email: {customer_email}</span>
+              <span>Phone: {customer_phone}</span>
+            </div>
+          }
+          className="text-ellipsis"
+        >
           {customer_name}
         </Tooltip>
       ),
@@ -299,9 +323,9 @@ const OrderTable = ({
       title: "Shipping Address",
       dataIndex: "shipping_address",
       key: "shipping_address",
-      render: (_, { shipping_address }) => (
-        <Tooltip title={shipping_address}>
-          <p className="overflow-hidden text-ellipsis">{shipping_address}</p>
+      render: (_, { customer_address }) => (
+        <Tooltip title={customer_address}>
+          <p className="overflow-hidden text-ellipsis">{customer_address}</p>
         </Tooltip>
       ),
     },
@@ -309,24 +333,92 @@ const OrderTable = ({
       title: "Shipping Phone",
       dataIndex: "shipping_phone",
       key: "shipping_phone",
+      render: (_, { customer_phone }) => (
+        <Tooltip title={customer_phone}>
+          <p className="overflow-hidden text-ellipsis">{customer_phone}</p>
+        </Tooltip>
+      ),
     },
     {
-      title: "Shipping Method",
+      title: "Shipping",
       dataIndex: "shipping_method",
       key: "shipping_method",
+      render: (_, { shipping }) => (
+        <Tooltip title={formatCurrency(shipping.cost)}>
+          <p className="overflow-hidden text-ellipsis">{shipping.type}</p>
+        </Tooltip>
+      ),
     },
     {
-      title: "Payment Method",
+      title: "Payment",
       dataIndex: "payment_method",
       key: "payment_method",
+      render: (_, { payment }) => (
+        <Tooltip title={formatCurrency(payment.cost)}>
+          <p className="overflow-hidden text-ellipsis">{payment.type}</p>
+        </Tooltip>
+      ),
     },
     {
-      title: "Total Price",
-      dataIndex: "total_price",
-      key: "total_price",
-      render: (_, { total_price }) => (
-        <Tooltip title={formatCurrency(total_price)}>
-          <span>{formatCurrency(total_price)}</span>
+      title: "Subtotal",
+      dataIndex: "subtotal",
+      key: "subtotal",
+      render: (_, { subtotal }) => <span>{formatCurrency(subtotal)}</span>,
+    },
+    {
+      title: "Total Discount",
+      dataIndex: "total_discount",
+      key: "total_discount",
+      render: (_, { total_discount, discount, product_discount }) => (
+        <Tooltip
+          title={
+            <div className="flex flex-col gap-1">
+              {discount.map((item) => (
+                <span>
+                  <span className="font-semibold capitalize">
+                    {item.scope} -{" "}
+                  </span>
+                  {item.name} -{" "}
+                  {item.type === DISCOUNT_TYPE.PERCENTAGE
+                    ? formatDiscountPercentage(item.amount)
+                    : formatCurrency(item.amount)}
+                </span>
+              ))}
+              {product_discount.map((item) => (
+                <span>
+                  <span className="font-semibold capitalize">
+                    {item.scope} -{" "}
+                  </span>
+                  {item.name} -{" "}
+                  {item.type === DISCOUNT_TYPE.PERCENTAGE
+                    ? formatDiscountPercentage(item.amount)
+                    : formatCurrency(item.amount)}
+                </span>
+              ))}
+            </div>
+          }
+        >
+          <span>{formatCurrency(total_discount)}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: "Other costs",
+      dataIndex: "total_costs",
+      key: "total_costs",
+      render: (_, { total_costs, cost }) => (
+        <Tooltip
+          title={
+            <div className="flex flex-col gap-1">
+              {cost.map((item) => (
+                <span>
+                  {item.name}: {formatCurrency(item.cost)}
+                </span>
+              ))}
+            </div>
+          }
+        >
+          <span>{formatCurrency(total_costs)}</span>
         </Tooltip>
       ),
     },
@@ -334,8 +426,26 @@ const OrderTable = ({
       title: "Total Discount",
       dataIndex: "total_discount",
       key: "total_discount",
-      render: (_, { total_discount }) => (
-        <Tooltip title={formatCurrency(total_discount)}>
+      render: (_, { total_discount, discount }) => (
+        <Tooltip
+          title={
+            <div className="flex flex-col gap-1">
+              {discount.map((item) => (
+                <div>
+                  <span className="font-semibold capitalize">
+                    {item.scope} -{" "}
+                  </span>
+                  <span>
+                    {item.name} -{" "}
+                    {item.type === DISCOUNT_TYPE.PERCENTAGE
+                      ? formatDiscountPercentage(item.amount)
+                      : formatCurrency(item.amount)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          }
+        >
           <span>{formatCurrency(total_discount)}</span>
         </Tooltip>
       ),
@@ -449,11 +559,11 @@ const OrderTable = ({
       title: null,
       dataIndex: "images",
       key: "images",
-      className: "max-w-[200px] ",
-      render: (_, { images }) => {
+      className: "max-w-[200px] w-[200px]",
+      render: (_, { image }) => {
         const imagesList =
-          images && images.length > 0
-            ? images.map((image) => image.url)
+          image && image.length > 0
+            ? image.map((item) => item.url)
             : [defaultImage];
         return (
           <Image.PreviewGroup
@@ -488,9 +598,9 @@ const OrderTable = ({
       title: "Price",
       dataIndex: "price",
       key: "price",
-      render: (_, { price }) => (
-        <Tooltip title={formatCurrency(price)}>
-          <span>{formatCurrency(price)}</span>
+      render: (_, { product_details }) => (
+        <Tooltip title={formatCurrency(product_details.price)}>
+          <span>{formatCurrency(product_details.price)}</span>
         </Tooltip>
       ),
     },
@@ -498,9 +608,9 @@ const OrderTable = ({
       title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
-      render: (_, { quantity }) => (
-        <Tooltip title={formatNumber(quantity)}>
-          <span>{formatNumber(quantity)}</span>
+      render: (_, { product_details }) => (
+        <Tooltip title={formatNumber(product_details.quantity)}>
+          <span>{formatNumber(product_details.quantity)}</span>
         </Tooltip>
       ),
       minWidth: 100,
@@ -509,9 +619,9 @@ const OrderTable = ({
       title: "Subtotal",
       dataIndex: "subtotal",
       key: "subtotal",
-      render: (_, { subtotal }) => (
-        <Tooltip title={formatCurrency(subtotal)}>
-          <span>{formatCurrency(subtotal)}</span>
+      render: (_, { product_details }) => (
+        <Tooltip title={formatCurrency(product_details.subtotal)}>
+          <span>{formatCurrency(product_details.subtotal)}</span>
         </Tooltip>
       ),
     },
@@ -519,20 +629,21 @@ const OrderTable = ({
       title: "Discount",
       dataIndex: "discount",
       key: "discount",
-      render: (_, { discount, discounts_list }) => {
-        const discountList = discounts_list || [];
+      render: (_, { product_details, discount }) => {
         return (
           <Tooltip
             title={() => {
-              return discountList.map((discount) => (
-                <p key={discount.id}>
-                  {discount.name} -{" "}
-                  {formatDiscountPercentage(discount.discount_percentage)}
+              return discount.map((item) => (
+                <p key={item.id}>
+                  {item.name} -{" "}
+                  {item.type === DISCOUNT_TYPE.PERCENTAGE
+                    ? formatDiscountPercentage(item.amount)
+                    : formatCurrency(item.amount)}
                 </p>
               ));
             }}
           >
-            <span>{formatCurrency(discount)}</span>
+            <span>{formatCurrency(product_details.discount_amount)}</span>
           </Tooltip>
         );
       },
@@ -541,9 +652,9 @@ const OrderTable = ({
       title: "Total",
       dataIndex: "total",
       key: "total",
-      render: (_, { total }) => (
-        <Tooltip title={formatCurrency(total)}>
-          <span>{formatCurrency(total)}</span>
+      render: (_, { product_details }) => (
+        <Tooltip title={formatCurrency(product_details.total)}>
+          <span>{formatCurrency(product_details.total)}</span>
         </Tooltip>
       ),
     },

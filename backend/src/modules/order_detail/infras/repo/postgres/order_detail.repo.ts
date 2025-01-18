@@ -3,7 +3,10 @@ import {
   productModelName,
   ProductPersistence,
 } from 'src/modules/products/infras/repo/postgres/dto';
-import { costModelName, CostPersistence } from 'src/modules/cost/infras/repo/postgres/cost.dto';
+import {
+  costModelName,
+  CostPersistence,
+} from 'src/modules/cost/infras/repo/postgres/cost.dto';
 import { DiscountPersistence } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { orderDetailProductModelName } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
@@ -21,6 +24,14 @@ import { OrderDetail } from 'src/modules/order_detail/models/order_detail.model'
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
+import {
+  shippingModelName,
+  ShippingPersistence,
+} from 'src/modules/shipping/infras/postgres/repo/shipping.dto';
+import {
+  paymentModelName,
+  PaymentPersistence,
+} from 'src/modules/payment/infras/repo/postgres/payment.dto';
 
 export class PostgresOrderDetailRepository implements IOrderDetailRepository {
   constructor(

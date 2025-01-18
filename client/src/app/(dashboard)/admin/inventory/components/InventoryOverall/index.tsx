@@ -91,6 +91,7 @@ const InventoryOverall = (props: Props) => {
               }))}
               value={groupBy}
               onChange={_onGroupByChange}
+              className="min-w-[150px]"
             />
           </div>
           <div className="relative mt-4 flex items-start gap-6">

@@ -3,6 +3,8 @@ import { CustomerModel } from "../customers/customers.model";
 import { ProductModel } from "../products/products.model";
 import { ShippingModel } from "@/app/shared/models/shipping/shipping.model";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
+import { CostModel } from "@/app/shared/models/cost/cost.model";
+import { DiscountModel } from "@/app/shared/models/discounts/discounts.model";
 
 export enum OrderState {
   PENDING = "PENDING",
@@ -26,22 +28,46 @@ interface ProductDetailModel extends ProductModel {
 
 export interface OrderModel {
   id: string;
-  customer_id: string;
-  customer_name: string;
-  shipping_phone: string;
-  shipping_email: string;
-  shipping_address: string;
-  order_state: OrderState;
   description: string;
-  total_price: number;
-  shipping_method_id: string;
-  payment_method_id: string;
-  has_paid: boolean;
+  order_state: OrderState;
+  order_detail_id: string;
   status: ModelStatus;
   created_at: string;
   updated_at: string;
-  customer: CustomerModel;
-  shipping: ShippingModel;
-  payment: PaymentModel;
-  product: ProductDetailModel[];
+  order_detail: OrderDetailModel;
+}
+
+export interface OrderDetailModel {
+  id: string;
+  subtotal: number;
+  total_shipping_fee: number;
+  total_payment_fee: number;
+  total_costs: number;
+  total_discount: number;
+  total: number;
+  shipping_method_id: string;
+  payment_id: string;
+  customer_id: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email: string | null;
+  customer_address: string;
+  cost?: Pick<CostModel, keyof OrderDetailCostModel>[];
+  discount?: DiscountModel[];
+  product?: (ProductModel & {
+    product_details: {
+      quantity: number;
+      price: number;
+      subtotal: number;
+      discount_amount: number;
+      total: number;
+    };
+  })[];
+  shipping?: ShippingModel;
+  payment?: PaymentModel;
+}
+export interface OrderDetailCostModel {
+  id: string;
+  name: string;
+  cost: number;
 }
