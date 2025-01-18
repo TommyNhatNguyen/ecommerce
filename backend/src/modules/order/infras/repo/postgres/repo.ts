@@ -35,7 +35,95 @@ export class PostgresOrderRepository implements IOrderRepository {
     private readonly modelName: string
   ) {}
   async getById(id: string, condition: OrderConditionDTO): Promise<Order> {
-    const order = await this.sequelize.models[this.modelName].findByPk(id);
+    const include: IncludeOptions[] = [];
+    const orderDetailInclude: IncludeOptions[] = [];
+    if (condition.includeCost) {
+      orderDetailInclude.push({
+        model: CostPersistence,
+        as: costModelName,
+        attributes: ['id', 'name', 'cost'],
+        through: {
+          attributes: [],
+          as: 'order_costs',
+        },
+      });
+    }
+    if (condition.includeDiscount) {
+      orderDetailInclude.push({
+        model: DiscountPersistence,
+        as: discountModelName,
+        attributes: ['id', 'name', 'amount', 'type', 'scope'],
+        through: {
+          attributes: [],
+          as: 'order_discounts',
+        },
+      });
+    }
+    if (condition.includeProducts) {
+      orderDetailInclude.push({
+        model: ProductPersistence,
+        as: productModelName,
+        attributes: ['id', 'name'],
+        through: {
+          attributes: [
+            'quantity',
+            'price',
+            'subtotal',
+            'discount_amount',
+            'total',
+          ],
+          as: 'product_details',
+        },
+        include: [
+          {
+            model: ImagePersistence,
+            as: imageModelName,
+            attributes: {
+              exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'],
+            },
+            through: { attributes: [] },
+          },
+          {
+            model: DiscountPersistence,
+            as: discountModelName,
+            attributes: ['id', 'name', 'amount', 'type', 'scope'],
+            through: { attributes: [] },
+          },
+        ],
+      });
+    }
+    if (condition.includeShipping) {
+      orderDetailInclude.push({
+        model: ShippingPersistence,
+        as: shippingModelName,
+        attributes: ['id', 'type', 'cost'],
+      });
+    }
+    if (condition.includePayment) {
+      orderDetailInclude.push({
+        model: PaymentPersistence,
+        as: paymentModelName,
+        attributes: ['id', 'paid_amount', 'paid_all_date'],
+        include: [
+          {
+            model: PaymentMethodPersistence,
+            as: paymentMethodModelName,
+            attributes: ['id', 'type', 'cost'],
+          },
+        ],
+      });
+    }
+    if (condition.includeOrderDetail) {
+      include.push({
+        model: OrderDetailPersistence,
+        as: orderDetailModelName,
+        attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        include: orderDetailInclude,
+      });
+    }
+    const order = await this.sequelize.models[this.modelName].findByPk(id, {
+      include,
+    });
     return order?.dataValues || null;
   }
   async getList(

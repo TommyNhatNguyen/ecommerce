@@ -26,14 +26,51 @@ export class OrderUseCase implements IOrderUseCase {
   async create(data: Omit<OrderCreateDTO, 'order_detail_id'>): Promise<Order> {
     const { order_detail_info, ...orderData } = data;
     const orderDetail = await this.orderDetailUseCase.create(order_detail_info);
-    console.log(orderDetail);
     return await this.orderRepository.create({
       ...orderData,
       order_detail_id: orderDetail.id,
     });
   }
   async update(id: string, data: OrderUpdateDTO): Promise<Order> {
-    return await this.orderRepository.update(id, data);
+    /**
+     * description check
+     * order_state check
+     * status check
+     * order_detail_info
+     */
+    /** order_detail_info
+     *  subtotal
+     *  total_shipping_fee
+     *  total_payment_fee
+     *  total_costs
+     *  total_discount
+     *  total
+     * ---------
+     * Products
+     *  product_id
+     *  quantity
+     *  price
+     *  subtotal
+     *  discount_amount
+     * ---------
+     * Shipping
+     *  shipping_id
+     * ------------
+     * Payment
+     *  payment_id
+     * ------------
+     * Customer
+     *  customer_id
+     *  customer_name
+     *  customer_phone
+     *  customer_email
+     *  customer_address
+     */
+    const { order_detail_info, ...orderData } = data;
+    // const orderDetail = await this.orderDetailUseCase.update(id, order_detail_info);
+    return await this.orderRepository.update(id, {
+      ...orderData,
+    });
   }
   async delete(id: string): Promise<boolean> {
     return await this.orderRepository.delete(id);

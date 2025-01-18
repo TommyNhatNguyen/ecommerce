@@ -1,4 +1,4 @@
-import { OrderDetailCreateDTOSchema } from 'src/modules/order_detail/models/order_detail.dto';
+import { OrderDetailCreateDTOSchema, OrderDetailUpdateDTOSchema } from 'src/modules/order_detail/models/order_detail.dto';
 import { ModelStatus, OrderState } from 'src/share/models/base-model';
 import z from 'zod';
 
@@ -13,6 +13,7 @@ export const OrderUpdateDTOSchema = z.object({
   description: z.string().optional(),
   order_state: z.nativeEnum(OrderState).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
+  order_detail_info: z.object(OrderDetailUpdateDTOSchema.shape).optional(),
 });
 
 export const OrderConditionDTOSchema = z.object({

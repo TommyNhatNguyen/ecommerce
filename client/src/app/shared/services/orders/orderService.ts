@@ -1,7 +1,10 @@
 import { OrderConditionDTO } from "@/app/shared/interfaces/orders/order.dto";
 import { ListResponseModel } from "@/app/shared/models/others/list-response.model";
 import { axiosInstance } from "@/app/shared/utils/axiosInstance";
-import { OrderModel, OrderState } from "@/app/shared/models/orders/orders.model";
+import {
+  OrderModel,
+  OrderState,
+} from "@/app/shared/models/orders/orders.model";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 
 export const orderService = {
@@ -11,8 +14,13 @@ export const orderService = {
     const response = await axiosInstance.get("/order", { params: query });
     return response.data;
   },
-  async getOrderDetail(order_id: string): Promise<OrderModel> {
-    const response = await axiosInstance.get(`/order/${order_id}`);
+  async getOrderDetail(
+    order_id: string,
+    query: OrderConditionDTO,
+  ): Promise<OrderModel> {
+    const response = await axiosInstance.get(`/order/${order_id}`, {
+      params: query,
+    });
     return response.data;
   },
   async updateOrderState(order_id: string, order_state: OrderState) {

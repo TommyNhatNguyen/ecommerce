@@ -154,8 +154,9 @@ const OrderTable = ({
     setIsModalOrderDetailOpen(false);
     setIsEditMode(false);
   };
-  const _onConfirmOrderDetail = () => {
+  const _onConfirmUpdateOrderDetail = (data: any) => {
     // handleConfirmOrderDetail();
+    console.log(data);
   };
   const _onChangeTable: OnChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
@@ -715,7 +716,7 @@ const OrderTable = ({
       <OrderDetailModal
         isModalOrderDetailOpen={isModalOrderDetailOpen}
         handleCloseModalOrderDetail={_onCloseModalOrderDetail}
-        handleConfirmOrderDetail={_onConfirmOrderDetail}
+        handleUpdateOrderDetail={_onConfirmUpdateOrderDetail}
         isEditMode={isEditMode}
         orderId={orderId}
         productsData={productDataSource?.filter(

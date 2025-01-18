@@ -16,13 +16,14 @@ import {
   TableColumnType,
 } from "antd";
 import dayjs from "dayjs";
+import { Printer } from "lucide-react";
 import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 type Props = {
   isModalOrderDetailOpen: boolean;
   handleCloseModalOrderDetail: () => void;
-  handleConfirmOrderDetail: () => void;
+  handleUpdateOrderDetail: (data: any) => void;
   isEditMode: boolean;
   orderId: string;
   productsData: ProductTableDataType[];
@@ -32,7 +33,7 @@ type Props = {
 const OrderDetailModal = ({
   isModalOrderDetailOpen,
   handleCloseModalOrderDetail,
-  handleConfirmOrderDetail,
+  handleUpdateOrderDetail,
   isEditMode = false,
   productsData,
   productsColumns,
@@ -40,7 +41,15 @@ const OrderDetailModal = ({
 }: Props) => {
   const { data: orderDetail, isLoading } = useQuery({
     queryKey: ["orderDetail", orderId],
-    queryFn: () => orderService.getOrderDetail(orderId),
+    queryFn: () =>
+      orderService.getOrderDetail(orderId, {
+        includeCost: true,
+        includeDiscount: true,
+        includeProducts: true,
+        includeOrderDetail: true,
+        includePayment: true,
+        includeShipping: true,
+      }),
     enabled: !!orderId,
   });
   const {
@@ -61,12 +70,12 @@ const OrderDetailModal = ({
       shipping_method: "",
       payment_method: "",
       description: "",
-      total_price: 0,
-      total_discount: 0,
+      subtotal: 0,
       total_shipping_fee: 0,
       total_payment_fee: 0,
-      total: 0,
       total_cost: 0,
+      total_discount: 0,
+      total: 0,
     },
   });
   useEffect(() => {
@@ -76,66 +85,28 @@ const OrderDetailModal = ({
         created_at: orderDetail.created_at,
         status: orderDetail.status,
         order_state: orderDetail.order_state,
-        customer_name: orderDetail.customer_name,
-        shipping_address: orderDetail.shipping_address,
-        shipping_phone: orderDetail.shipping_phone,
-        shipping_method: orderDetail.shipping.type,
-        payment_method: orderDetail.payment.type,
+        customer_name: orderDetail.order_detail.customer_name,
+        shipping_address: orderDetail.order_detail.customer_address,
+        shipping_phone: orderDetail.order_detail.customer_phone,
+        shipping_method: orderDetail.order_detail.shipping?.type,
+        payment_method: orderDetail.order_detail.payment?.payment_method?.type,
         description: orderDetail.description || "",
-        total_price: orderDetail.total_price,
-        total_discount: orderDetail.product.reduce(
-          (acc, product) =>
-            acc +
-            ((product.discount?.reduce(
-              (discountAcc, discount) =>
-                discountAcc + (discount.discount_percentage || 0),
-              0,
-            ) || 0) /
-              100) *
-              product.order_detail.subtotal,
-          0,
-        ),
-        total_shipping_fee: orderDetail.shipping.cost,
-        total_payment_fee: orderDetail.payment.fee,
-        total:
-          orderDetail.total_price -
-          orderDetail.product.reduce(
-            (acc, product) =>
-              acc +
-              ((product.discount?.reduce(
-                (discountAcc, discount) =>
-                  discountAcc + (discount.discount_percentage || 0),
-                0,
-              ) || 0) /
-                100) *
-                product.order_detail.subtotal,
-            0,
-          ) -
-          orderDetail.shipping.cost -
-          orderDetail.payment.fee,
-        total_cost:
-          orderDetail.product.reduce(
-            (acc, product) =>
-              acc +
-              ((product.discount?.reduce(
-                (discountAcc, discount) =>
-                  discountAcc + (discount.discount_percentage || 0),
-                0,
-              ) || 0) /
-                100) *
-                product.order_detail.subtotal,
-            0,
-          ) +
-          orderDetail.shipping.cost +
-          orderDetail.payment.fee,
+        subtotal: orderDetail.order_detail?.subtotal,
+        total_shipping_fee: orderDetail.order_detail.shipping?.cost,
+        total_payment_fee:
+          orderDetail.order_detail.payment?.payment_method?.cost,
+        total_cost: orderDetail.order_detail.total_costs,
+        total_discount: orderDetail.order_detail.total_discount,
+        total: orderDetail.order_detail.total,
       });
     }
   }, [orderDetail]);
   const _onCloseModalOrderDetail = () => {
     handleCloseModalOrderDetail();
   };
-  const _onConfirmOrderDetail = () => {
-    // handleConfirmOrderDetail();
+  const _onConfirmUpdateOrderDetail = (data: any) => {
+    console.log(data);
+    handleUpdateOrderDetail(data);
   };
   const _renderTitleModalOrderDetail = () => {
     return (
@@ -186,7 +157,6 @@ const OrderDetailModal = ({
                 {...field}
                 label="Status"
                 placeholder="Status"
-                disabled={true}
                 error={errors.status?.message}
                 customComponent={(props, ref: any) => {
                   return (
@@ -339,7 +309,7 @@ const OrderDetailModal = ({
           <h3 className="text-lg font-bold">Order Total Value</h3>
           <Controller
             control={control}
-            name="total_price"
+            name="total"
             render={({ field }) => (
               <InputAdmin
                 {...field}
@@ -455,12 +425,19 @@ const OrderDetailModal = ({
           <Button
             type="primary"
             htmlType="submit"
-            // onClick={handleSubmit(_onConfirmCreateProduct)}
-            onClick={_onConfirmOrderDetail}
+            onClick={handleSubmit(_onConfirmUpdateOrderDetail)}
           >
-            Create
+            Update
           </Button>
         )}
+        <Button
+          type="primary"
+          htmlType="submit"
+          // onClick={_onConfirmOrderDetail}
+        >
+          <Printer className="h-4 w-4" />
+          <span>Print</span>
+        </Button>
       </div>
     );
   };
@@ -472,7 +449,6 @@ const OrderDetailModal = ({
       renderContent={_renderContentModalOrderDetail}
       open={isModalOrderDetailOpen}
       onCancel={_onCloseModalOrderDetail}
-      onOk={_onConfirmOrderDetail}
     />
   );
 };

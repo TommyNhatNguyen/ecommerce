@@ -220,11 +220,8 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         (payload.total_payment_fee || 0) +
         (payload.total_costs || 0) +
         (payload.total_discount || 0));
-    console.log(payload);
-    console.log(orderDetailProducts.reduce((acc, product) => acc + product.discount_amount, 0));
     // --- CREATE ORDER DETAIL ---
     const orderDetail = await this.orderDetailRepository.create(payload);
-    console.log(orderDetailProducts);
     await this.orderDetailProductRepository.addProducts(
       orderDetailProducts.map((product) => ({
         ...product,
