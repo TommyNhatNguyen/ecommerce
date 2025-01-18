@@ -99,6 +99,7 @@ export class ProductUseCase implements IProductUseCase {
       quantity: data.quantity ?? 0,
       low_stock_threshold: data.low_stock_threshold ?? 0,
       cost: data.cost ?? 0,
+      total_value: (data.cost ?? 0) * (data.quantity ?? 0),
     });
     // --- CATEGORY ---
     if (data.categoryIds) {

@@ -374,7 +374,7 @@ const OrderTable = ({
           title={
             <div className="flex flex-col gap-1">
               {discount.map((item) => (
-                <span>
+                <span key={item.id}>
                   <span className="font-semibold capitalize">
                     {item.scope} -{" "}
                   </span>
@@ -385,7 +385,7 @@ const OrderTable = ({
                 </span>
               ))}
               {product_discount.map((item) => (
-                <span>
+                <span key={item.id}>
                   <span className="font-semibold capitalize">
                     {item.scope} -{" "}
                   </span>
@@ -411,7 +411,7 @@ const OrderTable = ({
           title={
             <div className="flex flex-col gap-1">
               {cost.map((item) => (
-                <span>
+                <span key={item.id}>
                   {item.name}: {formatCurrency(item.cost)}
                 </span>
               ))}
@@ -431,7 +431,7 @@ const OrderTable = ({
           title={
             <div className="flex flex-col gap-1">
               {discount.map((item) => (
-                <div>
+                <div key={item.id}>
                   <span className="font-semibold capitalize">
                     {item.scope} -{" "}
                   </span>
@@ -666,7 +666,7 @@ const OrderTable = ({
         dataSource={dataScource}
         pagination={false}
         size="small"
-        rowKey={(record) => record.id + Math.random()}
+        rowKey={(record) => record.id}
       />
     );
   };
@@ -682,7 +682,7 @@ const OrderTable = ({
           rowClassName={"max-h-[100px] overflow-hidden"}
           expandable={{
             expandedRowRender: (record) => {
-              const productData = productDataSource.filter(
+              const productData = productDataSource?.filter(
                 (item) => item.order_id === record.id,
               );
               return orderExpandedRowRender(productData);
@@ -691,7 +691,7 @@ const OrderTable = ({
           }}
           onChange={_onChangeTable}
           scroll={{ x: "100vw" }}
-          rowKey={(record) => record.id}
+          rowKey={(record) => record.key}
           rowSelection={{
             selectedRowKeys: selectedRows.map((item) => item.id),
             onSelect: (record, selected, selectedRows, nativeEvent) =>
@@ -718,7 +718,7 @@ const OrderTable = ({
         handleConfirmOrderDetail={_onConfirmOrderDetail}
         isEditMode={isEditMode}
         orderId={orderId}
-        productsData={productDataSource.filter(
+        productsData={productDataSource?.filter(
           (item) => item.order_id === orderId,
         )}
         productsColumns={productColumns}

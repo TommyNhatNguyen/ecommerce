@@ -70,6 +70,7 @@ import { DateString } from "@/app/shared/types/datestring.model";
 import UpdateProductModal from "@/app/shared/components/GeneralModal/components/UpdateProductModal";
 import { StockStatus } from "@/app/shared/models/inventories/stock-status";
 import { STOCK_STATUS } from "@/app/constants/stock-status";
+import { DISCOUNT_TYPE } from "@/app/constants/enum";
 
 type InventoryTablePropsType = {
   handleSelectAllRow: (
@@ -233,18 +234,12 @@ const InventoryTable = ({
     await handleUpdateStatus(id, status);
   };
   const _onGenerateTableDataSource = (inventories: ProductModel[]) => {
-    console.log("🚀 ~ const_onGenerateTableDataSource= ~ inventories:", inventories)
     let tableDataSource: DataType[] = [];
-    
     inventories.forEach((item) => {
       const images =
         item.image && item.image.length > 0
           ? item.image.map((image) => image.url)
           : [defaultImage];
-      const totalInventoryValue =
-        item.inventory?.cost && item.inventory?.quantity
-          ? item.inventory?.cost * (item.inventory?.quantity || 1)
-          : item.inventory?.cost;
       tableDataSource.push({
         key: item.id,
         id: item.id,
@@ -252,11 +247,11 @@ const InventoryTable = ({
         description: item.description,
         price: item.price,
         cost: item.inventory ? item.inventory.cost || 0 : 0,
-        images: images as string[],
+        images: images,
         category: item.category,
         quantity: item.inventory ? item.inventory.quantity || 0 : 0,
         discounts: item.discount,
-        totalInventoryValue: totalInventoryValue || 0,
+        totalInventoryValue: item.inventory?.total_value || 0,
         status: item.status,
         createdAt: item.created_at,
         stock_status: item.inventory?.stock_status || StockStatus.IN_STOCK,
@@ -359,31 +354,6 @@ const InventoryTable = ({
       sorter: (a, b) => a.cost - b.cost,
       sortOrder: sortedInfo.columnKey === "cost" ? sortedInfo.order : null,
       render: (_, { cost }) => <span>{formatCurrency(cost)}</span>,
-      // filterDropdown: () => {
-      //   return (
-      //     <div className="flex flex-col gap-2 rounded-md p-2">
-      //       <Slider
-      //         step={1000000}
-      //         min={0}
-      //         max={100000000}
-      //         onChange={(value) => {
-      //           console.log(value);
-      //         }}
-      //       />
-      //       <div className="flex items-center justify-end gap-1">
-      //         <Button type="primary" onClick={() => {}}>
-      //           Confirm
-      //         </Button>
-      //         <Button type="primary" onClick={() => {}}>
-      //           Clear
-      //         </Button>
-      //         <Button type="primary" onClick={() => {}}>
-      //           Close
-      //         </Button>
-      //       </div>
-      //     </div>
-      //   );
-      // },
     },
     {
       title: "In stock",
@@ -423,14 +393,9 @@ const InventoryTable = ({
       dataIndex: "discounts",
       sorter: (a, b) =>
         (a.discounts?.length || 0) - (b.discounts?.length || 0) ||
-        (a.discounts?.reduce(
-          (acc, curr) => acc + (curr.discount_percentage || 0),
-          0,
-        ) || 0) -
-          (b.discounts?.reduce(
-            (acc, curr) => acc + (curr.discount_percentage || 0),
-            0,
-          ) || 0),
+        (a.discounts?.reduce((acc, curr) => acc + (curr.amount || 0), 0) || 0) -
+          (b.discounts?.reduce((acc, curr) => acc + (curr.amount || 0), 0) ||
+            0),
       sortOrder: sortedInfo.columnKey === "discounts" ? sortedInfo.order : null,
       render: (_, { discounts }) => {
         return (
@@ -442,11 +407,11 @@ const InventoryTable = ({
                 key={discount?.id}
               >
                 <Tag>
-                  <span className="capitalize">{discount?.name} - </span>
                   <span>
-                    {formatDiscountPercentage(
-                      discount?.discount_percentage || 0,
-                    )}
+                    {discount?.name} -
+                    {discount?.type === DISCOUNT_TYPE.PERCENTAGE
+                      ? formatDiscountPercentage(discount?.amount || 0)
+                      : formatCurrency(discount?.amount || 0)}
                   </span>
                 </Tag>
               </Tooltip>

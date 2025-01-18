@@ -1,5 +1,9 @@
-import { DiscountScope, DiscountType } from "@/app/shared/interfaces/discounts/discounts.dto";
+import {
+  DiscountScope,
+  DiscountType,
+} from "@/app/shared/interfaces/discounts/discounts.dto";
 import { CategoryModel } from "@/app/shared/models/categories/categories.model";
+import { DiscountModel } from "@/app/shared/models/discounts/discounts.model";
 import { StockStatus } from "@/app/shared/models/inventories/stock-status";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 
@@ -11,35 +15,10 @@ export type ProductModel = {
   status: ModelStatus;
   created_at: string;
   updated_at: string;
-  inventory: {
-    id?: string;
-    quantity?: number;
-    low_stock_threshold?: number;
-    stock_status: StockStatus;
-    cost?: number;
-  };
-  discount?: {
-    id?: string;
-    name?: string;
-    type?: DiscountType;
-    scope?: DiscountScope;
-    amount?: number;
-    description?: string;
-    end_date?: string;
-    start_date?: string;
-  }[];
-  category?: {
-    id?: string;
-    name?: string;
-    image_id?: string;
-    description?: string;
-  }[];
-  image?: {
-    id?: string;
-    type?: string;
-    url?: string;
-    cloudinary_id?: string;
-  }[];
+  inventory: InventoryModel;
+  discount?: DiscountModel[];
+  category?: CategoryModel[];
+  image?: ImageModel[];
 };
 
 export type ProductStatsModel = {

@@ -44,6 +44,12 @@ export const inventoryInit = (sequelize: Sequelize) => {
         defaultValue: 0,
         validate: { min: 0 },
       },
+      total_value: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0,
+        validate: { min: 0 },
+      },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
         allowNull: false,

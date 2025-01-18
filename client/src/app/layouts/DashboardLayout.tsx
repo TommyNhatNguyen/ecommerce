@@ -90,7 +90,6 @@ const dropdownItems: MenuItem[] = [
 
 const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   const pathname = usePathname();
-  console.log(pathname);
   const currentPath = pathname.split("/").slice(1);
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);

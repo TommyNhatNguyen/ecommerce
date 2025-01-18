@@ -14,7 +14,7 @@ export interface DataType {
   cost: number;
   quantity: number;
   discounts: ProductModel["discount"];
-  totalInventoryValue: number;
+  totalInventoryValue: ProductModel["inventory"]["total_value"];
   status: "ACTIVE" | "INACTIVE" | "DELETED";
   createdAt: string;
   images: string[];

@@ -1,6 +1,5 @@
 import {
   BaseOrder,
-  BaseSortBy,
   ModelStatus,
 } from 'src/share/models/base-model';
 import z from 'zod';
@@ -12,6 +11,7 @@ export const InventoryCreateDTOSchema = z.object({
   product_id: z.string().uuid(),
   low_stock_threshold: z.number().min(0).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
+  total_value: z.number().min(0).optional(),
 });
 
 export const InventoryUpdateDTOSchema = z.object({
@@ -20,6 +20,7 @@ export const InventoryUpdateDTOSchema = z.object({
   low_stock_threshold: z.number().min(0).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
+  total_value: z.number().min(0).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
 });
@@ -35,6 +36,7 @@ export const InventoryConditionDTOSchema = z.object({
   status: z.nativeEnum(ModelStatus).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
   low_stock_threshold: z.number().min(0).optional(),
+  total_value: z.number().min(0).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
   cost: z.number().min(0).optional(),
