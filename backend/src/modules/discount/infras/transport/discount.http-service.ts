@@ -37,7 +37,7 @@ export class DiscountHttpService {
       success: conditionSuccess,
       data: conditionData,
       error: conditionError,
-    } = DiscountConditionDTOSchema.safeParse(req.body);
+    } = DiscountConditionDTOSchema.safeParse(req.query);
     if (!pagingSuccess || !conditionSuccess) {
       res.status(400).json({ message: 'Invalid paging or condition' });
       return;

@@ -102,7 +102,10 @@ const ProductPage = (props: Props) => {
     refetch: refetchDiscounts,
   } = useQuery({
     queryKey: ["discounts", createDiscountLoading, deleteDiscountLoading],
-    queryFn: () => discountsService.getDiscounts(),
+    queryFn: () =>
+      discountsService.getDiscounts({
+        scope: DISCOUNT_SCOPE.PRODUCT,
+      }),
   });
 
   const {
@@ -322,103 +325,45 @@ const ProductPage = (props: Props) => {
           </Button>
         }
       >
-        <div className="grid grid-cols-2">
-          <div className="flex flex-col gap-2 border-r border-solid border-zinc-500/30 pr-2">
-            <h5 className="font-medium">Product discount</h5>
-            {discounts &&
-              discounts.data
-                .filter((item) => item.scope === DISCOUNT_SCOPE.PRODUCT)
-                .map((item) => (
-                  <Tooltip
-                    title={`${
-                      item.type === DISCOUNT_TYPE.PERCENTAGE
-                        ? `${formatDiscountPercentage(item.amount || 0)}`
-                        : `${formatCurrency(item.amount || 0)}`
-                    }`}
+        <div className="flex flex-col gap-2">
+          {discounts &&
+            discounts.data
+              .filter((item) => item.scope === DISCOUNT_SCOPE.PRODUCT)
+              .map((item) => (
+                <Tooltip
+                  title={`${
+                    item.type === DISCOUNT_TYPE.PERCENTAGE
+                      ? `${formatDiscountPercentage(item.amount || 0)}`
+                      : `${formatCurrency(item.amount || 0)}`
+                  }`}
+                  key={item.id}
+                >
+                  <div
+                    className="flex w-full items-center justify-between"
                     key={item.id}
                   >
-                    <div
-                      className="flex w-full items-center justify-between"
-                      key={item.id}
-                    >
-                      {item.name}
-                      <ActionGroup
-                        customContent={(toggleOpen) => (
-                          <div className="flex items-center gap-1">
-                            <Button
-                              type="text"
-                              className="aspect-square rounded-full p-0"
-                              onClick={() => {
-                                toggleOpen();
-                                _onOpenModalUpdateDiscountCampaign(item.id);
-                              }}
-                            >
-                              <Pencil className="h-4 w-4 stroke-yellow-500" />
-                            </Button>
-                            <ButtonDeleteWithPopover
-                              title={`Delete ${item.name}?`}
-                              trigger={"click"}
-                              handleDelete={() => {
-                                toggleOpen();
-                                _onDeleteDiscount(item.id);
-                              }}
-                            />
-                          </div>
-                        )}
-                      />
-                    </div>
-                  </Tooltip>
-                ))}
-          </div>
-          <div className="flex flex-col gap-2 pl-2">
-            <h5 className="font-medium">Order discount</h5>
-            {discounts &&
-              discounts.data
-                .filter((item) => item.scope === DISCOUNT_SCOPE.ORDER)
-                .map((item) => (
-                  <Tooltip
-                    title={`${
-                      item.type === DISCOUNT_TYPE.PERCENTAGE
-                        ? `${formatDiscountPercentage(item.amount || 0)}`
-                        : `${formatCurrency(item.amount || 0)}`
-                    }`}
-                    key={item.id}
-                  >
-                    <div
-                      className="flex w-full items-center justify-between"
-                      key={item.id}
-                    >
-                      {item.name}
-                      <ActionGroup
-                        customContent={(toggleOpen) => {
-                          return (
-                            <div className="flex items-center gap-1">
-                              <Button
-                                type="text"
-                                className="aspect-square rounded-full p-0"
-                                onClick={() => {
-                                  toggleOpen();
-                                  _onOpenModalUpdateDiscountCampaign(item.id);
-                                }}
-                              >
-                                <Pencil className="h-4 w-4 stroke-yellow-500" />
-                              </Button>
-                              <ButtonDeleteWithPopover
-                                title={`Delete ${item.name}?`}
-                                trigger={"click"}
-                                handleDelete={() => {
-                                  toggleOpen();
-                                  _onDeleteDiscount(item.id);
-                                }}
-                              />
-                            </div>
-                          );
+                    {item.name}
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="text"
+                        className="aspect-square rounded-full p-0"
+                        onClick={() => {
+                          _onOpenModalUpdateDiscountCampaign(item.id);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4 stroke-yellow-500" />
+                      </Button>
+                      <ButtonDeleteWithPopover
+                        title={`Delete ${item.name}?`}
+                        trigger={"click"}
+                        handleDelete={() => {
+                          _onDeleteDiscount(item.id);
                         }}
                       />
                     </div>
-                  </Tooltip>
-                ))}
-          </div>
+                  </div>
+                </Tooltip>
+              ))}
         </div>
         {discounts && discounts.data.length === 0 && (
           <div className="flex h-full items-center justify-center">

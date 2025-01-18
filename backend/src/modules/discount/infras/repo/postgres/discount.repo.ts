@@ -29,6 +29,12 @@ export class PostgresDiscountRepository implements IDiscountRepository {
         [Op.in]: condition.ids,
       };
     }
+    if (condition.scope) {
+      where.scope = {
+        [Op.eq]: condition.scope,
+      };
+    }
+    console.log(condition);
     const { page, limit } = paging;
     const order = condition?.order || BaseOrder.DESC;
     const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;

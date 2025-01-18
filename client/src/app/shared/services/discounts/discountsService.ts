@@ -1,5 +1,6 @@
 import {
   CreateDiscountDTO,
+  DiscountConditionDTO,
   UpdateDiscountDTO,
 } from "@/app/shared/interfaces/discounts/discounts.dto";
 import { DiscountModel } from "@/app/shared/models/discounts/discounts.model";
@@ -7,8 +8,10 @@ import { ListResponseModel } from "@/app/shared/models/others/list-response.mode
 import { axiosInstance } from "@/app/shared/utils/axiosInstance";
 
 export const discountsService = {
-  getDiscounts: async (): Promise<ListResponseModel<DiscountModel>> => {
-    const response = await axiosInstance.get("/discounts");
+  getDiscounts: async (
+    condition: DiscountConditionDTO
+  ): Promise<ListResponseModel<DiscountModel>> => {
+    const response = await axiosInstance.get("/discounts", { params: condition });
     return response.data;
   },
   createDiscount: async (data: CreateDiscountDTO): Promise<DiscountModel> => {

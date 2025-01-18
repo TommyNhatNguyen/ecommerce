@@ -11,6 +11,7 @@ import { DiscountScope } from 'src/modules/discount/models/discount.model';
 export const DiscountConditionDTOSchema = z.object({
   ids: z.array(z.string().uuid()).optional(),
   name: z.string().optional(),
+  scope: z.nativeEnum(DiscountScope).optional(),
   min_amount: z.number().optional(),
   max_amount: z.number().optional(),
   start_date: z
