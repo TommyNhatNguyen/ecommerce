@@ -16,7 +16,7 @@ import {
   formatNumber,
 } from "@/app/shared/utils/utils";
 import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   Button,
   Carousel,
@@ -33,6 +33,7 @@ import React, { useState } from "react";
 import OrderDetailModal from "@/app/shared/components/GeneralModal/components/OrderDetailModal";
 import { DISCOUNT_TYPE } from "@/app/constants/enum";
 import { CostModel } from "@/app/shared/models/cost/cost.model";
+import { useAppSelector } from "@/app/shared/hooks/useRedux";
 
 type OrderTablePropsType = {
   handleChangeOrderState: (order_id: string, order_state: OrderState) => void;
@@ -122,6 +123,7 @@ const OrderTable = ({
   const [isModalOrderDetailOpen, setIsModalOrderDetailOpen] = useState(false);
   const [orderId, setOrderId] = useState("");
   const [isEditMode, setIsEditMode] = useState(false);
+  const { orderCreated } = useAppSelector((state) => state.socket);
   const { data: ordersDataResponse, isLoading } = useQuery({
     queryKey: [
       "orders",
@@ -129,6 +131,7 @@ const OrderTable = ({
       orderLimit,
       isUpdateOrderStateLoading,
       isUpdateOrderStatusLoading,
+      orderCreated,
     ],
     queryFn: () =>
       orderService.getList({
@@ -141,6 +144,7 @@ const OrderTable = ({
         includeShipping: true,
         includePayment: true,
       }),
+    placeholderData: keepPreviousData,
   });
   const { meta, data: ordersData } = ordersDataResponse || {};
   const { total_count } = meta || {};

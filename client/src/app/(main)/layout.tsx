@@ -2,6 +2,7 @@ import "../shared/resources/css/globals.css";
 import localFont from "next/font/local";
 import type { Metadata } from "next";
 import MainLayout from "@/app/layouts/MainLayout";
+import StoreProvider from "@/app/shared/components/StoreProvider";
 
 const playfairDisplayRegular = localFont({
   src: "../shared/resources/fonts/PlayfairDisplay-Regular.woff",
@@ -56,7 +57,9 @@ export default function RootLayout({
       <body
         className={`${playfairDisplayRegular.variable} ${playfairDisplayMedium.variable} ${playfairDisplaySemibold.variable} ${playfairDisplayBold.variable} ${robotoRegular.variable} ${robotoMedium.variable} ${robotoBold.variable} antialiased`}
       >
-        <MainLayout>{children}</MainLayout>
+        <StoreProvider>
+          <MainLayout>{children}</MainLayout>
+        </StoreProvider>
       </body>
     </html>
   );

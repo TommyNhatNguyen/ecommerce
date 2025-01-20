@@ -91,6 +91,14 @@ import {
   ShippingPersistence,
 } from 'src/modules/shipping/infras/postgres/repo/shipping.dto';
 import { setupVariantRouter } from 'src/modules/variant';
+import { Server } from 'socket.io';
+import { initializeAssociation } from 'src/share/helpers/initialize-association';
+import { createServer } from 'http';
+import Websocket from 'src/share/modules/websocket';
+import { setupNotification } from 'src/modules/notification';
+import { setupActorRouter } from 'src/modules/messages/actor';
+import { setupEntityRouter } from 'src/modules/messages/entity';
+import { setupMessageRouter } from 'src/modules/messages';
 config();
 
 (async () => {
@@ -106,6 +114,12 @@ config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+const socketApp = express();
+const socketPort = process.env.SOCKET_PORT || 3003;
+const server = createServer(socketApp);
+const io = Websocket.getInstance(server);
+
 app.use(
   express.json({
     limit: '50mb',
@@ -113,6 +127,7 @@ app.use(
 );
 app.use(cors());
 
+setupNotification(io);
 app.use('/v1', setupProductRouter(sequelize));
 app.use('/v1', setupCategoryRouter(sequelize));
 app.use('/v1', setupDiscountRouter(sequelize));
@@ -127,243 +142,25 @@ app.use('/v1', setupPaymentRouter(sequelize));
 app.use('/v1', setupUserRouter(sequelize));
 app.use('/v1', setupRoleRouter(sequelize));
 app.use('/v1', setupPermissionRouter(sequelize));
+app.use('/v1', setupActorRouter(sequelize));
+app.use('/v1', setupEntityRouter(sequelize));
+app.use('/v1', setupMessageRouter(sequelize));
 app.use('/v1', setupOrderDetailRouter(sequelize));
 app.use('/v1', setupCartRouter(sequelize));
 app.use('/v1', setupCostRouter(sequelize));
 app.use('/v1', setupPaymentMethodRouter(sequelize));
+initializeAssociation();
 
-PaymentMethodPersistence.hasOne(PaymentPersistence, {
-  foreignKey: 'id',
-  as: paymentModelName.toLowerCase(),
+io.engine.on('connection_error', (err) => {
+  console.log(err.req); // the request object
+  console.log(err.code); // the error code, for example 1
+  console.log(err.message); // the error message, for example "Session ID unknown"
+  console.log(err.context); // some additional error context
 });
 
-PaymentPersistence.belongsTo(PaymentMethodPersistence, {
-  foreignKey: 'payment_method_id',
-  as: paymentMethodModelName.toLowerCase(),
-})
-
-OrderDetailPersistence.hasOne(OrderPersistence, {
-  foreignKey: 'order_detail_id',
-  as: orderModelName.toLowerCase(),
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE',
+server.listen(socketPort, () => {
+  console.log(`Socket server is running on: http://localhost:${socketPort}`);
 });
-
-OrderPersistence.belongsTo(OrderDetailPersistence, {
-  foreignKey: 'order_detail_id',
-  as: orderDetailModelName.toLowerCase(),
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE',
-});
-
-OrderDetailPersistence.belongsToMany(ProductPersistence, {
-  through: orderDetailProductModelName,
-  foreignKey: 'order_detail_id',
-  otherKey: 'product_id',
-  as: productModelName.toLowerCase(),
-});
-
-ProductPersistence.belongsToMany(OrderDetailPersistence, {
-  through: orderDetailProductModelName,
-  foreignKey: 'product_id',
-  otherKey: 'order_detail_id',
-  as: orderDetailModelName.toLowerCase(),
-});
-
-OrderDetailPersistence.belongsToMany(CostPersistence, {
-  through: orderDetailCostModelName,
-  foreignKey: 'order_detail_id',
-  otherKey: 'cost_id',
-  as: costModelName.toLowerCase(),
-});
-
-CostPersistence.belongsToMany(OrderDetailPersistence, {
-  through: orderDetailCostModelName,
-  foreignKey: 'cost_id',
-  otherKey: 'order_detail_id',
-  as: orderDetailModelName.toLowerCase(),
-});
-
-OrderDetailPersistence.belongsToMany(DiscountPersistence, {
-  through: orderDetailDiscountModelName,
-  foreignKey: 'order_detail_id',
-  otherKey: 'discount_id',
-  as: discountModelName.toLowerCase(),
-});
-
-DiscountPersistence.belongsToMany(OrderDetailPersistence, {
-  through: orderDetailDiscountModelName,
-  foreignKey: 'discount_id',
-  otherKey: 'order_detail_id',
-  as: orderDetailModelName.toLowerCase(),
-});
-
-PaymentPersistence.hasOne(OrderDetailPersistence, {
-  foreignKey: 'payment_id',
-  as: orderDetailModelName.toLowerCase(),
-});
-
-OrderDetailPersistence.belongsTo(PaymentPersistence, {
-  foreignKey: 'payment_id',
-  as: paymentModelName.toLowerCase(),
-});
-
-OrderDetailPersistence.belongsTo(ShippingPersistence, {
-  foreignKey: 'shipping_method_id',
-  as: shippingModelName.toLowerCase(),
-});
-
-ShippingPersistence.hasOne(OrderDetailPersistence, {
-  foreignKey: 'shipping_method_id',
-  as: orderDetailModelName.toLowerCase(),
-});
-
-CartPersistence.hasOne(CustomerPersistence, {
-  foreignKey: 'cart_id',
-  as: customerModelName.toLowerCase(),
-  onDelete: 'RESTRICT',
-});
-
-CustomerPersistence.belongsTo(CartPersistence, {
-  foreignKey: 'cart_id',
-  as: cartModelName.toLowerCase(),
-  onDelete: 'CASCADE',
-  onUpdate: 'CASCADE',
-});
-
-CartPersistence.belongsToMany(ProductPersistence, {
-  through: cartProductModelName,
-  foreignKey: 'cart_id',
-  otherKey: 'product_id',
-  as: productModelName.toLowerCase(),
-});
-
-ProductPersistence.belongsToMany(CartPersistence, {
-  through: cartProductModelName,
-  foreignKey: 'product_id',
-  otherKey: 'cart_id',
-  as: cartModelName.toLowerCase(),
-});
-
-ProductPersistence.belongsToMany(CategoryPersistence, {
-  through: productCategoryModelName,
-  foreignKey: 'product_id',
-  otherKey: 'category_id',
-  as: categoryModelName.toLowerCase(),
-});
-
-CategoryPersistence.belongsToMany(ProductPersistence, {
-  through: productCategoryModelName,
-  foreignKey: 'category_id',
-  otherKey: 'product_id',
-  as: productModelName.toLowerCase(),
-});
-
-ProductPersistence.belongsToMany(DiscountPersistence, {
-  through: productDiscountModelName,
-  foreignKey: 'product_id',
-  otherKey: 'discount_id',
-  as: discountModelName.toLowerCase(),
-});
-
-DiscountPersistence.belongsToMany(ProductPersistence, {
-  through: productDiscountModelName,
-  foreignKey: 'discount_id',
-  otherKey: 'product_id',
-  as: productModelName.toLowerCase(),
-});
-
-ProductPersistence.belongsToMany(VariantPersistence, {
-  through: productVariantModelName,
-  foreignKey: 'product_id',
-  otherKey: 'variant_id',
-  as: variantModelName.toLowerCase(),
-});
-
-VariantPersistence.belongsToMany(ProductPersistence, {
-  through: productVariantModelName,
-  foreignKey: 'variant_id',
-  otherKey: 'product_id',
-  as: productModelName.toLowerCase(),
-});
-
-ProductPersistence.belongsToMany(ImagePersistence, {
-  through: productImageModelName,
-  foreignKey: 'product_id',
-  otherKey: 'image_id',
-  as: imageModelName.toLowerCase(),
-});
-
-ImagePersistence.belongsToMany(ProductPersistence, {
-  through: productImageModelName,
-  foreignKey: 'image_id',
-  otherKey: 'product_id',
-  as: productModelName.toLowerCase(),
-});
-
-ProductPersistence.hasMany(ReviewPersistence, {
-  foreignKey: 'product_id',
-  as: reviewModelName.toLowerCase(),
-});
-
-ReviewPersistence.belongsTo(ProductPersistence, {
-  foreignKey: 'product_id',
-  as: productModelName.toLowerCase(),
-});
-
-ReviewPersistence.belongsTo(CustomerPersistence, {
-  foreignKey: 'customer_id',
-  as: customerModelName.toLowerCase(),
-});
-
-CustomerPersistence.hasOne(ReviewPersistence, {
-  foreignKey: 'customer_id',
-  as: reviewModelName.toLowerCase(),
-});
-
-ProductPersistence.hasOne(InventoryPersistence, {
-  foreignKey: 'product_id',
-  onDelete: 'cascade',
-});
-
-InventoryPersistence.belongsTo(ProductPersistence, {
-  foreignKey: 'product_id',
-  onDelete: 'cascade',
-});
-
-CategoryPersistence.belongsTo(ImagePersistence, {
-  foreignKey: 'image_id',
-});
-
-ImagePersistence.hasOne(CategoryPersistence, {
-  foreignKey: 'image_id',
-});
-
-UserPersistence.belongsTo(RolePersistence, {
-  foreignKey: 'role_id',
-  as: roleModelName.toLowerCase(),
-});
-
-RolePersistence.hasOne(UserPersistence, {
-  foreignKey: 'role_id',
-  as: userModelName.toLowerCase(),
-});
-
-PermissionPersistence.belongsToMany(RolePersistence, {
-  through: permissionRoleModelName,
-  foreignKey: 'permission_id',
-  otherKey: 'role_id',
-  as: roleModelName.toLowerCase(),
-});
-
-RolePersistence.belongsToMany(PermissionPersistence, {
-  through: permissionRoleModelName,
-  foreignKey: 'role_id',
-  otherKey: 'permission_id',
-  as: permissionModelName.toLowerCase(),
-});
-
-console.log(path.join(__dirname, 'storage', 'images'));
 
 app.listen(port, () => {
   console.log(`Server is running on: http://localhost:${port}`);

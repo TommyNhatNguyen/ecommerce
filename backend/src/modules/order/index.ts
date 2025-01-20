@@ -1,10 +1,18 @@
 import { Router } from 'express';
 import { Sequelize } from 'sequelize';
-import { orderInit, orderModelName } from 'src/modules/order/infras/repo/postgres/dto';
+import {
+  orderInit,
+  orderModelName,
+} from 'src/modules/order/infras/repo/postgres/dto';
 import { PostgresOrderRepository } from 'src/modules/order/infras/repo/postgres/repo';
 import { OrderUseCase } from 'src/modules/order/usecase';
 import { OrderHttpService } from 'src/modules/order/infras/transport/order-http.service';
-import { orderDetailCostModelName, orderDetailDiscountModelName, orderDetailModelName, orderDetailProductModelName } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
+import {
+  orderDetailCostModelName,
+  orderDetailDiscountModelName,
+  orderDetailModelName,
+  orderDetailProductModelName,
+} from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import { PostgresOrderDetailRepository } from 'src/modules/order_detail/infras/repo/postgres/order_detail.repo';
 import { OrderDetailUseCase } from 'src/modules/order_detail/usecase';
 import { CostUseCase } from 'src/modules/cost/usecase';
@@ -14,7 +22,11 @@ import { customerModelName } from 'src/modules/customer/infras/repo/postgres/cus
 import { PostgresProductRepository } from 'src/modules/products/infras/repo/postgres/repo';
 import { cartModelName } from 'src/modules/cart/infras/repo/postgres/cart.dto';
 import { PostgresShippingRepository } from 'src/modules/shipping/infras/postgres/repo/shipping.repo';
-import { productCategoryModelName, productDiscountModelName, productModelName } from 'src/modules/products/infras/repo/postgres/dto';
+import {
+  productCategoryModelName,
+  productDiscountModelName,
+  productModelName,
+} from 'src/modules/products/infras/repo/postgres/dto';
 import { PostgresPaymentRepository } from 'src/modules/payment/infras/repo/postgres/payment.repo';
 import { paymentMethodModelName } from 'src/modules/payment_method/infras/postgres/repo/payment_method.dto';
 import { shippingModelName } from 'src/modules/shipping/infras/postgres/repo/shipping.dto';
@@ -39,7 +51,10 @@ import { PaymentMethodUseCase } from 'src/modules/payment_method/usecase';
 export function setupOrderRouter(sequelize: Sequelize) {
   orderInit(sequelize);
   const router = Router();
-  const orderRepository = new PostgresOrderRepository(sequelize, orderModelName);
+  const orderRepository = new PostgresOrderRepository(
+    sequelize,
+    orderModelName
+  );
   const orderDetailRepository = new PostgresOrderDetailRepository(
     sequelize,
     orderDetailModelName
@@ -89,7 +104,7 @@ export function setupOrderRouter(sequelize: Sequelize) {
   );
   const productDiscountRepository = new PostgresProductRepository(
     sequelize,
-    productDiscountModelName  
+    productDiscountModelName
   );
   const inventoryRepository = new PostgresInventoryRepository(
     sequelize,

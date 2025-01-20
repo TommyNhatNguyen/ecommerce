@@ -1,3 +1,4 @@
+import { Namespace } from 'socket.io';
 import {
   OrderConditionDTO,
   OrderCreateDTO,
@@ -12,7 +13,7 @@ import { PagingDTO } from 'src/share/models/paging';
 export class OrderUseCase implements IOrderUseCase {
   constructor(
     private readonly orderRepository: IOrderRepository,
-    private readonly orderDetailUseCase: IOrderDetailUseCase
+    private readonly orderDetailUseCase: IOrderDetailUseCase,
   ) {}
   async getById(id: string, condition: OrderConditionDTO): Promise<Order> {
     return await this.orderRepository.getById(id, condition);
