@@ -27,9 +27,33 @@ import { userModelName, UserPersistence } from "src/infras/repository/user/dto";
 import { permissionModelName, PermissionPersistence } from "src/infras/repository/permission/dto";
 import { roleModelName, RolePersistence } from "src/infras/repository/role/dto";
 import { permissionRoleModelName } from "src/infras/repository/permission/dto";
+import { messageModelName, MessagePersistence } from "src/modules/messages/infras/repo/postgres/dto";
+import { entityModelName } from "src/modules/messages/entity/infras/postgres/dto";
+import { EntityPersistence } from "src/modules/messages/entity/infras/postgres/dto";
+import { actorModelName, ActorPersistence } from "src/modules/messages/actor/infras/postgres/dto";
 
 export const initializeAssociation = () => {
   
+MessagePersistence.belongsTo(ActorPersistence, {
+  foreignKey: 'actor_id',
+  as: actorModelName.toLowerCase(),
+});
+
+ActorPersistence.hasOne(MessagePersistence, {
+  foreignKey: 'actor_id',
+  as: messageModelName.toLowerCase(),
+});
+
+MessagePersistence.belongsTo(EntityPersistence, {
+  foreignKey: 'entity_id',
+  as: entityModelName.toLowerCase(),
+});
+
+EntityPersistence.hasOne(MessagePersistence, {
+  foreignKey: 'entity_id',
+  as: messageModelName.toLowerCase(),
+});
+
 PaymentMethodPersistence.hasOne(PaymentPersistence, {
   foreignKey: 'id',
   as: paymentModelName.toLowerCase(),
