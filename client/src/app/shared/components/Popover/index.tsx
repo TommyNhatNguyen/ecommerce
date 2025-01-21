@@ -23,7 +23,6 @@ const withDeleteConfirmPopover = (Component: React.ReactNode) => {
       setOpen((prev) => !prev);
     };
     const _onDelete = () => {
-      _toggleOpenDeleteConfirm();
       handleDelete();
     };
     const _renderContent = () => {
@@ -36,6 +35,10 @@ const withDeleteConfirmPopover = (Component: React.ReactNode) => {
           {isWithDeleteConfirmPopover ? (
             <Popover
               trigger="click"
+              open={openDeleteConfirm}
+              onOpenChange={() => {
+                _toggleOpenDeleteConfirm();
+              }}
               content={
                 <div className="flex justify-end gap-2">
                   <Button type="default" onClick={_toggleOpenDeleteConfirm}>

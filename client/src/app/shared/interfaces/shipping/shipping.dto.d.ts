@@ -10,3 +10,8 @@ export interface ShippingConditionDTO {
   page?: number;
   limit?: number;
 }
+
+export interface CreateShippingDTO {
+  name: string;
+  cost: number;
+}
