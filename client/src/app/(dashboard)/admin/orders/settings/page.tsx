@@ -1,6 +1,8 @@
 "use client";
+import { usePaymentMethod } from "@/app/(dashboard)/admin/orders/settings/hooks/usePaymentMethod";
 import { useShipping } from "@/app/(dashboard)/admin/orders/settings/hooks/useShipping";
 import CreateCategoryModal from "@/app/shared/components/GeneralModal/components/CreateCategoryModal";
+import CreatePaymentMethodModal from "@/app/shared/components/GeneralModal/components/CreatePaymentMethod";
 import CreateShippingModal from "@/app/shared/components/GeneralModal/components/CreateShippingModal";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import { formatCurrency } from "@/app/shared/utils/utils";
@@ -30,11 +32,33 @@ const SettingsPage = (props: Props) => {
     createShippingError,
     handleDeleteShipping,
   } = useShipping();
+  const {
+    paymentMethodData,
+    isLoadingPaymentMethod,
+    handleOpenModalCreatePaymentMethod,
+    handleCloseModalCreatePaymentMethod,
+    handleSubmitCreatePaymentMethod,
+    isOpenModalCreatePaymentMethod,
+    handleOpenModalUpdatePaymentMethod,
+    handleCloseModalUpdatePaymentMethod,
+    isOpenModalUpdatePaymentMethod,
+    handleDeletePaymentMethod,
+    deletePaymentMethodLoading,
+    deletePaymentMethodError,
+    createPaymentMethodLoading,
+    createPaymentMethodError,
+  } = usePaymentMethod();
   const _onOpenModalUpdateShipping = (id: string) => {
     handleOpenModalUpdateShipping(id);
   };
   const _onDeleteShipping = (id: string) => {
     handleDeleteShipping(id);
+  };
+  const _onOpenModalUpdatePaymentMethod = (id: string) => {
+    handleOpenModalUpdatePaymentMethod(id);
+  };
+  const _onDeletePaymentMethod = (id: string) => {
+    handleDeletePaymentMethod(id);
   };
   return (
     <main className="setting-page">
@@ -85,8 +109,52 @@ const SettingsPage = (props: Props) => {
             </div>
           )}
         </Card>
+        {/* Payment Method Card */}
+        <Card
+          title="Payment Method"
+          className="relative h-full max-h-[300px] overflow-y-auto"
+          extra={
+            <Button
+              type="primary"
+              className="flex items-center gap-2"
+              onClick={handleOpenModalCreatePaymentMethod}
+            >
+              <PlusIcon className="h-4 w-4" />
+              Add new
+            </Button>
+          }
+        >
+          {paymentMethodData &&
+            paymentMethodData.data.map((item) => (
+              <Tooltip title={`${item.type}`} key={item.id}>
+                <div className="flex w-full items-center justify-between">
+                  {item.type} - {formatCurrency(item.cost)}
+                  <div className="flex items-center gap-1">
+                    <Button
+                      type="text"
+                      className="aspect-square rounded-full p-0"
+                      onClick={() => _onOpenModalUpdatePaymentMethod(item.id)}
+                    >
+                      <Pencil className="h-4 w-4 stroke-yellow-500" />
+                    </Button>
+                    <ButtonDeleteWithPopover
+                      title={`Delete ${item.type}?`}
+                      trigger={"click"}
+                      handleDelete={() => {
+                        _onDeletePaymentMethod(item.id);
+                      }}
+                    />
+                  </div>
+                </div>
+              </Tooltip>
+            ))}
+          {paymentMethodData && paymentMethodData.data.length === 0 && (
+            <div className="flex h-full items-center justify-center">
+              <Empty description="No payment method found" />
+            </div>
+          )}
+        </Card>
       </div>
-      <p>shipping</p>
       <p>payment</p>
       <p>discount</p>
       <p>cost</p>
@@ -96,6 +164,12 @@ const SettingsPage = (props: Props) => {
         handleCloseModalCreateShipping={handleCloseModalCreateShipping}
         handleSubmitCreateShippingForm={handleSubmitCreateShipping}
         loading={isLoadingShipping}
+      />
+      <CreatePaymentMethodModal
+        isModalCreatePaymentMethodOpen={isOpenModalCreatePaymentMethod}
+        handleCloseModalCreatePaymentMethod={handleCloseModalCreatePaymentMethod}
+        handleSubmitCreatePaymentMethod={handleSubmitCreatePaymentMethod}
+        loading={createPaymentMethodLoading}
       />
     </main>
   );

@@ -4,6 +4,7 @@ import z from "zod";
 export const IPaymentMethodCreateDTOSchema = z.object({
   type: z.string(),
   cost: z.number().min(-1),
+  status: z.nativeEnum(ModelStatus).optional(),
 })
 
 export const IPaymentMethodUpdateDTOSchema  = z.object({

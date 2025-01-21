@@ -10,3 +10,9 @@ export interface PaymentMethodConditionDTO {
   limit?: number;
   page?: number;
 }
+
+export interface CreatePaymentMethodDTO {
+  type: string;
+  cost: number;
+  status?: ModelStatus;
+}
