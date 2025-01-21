@@ -1,8 +1,9 @@
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 const WEBSOCKET_CORS = {
-  origin: '*',
   methods: ['GET', 'POST'],
+  origin: ['https://admin.socket.io', 'http://localhost:3003', 'http://localhost:3000'],
+  credentials: true,
 };
 
 class Websocket extends Server {

@@ -4,22 +4,26 @@ import z from 'zod';
 
 export const IActorCreateDTOSchema = z.object({
   type: z.nativeEnum(ActorType),
-  actor_id: z.string().uuid(),
-  status: z.nativeEnum(ModelStatus).default(ModelStatus.ACTIVE),
+  actor_info_id: z.string().uuid(),
 });
 
 export const IActorUpdateDTOSchema = z.object({
   type: z.nativeEnum(ActorType).optional(),
-  actor_id: z.string().uuid().optional(),
+  actor_info_id: z.string().uuid().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
 });
 
 export const IActorConditionDTOSchema = z.object({
   type: z.nativeEnum(ActorType).optional(),
-  actor_id: z.string().uuid().optional(),
+  actor_info_id: z.string().uuid().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
+});
+
+export const IActorByActorInfoIdDTOSchema = z.object({
+  actor_info_id: z.string().uuid(),
 });
 
 export type IActorCreateDTO = z.infer<typeof IActorCreateDTOSchema>;
 export type IActorUpdateDTO = z.infer<typeof IActorUpdateDTOSchema>;
 export type IActorConditionDTO = z.infer<typeof IActorConditionDTOSchema>;
+export type IActorByActorInfoIdDTO = z.infer<typeof IActorByActorInfoIdDTOSchema>;

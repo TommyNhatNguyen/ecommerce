@@ -14,7 +14,7 @@ export class PostgresMessageRepository implements IMessageRepository {
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
-  async createMessage(data: IMessageCreateDTO): Promise<MessageModel> {
+  async createMessage(data: Omit<IMessageCreateDTO, 'actor_type' | 'actor_info_id' | 'entity_info' >): Promise<MessageModel> {
     const message = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });

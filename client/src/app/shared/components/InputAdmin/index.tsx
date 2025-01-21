@@ -4,7 +4,10 @@ import React, { forwardRef } from "react";
 import { ControllerRenderProps } from "react-hook-form";
 
 type InputAdminPropsType = {
-  label?: string | React.ReactNode | (() => React.ReactNode);
+  label?:
+    | string
+    | React.ReactNode
+    | ((labelClassName?: string) => React.ReactNode);
   error?: string;
   required?: boolean;
   customComponent?: (
@@ -12,6 +15,7 @@ type InputAdminPropsType = {
     ref: React.RefObject<InputRef>,
   ) => React.ReactNode;
   groupClassName?: string;
+  labelClassName?: string;
 } & InputProps;
 
 const InputAdmin = forwardRef(
@@ -22,15 +26,16 @@ const InputAdmin = forwardRef(
       required = false,
       customComponent,
       groupClassName,
+      labelClassName,
       ...props
     }: InputAdminPropsType,
     ref: any,
   ) => {
     return (
       <div className={cn("flex flex-col gap-1", groupClassName)}>
-        <label className="font-medium">
+        <label className={cn("font-medium", labelClassName)}>
           {required && <span className="text-red-500">*</span>}
-          {typeof label === "function" ? label() : label}
+          {typeof label === "function" ? label(labelClassName) : label}
         </label>
         {customComponent ? (
           customComponent(

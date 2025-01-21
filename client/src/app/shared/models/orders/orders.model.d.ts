@@ -44,6 +44,8 @@ export interface OrderDetailModel {
   total_payment_fee: number;
   total_costs: number;
   total_discount: number;
+  total_order_discount: number;
+  total_product_discount: number;
   total: number;
   shipping_method_id: string;
   payment_id: string;

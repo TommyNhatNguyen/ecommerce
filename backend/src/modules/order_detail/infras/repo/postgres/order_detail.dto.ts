@@ -9,6 +9,9 @@ export class OrderDetailPersistence extends Model {
   declare total_shipping_fee: number;
   declare total_payment_fee: number;
   declare total_costs: number;
+  declare total_order_discount: number;
+  declare total_product_discount: number;
+  declare total_discount: number;
   declare total: number;
   declare shipping_method_id: string;
   declare payment_id: string;
@@ -49,6 +52,16 @@ export const orderDetailInit = (sequelize: Sequelize) => {
         defaultValue: 0,
       },
       total_costs: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      total_order_discount: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      total_product_discount: {
         type: DataTypes.FLOAT,
         allowNull: false,
         defaultValue: 0,

@@ -36,6 +36,10 @@ export const messageInit = (sequelize: Sequelize) => {
         type: DataTypes.TEXT,
         allowNull: false,
       },
+      read_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
         allowNull: false,

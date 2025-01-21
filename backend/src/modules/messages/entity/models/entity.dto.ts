@@ -23,6 +23,12 @@ export const IEntityConditionDTOSchema = z.object({
   status: z.nativeEnum(ModelStatus).optional(),
 });
 
+export const IEntityByTypeAndKindDTOSchema = z.object({ 
+  type: z.string(),
+  kind: z.nativeEnum(EntityKind),
+});
+
 export type IEntityCreateDTO = z.infer<typeof IEntityCreateDTOSchema>;
 export type IEntityUpdateDTO = z.infer<typeof IEntityUpdateDTOSchema>;
 export type IEntityConditionDTO = z.infer<typeof IEntityConditionDTOSchema>;
+export type IEntityByTypeAndKindDTO = z.infer<typeof IEntityByTypeAndKindDTOSchema>;

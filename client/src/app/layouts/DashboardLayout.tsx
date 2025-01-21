@@ -36,7 +36,11 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { useAppDispatch, useAppSelector } from "@/app/shared/hooks/useRedux";
 import { increment } from "@/app/shared/store/reducers/counter";
@@ -47,6 +51,7 @@ import {
   setOrderCreated,
 } from "@/app/shared/store/reducers/socket";
 import { socketServices } from "@/app/shared/services/sockets";
+import { notificationServices } from "@/app/shared/services/notification/notificationService";
 const { Header, Footer, Sider, Content } = Layout;
 type DashboardLayoutPropsType = {
   children: React.ReactNode;
@@ -101,10 +106,13 @@ const dropdownItems: MenuItem[] = [
 ];
 
 export const DashboardWrapper = ({ children }: DashboardLayoutPropsType) => {
+  const queryClient = new QueryClient();
   return (
-    <NotificationContextProvider>
-      <DashboardLayout>{children}</DashboardLayout>
-    </NotificationContextProvider>
+    <QueryClientProvider client={queryClient}>
+      <NotificationContextProvider>
+        <DashboardLayout>{children}</DashboardLayout>
+      </NotificationContextProvider>
+    </QueryClientProvider>
   );
 };
 
@@ -114,7 +122,6 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   const pathname = usePathname();
   const router = useRouter();
   const { notificationApi } = useNotification();
-  const queryClient = new QueryClient();
   const currentPath = pathname.split("/").slice(1);
   const { orderCreated } = useAppSelector((state) => state.socket);
   const toggleCollapsed = () => {
@@ -123,6 +130,10 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   const handleSelect = (key: string) => {
     router.push(key);
   };
+  const { data: notifications, isLoading } = useQuery({
+    queryKey: ["notifications", orderCreated],
+    queryFn: () => notificationServices.getList({}),
+  });
   // --- ORDER NOTIFICATION ---
   useSocket(
     socketServices.orderIo,
@@ -140,75 +151,81 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
     }
   }, [orderCreated]);
   return (
-    <QueryClientProvider client={queryClient}>
-      <Layout className="h-screen">
-        <Sider className="bg-white" collapsed={collapsed}>
-          <div className="flex items-center justify-between gap-2 p-2">
-            <Logo />
-            <button onClick={toggleCollapsed}>
-              {collapsed ? <SquareChevronLeft /> : <SquareChevronRight />}
-            </button>
-          </div>
-          <Divider variant="dashed" />
-          <Menu
-            items={items}
-            inlineCollapsed={collapsed}
-            selectedKeys={[`/${pathname.split("/").slice(1, 3).join("/")}`]}
-            onSelect={(e) => handleSelect(e.key)}
-            mode="inline"
+    <Layout className="h-screen">
+      <Sider className="bg-white" collapsed={collapsed}>
+        <div className="flex items-center justify-between gap-2 p-2">
+          <Logo />
+          <button onClick={toggleCollapsed}>
+            {collapsed ? <SquareChevronLeft /> : <SquareChevronRight />}
+          </button>
+        </div>
+        <Divider variant="dashed" />
+        <Menu
+          items={items}
+          inlineCollapsed={collapsed}
+          selectedKeys={[`/${pathname.split("/").slice(1, 3).join("/")}`]}
+          onSelect={(e) => handleSelect(e.key)}
+          mode="inline"
+        />
+      </Sider>
+      <Layout>
+        <Header className="flex items-center justify-between bg-white px-4">
+          <Input.Search
+            placeholder="Search..."
+            style={{ width: 300 }}
+            prefix={<Search />}
           />
-        </Sider>
-        <Layout>
-          <Header className="flex items-center justify-between bg-white px-4">
-            <Input.Search
-              placeholder="Search..."
-              style={{ width: 300 }}
-              prefix={<Search />}
-            />
-            <div className="flex items-center gap-4">
-              <Badge count={5}>
-                <Button type="text" icon={<Bell />} size="small" />
-              </Badge>
-              <Dropdown
-                menu={{
-                  items: dropdownItems,
-                }}
-                trigger={["click"]}
-              >
-                <div className="flex items-center gap-2">
-                  <Avatar shape="square" icon={<User />} />
-                  <div className="h-fit">
-                    <p className="h-fit font-open-sans-medium">John Doe</p>
-                  </div>
-                  <ChevronDown />
+          <div className="flex items-center gap-4">
+            <Badge count={5}>
+              <Button type="text" icon={<Bell />} size="small" />
+            </Badge>
+            <Dropdown
+              menu={{
+                items: dropdownItems,
+              }}
+              trigger={["click"]}
+            >
+              <div className="flex items-center gap-2">
+                <Avatar shape="square" icon={<User />} />
+                <div className="h-fit">
+                  <p className="h-fit font-open-sans-medium">John Doe</p>
                 </div>
-              </Dropdown>
-            </div>
-          </Header>
-          <Button
-            onClick={() =>
-              useSocketPush(
-                socketServices.orderIo,
-                SOCKET_EVENTS_ENDPOINT.ORDER_CREATED,
-                "Order created" + Math.random(),
-              )
-            }
-          >
-            Create Order
-          </Button>
-          <Content className="mb-4 min-h-screen p-2">
-            <h1 className="text-xl font-bold capitalize">
-              {currentPath.map((path) => path.toUpperCase()).join(" - ")}
-            </h1>
-            <Divider />
-            {children}
-          </Content>
-          <Footer className="bg-white text-center">
-            @copyright 2023 Nguyen Anh Nhat
-          </Footer>
-        </Layout>
+                <ChevronDown />
+              </div>
+            </Dropdown>
+          </div>
+        </Header>
+        <Button
+          onClick={() =>
+            useSocketPush(
+              socketServices.orderIo,
+              SOCKET_EVENTS_ENDPOINT.ORDER_CREATED,
+              JSON.stringify({
+                entity_info: {
+                  kind: "create",
+                  type: "order",
+                },
+                actor_info_id: "019477ff-deb9-75ac-9ec7-e921166ad393",
+                actor_type: "customer",
+                message: "Order created",
+              }),
+            )
+          }
+        >
+          Create Order
+        </Button>
+        <Content className="mb-4 min-h-screen p-2">
+          <h1 className="text-xl font-bold capitalize">
+            {currentPath.map((path) => path.toUpperCase()).join(" - ")}
+          </h1>
+          <Divider />
+          {children}
+        </Content>
+        <Footer className="bg-white text-center">
+          @copyright 2023 Nguyen Anh Nhat
+        </Footer>
       </Layout>
-    </QueryClientProvider>
+    </Layout>
   );
 };
 

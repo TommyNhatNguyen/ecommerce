@@ -52,7 +52,6 @@ export class InventoryHttpService {
   async updateInventory(req: Request, res: Response) {
     const { id } = req.params;
     const data = InventoryUpdateDTOSchema.safeParse(req.body);
-    console.log(data);
     if (!data.success) {
       res.status(400).json({ message: 'Invalid data' });
       return;

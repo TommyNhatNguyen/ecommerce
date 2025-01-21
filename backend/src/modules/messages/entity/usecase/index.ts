@@ -15,7 +15,7 @@ import {
 } from 'src/modules/messages/entity/models/entity.dto';
 import { IEntityRepository } from 'src/modules/messages/entity/models/entity.interface';
 import { IEntityUseCase } from 'src/modules/messages/entity/models/entity.interface';
-import { Entity } from 'src/modules/messages/entity/models/entity.model';
+import { Entity, EntityKind } from 'src/modules/messages/entity/models/entity.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
@@ -41,5 +41,11 @@ export class EntityUsecase implements IEntityUseCase {
     condition: IEntityConditionDTO
   ): Promise<ListResponse<Entity[]>> {
     return this.entityRepo.getEntityList(paging, condition);
+  }
+  getEntityByTypeAndKind(
+    type: string,
+    kind: EntityKind
+  ): Promise<Entity | null> {
+    return this.entityRepo.getEntityByTypeAndKind(type, kind);
   }
 }

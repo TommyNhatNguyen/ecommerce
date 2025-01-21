@@ -99,6 +99,7 @@ import { setupNotification } from 'src/modules/notification';
 import { setupActorRouter } from 'src/modules/messages/actor';
 import { setupEntityRouter } from 'src/modules/messages/entity';
 import { setupMessageRouter } from 'src/modules/messages';
+import { instrument } from '@socket.io/admin-ui';
 config();
 
 (async () => {
@@ -114,12 +115,14 @@ config();
 
 const app = express();
 const port = process.env.PORT || 3000;
-
 const socketApp = express();
 const socketPort = process.env.SOCKET_PORT || 3003;
 const server = createServer(socketApp);
 const io = Websocket.getInstance(server);
-
+instrument(io, {
+  auth: false,
+  mode: 'development',
+});
 app.use(
   express.json({
     limit: '50mb',
@@ -127,7 +130,7 @@ app.use(
 );
 app.use(cors());
 
-setupNotification(io);
+setupNotification(io, sequelize);
 app.use('/v1', setupProductRouter(sequelize));
 app.use('/v1', setupCategoryRouter(sequelize));
 app.use('/v1', setupDiscountRouter(sequelize));

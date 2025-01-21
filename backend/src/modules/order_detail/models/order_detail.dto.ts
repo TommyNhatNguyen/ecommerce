@@ -9,6 +9,8 @@ export const OrderDetailCreateDTOSchema = z.object({
   total_payment_fee: z.number().default(0),
   total_costs: z.number().default(0),
   total_discount: z.number().default(0),
+  total_order_discount: z.number().default(0),
+  total_product_discount: z.number().default(0),
   total: z.number().default(0),
   shipping_method_id: z.string().uuid(),
   payment_id: z.string().uuid().optional(),

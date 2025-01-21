@@ -25,6 +25,10 @@ export const setupEntityRouter = (sequelize: Sequelize) => {
     '/entity',
     entityHttpService.getEntityList.bind(entityHttpService)
   );
+  router.get(
+    '/entity?type=:type&kind=:kind',
+    entityHttpService.getEntityByTypeAndKind.bind(entityHttpService)
+  );
   router.post(
     '/entity',
     entityHttpService.createEntity.bind(entityHttpService)

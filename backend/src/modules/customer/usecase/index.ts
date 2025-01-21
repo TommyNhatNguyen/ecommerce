@@ -15,7 +15,7 @@ import { PagingDTO } from 'src/share/models/paging';
 export class CustomerUseCase implements ICustomerUseCase {
   constructor(
     private readonly customerRepository: ICustomerRepository,
-    private readonly cartRepository: ICartRepository
+    private readonly cartRepository?: ICartRepository
   ) {}
   async getCustomerById(
     id: string,
@@ -30,7 +30,7 @@ export class CustomerUseCase implements ICustomerUseCase {
     return await this.customerRepository.getCustomerList(paging, condition);
   }
   async createCustomer(data: CustomerCreateDTO): Promise<Customer> {
-    const cart = await this.cartRepository.create({
+    const cart = await this.cartRepository?.create({
       product_quantity: 0,
       product_count: 0,
       subtotal: 0,

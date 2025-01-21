@@ -41,7 +41,6 @@ export class PostgresCustomerRepository implements ICustomerRepository {
     };
   }
   async createCustomer(data: CustomerCreateDTO): Promise<Customer> {
-    console.log(data)
     const customer = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });

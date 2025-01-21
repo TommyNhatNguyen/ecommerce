@@ -26,7 +26,7 @@ export const actorInit = (sequelize: Sequelize) => {
         type: DataTypes.ENUM(...Object.values(ActorType)),
         allowNull: false,
       },
-      actor_id: {
+      actor_info_id: {
         type: DataTypes.UUID,
         allowNull: false,
       },

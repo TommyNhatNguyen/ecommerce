@@ -24,9 +24,8 @@ export const entityInit = (sequelize: Sequelize) => {
         defaultValue: () => uuidv7(),
       },
       type: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
       },
       kind: {
         type: DataTypes.ENUM(...Object.values(EntityKind)),

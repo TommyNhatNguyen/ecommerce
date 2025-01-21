@@ -25,5 +25,9 @@ export const setupActorRouter = (sequelize: Sequelize) => {
     '/actor/:id',
     actorHttpService.deleteActor.bind(actorHttpService)
   );
+  router.get(
+    '/actor?actor_info_id=:actor_info_id',
+    actorHttpService.getActorByActorInfoId.bind(actorHttpService)
+  );
   return router;
 };

@@ -54,6 +54,8 @@ type OrderTablePropsType = {
     selected: boolean,
     selectedRows: OrderTableDataType[],
   ) => void;
+  handleSoftDeleteOrder: (order_id: string) => void;
+  isSoftDeleteOrderLoading: boolean;
 };
 export type OrderTableDataType = {
   key: string;
@@ -70,6 +72,8 @@ export type OrderTableDataType = {
   total_payment_fee: number;
   total_costs: number;
   total_discount: number;
+  total_order_discount: number;
+  total_product_discount: number;
   total: number;
   discount: DiscountModel[];
   product_discount: DiscountModel[];
@@ -115,6 +119,8 @@ const OrderTable = ({
   selectedRows,
   handleSelectAllRow,
   handleSelectRow,
+  handleSoftDeleteOrder,
+  isSoftDeleteOrderLoading,
 }: OrderTablePropsType) => {
   const [orderPage, setOrderPage] = useState(1);
   const [orderLimit, setOrderLimit] = useState(10);
@@ -132,6 +138,7 @@ const OrderTable = ({
       isUpdateOrderStateLoading,
       isUpdateOrderStatusLoading,
       orderCreated,
+      isSoftDeleteOrderLoading,
     ],
     queryFn: () =>
       orderService.getList({
@@ -157,6 +164,9 @@ const OrderTable = ({
     setOrderId("");
     setIsModalOrderDetailOpen(false);
     setIsEditMode(false);
+  };
+  const _onSoftDeleteOrder = (order_id: string) => {
+    handleSoftDeleteOrder(order_id);
   };
   const _onConfirmUpdateOrderDetail = (data: any) => {
     // handleConfirmOrderDetail();
@@ -205,6 +215,8 @@ const OrderTable = ({
       total_payment_fee: order.order_detail.total_payment_fee || 0,
       total_costs: order.order_detail.total_costs || 0,
       total_discount: order.order_detail.total_discount || 0,
+      total_order_discount: order.order_detail.total_order_discount || 0,
+      total_product_discount: order.order_detail.total_product_discount || 0,
       total: order.order_detail.total || 0,
       discount: order.order_detail.discount || [],
       product_discount:
@@ -542,13 +554,10 @@ const OrderTable = ({
         <ActionGroup
           isWithDeleteConfirmPopover={false}
           deleteConfirmPopoverProps={{
-            title: "Are you sure you want to delete this product?",
+            title: "Are you sure you want to delete this order?",
           }}
           handleDelete={() => {
-            // _onSoftDeleteProduct(id);
-          }}
-          handleEdit={() => {
-            _onOpenModalOrderDetail(id, true);
+            _onSoftDeleteOrder(id);
           }}
         />
       ),

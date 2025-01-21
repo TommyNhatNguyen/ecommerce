@@ -33,6 +33,15 @@ export class PostgresActorRepository implements IActorRepository {
     });
     return actor > 0;
   }
+  async getActorByActorInfoId(
+    actorInfoId: string,
+    condition?: IActorConditionDTO
+  ): Promise<Actor | null> {
+    const actor = await this.sequelize.models[this.modelName].findOne({
+      where: { actor_info_id: actorInfoId },
+    });
+    return actor?.dataValues || null;
+  }
   async getActorById(
     id: string,
     condition: IActorConditionDTO
@@ -49,7 +58,7 @@ export class PostgresActorRepository implements IActorRepository {
     const { page, limit } = paging;
     const where: any = {};
     if (condition.type) where.type = condition.type;
-    if (condition.actor_id) where.actor_id = condition.actor_id;
+    if (condition.actor_info_id) where.actor_info_id = condition.actor_info_id;
     if (condition.status) where.status = condition.status;
     const { rows, count } = await this.sequelize.models[
       this.modelName

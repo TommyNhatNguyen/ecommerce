@@ -26,6 +26,8 @@ export interface IOrderDetailUseCase {
       | 'payment_id'
       | 'total'
       | 'total_discount'
+      | 'total_order_discount'
+      | 'total_product_discount'
     >
   ): Promise<OrderDetail>;
   update(id: string, data: OrderDetailUpdateDTO): Promise<OrderDetail>;

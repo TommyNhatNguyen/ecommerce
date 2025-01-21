@@ -35,4 +35,10 @@ export const orderService = {
     });
     return response.data;
   },
+  async softDeleteOrder(order_id: string) {
+    const response = await axiosInstance.put(`/order/${order_id}`, {
+      status: "DELETED",
+    });
+    return response.data;
+  },
 };

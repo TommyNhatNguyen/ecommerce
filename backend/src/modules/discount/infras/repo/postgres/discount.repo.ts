@@ -34,7 +34,6 @@ export class PostgresDiscountRepository implements IDiscountRepository {
         [Op.eq]: condition.scope,
       };
     }
-    console.log(condition);
     const { page, limit } = paging;
     const order = condition?.order || BaseOrder.DESC;
     const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
@@ -62,7 +61,6 @@ export class PostgresDiscountRepository implements IDiscountRepository {
     return discount?.dataValues || null;
   }
   async insert(data: DiscountCreateDTOSchema): Promise<Discount> {
-    console.log(data);
     const discount = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });

@@ -1,6 +1,6 @@
 import { IEntityCreateDTO, IEntityUpdateDTO } from 'src/modules/messages/entity/models/entity.dto';
 import { IEntityConditionDTO } from 'src/modules/messages/entity/models/entity.dto';
-import { Entity } from 'src/modules/messages/entity/models/entity.model';
+import { Entity, EntityKind } from 'src/modules/messages/entity/models/entity.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
@@ -8,6 +8,10 @@ export interface IEntityUseCase {
   getEntityById(
     id: string,
     condition?: IEntityConditionDTO
+  ): Promise<Entity | null>;
+  getEntityByTypeAndKind(
+    type: string,
+    kind: EntityKind
   ): Promise<Entity | null>;
   getEntityList(
     paging: PagingDTO,
@@ -31,6 +35,10 @@ export interface IQueryRepository {
     paging: PagingDTO,
     condition: IEntityConditionDTO
   ): Promise<ListResponse<Entity[]>>;
+  getEntityByTypeAndKind(
+    type: string,
+    kind: EntityKind
+  ): Promise<Entity | null>;
 }
 
 export interface ICommandRepository {

@@ -16,7 +16,9 @@ export interface IMessageUseCase {
     paging: PagingDTO,
     condition?: IMessageConditionDTO
   ): Promise<ListResponse<MessageModel[]>>;
-  createMessage(data: IMessageCreateDTO): Promise<MessageModel>;
+  createMessage(
+    data: Omit<IMessageCreateDTO, 'entity_id' | 'actor_id' | 'message'>
+  ): Promise<MessageModel>;
   updateMessage(id: string, data: IMessageUpdateDTO): Promise<MessageModel>;
   deleteMessage(id: string): Promise<boolean>;
 }
@@ -37,7 +39,12 @@ export interface IQueryRepository {
 }
 
 export interface ICommandRepository {
-  createMessage(data: IMessageCreateDTO): Promise<MessageModel>;
+  createMessage(
+    data: Omit<
+      IMessageCreateDTO,
+      'actor_type' | 'actor_info_id' | 'entity_info'
+    >
+  ): Promise<MessageModel>;
   updateMessage(id: string, data: IMessageUpdateDTO): Promise<MessageModel>;
   deleteMessage(id: string): Promise<boolean>;
 }

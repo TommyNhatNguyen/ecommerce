@@ -7,8 +7,12 @@ import Websocket from "src/share/modules/websocket";
 export class NotificationUseCase implements INotificationUseCase {
   constructor(private readonly notificationPersistence: NotificationPersistence ) {}
 
-  notifyOrderCreated(data: any) {
-    this.notificationPersistence.notifyOrderCreated(data);
+  notifyOrderCreatedToCustomer(data: any) {
+    this.notificationPersistence.notifyOrderCreatedToCustomer(data);
+  }
+
+  notifyOrderCreated(data: any, isBroadcast: boolean = false) {
+    this.notificationPersistence.notifyOrderCreated(data, isBroadcast);
   }
 
   listenOrderCreated(callback: (data: any) => void) {

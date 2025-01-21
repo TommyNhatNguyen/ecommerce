@@ -27,6 +27,7 @@ import { defaultImage } from "@/app/shared/resources/images/default-image";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import { useUpdateProductModal } from "@/app/shared/components/GeneralModal/hooks/useUpdateProductModal";
 import { UpdateProductDTO } from "@/app/shared/interfaces/products/product.dto";
+import { DISCOUNT_SCOPE } from "@/app/constants/enum";
 
 const ButtonDeleteImageWithPopover = withDeleteConfirmPopover(
   <Button type="text" className="aspect-square rounded-full p-0">
@@ -65,7 +66,8 @@ const UpdateProductModal = ({
   });
   const { data: discounts, isLoading: isLoadingDiscounts } = useQuery({
     queryKey: ["discounts", isModalUpdateProductOpen],
-    queryFn: () => discountsService.getDiscounts(),
+    queryFn: () =>
+      discountsService.getDiscounts({ scope: DISCOUNT_SCOPE.PRODUCT }),
     enabled: isModalUpdateProductOpen,
   });
   const {

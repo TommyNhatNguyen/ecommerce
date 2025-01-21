@@ -123,7 +123,6 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
           }, 0) ?? 0;
         return discountByFixedAmount + discountByPercentageAmount;
       });
-      console.log(discountAmountList);
       orderDetailProducts.push(
         ...products.data.map((product, index) => ({
           order_detail_id: '',
@@ -197,7 +196,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
       );
       if (discounts.data.length !== order_discounts.length)
         throw ORDER_DETAIL_DISCOUNT_ERROR;
-      payload.total_discount = discounts.data.reduce((acc, discount) => {
+      payload.total_order_discount = discounts.data.reduce((acc, discount) => {
         let totalDiscount = 0;
         if (discount.type === DiscountType.FIXED) {
           totalDiscount += discount.amount;
@@ -205,7 +204,14 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
           totalDiscount += (payload.subtotal * discount.amount) / 100;
         }
         return acc + totalDiscount;
-      }, 0) + orderDetailProducts.reduce((acc, product) => acc + product.discount_amount, 0);
+      }, 0);
+      payload.total_product_discount = orderDetailProducts.reduce(
+        (acc, product) => acc + product.discount_amount,
+        0
+      );
+      payload.total_discount =
+        payload.total_order_discount + payload.total_product_discount;
+        
       orderDetailDiscounts.push(
         ...discounts.data.map((discount) => ({
           order_detail_id: '',

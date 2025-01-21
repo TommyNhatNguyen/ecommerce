@@ -13,6 +13,12 @@ import { PagingDTO } from 'src/share/models/paging';
 
 export class ActorUsecase implements IActorUseCase {
   constructor(private readonly actorRepo: IActorRepository) {}
+  getActorByActorInfoId(
+    actorInfoId: string,
+    condition?: IActorConditionDTO
+  ): Promise<Actor | null> {
+    return this.actorRepo.getActorByActorInfoId(actorInfoId, condition);
+  }
   getActorById(
     id: string,
     condition: IActorConditionDTO

@@ -5,7 +5,7 @@ import {
   IEntityUpdateDTO,
 } from 'src/modules/messages/entity/models/entity.dto';
 import { IEntityRepository } from 'src/modules/messages/entity/models/entity.interface';
-import { Entity } from 'src/modules/messages/entity/models/entity.model';
+import { Entity, EntityKind } from 'src/modules/messages/entity/models/entity.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
@@ -67,5 +67,14 @@ export class PostgresEntityRepository implements IEntityRepository {
         limit,
       },
     };
+  }
+  async getEntityByTypeAndKind(
+    type: string,
+    kind: EntityKind
+  ): Promise<Entity | null> {
+    const entity = await this.sequelize.models[this.modelName].findOne({
+      where: { type, kind },
+    });
+    return entity?.dataValues || null;
   }
 }

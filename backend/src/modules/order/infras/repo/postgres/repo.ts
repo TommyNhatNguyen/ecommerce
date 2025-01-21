@@ -4,9 +4,9 @@ import {
   OrderCreateDTO,
   OrderUpdateDTO,
 } from 'src/modules/order/models/order.dto';
-import { ListResponse } from 'src/share/models/base-model';
+import { ListResponse, ModelStatus } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
-import { IncludeOptions, Sequelize } from 'sequelize';
+import { IncludeOptions, Sequelize, WhereOptions } from 'sequelize';
 import { Order } from 'src/modules/order/models/order.model';
 import {
   orderDetailModelName,
@@ -29,6 +29,7 @@ import {
 } from 'src/modules/payment_method/infras/postgres/repo/payment_method.dto';
 import { ImagePersistence } from 'src/infras/repository/image/dto';
 import { imageModelName } from 'src/infras/repository/image/dto';
+import { Op } from 'sequelize';
 export class PostgresOrderRepository implements IOrderRepository {
   constructor(
     private readonly sequelize: Sequelize,
@@ -131,6 +132,11 @@ export class PostgresOrderRepository implements IOrderRepository {
     condition: OrderConditionDTO
   ): Promise<ListResponse<Order[]>> {
     const include: IncludeOptions[] = [];
+    const where: WhereOptions = {
+      status: {
+        [Op.ne]: ModelStatus.DELETED,
+      },
+    };
     const orderDetailInclude: IncludeOptions[] = [];
     if (condition.includeCost) {
       orderDetailInclude.push({
@@ -214,11 +220,21 @@ export class PostgresOrderRepository implements IOrderRepository {
         include: orderDetailInclude,
       });
     }
+    if (condition.status) {
+      where.status = {
+        [Op.eq]: condition.status,
+      };
+    }
+    if (condition.order_state) {
+      where.order_state = {
+        [Op.eq]: condition.order_state,
+      };
+    }
     const { page, limit } = paging;
     const { rows, count } = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({
-      // where: condition,
+      where,
       limit,
       offset: (page - 1) * limit,
       distinct: true,

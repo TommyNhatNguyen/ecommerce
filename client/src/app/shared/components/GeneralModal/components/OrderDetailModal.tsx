@@ -1,9 +1,20 @@
 import { ProductTableDataType } from "@/app/(dashboard)/admin/orders/components/OrderTable";
+import { DISCOUNT_SCOPE, DISCOUNT_TYPE } from "@/app/constants/enum";
 import { ORDER_STATE } from "@/app/constants/order-state";
 import { statusOptions } from "@/app/constants/seeds";
 import GeneralModal from "@/app/shared/components/GeneralModal";
 import InputAdmin from "@/app/shared/components/InputAdmin";
+import LoadingComponent from "@/app/shared/components/LoadingComponent";
+import ShowMoreGroup from "@/app/shared/components/ShowMoreGroup";
+import { CostModel } from "@/app/shared/models/cost/cost.model";
+import { DiscountModel } from "@/app/shared/models/discounts/discounts.model";
+import { OrderDetailCostModel } from "@/app/shared/models/orders/orders.model";
+import { costService } from "@/app/shared/services/cost/costService";
+import { discountsService } from "@/app/shared/services/discounts/discountsService";
 import { orderService } from "@/app/shared/services/orders/orderService";
+import { paymentService } from "@/app/shared/services/payment/paymentServcie";
+import { productService } from "@/app/shared/services/products/productService";
+import { shippingService } from "@/app/shared/services/shipping/shippingService";
 import { useQuery } from "@tanstack/react-query";
 import {
   Button,
@@ -11,13 +22,16 @@ import {
   Divider,
   InputNumber,
   Select,
+  Empty,
   Input,
   Table,
   TableColumnType,
+  Checkbox,
+  Popover,
 } from "antd";
 import dayjs from "dayjs";
-import { Printer } from "lucide-react";
-import React, { useEffect } from "react";
+import { EyeClosedIcon, EyeIcon, Plus, Printer } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 type Props = {
@@ -57,6 +71,7 @@ const OrderDetailModal = ({
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -69,6 +84,8 @@ const OrderDetailModal = ({
       shipping_phone: "",
       shipping_method: "",
       payment_method: "",
+      order_discount: [] as DiscountModel[],
+      cost: [] as Pick<CostModel, keyof OrderDetailCostModel>[],
       description: "",
       subtotal: 0,
       total_shipping_fee: 0,
@@ -85,6 +102,7 @@ const OrderDetailModal = ({
         created_at: orderDetail.created_at,
         status: orderDetail.status,
         order_state: orderDetail.order_state,
+        cost: orderDetail.order_detail?.cost || [],
         customer_name: orderDetail.order_detail.customer_name,
         shipping_address: orderDetail.order_detail.customer_address,
         shipping_phone: orderDetail.order_detail.customer_phone,
@@ -98,9 +116,13 @@ const OrderDetailModal = ({
         total_cost: orderDetail.order_detail.total_costs,
         total_discount: orderDetail.order_detail.total_discount,
         total: orderDetail.order_detail.total,
+        order_discount: orderDetail.order_detail.discount,
       });
     }
   }, [orderDetail]);
+  const _onConfirmOrderDetail = (data: any) => {
+    console.log(data);
+  };
   const _onCloseModalOrderDetail = () => {
     handleCloseModalOrderDetail();
   };
@@ -157,6 +179,7 @@ const OrderDetailModal = ({
                 {...field}
                 label="Status"
                 placeholder="Status"
+                disabled={!isEditMode}
                 error={errors.status?.message}
                 customComponent={(props, ref: any) => {
                   return (
@@ -273,6 +296,64 @@ const OrderDetailModal = ({
           />
           <Controller
             control={control}
+            name="order_discount"
+            render={({ field }) => (
+              <InputAdmin
+                label="Order Discount Campaign"
+                placeholder="Order Discount Campaign"
+                error={errors.order_discount?.message as string}
+                disabled={!isEditMode}
+                customComponent={(props: any, ref: any) => (
+                  <Select
+                    {...props}
+                    ref={ref}
+                    options={
+                      orderDetail?.order_detail?.discount?.map((item) => ({
+                        label: item.name,
+                        value: item.id,
+                      })) || []
+                    }
+                    value={field.value?.map((item) => item.id)}
+                    placement="bottomLeft"
+                    placeholder="Select Discount Campaign"
+                    allowClear={true}
+                    mode="multiple"
+                  />
+                )}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="cost"
+            render={({ field }) => (
+              <InputAdmin
+                label="Order Cost"
+                placeholder="Order Cost"
+                error={errors.cost?.message as string}
+                disabled={!isEditMode}
+                customComponent={(props: any, ref: any) => (
+                  <>
+                    <Select
+                      {...props}
+                      ref={ref}
+                      options={orderDetail?.order_detail?.cost?.map((item) => ({
+                        label: item.name,
+                        value: item.id,
+                      }))}
+                      value={field.value?.map((item) => item.id)}
+                      placement="bottomLeft"
+                      placeholder="Select Cost"
+                      allowClear={true}
+                      mode="multiple"
+                    />
+                  </>
+                )}
+              />
+            )}
+          />
+          <Controller
+            control={control}
             name="description"
             render={({ field }) => (
               <InputAdmin
@@ -309,13 +390,13 @@ const OrderDetailModal = ({
           <h3 className="text-lg font-bold">Order Total Value</h3>
           <Controller
             control={control}
-            name="total"
+            name="subtotal"
             render={({ field }) => (
               <InputAdmin
                 {...field}
-                label="(1) Total price"
-                placeholder="Total price"
-                disabled={!isEditMode}
+                label="(1) Subtotal "
+                placeholder="Subtotal"
+                disabled={true}
                 customComponent={(props, ref: any) => {
                   return (
                     <InputNumber {...props} ref={ref} className="w-full" />
@@ -324,33 +405,127 @@ const OrderDetailModal = ({
               />
             )}
           />
-          <div className="flex items-center gap-2">
-            <Controller
-              control={control}
-              name="total_discount"
-              render={({ field }) => (
+          <div className="flex items-start gap-2">
+            <InputAdmin
+              label="(2) Total order costs = "
+              placeholder="Total order costs"
+              disabled={true}
+              customComponent={(props, ref: any) => {
+                return (
+                  <InputNumber
+                    {...props}
+                    ref={ref}
+                    className="w-full"
+                    value={
+                      watch("total_cost") +
+                      watch("total_shipping_fee") +
+                      watch("total_payment_fee") +
+                      watch("total_discount")
+                    }
+                  />
+                );
+              }}
+            />
+            <div className="flex flex-col gap-2">
+              <Controller
+                control={control}
+                name="total_discount"
+                render={({ field }) => (
+                  <InputAdmin
+                    {...field}
+                    label="(2.1) Total discount"
+                    placeholder="Total discount"
+                    disabled={true}
+                    customComponent={(props, ref: any) => {
+                      return (
+                        <InputNumber {...props} ref={ref} className="w-full" />
+                      );
+                    }}
+                  />
+                )}
+              />
+              <ShowMoreGroup>
                 <InputAdmin
-                  {...field}
-                  label="(2.1) Total discount"
-                  placeholder="Total discount"
-                  disabled={!isEditMode}
+                  label="(2.1.1) Total product discount"
+                  placeholder="Discount"
+                  disabled={true}
                   customComponent={(props, ref: any) => {
                     return (
-                      <InputNumber {...props} ref={ref} className="w-full" />
+                      <InputNumber
+                        {...props}
+                        ref={ref}
+                        className="w-full"
+                        value={orderDetail?.order_detail.total_product_discount}
+                      />
                     );
                   }}
                 />
-              )}
-            />
+                <InputAdmin
+                  label="(2.1.2) Total order discount"
+                  placeholder="Discount"
+                  disabled={true}
+                  customComponent={(props, ref: any) => {
+                    return (
+                      <InputNumber
+                        {...props}
+                        ref={ref}
+                        className="w-full"
+                        value={orderDetail?.order_detail.total_order_discount}
+                      />
+                    );
+                  }}
+                />
+              </ShowMoreGroup>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Controller
+                control={control}
+                name="total_cost"
+                render={({ field }) => (
+                  <InputAdmin
+                    {...field}
+                    label="(2.2) Total cost"
+                    placeholder="Total cost"
+                    disabled={true}
+                    customComponent={(props, ref: any) => {
+                      return (
+                        <InputNumber {...props} ref={ref} className="w-full" />
+                      );
+                    }}
+                  />
+                )}
+              />
+              <ShowMoreGroup>
+                {orderDetail?.order_detail?.cost?.map((item, index) => (
+                  <InputAdmin
+                    key={item.id}
+                    label={`(2.2.${index + 1}) ${item.name}`}
+                    labelClassName="text-ellipsis"
+                    placeholder={item.name}
+                    disabled={true}
+                    customComponent={(props, ref: any) => {
+                      return (
+                        <InputNumber
+                          {...props}
+                          ref={ref}
+                          className="w-full"
+                          value={item.cost}
+                        />
+                      );
+                    }}
+                  />
+                ))}
+              </ShowMoreGroup>
+            </div>
             <Controller
               control={control}
               name="total_shipping_fee"
               render={({ field }) => (
                 <InputAdmin
                   {...field}
-                  label="(2.2) Total shipping fee"
+                  label="(2.3) Total shipping fee"
                   placeholder="Total shipping fee"
-                  disabled={!isEditMode}
+                  disabled={true}
                   customComponent={(props, ref: any) => {
                     return (
                       <InputNumber {...props} ref={ref} className="w-full" />
@@ -365,26 +540,9 @@ const OrderDetailModal = ({
               render={({ field }) => (
                 <InputAdmin
                   {...field}
-                  label="(2.3) Total payment fee"
+                  label="(2.4) Total payment fee"
                   placeholder="Total payment fee"
-                  disabled={!isEditMode}
-                  customComponent={(props, ref: any) => {
-                    return (
-                      <InputNumber {...props} ref={ref} className="w-full" />
-                    );
-                  }}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="total_cost"
-              render={({ field }) => (
-                <InputAdmin
-                  {...field}
-                  label="(2) Total cost = (2.1) + (2.2) + (2.3)"
-                  placeholder="Total cost"
-                  disabled={!isEditMode}
+                  disabled={true}
                   customComponent={(props, ref: any) => {
                     return (
                       <InputNumber {...props} ref={ref} className="w-full" />
@@ -402,7 +560,7 @@ const OrderDetailModal = ({
                 {...field}
                 label="(3) Total = (1) - (2)"
                 placeholder="Total"
-                disabled={!isEditMode}
+                disabled={true}
                 customComponent={(props, ref: any) => {
                   return (
                     <InputNumber {...props} ref={ref} className="w-full" />
@@ -433,7 +591,7 @@ const OrderDetailModal = ({
         <Button
           type="primary"
           htmlType="submit"
-          // onClick={_onConfirmOrderDetail}
+          onClick={handleSubmit(_onConfirmOrderDetail)}
         >
           <Printer className="h-4 w-4" />
           <span>Print</span>
@@ -442,14 +600,16 @@ const OrderDetailModal = ({
     );
   };
   return (
-    <GeneralModal
-      className="w-[80%] min-w-[900px] max-w-[1000px]"
-      renderTitle={_renderTitleModalOrderDetail}
-      renderFooter={_renderFooterModalOrderDetail}
-      renderContent={_renderContentModalOrderDetail}
-      open={isModalOrderDetailOpen}
-      onCancel={_onCloseModalOrderDetail}
-    />
+    <>
+      <GeneralModal
+        className="w-[80%] min-w-[900px] max-w-[1000px]"
+        renderTitle={_renderTitleModalOrderDetail}
+        renderFooter={_renderFooterModalOrderDetail}
+        renderContent={_renderContentModalOrderDetail}
+        open={isModalOrderDetailOpen}
+        onCancel={_onCloseModalOrderDetail}
+      />
+    </>
   );
 };
 

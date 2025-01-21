@@ -12,6 +12,10 @@ export interface IActorUseCase {
     id: string,
     condition?: IActorConditionDTO
   ): Promise<Actor | null>;
+  getActorByActorInfoId(
+    actorInfoId: string,
+    condition?: IActorConditionDTO
+  ): Promise<Actor | null>;
   getActorList(
     paging: PagingDTO,
     condition?: IActorConditionDTO
@@ -28,7 +32,11 @@ export interface IActorRepository
 export interface IQueryRepository {
   getActorById(
     id: string,
-    condition: IActorConditionDTO
+    condition?: IActorConditionDTO
+  ): Promise<Actor | null>;
+  getActorByActorInfoId(
+    actorInfoId: string,
+    condition?: IActorConditionDTO
   ): Promise<Actor | null>;
   getActorList(
     paging: PagingDTO,

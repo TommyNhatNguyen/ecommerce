@@ -68,6 +68,7 @@ export class OrderUseCase implements IOrderUseCase {
      *  customer_address
      */
     const { order_detail_info, ...orderData } = data;
+    console.log(order_detail_info)
     // const orderDetail = await this.orderDetailUseCase.update(id, order_detail_info);
     return await this.orderRepository.update(id, {
       ...orderData,

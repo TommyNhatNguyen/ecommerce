@@ -10,7 +10,7 @@ export enum ActorType {
 export const ActorSchema = z.object({
   id: z.string().uuid(),
   type: z.nativeEnum(ActorType),
-  actor_id: z.string().uuid(),
+  actor_info_id: z.string().uuid(),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
   status: z.nativeEnum(ModelStatus),

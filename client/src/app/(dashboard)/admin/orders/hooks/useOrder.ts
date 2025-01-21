@@ -13,6 +13,9 @@ export default function useOrder() {
   const [isUpdateOrderStatusError, setIsUpdateOrderStatusError] =
     useState(false);
   const [selectedRows, setSelectedRows] = useState<OrderTableDataType[]>([]);
+  const [isSoftDeleteOrderLoading, setIsSoftDeleteOrderLoading] =
+    useState(false);
+  const [isSoftDeleteOrderError, setIsSoftDeleteOrderError] = useState(false);
   const handleSelectAllRow = (
     selected: boolean,
     selectedRows: OrderTableDataType[],
@@ -53,14 +56,27 @@ export default function useOrder() {
       setIsUpdateOrderStatusLoading(false);
     }
   };
+  const handleSoftDeleteOrder = async (order_id: string) => {
+    setIsSoftDeleteOrderLoading(true);
+    try {
+      await orderService.softDeleteOrder(order_id);
+    } catch (error) {
+      setIsSoftDeleteOrderError(true);
+    } finally {
+      setIsSoftDeleteOrderLoading(false);
+    }
+  };
   const orderTableProps = {
     handleSelectAllRow,
     handleSelectRow,
+    handleSoftDeleteOrder,
     handleChangeOrderState,
     isUpdateOrderStateLoading,
     handleChangeOrderStatus,
     isUpdateOrderStatusLoading,
     selectedRows,
+    isSoftDeleteOrderLoading,
+    isSoftDeleteOrderError,
   };
   const orderStatisticsProps = {};
   return {

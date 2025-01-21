@@ -34,6 +34,7 @@ import {
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { ImageType } from "@/app/shared/interfaces/image/image.dto";
 import { formatCurrency, formatNumber } from "@/app/shared/utils/utils";
+import { DISCOUNT_SCOPE } from "@/app/constants/enum";
 
 type CreateProductModalPropsType = {
   isModalCreateProductOpen: boolean;
@@ -73,7 +74,8 @@ const CreateProductModal = ({
   });
   const { data: discounts, isLoading: isLoadingDiscounts } = useQuery({
     queryKey: ["discounts", isModalCreateProductOpen],
-    queryFn: () => discountsService.getDiscounts(),
+    queryFn: () =>
+      discountsService.getDiscounts({ scope: DISCOUNT_SCOPE.PRODUCT }),
     enabled: isModalCreateProductOpen,
   });
 
