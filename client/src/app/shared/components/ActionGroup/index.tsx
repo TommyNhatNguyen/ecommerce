@@ -63,7 +63,6 @@ const ActionGroup = ({
             {!!handleDelete && (
               <ButtonDeleteWithPopover
                 handleDelete={_onDelete}
-                trigger={"click"}
                 isWithDeleteConfirmPopover={isWithDeleteConfirmPopover}
                 {...deleteConfirmPopoverProps}
               />
@@ -72,7 +71,6 @@ const ActionGroup = ({
           </div>
         )
       }
-      trigger="click"
       {...props}
     >
       <Button

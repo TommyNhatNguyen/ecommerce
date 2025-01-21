@@ -6,7 +6,10 @@ import ActionGroup from "@/app/shared/components/ActionGroup";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import { DiscountModel } from "@/app/shared/models/discounts/discounts.model";
 import { ImageModel } from "@/app/shared/models/images/images.model";
-import { OrderState } from "@/app/shared/models/orders/orders.model";
+import {
+  OrderModel,
+  OrderState,
+} from "@/app/shared/models/orders/orders.model";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { defaultImage } from "@/app/shared/resources/images/default-image";
 import { orderService } from "@/app/shared/services/orders/orderService";
@@ -16,7 +19,12 @@ import {
   formatNumber,
 } from "@/app/shared/utils/utils";
 import { cn } from "@/lib/utils";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  QueryKey,
+  useQuery,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import {
   Button,
   Carousel,
@@ -34,6 +42,7 @@ import OrderDetailModal from "@/app/shared/components/GeneralModal/components/Or
 import { DISCOUNT_TYPE } from "@/app/constants/enum";
 import { CostModel } from "@/app/shared/models/cost/cost.model";
 import { useAppSelector } from "@/app/shared/hooks/useRedux";
+import { ListResponseModel } from "@/app/shared/models/others/list-response.model";
 
 type OrderTablePropsType = {
   handleChangeOrderState: (order_id: string, order_state: OrderState) => void;
@@ -56,6 +65,17 @@ type OrderTablePropsType = {
   ) => void;
   handleSoftDeleteOrder: (order_id: string) => void;
   isSoftDeleteOrderLoading: boolean;
+  orderState: OrderState | null;
+  customQuery?: UseQueryOptions<
+    ListResponseModel<OrderModel>,
+    Error,
+    ListResponseModel<OrderModel>,
+    QueryKey
+  >;
+  handleDeleteOrder: (order_id: string) => void;
+  isDeleteOrderLoading: boolean;
+  isDeleteOrderError: boolean;
+  isPermanentDelete?: boolean;
 };
 export type OrderTableDataType = {
   key: string;
@@ -121,6 +141,12 @@ const OrderTable = ({
   handleSelectRow,
   handleSoftDeleteOrder,
   isSoftDeleteOrderLoading,
+  orderState,
+  customQuery,
+  handleDeleteOrder,
+  isDeleteOrderLoading,
+  isDeleteOrderError,
+  isPermanentDelete = false,
 }: OrderTablePropsType) => {
   const [orderPage, setOrderPage] = useState(1);
   const [orderLimit, setOrderLimit] = useState(10);
@@ -130,29 +156,47 @@ const OrderTable = ({
   const [orderId, setOrderId] = useState("");
   const [isEditMode, setIsEditMode] = useState(false);
   const { orderCreated } = useAppSelector((state) => state.socket);
-  const { data: ordersDataResponse, isLoading } = useQuery({
-    queryKey: [
-      "orders",
-      orderPage,
-      orderLimit,
-      isUpdateOrderStateLoading,
-      isUpdateOrderStatusLoading,
-      orderCreated,
-      isSoftDeleteOrderLoading,
-    ],
-    queryFn: () =>
-      orderService.getList({
-        page: orderPage,
-        limit: orderLimit,
-        includeOrderDetail: true,
-        includeDiscount: true,
-        includeCost: true,
-        includeProducts: true,
-        includeShipping: true,
-        includePayment: true,
-      }),
-    placeholderData: keepPreviousData,
-  });
+  const { data: ordersDataResponse, isLoading } = useQuery(
+    customQuery
+      ? {
+          ...customQuery,
+          queryKey: [
+            ...customQuery.queryKey,
+            isUpdateOrderStateLoading,
+            isUpdateOrderStatusLoading,
+            orderCreated,
+            isSoftDeleteOrderLoading,
+            isDeleteOrderLoading,
+            orderPage,
+            orderLimit,
+          ],
+        }
+      : {
+          queryKey: [
+            "orders",
+            orderPage,
+            orderLimit,
+            isUpdateOrderStateLoading,
+            isUpdateOrderStatusLoading,
+            orderCreated,
+            isSoftDeleteOrderLoading,
+            isDeleteOrderLoading,
+          ],
+          queryFn: () =>
+            orderService.getList({
+              page: orderPage,
+              limit: orderLimit,
+              includeOrderDetail: true,
+              includeDiscount: true,
+              includeCost: true,
+              includeProducts: true,
+              includeShipping: true,
+              includePayment: true,
+              order_state: orderState ? orderState : undefined,
+            }),
+          placeholderData: keepPreviousData,
+        },
+  );
   const { meta, data: ordersData } = ordersDataResponse || {};
   const { total_count } = meta || {};
   const _onOpenModalOrderDetail = (id: string, isEditMode = false) => {
@@ -167,6 +211,9 @@ const OrderTable = ({
   };
   const _onSoftDeleteOrder = (order_id: string) => {
     handleSoftDeleteOrder(order_id);
+  };
+  const _onDeleteOrder = (order_id: string) => {
+    handleDeleteOrder(order_id);
   };
   const _onConfirmUpdateOrderDetail = (data: any) => {
     // handleConfirmOrderDetail();
@@ -557,7 +604,7 @@ const OrderTable = ({
             title: "Are you sure you want to delete this order?",
           }}
           handleDelete={() => {
-            _onSoftDeleteOrder(id);
+            isPermanentDelete ? _onDeleteOrder(id) : _onSoftDeleteOrder(id);
           }}
         />
       ),
@@ -701,7 +748,6 @@ const OrderTable = ({
               );
               return orderExpandedRowRender(productData);
             },
-            expandRowByClick: true,
           }}
           onChange={_onChangeTable}
           scroll={{ x: "100vw" }}

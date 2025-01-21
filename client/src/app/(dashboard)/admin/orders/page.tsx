@@ -7,7 +7,7 @@ import React from "react";
 type Props = {};
 
 export default function OrdersPage() {
-  const { orderTableProps, orderStatisticsProps } = useOrder();
+  const { orderTableProps, orderStatisticsProps } = useOrder(null);
   return (
     <main className="orders-page">
       <OrderStatistics {...orderStatisticsProps} />

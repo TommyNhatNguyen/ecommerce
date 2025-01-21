@@ -1,11 +1,19 @@
-import React from 'react'
+"use client";
+import useOrder from "@/app/(dashboard)/admin/orders/hooks/useOrder";
+import { ORDER_STATE } from "@/app/constants/order-state";
+import React from "react";
+import OrderTable from "../components/OrderTable";
+import { OrderState } from "@/app/shared/models/orders/orders.model";
 
-type Props = {}
+type Props = {};
 
-const ConfirmedPage = (props: Props) => {
+const ConfirmPage = (props: Props) => {
+  const { orderTableProps } = useOrder(ORDER_STATE.CONFIRMED as OrderState);
   return (
-    <div>ConfirmedPage</div>
-  )
-}
+    <main className="confirmed-page">
+      <OrderTable {...orderTableProps} />
+    </main>
+  );
+};
 
-export default ConfirmedPage
+export default ConfirmPage;

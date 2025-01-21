@@ -41,4 +41,8 @@ export const orderService = {
     });
     return response.data;
   },
+  async deleteOrder(order_id: string) {
+    const response = await axiosInstance.delete(`/order/${order_id}`);
+    return response.data;
+  },
 };
