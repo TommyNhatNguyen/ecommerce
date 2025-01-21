@@ -1,11 +1,18 @@
 "use client";
+import { useDiscountOrder } from "@/app/(dashboard)/admin/orders/settings/hooks/useDiscountOrder";
 import { usePaymentMethod } from "@/app/(dashboard)/admin/orders/settings/hooks/usePaymentMethod";
 import { useShipping } from "@/app/(dashboard)/admin/orders/settings/hooks/useShipping";
+import { DISCOUNT_TYPE } from "@/app/constants/enum";
+import { DISCOUNT_SCOPE } from "@/app/constants/enum";
 import CreateCategoryModal from "@/app/shared/components/GeneralModal/components/CreateCategoryModal";
+import CreateDiscountModal from "@/app/shared/components/GeneralModal/components/CreateDiscountModal";
 import CreatePaymentMethodModal from "@/app/shared/components/GeneralModal/components/CreatePaymentMethod";
 import CreateShippingModal from "@/app/shared/components/GeneralModal/components/CreateShippingModal";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
-import { formatCurrency } from "@/app/shared/utils/utils";
+import {
+  formatCurrency,
+  formatDiscountPercentage,
+} from "@/app/shared/utils/utils";
 import { Button, Card, Empty, Tooltip } from "antd";
 import { Pencil, PlusIcon, Trash2Icon } from "lucide-react";
 import React from "react";
@@ -48,6 +55,22 @@ const SettingsPage = (props: Props) => {
     createPaymentMethodLoading,
     createPaymentMethodError,
   } = usePaymentMethod();
+  const {
+    discountOrderData,
+    isLoadingDiscountOrder,
+    handleOpenModalCreateDiscountOrder,
+    handleCloseModalCreateDiscountOrder,
+    handleSubmitCreateDiscountOrder,
+    isOpenModalCreateDiscountOrder,
+    handleOpenModalUpdateDiscountOrder,
+    handleCloseModalUpdateDiscountOrder,
+    isOpenModalUpdateDiscountOrder,
+    createDiscountOrderLoading,
+    createDiscountOrderError,
+    handleDeleteDiscountOrder,
+    deleteDiscountOrderLoading,
+    deleteDiscountOrderError,
+  } = useDiscountOrder();
   const _onOpenModalUpdateShipping = (id: string) => {
     handleOpenModalUpdateShipping(id);
   };
@@ -59,6 +82,12 @@ const SettingsPage = (props: Props) => {
   };
   const _onDeletePaymentMethod = (id: string) => {
     handleDeletePaymentMethod(id);
+  };
+  const _onOpenModalCreateDiscountOrder = () => {
+    handleOpenModalCreateDiscountOrder();
+  };
+  const _onDeleteDiscountOrder = (id: string) => {
+    handleDeleteDiscountOrder(id);
   };
   return (
     <main className="setting-page">
@@ -154,8 +183,66 @@ const SettingsPage = (props: Props) => {
             </div>
           )}
         </Card>
+        {/* Discount Campaign Card */}
+        <Card
+          title="Discount Campaign"
+          className="h-full max-h-[300px] overflow-y-auto"
+          extra={
+            <Button
+              type="primary"
+              className="flex items-center gap-2"
+              onClick={_onOpenModalCreateDiscountOrder}
+            >
+              <PlusIcon className="h-4 w-4" />
+              Add new
+            </Button>
+          }
+        >
+          <div className="flex flex-col gap-2">
+            {discountOrderData &&
+              discountOrderData.data.map((item) => (
+                <Tooltip
+                  title={`${
+                    item.type === DISCOUNT_TYPE.PERCENTAGE
+                      ? `${formatDiscountPercentage(item.amount || 0)}`
+                      : `${formatCurrency(item.amount || 0)}`
+                  }`}
+                  key={item.id}
+                >
+                  <div
+                    className="flex w-full items-center justify-between"
+                    key={item.id}
+                  >
+                    {item.name}
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="text"
+                        className="aspect-square rounded-full p-0"
+                        onClick={() => {
+                          handleOpenModalUpdateDiscountOrder(item.id);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4 stroke-yellow-500" />
+                      </Button>
+                      <ButtonDeleteWithPopover
+                        title={`Delete ${item.name}?`}
+                        trigger={"click"}
+                        handleDelete={() => {
+                          _onDeleteDiscountOrder(item.id);
+                        }}
+                      />
+                    </div>
+                  </div>
+                </Tooltip>
+              ))}
+          </div>
+          {discountOrderData && discountOrderData.data.length === 0 && (
+            <div className="flex h-full items-center justify-center">
+              <Empty description="No discounts found" />
+            </div>
+          )}
+        </Card>
       </div>
-      <p>payment</p>
       <p>discount</p>
       <p>cost</p>
       {/* Modals */}
@@ -167,9 +254,20 @@ const SettingsPage = (props: Props) => {
       />
       <CreatePaymentMethodModal
         isModalCreatePaymentMethodOpen={isOpenModalCreatePaymentMethod}
-        handleCloseModalCreatePaymentMethod={handleCloseModalCreatePaymentMethod}
+        handleCloseModalCreatePaymentMethod={
+          handleCloseModalCreatePaymentMethod
+        }
         handleSubmitCreatePaymentMethod={handleSubmitCreatePaymentMethod}
         loading={createPaymentMethodLoading}
+      />
+      <CreateDiscountModal
+        isModalCreateDiscountCampaignOpen={isOpenModalCreateDiscountOrder}
+        handleCloseModalCreateDiscountCampaign={
+          handleCloseModalCreateDiscountOrder
+        }
+        handleSubmitCreateDiscountCampaignForm={handleSubmitCreateDiscountOrder}
+        loading={createDiscountOrderLoading}
+        defaultScope={DISCOUNT_SCOPE.ORDER}
       />
     </main>
   );

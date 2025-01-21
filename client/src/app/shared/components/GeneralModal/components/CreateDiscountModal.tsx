@@ -3,19 +3,21 @@ import { DatePicker, InputNumber, Select } from "antd";
 import GeneralModal from "@/app/shared/components/GeneralModal";
 import InputAdmin from "@/app/shared/components/InputAdmin";
 import { Button, Input } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   formatCurrency,
   formatDiscountPercentage,
 } from "@/app/shared/utils/utils";
 import { DISCOUNT_SCOPE, DISCOUNT_TYPE } from "@/app/constants/enum";
+import { DiscountScope } from "@/app/shared/interfaces/discounts/discounts.dto";
 
 type CreateDiscountModalPropsType = {
   isModalCreateDiscountCampaignOpen: boolean;
   handleCloseModalCreateDiscountCampaign: () => void;
   handleSubmitCreateDiscountCampaignForm: (data: any) => void;
   loading?: boolean;
+  defaultScope?: DiscountScope;
 };
 
 const CreateDiscountModal = ({
@@ -23,6 +25,7 @@ const CreateDiscountModal = ({
   handleCloseModalCreateDiscountCampaign,
   handleSubmitCreateDiscountCampaignForm,
   loading = false,
+  defaultScope = DISCOUNT_SCOPE.PRODUCT,
 }: CreateDiscountModalPropsType) => {
   const {
     handleSubmit,
@@ -40,6 +43,11 @@ const CreateDiscountModal = ({
     handleSubmitCreateDiscountCampaignForm(data);
     reset();
   };
+  useEffect(() => {
+    reset({
+      scope: defaultScope,
+    });
+  }, []);
   const _renderFooterModalCreateDiscountCampaign = () => {
     return (
       <div className="flex items-center justify-end gap-2">
@@ -151,6 +159,7 @@ const CreateDiscountModal = ({
                 {...field}
                 customComponent={(props: any, ref: any) => (
                   <Select
+                    disabled={true}
                     options={Object.values(DISCOUNT_SCOPE).map((scope) => ({
                       label: scope,
                       value: scope,
