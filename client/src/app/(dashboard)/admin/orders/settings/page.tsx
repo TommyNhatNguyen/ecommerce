@@ -1,10 +1,12 @@
 "use client";
+import { useCost } from "@/app/(dashboard)/admin/orders/settings/hooks/useCost";
 import { useDiscountOrder } from "@/app/(dashboard)/admin/orders/settings/hooks/useDiscountOrder";
 import { usePaymentMethod } from "@/app/(dashboard)/admin/orders/settings/hooks/usePaymentMethod";
 import { useShipping } from "@/app/(dashboard)/admin/orders/settings/hooks/useShipping";
 import { DISCOUNT_TYPE } from "@/app/constants/enum";
 import { DISCOUNT_SCOPE } from "@/app/constants/enum";
 import CreateCategoryModal from "@/app/shared/components/GeneralModal/components/CreateCategoryModal";
+import CreateCostModal from "@/app/shared/components/GeneralModal/components/CreateCostModal";
 import CreateDiscountModal from "@/app/shared/components/GeneralModal/components/CreateDiscountModal";
 import CreatePaymentMethodModal from "@/app/shared/components/GeneralModal/components/CreatePaymentMethod";
 import CreateShippingModal from "@/app/shared/components/GeneralModal/components/CreateShippingModal";
@@ -71,6 +73,20 @@ const SettingsPage = (props: Props) => {
     deleteDiscountOrderLoading,
     deleteDiscountOrderError,
   } = useDiscountOrder();
+  const {
+    costData,
+    isLoadingCost,
+    handleOpenModalCreateCost,
+    handleCloseModalCreateCost,
+    handleSubmitCreateCost,
+    isOpenModalCreateCost,
+    handleOpenModalUpdateCost,
+    handleCloseModalUpdateCost,
+    isOpenModalUpdateCost,
+    createCostLoading,
+    createCostError,
+    handleDeleteCost,
+  } = useCost();
   const _onOpenModalUpdateShipping = (id: string) => {
     handleOpenModalUpdateShipping(id);
   };
@@ -88,6 +104,15 @@ const SettingsPage = (props: Props) => {
   };
   const _onDeleteDiscountOrder = (id: string) => {
     handleDeleteDiscountOrder(id);
+  };
+  const _onOpenModalCreateCost = () => {
+    handleOpenModalCreateCost();
+  };
+  const _onDeleteCost = (id: string) => {
+    handleDeleteCost(id);
+  };
+  const _onOpenModalUpdateCost = (id: string) => {
+    handleOpenModalUpdateCost(id);
   };
   return (
     <main className="setting-page">
@@ -242,8 +267,55 @@ const SettingsPage = (props: Props) => {
             </div>
           )}
         </Card>
+        {/* Cost Card */}
+        <Card
+          title="Cost"
+          className="relative h-full max-h-[300px] overflow-y-auto"
+          extra={
+            <Button
+              type="primary"
+              className="flex items-center gap-2"
+              onClick={_onOpenModalCreateCost}
+            >
+              <PlusIcon className="h-4 w-4" />
+              Add new
+            </Button>
+          }
+        >
+          {costData &&
+            costData.data.map((item) => (
+              <Tooltip title={`${item.name}`} key={item.id}>
+                <div className="flex w-full items-center justify-between">
+                  {item.name} -{" "}
+                  {item.type === "percentage"
+                    ? `${formatDiscountPercentage(item.cost || 0)}`
+                    : `${formatCurrency(item.cost || 0)}`}
+                  <div className="flex items-center gap-1">
+                    <Button
+                      type="text"
+                      className="aspect-square rounded-full p-0"
+                      onClick={() => _onOpenModalUpdateCost(item.id)}
+                    >
+                      <Pencil className="h-4 w-4 stroke-yellow-500" />
+                    </Button>
+                    <ButtonDeleteWithPopover
+                      title={`Delete ${item.name}?`}
+                      trigger={"click"}
+                      handleDelete={() => {
+                        _onDeleteCost(item.id);
+                      }}
+                    />
+                  </div>
+                </div>
+              </Tooltip>
+            ))}
+          {costData && costData.data.length === 0 && (
+            <div className="flex h-full items-center justify-center">
+              <Empty description="No cost found" />
+            </div>
+          )}
+        </Card>
       </div>
-      <p>discount</p>
       <p>cost</p>
       {/* Modals */}
       <CreateShippingModal
@@ -268,6 +340,12 @@ const SettingsPage = (props: Props) => {
         handleSubmitCreateDiscountCampaignForm={handleSubmitCreateDiscountOrder}
         loading={createDiscountOrderLoading}
         defaultScope={DISCOUNT_SCOPE.ORDER}
+      />
+      <CreateCostModal
+        isModalCreateCostOpen={isOpenModalCreateCost}
+        handleCloseModalCreateCost={handleCloseModalCreateCost}
+        handleSubmitCreateCostForm={handleSubmitCreateCost}
+        loading={createCostLoading}
       />
     </main>
   );
