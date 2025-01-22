@@ -35,7 +35,7 @@ import {
   TableProps,
   Tooltip,
 } from "antd";
-import { ChevronDown, Trash2Icon } from "lucide-react";
+import { ChevronDown, Plus, Trash2Icon } from "lucide-react";
 import { formatDate } from "date-fns";
 import React, { useState } from "react";
 import OrderDetailModal from "@/app/shared/components/GeneralModal/components/OrderDetailModal";
@@ -43,6 +43,7 @@ import { DISCOUNT_TYPE } from "@/app/constants/enum";
 import { CostModel } from "@/app/shared/models/cost/cost.model";
 import { useAppSelector } from "@/app/shared/hooks/useRedux";
 import { ListResponseModel } from "@/app/shared/models/others/list-response.model";
+import CreateOrderDetailModal from "@/app/shared/components/GeneralModal/components/CreateOrderDetailModal";
 
 type OrderTablePropsType = {
   handleChangeOrderState: (order_id: string, order_state: OrderState) => void;
@@ -731,12 +732,28 @@ const OrderTable = ({
       />
     );
   };
+  const [isOpenCreateOrderModal, setIsOpenCreateOrderModal] = useState(false);
+  const _onOpenCreateOrderModal = () => {
+    setIsOpenCreateOrderModal(true);
+  };
+  const _onCloseCreateOrderModal = () => {
+    setIsOpenCreateOrderModal(false);
+  };
+  const _onCreateOrder = (data: any) => {
+    console.log(data);
+  };
   return (
     <div className="order-table rounded-lg bg-white p-4">
-      <h2 className={cn("order-table__title", "text-lg font-semibold")}>
-        Orders
-      </h2>
-      <div>
+      <div className="flex items-center gap-4">
+        <h2 className={cn("order-table__title", "text-lg font-semibold")}>
+          Orders
+        </h2>
+        <Button onClick={_onOpenCreateOrderModal} type="primary">
+          <Plus className="h-4 w-4" />
+          Add new order
+        </Button>
+      </div>
+      <div className="mt-4">
         <Table
           columns={orderColumns}
           dataSource={orderDataSource}
@@ -772,6 +789,7 @@ const OrderTable = ({
           }}
         />
       </div>
+      {/* MODAL */}
       <OrderDetailModal
         isModalOrderDetailOpen={isModalOrderDetailOpen}
         handleCloseModalOrderDetail={_onCloseModalOrderDetail}
@@ -782,6 +800,11 @@ const OrderTable = ({
           (item) => item.order_id === orderId,
         )}
         productsColumns={productColumns}
+      />
+      <CreateOrderDetailModal
+        isOpen={isOpenCreateOrderModal}
+        handleCloseCreateOrderModal={_onCloseCreateOrderModal}
+        handleCreateOrder={_onCreateOrder}
       />
     </div>
   );

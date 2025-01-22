@@ -123,6 +123,7 @@ export class ShippingHttpService {
       }
       res.status(200).json(deletedShipping);
     } catch (error) {
+      console.log(error);
       res.status(500).json({ message: 'Internal server error' });
       return;
     }
