@@ -35,6 +35,7 @@ import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import { useInventoryDelete } from "@/app/(dashboard)/admin/inventory/hooks/useInventoryDelete";
 import { STOCK_STATUS } from "@/app/constants/stock-status";
 import { StockStatus } from "@/app/shared/models/inventories/stock-status";
+import { DISCOUNT_TYPE } from "@/app/constants/enum";
 
 type DeletedProductPagePropsType = {};
 type OnChange = NonNullable<TableProps<DataType>["onChange"]>;
@@ -275,14 +276,9 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
       dataIndex: "discounts",
       sorter: (a, b) =>
         (a.discounts?.length || 0) - (b.discounts?.length || 0) ||
-        (a.discounts?.reduce(
-          (acc, curr) => acc + (curr.discount_percentage || 0),
-          0,
-        ) || 0) -
-          (b.discounts?.reduce(
-            (acc, curr) => acc + (curr.discount_percentage || 0),
-            0,
-          ) || 0),
+        (a.discounts?.reduce((acc, curr) => acc + (curr.amount || 0), 0) || 0) -
+          (b.discounts?.reduce((acc, curr) => acc + (curr.amount || 0), 0) ||
+            0),
       sortOrder: sortedInfo.columnKey === "discounts" ? sortedInfo.order : null,
       render: (_, { discounts }) => {
         return (
@@ -296,9 +292,9 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
                 <Tag>
                   <span className="capitalize">{discount?.name} - </span>
                   <span>
-                    {formatDiscountPercentage(
-                      discount?.discount_percentage || 0,
-                    )}
+                    {discount?.type === DISCOUNT_TYPE.PERCENTAGE
+                      ? formatDiscountPercentage(discount?.amount || 0)
+                      : formatCurrency(discount.amount || 0)}
                   </span>
                 </Tag>
               </Tooltip>

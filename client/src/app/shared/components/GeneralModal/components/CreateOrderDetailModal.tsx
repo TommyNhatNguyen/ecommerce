@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import GeneralModal from "..";
 import {
   Button,
@@ -8,6 +8,7 @@ import {
   InputNumber,
   Select,
   Table,
+  TableProps,
 } from "antd";
 import { Controller, useForm } from "react-hook-form";
 import { ORDER_STATE } from "@/app/constants/order-state";
@@ -23,7 +24,15 @@ import { customerService } from "@/app/shared/services/customers/customerService
 import { VALIDATION_PATTERN } from "@/app/constants/validations";
 import { productService } from "@/app/shared/services/products/productService";
 import { defaultImage } from "@/app/shared/resources/images/default-image";
-import { formatNumber } from "@/app/shared/utils/utils";
+import { cn, formatNumber } from "@/app/shared/utils/utils";
+import { ProductModel } from "@/app/shared/models/products/products.model";
+import { Plus } from "lucide-react";
+import ProductSelectionModal from "../../ProductSelectionModal";
+
+export type ProductColumnType = Exclude<
+  TableProps<ProductModel>["columns"],
+  undefined
+>;
 
 type CreateOrderDetailModalPropsType = {
   isOpen: boolean;
@@ -36,8 +45,18 @@ const CreateOrderDetailModal = ({
   handleCreateOrder,
   handleCloseCreateOrderModal,
 }: CreateOrderDetailModalPropsType) => {
-  const [productsOrder, setProductsOrder] = useState([]);
-  console.log("productsOrderproductsOrder", productsOrder);
+  const [isOpenProductSelectionModal, setIsOpenProductSelctionModal] =
+    useState(false);
+  const [selectedProductList, setSelectedProductList] = useState<
+    ProductModel[]
+  >([]);
+  const productsOrderRef = useRef<{ id: string; quantity: number }[]>([]);
+  const _onChangeProductQuantity = (id: string, quantity: number) => {
+    productsOrderRef.current = [
+      ...productsOrderRef.current.filter((item) => item.id !== id),
+      { id: id, quantity: quantity },
+    ];
+  };
   const {
     control,
     handleSubmit,
@@ -110,19 +129,29 @@ const CreateOrderDetailModal = ({
     queryKey: ["customer"],
     queryFn: () => customerService.getList({}),
   });
-  const { data: productList, isLoading: isProductLoading } = useQuery({
-    queryKey: ["product"],
-    queryFn: () =>
-      productService.getProducts({
-        includeImage: true,
-        includeCategory: true,
-      }),
-  });
   const _onCloseModal = () => {
     handleCloseCreateOrderModal();
   };
   const _onConfirmCreateOrder = (data: any) => {
+    console.log(data);
+    console.log(productsOrderRef.current);
     handleCreateOrder(data);
+  };
+
+  const handleCloseProductSelectionModal = () => {
+    setIsOpenProductSelctionModal(false);
+  };
+  const handleOpenProductSelectionModal = () => {
+    setIsOpenProductSelctionModal(true);
+  };
+  const handleSelectProducts = (data: ProductModel[]) => {
+    setSelectedProductList((prev) => [...prev, ...data]);
+  };
+  const _onRemoveSelectProducts = (id: string) => {
+    setSelectedProductList((prev) => prev.filter((item) => item.id !== id));
+  };
+  const _onRemoveAllProducts = () => {
+    setSelectedProductList([]);
   };
   useEffect(() => {
     const selectedCustomerId = getValues("order_detail_info.customer_id");
@@ -149,7 +178,144 @@ const CreateOrderDetailModal = ({
   const _renderTitle = () => {
     return <h1 className="text-2xl font-bold">Create new order</h1>;
   };
-  console.log(customerList?.data);
+  const productColumns: (ProductColumnType[number] & {
+    editable?: boolean;
+  })[] = [
+    {
+      title: null,
+      dataIndex: "images",
+      key: "images",
+      className: "max-w-[100px] max-h-[100px]",
+      render: (_, { image }) => {
+        const imagesList =
+          image && image.length > 0
+            ? image.map((item) => item.url)
+            : [defaultImage];
+        return (
+          <Image.PreviewGroup
+            items={imagesList}
+            preview={{
+              movable: false,
+            }}
+          >
+            <Carousel adaptiveHeight dotPosition="bottom" arrows>
+              {imagesList.map((item) => (
+                <Image
+                  key={item}
+                  src={item}
+                  alt="product"
+                  fallback={defaultImage}
+                  className="object-contain"
+                />
+              ))}
+            </Carousel>
+          </Image.PreviewGroup>
+        );
+      },
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Inventory",
+      dataIndex: "inventory",
+      key: "inventory",
+      render: (_, { inventory }) => {
+        return <p>{formatNumber(inventory?.quantity || 0)}</p>;
+      },
+    },
+    {
+      title: "Order quantity",
+      dataIndex: "quantity",
+      key: "quantity",
+      editable: true,
+    },
+    {
+      title: () => {
+        return (
+          <div className="flex items-center gap-2">
+            <h3>Action</h3>
+            <Button type="link" variant="text" onClick={_onRemoveAllProducts}>
+              Remove All
+            </Button>
+          </div>
+        );
+      },
+      dataIndex: "action",
+      key: "action",
+      render: (_, { id }) => {
+        return (
+          <Button
+            type="link"
+            variant="text"
+            onClick={() => _onRemoveSelectProducts(id)}
+          >
+            Remove
+          </Button>
+        );
+      },
+    },
+  ];
+  const renderProductColumns = productColumns.map((col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record: ProductModel) => ({
+        record,
+        editable: col.editable,
+        title: col.title,
+      }),
+    };
+  });
+  const productComponents: TableProps<ProductModel>["components"] = {
+    body: {
+      row: (props: any) => {
+        return <tr {...props} />;
+      },
+      cell: ({
+        record,
+        editable,
+        className,
+        ...props
+      }: {
+        record: ProductModel;
+        editable: boolean;
+        className: string;
+      }) => {
+        if (editable) {
+          return (
+            <td
+              {...props}
+              className={cn(className, "text-center align-middle")}
+            >
+              <InputNumber
+                tabIndex={1}
+                className={cn("w-full")}
+                placeholder="Enter quantity for this product"
+                defaultValue={
+                  productsOrderRef.current.find((item) => item.id === record.id)
+                    ?.quantity
+                }
+                onChange={(value) =>
+                  _onChangeProductQuantity(record.id, Number(value))
+                }
+              />
+            </td>
+          );
+        }
+        return (
+          <td
+            {...props}
+            className={cn(className, "text-center align-middle")}
+          />
+        );
+      },
+    },
+  };
   const _renderBody = () => {
     return (
       <div className="flex flex-col gap-2">
@@ -456,97 +622,24 @@ const CreateOrderDetailModal = ({
             </div>
             {/* Products */}
             <Table
-              columns={[
-                {
-                  title: null,
-                  dataIndex: "images",
-                  key: "images",
-                  className: "max-w-[200px] w-[200px]",
-                  render: (_, { image }) => {
-                    const imagesList =
-                      image && image.length > 0
-                        ? image.map((item) => item.url)
-                        : [defaultImage];
-                    return (
-                      <Image.PreviewGroup
-                        items={imagesList}
-                        preview={{
-                          movable: false,
-                        }}
-                      >
-                        <Carousel autoplay dotPosition="bottom">
-                          {imagesList.map((item) => (
-                            <Image
-                              key={item}
-                              src={item}
-                              alt="product"
-                              width={150}
-                              height={150}
-                              fallback={defaultImage}
-                              className="object-contain"
-                            />
-                          ))}
-                        </Carousel>
-                      </Image.PreviewGroup>
-                    );
-                  },
-                },
-                {
-                  title: "Name",
-                  dataIndex: "name",
-                  key: "name",
-                },
-                {
-                  title: "Inventory",
-                  dataIndex: "inventory",
-                  key: "inventory",
-                  render: (_, { inventory }) => {
-                    return <p>{formatNumber(inventory?.quantity || 0)}</p>;
-                  },
-                },
-                {
-                  title: "Order quantity",
-                  dataIndex: "quantity",
-                  key: "quantity",
-                  editable: true,
-                  onCell: (record) => ({
-                    record,
-                    editable: true,
-                  }),
-                },
-              ]}
-              dataSource={productList?.data}
-              scroll={{ x: "100vw" }}
+              columns={renderProductColumns as ProductColumnType}
+              dataSource={selectedProductList}
+              scroll={{ x: "100%" }}
               rowKey={(record) => record.id}
-              components={{
-                body: {
-                  row: (props) => {
-                    return <tr {...props} />;
-                  },
-                  cell: (props) => {
-                    if (props.editable) {
-                      return (
-                        <Input
-                          onChange={(e) => {
-                            console.log(props);
-                            setProductsOrder((prev) => {
-                              return [
-                                ...prev.filter(
-                                  (item) => item.id !== props.record.id,
-                                ),
-                                {
-                                  id: props.record.id,
-                                  quantity: Number(e.target.value),
-                                },
-                              ];
-                            });
-                          }}
-                        />
-                      );
-                    }
-                    return <td {...props} />;
-                  },
-                },
+              components={productComponents}
+              size="small"
+              footer={(data) => {
+                return (
+                  <div className="h-full w-full text-center">
+                    <Button
+                      type="dashed"
+                      onClick={handleOpenProductSelectionModal}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add a product
+                    </Button>
+                  </div>
+                );
               }}
             />
             {/* Cost */}
@@ -620,7 +713,6 @@ const CreateOrderDetailModal = ({
       </div>
     );
   };
-
   return (
     <>
       <GeneralModal
@@ -629,6 +721,13 @@ const CreateOrderDetailModal = ({
         renderFooter={_renderFooter}
         renderContent={_renderBody}
         open={true}
+      />
+      <ProductSelectionModal
+        open={isOpenProductSelectionModal}
+        handleCloseModal={handleCloseProductSelectionModal}
+        handleOnConfirmSelect={handleSelectProducts}
+        isDisabledSelectedRows={true}
+        currentSelectedRows={selectedProductList}
       />
     </>
   );
