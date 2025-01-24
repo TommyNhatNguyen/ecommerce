@@ -6,9 +6,11 @@ import {
   Image,
   Input,
   InputNumber,
+  InputRef,
   Select,
   Table,
   TableProps,
+  Tooltip,
 } from "antd";
 import { Controller, useForm } from "react-hook-form";
 import { ORDER_STATE } from "@/app/constants/order-state";
@@ -24,7 +26,7 @@ import { customerService } from "@/app/shared/services/customers/customerService
 import { VALIDATION_PATTERN } from "@/app/constants/validations";
 import { productService } from "@/app/shared/services/products/productService";
 import { defaultImage } from "@/app/shared/resources/images/default-image";
-import { cn, formatNumber } from "@/app/shared/utils/utils";
+import { cn, formatCurrency, formatNumber } from "@/app/shared/utils/utils";
 import { ProductModel } from "@/app/shared/models/products/products.model";
 import { Plus } from "lucide-react";
 import ProductSelectionModal from "../../ProductSelectionModal";
@@ -50,12 +52,14 @@ const CreateOrderDetailModal = ({
   const [selectedProductList, setSelectedProductList] = useState<
     ProductModel[]
   >([]);
-  const productsOrderRef = useRef<{ id: string; quantity: number }[]>([]);
+  const [productsOrder, setProductsOrder] = useState<
+    { id: string; quantity: number }[]
+  >([]);
   const _onChangeProductQuantity = (id: string, quantity: number) => {
-    productsOrderRef.current = [
-      ...productsOrderRef.current.filter((item) => item.id !== id),
+    setProductsOrder((prev) => [
+      ...prev.filter((item) => item.id !== id),
       { id: id, quantity: quantity },
-    ];
+    ]);
   };
   const {
     control,
@@ -93,13 +97,6 @@ const CreateOrderDetailModal = ({
         costs_detail: [
           // Select from costs
         ],
-        products_detail: [
-          // Select from products
-          {
-            id: "",
-            quantity: 0,
-          },
-        ],
         order_discounts: [
           // Select from order discounts
         ],
@@ -134,7 +131,7 @@ const CreateOrderDetailModal = ({
   };
   const _onConfirmCreateOrder = (data: any) => {
     console.log(data);
-    console.log(productsOrderRef.current);
+    const payload = {};
     handleCreateOrder(data);
   };
 
@@ -185,7 +182,8 @@ const CreateOrderDetailModal = ({
       title: null,
       dataIndex: "images",
       key: "images",
-      className: "max-w-[100px] max-h-[100px]",
+      minWidth: 100,
+      className: "max-w-[100px] max-h-[100px] min-h-[100px]",
       render: (_, { image }) => {
         const imagesList =
           image && image.length > 0
@@ -198,7 +196,7 @@ const CreateOrderDetailModal = ({
               movable: false,
             }}
           >
-            <Carousel adaptiveHeight dotPosition="bottom" arrows>
+            <Carousel adaptiveHeight dotPosition="bottom">
               {imagesList.map((item) => (
                 <Image
                   key={item}
@@ -227,15 +225,62 @@ const CreateOrderDetailModal = ({
       },
     },
     {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+      render: (_, { price }) => {
+        return <p>{formatCurrency(price || 0)}</p>;
+      },
+    },
+    {
       title: "Order quantity",
       dataIndex: "quantity",
       key: "quantity",
       editable: true,
     },
     {
+      title: "Subtotal",
+      dataIndex: "subtotal",
+      key: "subtotal",
+      render: (_, { price, id }) => {
+        const orderQuantity =
+          productsOrder.find((item) => item.id == id)?.quantity || 0;
+        const subTotal = price * orderQuantity;
+        return <p>{formatCurrency(subTotal)}</p>;
+      },
+    },
+    {
+      title: "Total discount",
+      dataIndex: "total_discount",
+      key: "total_discount",
+      render: (_, { total_discounts, id }) => {
+        const orderQuantity =
+          productsOrder.find((item) => item.id == id)?.quantity || 0;
+        const totalDiscount = total_discounts * orderQuantity;
+        return (
+          <Tooltip
+            title={`Discount/item: ${formatCurrency(total_discounts || 0)}`}
+          >
+            {formatCurrency(totalDiscount)}
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: "Total",
+      dataIndex: "total",
+      key: "total",
+      render: (_, { price_after_discounts, id }) => {
+        const orderQuantity =
+          productsOrder.find((item) => item.id == id)?.quantity || 0;
+        const total = price_after_discounts * orderQuantity;
+        return <p>{formatCurrency(total)}</p>;
+      },
+    },
+    {
       title: () => {
         return (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center">
             <h3>Action</h3>
             <Button type="link" variant="text" onClick={_onRemoveAllProducts}>
               Remove All
@@ -245,6 +290,7 @@ const CreateOrderDetailModal = ({
       },
       dataIndex: "action",
       key: "action",
+      fixed: "right",
       render: (_, { id }) => {
         return (
           <Button
@@ -286,6 +332,15 @@ const CreateOrderDetailModal = ({
         editable: boolean;
         className: string;
       }) => {
+        const [editing, setEditing] = useState(false);
+        const inputRef = useRef<InputRef>(null);
+        const _handleChange = (value: number) => {
+          setEditing((prev) => !prev);
+          _onChangeProductQuantity(record.id, value);
+        };
+        useEffect(() => {
+          inputRef.current?.focus();
+        }, [editing]);
         if (editable) {
           return (
             <td
@@ -296,13 +351,13 @@ const CreateOrderDetailModal = ({
                 tabIndex={1}
                 className={cn("w-full")}
                 placeholder="Enter quantity for this product"
-                defaultValue={
-                  productsOrderRef.current.find((item) => item.id === record.id)
-                    ?.quantity
+                value={
+                  productsOrder.find((item) => item.id == record.id)?.quantity
                 }
-                onChange={(value) =>
-                  _onChangeProductQuantity(record.id, Number(value))
-                }
+                onChange={(value) => _handleChange(Number(value))}
+                max={record?.inventory?.quantity}
+                min={1}
+                ref={inputRef as any}
               />
             </td>
           );
@@ -622,6 +677,7 @@ const CreateOrderDetailModal = ({
             </div>
             {/* Products */}
             <Table
+              tableLayout="auto"
               columns={renderProductColumns as ProductColumnType}
               dataSource={selectedProductList}
               scroll={{ x: "100%" }}

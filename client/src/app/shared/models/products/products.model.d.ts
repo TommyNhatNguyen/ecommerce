@@ -13,6 +13,8 @@ export type ProductModel = {
   description: string;
   price: number;
   status: ModelStatus;
+  total_discounts: number;
+  price_after_discounts: number;
   created_at: string;
   updated_at: string;
   inventory: InventoryModel;

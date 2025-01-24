@@ -1,20 +1,21 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 import {
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
   ProductGetStatsDTOSchema,
   ProductUpdateDTOSchema,
-} from 'src/modules/products/models/product.dto';
-import { IProductUseCase } from 'src/modules/products/models/product.interface';
-import { PagingDTOSchema } from 'src/share/models/paging';
+} from "src/modules/products/models/product.dto";
+import { IProductUseCase } from "src/modules/products/models/product.interface";
+import { PagingDTOSchema } from "src/share/models/paging";
 
 export class ProductHttpService {
-  constructor(
-    private readonly productUseCase: IProductUseCase
-  ) {}
+  constructor(private readonly productUseCase: IProductUseCase) {}
 
   async createNewProduct(req: Request, res: Response) {
-    const { success, data, error } = ProductCreateDTOSchema.safeParse(req.body);
+    const { success, data, error } = ProductCreateDTOSchema.omit({
+      total_discounts: true,
+      price_after_discounts: true
+    }).safeParse(req.body);
     if (!success) {
       res.status(400).json({ error: error.message });
       return;
@@ -22,7 +23,7 @@ export class ProductHttpService {
     try {
       const result = await this.productUseCase.createNewProduct(data);
       res.status(200).json({
-        message: 'Product created successfully',
+        message: "Product created successfully",
         data: result,
       });
     } catch (error) {
@@ -41,19 +42,19 @@ export class ProductHttpService {
     }
 
     if (!id) {
-      res.status(400).json({ error: 'Id is required' });
+      res.status(400).json({ error: "Id is required" });
       return;
     }
 
     try {
       const product = await this.productUseCase.getProductById(id);
       if (!product) {
-        res.status(404).json({ error: 'Product not found' });
+        res.status(404).json({ error: "Product not found" });
         return;
       }
       const result = await this.productUseCase.updateProduct(id, data);
       res.status(200).json({
-        message: 'Product updated successfully',
+        message: "Product updated successfully",
         data: result,
       });
     } catch (error) {
@@ -66,7 +67,7 @@ export class ProductHttpService {
     const { id } = req.params;
     console.log(id);
     if (!id) {
-      res.status(400).json({ error: 'Id is required' });
+      res.status(400).json({ error: "Id is required" });
       return;
     }
 
@@ -75,12 +76,12 @@ export class ProductHttpService {
         includeImage: true,
       });
       if (!product) {
-        res.status(404).json({ error: 'Product not found' });
+        res.status(404).json({ error: "Product not found" });
         return;
       }
       const result = await this.productUseCase.deleteProduct(id);
       res.status(200).json({
-        message: 'Product deleted successfully',
+        message: "Product deleted successfully",
         data: result,
       });
     } catch (error) {
@@ -110,7 +111,7 @@ export class ProductHttpService {
     try {
       const result = await this.productUseCase.getProducts(condition, paging);
       res.status(200).json({
-        message: 'Products fetched successfully',
+        message: "Products fetched successfully",
         ...result,
       });
     } catch (error) {
@@ -127,17 +128,17 @@ export class ProductHttpService {
       error: conditionError,
     } = ProductConditionDTOSchema.safeParse(req.query);
     if (!id || !conditionSuccess) {
-      res.status(400).json({ error: 'Id is required' });
+      res.status(400).json({ error: "Id is required" });
       return;
     }
     try {
       const result = await this.productUseCase.getProductById(id, condition);
       if (!result) {
-        res.status(404).json({ error: 'Product not found' });
+        res.status(404).json({ error: "Product not found" });
         return;
       }
       res.status(200).json({
-        message: 'Product fetched successfully',
+        message: "Product fetched successfully",
         ...result,
       });
     } catch (error) {
@@ -161,11 +162,11 @@ export class ProductHttpService {
       const totalInventoryQuantity =
         await this.productUseCase.getTotalInventoryByGroup(condition);
       if (!totalInventoryQuantity) {
-        res.status(404).json({ error: 'Product not found' });
+        res.status(404).json({ error: "Product not found" });
         return;
       }
       res.status(200).json({
-        message: 'Product statistics fetched successfully',
+        message: "Product statistics fetched successfully",
         data: {
           totalInventoryQuantity,
         },

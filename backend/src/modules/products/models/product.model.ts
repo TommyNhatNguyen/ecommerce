@@ -16,6 +16,8 @@ export const ProductSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   price: z.number().nonnegative().min(0),
+  total_discounts: z.number().nonnegative().min(0),
+  price_after_discounts: z.number().nonnegative().min(0),
   status: z.nativeEnum(ModelStatus),
   created_at: z.date(),
   updated_at: z.date(),

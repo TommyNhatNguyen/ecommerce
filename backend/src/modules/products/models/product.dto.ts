@@ -2,10 +2,10 @@ import {
   BaseSortBy,
   ModelStatus,
   BaseOrder,
-} from 'src/share/models/base-model';
-import { z } from 'zod';
-import { v7 as uuidv7 } from 'uuid';
-import { StockStatus } from 'src/modules/inventory/models/inventory.model';
+} from "src/share/models/base-model";
+import { z } from "zod";
+import { v7 as uuidv7 } from "uuid";
+import { StockStatus } from "src/modules/inventory/models/inventory.model";
 
 export const ProductCreateDTOSchema = z.object({
   id: z
@@ -15,6 +15,8 @@ export const ProductCreateDTOSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   price: z.number().nonnegative().min(0),
+  total_discounts: z.number().nonnegative().min(0),
+  price_after_discounts: z.number().nonnegative().min(0),
   quantity: z.number().nonnegative().min(0).optional(),
   low_stock_threshold: z.number().nonnegative().min(0).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
@@ -64,12 +66,12 @@ export const ProductUpdateDTOSchema = z.object({
 });
 
 export enum ProductStatsSortBy {
-  PRODUCT_PRICE = 'price',
-  INVENTORY_QUANTITY = 'inventory_quantity',
-  DISCOUNT_AMOUNT = 'amount',
-  INVENTORY_VALUE = 'inventory_value',
-  ASC = 'ASC',
-  DESC = 'DESC',
+  PRODUCT_PRICE = "price",
+  INVENTORY_QUANTITY = "inventory_quantity",
+  DISCOUNT_AMOUNT = "amount",
+  INVENTORY_VALUE = "inventory_value",
+  ASC = "ASC",
+  DESC = "DESC",
 }
 
 export const ProductConditionDTOSchema = z.object({
@@ -85,36 +87,36 @@ export const ProductConditionDTOSchema = z.object({
   toCreatedAt: z.string().date().optional(),
   includeDiscount: z
     .string()
-    .refine((value) => value === 'true' || value === 'false')
-    .transform((value) => value === 'true')
+    .refine((value) => value === "true" || value === "false")
+    .transform((value) => value === "true")
     .optional(),
   includeCategory: z
     .string()
-    .refine((value) => value === 'true' || value === 'false')
-    .transform((value) => value === 'true')
+    .refine((value) => value === "true" || value === "false")
+    .transform((value) => value === "true")
     .optional(),
   includeVariant: z
     .string()
-    .refine((value) => value === 'true' || value === 'false')
-    .transform((value) => value === 'true')
+    .refine((value) => value === "true" || value === "false")
+    .transform((value) => value === "true")
     .optional(),
   includeImage: z
     .string()
-    .refine((value) => value === 'true' || value === 'false')
-    .transform((value) => value === 'true')
+    .refine((value) => value === "true" || value === "false")
+    .transform((value) => value === "true")
     .optional(),
   includeReview: z
     .string()
-    .refine((value) => value === 'true' || value === 'false')
-    .transform((value) => value === 'true')
+    .refine((value) => value === "true" || value === "false")
+    .transform((value) => value === "true")
     .optional(),
 });
 
 export enum ProductStatsType {
-  CATEGORY = 'category',
-  DISCOUNT = 'discount',
-  STATUS = 'status',
-  STOCK_STATUS = 'stock_status',
+  CATEGORY = "category",
+  DISCOUNT = "discount",
+  STATUS = "status",
+  STOCK_STATUS = "stock_status",
 }
 
 export const ProductGetStatsDTOSchema = z.object({

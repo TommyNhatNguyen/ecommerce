@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 import GeneralModal from "../GeneralModal";
-import { Button, Carousel, Image, Table, TableProps } from "antd";
+import { Button, Carousel, Image, Table, TableProps, Tag, Tooltip } from "antd";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { productService } from "../../services/products/productService";
 import { ProductModel } from "../../models/products/products.model";
 import { defaultImage } from "../../resources/images/default-image";
-import { cn, formatNumber } from "../../utils/utils";
+import {
+  cn,
+  formatCurrency,
+  formatDiscountPercentage,
+  formatNumber,
+} from "../../utils/utils";
+import { DISCOUNT_TYPE } from "@/app/constants/enum";
 
 type Props = {
   open: boolean;
@@ -102,6 +108,30 @@ const ProductSelectionModal = ({
       key: "inventory",
       render: (_, { inventory }) => {
         return <p>{formatNumber(inventory?.quantity || 0)}</p>;
+      },
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+      render: (_, { price }) => {
+        return <p>{formatCurrency(price || 0)}</p>;
+      },
+    },
+    {
+      title: "Total discount",
+      dataIndex: "total_discounts",
+      key: "total_discounts",
+      render: (_, { total_discounts }) => {
+        return <p>{formatCurrency(total_discounts || 0)}</p>;
+      },
+    },
+    {
+      title: "Price after discount",
+      dataIndex: "price_after_discounts",
+      key: "price_after_discounts",
+      render: (_, { price_after_discounts }) => {
+        return <p>{formatCurrency(price_after_discounts || 0)}</p>;
       },
     },
   ];

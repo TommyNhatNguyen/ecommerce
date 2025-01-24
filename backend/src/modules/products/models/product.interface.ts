@@ -7,12 +7,17 @@ import {
   ProductImageCreateDTO,
   ProductUpdateDTOSchema,
   ProductVariantCreateDTO,
-} from './product.dto';
-import { Product } from './product.model';
-import { ListResponse } from 'src/share/models/base-model';
-import { Meta, PagingDTO } from 'src/share/models/paging';
+} from "./product.dto";
+import { Product } from "./product.model";
+import { ListResponse } from "src/share/models/base-model";
+import { Meta, PagingDTO } from "src/share/models/paging";
 export interface IProductUseCase {
-  createNewProduct(data: ProductCreateDTOSchema): Promise<Product>;
+  createNewProduct(
+    data: Omit<
+      ProductCreateDTOSchema,
+      "total_discounts" | "price_after_discounts"
+    >
+  ): Promise<Product>;
   updateProduct(id: string, data: ProductUpdateDTOSchema): Promise<Product>;
   deleteProduct(id: string): Promise<boolean>;
   getProducts(
