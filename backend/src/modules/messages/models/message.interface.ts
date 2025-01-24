@@ -15,7 +15,7 @@ export interface IMessageUseCase {
   getMessageList(
     paging: PagingDTO,
     condition?: IMessageConditionDTO
-  ): Promise<ListResponse<MessageModel[]>>;
+  ): Promise<ListResponse<MessageModel[]> & { count_unread: number }>;
   createMessage(
     data: Omit<IMessageCreateDTO, 'entity_id' | 'actor_id' | 'message'>
   ): Promise<MessageModel | null>;
@@ -35,7 +35,7 @@ export interface IQueryRepository {
   getMessageList(
     paging: PagingDTO,
     condition: IMessageConditionDTO
-  ): Promise<ListResponse<MessageModel[]>>;
+  ): Promise<ListResponse<MessageModel[]> & { count_unread: number }>;
 }
 
 export interface ICommandRepository {

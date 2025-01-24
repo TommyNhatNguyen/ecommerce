@@ -31,7 +31,7 @@ export class MessageUsecase implements IMessageUseCase {
   async getMessageList(
     paging: PagingDTO,
     condition: IMessageConditionDTO
-  ): Promise<ListResponse<MessageModel[]>> {
+  ): Promise<ListResponse<MessageModel[]> & { count_unread: number }> {
     return await this.messageRepo.getMessageList(paging, condition);
   }
   async createMessage(data: IMessageCreateDTO): Promise<MessageModel | null> {

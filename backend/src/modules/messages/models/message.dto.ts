@@ -13,7 +13,7 @@ export const IMessageCreateDTOSchema = z.object({
   actor_info_id: z.string().uuid(),
   actor_type: z.nativeEnum(ActorType),
   message: z.string(),
-  read_at: z.date().nullable().optional(),
+  read_at: z.string().datetime().nullable().optional(),
 });
 
 export const IMessageUpdateDTOSchema = MessageModelSchema.partial().omit({

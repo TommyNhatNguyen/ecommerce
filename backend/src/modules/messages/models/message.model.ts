@@ -6,7 +6,7 @@ export const MessageModelSchema = z.object({
   entity_id: z.string().uuid(),
   actor_id: z.string().uuid(),
   message: z.string(),
-  read_at: z.date().nullable(),
+  read_at: z.string().datetime().nullable(),
   created_at: z.date(),
   updated_at: z.date(),
   status: z.nativeEnum(ModelStatus),

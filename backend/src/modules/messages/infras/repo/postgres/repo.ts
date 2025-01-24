@@ -1,4 +1,10 @@
 import { Sequelize } from 'sequelize';
+import { actorModelName } from 'src/modules/messages/actor/infras/postgres/dto';
+import { ActorPersistence } from 'src/modules/messages/actor/infras/postgres/dto';
+import {
+  entityModelName,
+  EntityPersistence,
+} from 'src/modules/messages/entity/infras/postgres/dto';
 import {
   IMessageCreateDTO,
   IMessageUpdateDTO,
@@ -14,7 +20,12 @@ export class PostgresMessageRepository implements IMessageRepository {
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
-  async createMessage(data: Omit<IMessageCreateDTO, 'actor_type' | 'actor_info_id' | 'entity_info' >): Promise<MessageModel> {
+  async createMessage(
+    data: Omit<
+      IMessageCreateDTO,
+      'actor_type' | 'actor_info_id' | 'entity_info'
+    >
+  ): Promise<MessageModel> {
     const message = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });
@@ -48,7 +59,7 @@ export class PostgresMessageRepository implements IMessageRepository {
   async getMessageList(
     paging: PagingDTO,
     condition: IMessageConditionDTO
-  ): Promise<ListResponse<MessageModel[]>> {
+  ): Promise<ListResponse<MessageModel[]> & { count_unread: number }> {
     const { page, limit } = paging;
     const where: any = {};
     if (condition.entity_id) where.entity_id = condition.entity_id;
@@ -60,6 +71,19 @@ export class PostgresMessageRepository implements IMessageRepository {
       where,
       limit,
       offset: (page - 1) * limit,
+      order: [['created_at', 'DESC']],
+      include: [
+        {
+          model: ActorPersistence,
+          as: actorModelName,
+          attributes: ['id', 'type'],
+        },
+      ],
+    });
+    const count_unread = await this.sequelize.models[this.modelName].count({
+      where: {
+        read_at: null,
+      },
     });
     return {
       data: rows.map((row) => row.dataValues),
@@ -69,6 +93,7 @@ export class PostgresMessageRepository implements IMessageRepository {
         total_page: Math.ceil(count / limit),
         limit,
       },
+      count_unread,
     };
   }
 }

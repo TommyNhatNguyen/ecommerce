@@ -51,6 +51,8 @@ import {
 } from "@/app/shared/store/reducers/socket";
 import { socketServices } from "@/app/shared/services/sockets";
 import { notificationServices } from "@/app/shared/services/notification/notificationService";
+import Notification from "@/app/layouts/components/Notification";
+import { getNotificationThunk } from "@/app/shared/store/reducers/notification";
 const { Header, Footer, Sider, Content } = Layout;
 type DashboardLayoutPropsType = {
   children: React.ReactNode;
@@ -129,10 +131,6 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   const handleSelect = (key: string) => {
     router.push(key);
   };
-  const { data: notifications, isLoading } = useQuery({
-    queryKey: ["notifications", orderCreated],
-    queryFn: () => notificationServices.getList({}),
-  });
   // --- ORDER NOTIFICATION ---
   useSocket(
     socketServices.orderIo,
@@ -147,8 +145,12 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
         message: "Order created",
         description: orderCreated,
       });
+      dispatch(getNotificationThunk({}));
     }
   }, [orderCreated]);
+  useEffect(() => {
+    dispatch(getNotificationThunk({}));
+  }, []);
   return (
     <Layout className="h-screen">
       <Sider className="bg-white" collapsed={collapsed}>
@@ -175,9 +177,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
             prefix={<Search />}
           />
           <div className="flex items-center gap-4">
-            <Badge count={5}>
-              <Button type="text" icon={<Bell />} size="small" />
-            </Badge>
+            <Notification />
             <Dropdown
               menu={{
                 items: dropdownItems,
@@ -204,7 +204,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
                   kind: "create",
                   type: "order",
                 },
-                actor_info_id: "019477ff-deb9-75ac-9ec7-e921166ad393",
+                actor_info_id: "0194972f-5b24-739b-85a1-a1c68d45a5d0",
                 actor_type: "customer",
                 message: "Order created",
               }),
