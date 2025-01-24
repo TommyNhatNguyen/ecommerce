@@ -1,4 +1,6 @@
-import DashboardLayout, { DashboardWrapper } from "@/app/layouts/DashboardLayout";
+import DashboardLayout, {
+  DashboardWrapper,
+} from "@/app/layouts/DashboardLayout";
 import type { Metadata } from "next";
 import { Open_Sans } from "next/font/google";
 import "../shared/resources/css/globals.admin.css";

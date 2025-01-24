@@ -69,6 +69,7 @@ const ProductSelectionModal = ({
       title: null,
       dataIndex: "images",
       key: "images",
+      minWidth: 50,
       className: "max-w-[50px] max-h-[50px]",
       render: (_, { image }) => {
         const imagesList =
@@ -146,6 +147,7 @@ const ProductSelectionModal = ({
     return (
       <div>
         <Table
+          tableLayout="auto"
           dataSource={data?.data}
           columns={columns}
           rowKey={(record) => record.id}

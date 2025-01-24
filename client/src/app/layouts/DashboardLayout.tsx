@@ -1,5 +1,4 @@
 "use client";
-
 import { ADMIN_ROUTES } from "@/app/constants/routes";
 import NotificationContextProvider, {
   useNotification,

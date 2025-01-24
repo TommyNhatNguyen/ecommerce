@@ -10,6 +10,8 @@ export interface DataType {
   name: string;
   description: string;
   category: ProductModel["category"];
+  price_after_discounts: number,
+  total_discounts: number,
   price: number;
   cost: number;
   quantity: number;

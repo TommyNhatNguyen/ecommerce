@@ -36,6 +36,7 @@ import { useInventoryDelete } from "@/app/(dashboard)/admin/inventory/hooks/useI
 import { STOCK_STATUS } from "@/app/constants/stock-status";
 import { StockStatus } from "@/app/shared/models/inventories/stock-status";
 import { DISCOUNT_TYPE } from "@/app/constants/enum";
+import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 
 type DeletedProductPagePropsType = {};
 type OnChange = NonNullable<TableProps<DataType>["onChange"]>;
@@ -81,6 +82,10 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
       }),
     placeholderData: keepPreviousData,
   });
+  const { data: categories } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => categoriesService.getCategories(),
+  });
   const { data: inventoriesData, meta } = inventories || {};
   const { limit, total_count, current_page } = meta || {};
   const ButtonDeleteSelected = withDeleteConfirmPopover(
@@ -102,25 +107,23 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
         item.image && item.image.length > 0
           ? item.image.map((image) => image.url)
           : [defaultImage];
-      const totalValue =
-        item.price && item.inventory?.quantity
-          ? item.price * (item.inventory?.quantity || 1)
-          : item.price;
       tableDataSource.push({
         key: item.id,
         id: item.id,
         name: item.name,
         description: item.description,
         price: item.price,
-        images: images as string[],
+        price_after_discounts: item?.price_after_discounts || 0,
+        total_discounts: item?.total_discounts || 0,
+        cost: item.inventory ? item.inventory.cost || 0 : 0,
+        images: images,
         category: item.category,
         quantity: item.inventory ? item.inventory.quantity || 0 : 0,
         discounts: item.discount,
-        totalInventoryValue: totalValue,
+        totalInventoryValue: item.inventory?.total_value || 0,
         status: item.status,
         createdAt: item.created_at,
-        stock_status: item.inventory?.stock_status,
-        cost: item.inventory?.cost || 0,
+        stock_status: item.inventory?.stock_status || StockStatus.IN_STOCK,
       });
     });
     return tableDataSource;
@@ -159,7 +162,8 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
       title: null,
       dataIndex: "images",
       key: "images",
-      className: "max-w-[150px] ",
+      className: "max-w-[150px]",
+      minWidth: 150,
       render: (_, { images }) => {
         return (
           <Image.PreviewGroup
@@ -174,10 +178,8 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
                   key={item}
                   src={item}
                   alt="product"
-                  width={150}
-                  height={150}
                   fallback={defaultImage}
-                  className="object-contain"
+                  className="object-contain object-center"
                 />
               ))}
             </Carousel>
@@ -221,6 +223,16 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
         );
       },
       filterSearch: true,
+      filters:
+        categories &&
+        categories.data.map((item) => ({
+          text: item.name,
+          value: item.name,
+        })),
+      filteredValue: filteredInfo.category || null,
+      onFilter: (value, record) =>
+        record.category?.map((item) => item.name).indexOf(value as string) ===
+        0,
     },
     {
       title: "Price",
@@ -229,6 +241,19 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
       sorter: (a, b) => a.price - b.price,
       sortOrder: sortedInfo.columnKey === "price" ? sortedInfo.order : null,
       render: (_, { price }) => <span>{formatCurrency(price)}</span>,
+    },
+    {
+      title: "Price after discounts",
+      dataIndex: "price_after_discounts",
+      key: "price_after_discounts",
+      sorter: (a, b) => a.price_after_discounts - b.price_after_discounts,
+      sortOrder:
+        sortedInfo.columnKey === "price_after_discounts"
+          ? sortedInfo.order
+          : null,
+      render: (_, { price_after_discounts }) => (
+        <span>{formatCurrency(price_after_discounts)}</span>
+      ),
     },
     {
       title: "Cost",
@@ -274,15 +299,16 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
       title: "Discount",
       key: "discounts",
       dataIndex: "discounts",
-      sorter: (a, b) =>
-        (a.discounts?.length || 0) - (b.discounts?.length || 0) ||
-        (a.discounts?.reduce((acc, curr) => acc + (curr.amount || 0), 0) || 0) -
-          (b.discounts?.reduce((acc, curr) => acc + (curr.amount || 0), 0) ||
-            0),
-      sortOrder: sortedInfo.columnKey === "discounts" ? sortedInfo.order : null,
-      render: (_, { discounts }) => {
+      sorter: (a, b) => a.total_discounts - b.total_discounts,
+      sortOrder:
+        sortedInfo.columnKey === "total_discounts" ? sortedInfo.order : null,
+      render: (_, { discounts, total_discounts }) => {
         return (
           <div className="flex flex-col gap-2">
+            <h3>
+              <span className="font-semibold">Totals discount:</span>{" "}
+              {formatCurrency(total_discounts || 0)}
+            </h3>
             {discounts?.map((discount, index) => (
               <Tooltip
                 title={discount?.description}
@@ -290,11 +316,11 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
                 key={discount?.id}
               >
                 <Tag>
-                  <span className="capitalize">{discount?.name} - </span>
                   <span>
+                    {discount?.name} -{" "}
                     {discount?.type === DISCOUNT_TYPE.PERCENTAGE
                       ? formatDiscountPercentage(discount?.amount || 0)
-                      : formatCurrency(discount.amount || 0)}
+                      : formatCurrency(discount?.amount || 0)}
                   </span>
                 </Tag>
               </Tooltip>
@@ -304,7 +330,7 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
       },
     },
     {
-      title: "Total Value",
+      title: "Total Inventory Value",
       key: "totalInventoryValue",
       dataIndex: "totalInventoryValue",
       sorter: (a, b) => a.totalInventoryValue - b.totalInventoryValue,
@@ -344,7 +370,6 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
       filteredValue: filteredInfo.status || null,
       onFilter: (value, record) => record.status === value,
       render: (_, { status, id }) => {
-        console.log(status);
         return (
           <Select
             options={statusOptions}

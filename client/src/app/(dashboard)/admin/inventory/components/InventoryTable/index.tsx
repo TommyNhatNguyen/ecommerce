@@ -29,6 +29,8 @@ import {
 import {
   ArrowLeftCircle,
   ArrowRightCircle,
+  Eye,
+  EyeClosed,
   MoreHorizontal,
   Pencil,
   PlusIcon,
@@ -246,6 +248,8 @@ const InventoryTable = ({
         name: item.name,
         description: item.description,
         price: item.price,
+        price_after_discounts: item?.price_after_discounts || 0,
+        total_discounts: item?.total_discounts || 0,
         cost: item.inventory ? item.inventory.cost || 0 : 0,
         images: images,
         category: item.category,
@@ -266,7 +270,8 @@ const InventoryTable = ({
       title: null,
       dataIndex: "images",
       key: "images",
-      className: "max-w-[150px] ",
+      className: "max-w-[150px]",
+      minWidth: 150,
       render: (_, { images }) => {
         return (
           <Image.PreviewGroup
@@ -281,10 +286,8 @@ const InventoryTable = ({
                   key={item}
                   src={item}
                   alt="product"
-                  width={150}
-                  height={150}
                   fallback={defaultImage}
-                  className="object-contain"
+                  className="object-contain object-center"
                 />
               ))}
             </Carousel>
@@ -348,6 +351,19 @@ const InventoryTable = ({
       render: (_, { price }) => <span>{formatCurrency(price)}</span>,
     },
     {
+      title: "Price after discounts",
+      dataIndex: "price_after_discounts",
+      key: "price_after_discounts",
+      sorter: (a, b) => a.price_after_discounts - b.price_after_discounts,
+      sortOrder:
+        sortedInfo.columnKey === "price_after_discounts"
+          ? sortedInfo.order
+          : null,
+      render: (_, { price_after_discounts }) => (
+        <span>{formatCurrency(price_after_discounts)}</span>
+      ),
+    },
+    {
       title: "Cost",
       dataIndex: "cost",
       key: "cost",
@@ -391,15 +407,16 @@ const InventoryTable = ({
       title: "Discount",
       key: "discounts",
       dataIndex: "discounts",
-      sorter: (a, b) =>
-        (a.discounts?.length || 0) - (b.discounts?.length || 0) ||
-        (a.discounts?.reduce((acc, curr) => acc + (curr.amount || 0), 0) || 0) -
-          (b.discounts?.reduce((acc, curr) => acc + (curr.amount || 0), 0) ||
-            0),
-      sortOrder: sortedInfo.columnKey === "discounts" ? sortedInfo.order : null,
-      render: (_, { discounts }) => {
+      sorter: (a, b) => a.total_discounts - b.total_discounts,
+      sortOrder:
+        sortedInfo.columnKey === "total_discounts" ? sortedInfo.order : null,
+      render: (_, { discounts, total_discounts }) => {
         return (
           <div className="flex flex-col gap-2">
+            <h3>
+              <span className="font-semibold">Totals discount:</span>{" "}
+              {formatCurrency(total_discounts || 0)}
+            </h3>
             {discounts?.map((discount, index) => (
               <Tooltip
                 title={discount?.description}
@@ -408,7 +425,7 @@ const InventoryTable = ({
               >
                 <Tag>
                   <span>
-                    {discount?.name} -
+                    {discount?.name} -{" "}
                     {discount?.type === DISCOUNT_TYPE.PERCENTAGE
                       ? formatDiscountPercentage(discount?.amount || 0)
                       : formatCurrency(discount?.amount || 0)}
@@ -567,6 +584,7 @@ const InventoryTable = ({
         </div>
         <div className={cn("inventory-page__table-content", "mt-4")}>
           <Table
+            tableLayout="auto"
             dataSource={tableDataSource as any}
             columns={columns}
             onChange={_onChangeTable}
