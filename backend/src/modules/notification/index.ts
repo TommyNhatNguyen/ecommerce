@@ -61,10 +61,16 @@ export const setupNotification = (io: Websocket, sequelize: Sequelize) => {
         actor_id: '',
       };
       const message = await messageUsecase.createMessage(payload);
-      orderNotificationUseCase.notifyOrderCreated(message.message, true);
-      orderNotificationUseCase.notifyOrderCreatedToCustomer(
-        'Thank you for your order! You will receive an email when your order is ready!'
-      );
+      if (message) {
+        orderNotificationUseCase.notifyOrderCreated(message.message, true);
+        orderNotificationUseCase.notifyOrderCreatedToCustomer(
+          'Thank you for your order! You will receive an email when your order is ready!'
+        );
+      } else {
+        orderNotificationUseCase.notifyOrderCreatedToCustomer(
+          'Something went wrong, please try again later!'
+        );
+      }
     });
     console.log(
       '🚀 ~ onOrderConnection ~ socket Client Count:',

@@ -18,7 +18,7 @@ export interface IMessageUseCase {
   ): Promise<ListResponse<MessageModel[]>>;
   createMessage(
     data: Omit<IMessageCreateDTO, 'entity_id' | 'actor_id' | 'message'>
-  ): Promise<MessageModel>;
+  ): Promise<MessageModel | null>;
   updateMessage(id: string, data: IMessageUpdateDTO): Promise<MessageModel>;
   deleteMessage(id: string): Promise<boolean>;
 }
