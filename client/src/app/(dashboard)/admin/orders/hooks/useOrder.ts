@@ -1,5 +1,6 @@
 import { OrderTableDataType } from "@/app/(dashboard)/admin/orders/components/OrderTable";
 import { useNotification } from "@/app/contexts/NotificationContext";
+import { OrderCreateDTO } from "@/app/shared/interfaces/orders/order.dto";
 import { OrderState } from "@/app/shared/models/orders/orders.model";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { orderService } from "@/app/shared/services/orders/orderService";
@@ -20,6 +21,8 @@ export default function useOrder(orderState: OrderState | null = null) {
   const [isSoftDeleteOrderError, setIsSoftDeleteOrderError] = useState(false);
   const [isDeleteOrderLoading, setIsDeleteOrderLoading] = useState(false);
   const [isDeleteOrderError, setIsDeleteOrderError] = useState(false);
+  const [isCreateOrderLoading, setIsCreateOrderLoading] = useState(false);
+  const [createOrderError, setCreateOrderError] = useState();
   const { notificationApi } = useNotification();
   const handleSelectAllRow = (
     selected: boolean,
@@ -113,6 +116,29 @@ export default function useOrder(orderState: OrderState | null = null) {
       setIsDeleteOrderLoading(false);
     }
   };
+  const handleCreateOrder = async (data: OrderCreateDTO) => {
+    console.log(data);
+    try {
+      setIsCreateOrderLoading(true);
+      const response = await orderService.createOrder(data);
+      if (response) {
+        console.log(response);
+        notificationApi.success({
+          message: "Order deleted successfully",
+          description: "Order deleted successfully",
+        });
+      }
+    } catch (error: any) {
+      console.log(error);
+      notificationApi.error({
+        message: "Failed to delete order",
+        description: "Failed to delete order",
+      });
+      setCreateOrderError(error);
+    } finally {
+      setIsCreateOrderLoading(false);
+    }
+  };
   const orderTableProps = {
     handleSelectAllRow,
     handleSelectRow,
@@ -128,6 +154,9 @@ export default function useOrder(orderState: OrderState | null = null) {
     handleDeleteOrder,
     isDeleteOrderLoading,
     isDeleteOrderError,
+    handleCreateOrder,
+    isCreateOrderLoading,
+    createOrderError,
   };
   const orderStatisticsProps = {};
   return {

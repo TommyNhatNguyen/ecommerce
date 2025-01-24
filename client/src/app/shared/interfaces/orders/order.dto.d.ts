@@ -18,7 +18,6 @@ export interface OrderConditionDTO {
 }
 
 export interface OrderCreateDTO {
-  order_detail_id: string;
   description?: string;
   order_state: OrderState;
   order_detail_info: {
@@ -31,7 +30,7 @@ export interface OrderCreateDTO {
     total_product_discount?: number;
     total?: number;
     shipping_method_id: string;
-    payment_id: string;
+    payment_id?: string;
     payment_info: {
       payment_method_id: string;
       paid_amount: number;

@@ -1,22 +1,19 @@
-import { ICustomerUseCase } from 'src/modules/customer/models/customer.interface';
-import { IActorUseCase } from 'src/modules/messages/actor/models/actor.interface';
-import { IEntityUseCase } from 'src/modules/messages/entity/models/entity.interface';
+import { ICustomerUseCase } from "src/modules/customer/models/customer.interface";
+import { IActorUseCase } from "src/modules/messages/actor/models/actor.interface";
+import { IEntityUseCase } from "src/modules/messages/entity/models/entity.interface";
 import {
   IMessageConditionDTO,
   IMessageCreateDTO,
   IMessageUpdateDTO,
-} from 'src/modules/messages/models/message.dto';
-import {
-  MESSAGE_ACTOR_NOT_FOUND_ERROR,
-  MESSAGE_ENTITY_NOT_FOUND_ERROR,
-} from 'src/modules/messages/models/message.error';
+} from "src/modules/messages/models/message.dto";
+import { MESSAGE_ENTITY_NOT_FOUND_ERROR } from "src/modules/messages/models/message.error";
 import {
   IMessageRepository,
   IMessageUseCase,
-} from 'src/modules/messages/models/message.interface';
-import { MessageModel } from 'src/modules/messages/models/message.model';
-import { ListResponse } from 'src/share/models/base-model';
-import { PagingDTO } from 'src/share/models/paging';
+} from "src/modules/messages/models/message.interface";
+import { MessageModel } from "src/modules/messages/models/message.model";
+import { ListResponse } from "src/share/models/base-model";
+import { PagingDTO } from "src/share/models/paging";
 
 export class MessageUsecase implements IMessageUseCase {
   constructor(
@@ -41,7 +38,7 @@ export class MessageUsecase implements IMessageUseCase {
     const { actor_type, actor_info_id, entity_info, ...rest } = data;
     const payload: Omit<
       IMessageCreateDTO,
-      'actor_type' | 'actor_info_id' | 'entity_info'
+      "actor_type" | "actor_info_id" | "entity_info"
     > = {
       ...rest,
     };
@@ -63,13 +60,13 @@ export class MessageUsecase implements IMessageUseCase {
       entity_info.kind
     );
     if (!entity) {
-      throw MESSAGE_ENTITY_NOT_FOUND_ERROR;
+      throw MESSAGE_ENTITY_NOT_FOUND_ERROR();
     }
     payload.entity_id = entity.id;
     if (
-      actor.type === 'customer' &&
-      entity.type === 'order' &&
-      entity.kind === 'create'
+      actor.type === "customer" &&
+      entity.type === "order" &&
+      entity.kind === "create"
     ) {
       const customer = await this.customerUsecase.getCustomerById(
         actor.actor_info_id,
@@ -77,15 +74,15 @@ export class MessageUsecase implements IMessageUseCase {
       );
       const template = entity.template;
       payload.message = `${template
-        .replace('{{kind}}', entity.kind.toLowerCase())
+        .replace("{{kind}}", entity.kind.toLowerCase())
         .replace(
-          '{{actor_id}}',
-          `${customer.first_name || ''} ${customer.last_name || ''}`
+          "{{actor_id}}",
+          `${customer.first_name || ""} ${customer.last_name || ""}`
         )} at ${new Date().toLocaleString()}`;
     }
     return await this.messageRepo.createMessage(payload);
   }
-  
+
   async updateMessage(
     id: string,
     data: IMessageUpdateDTO

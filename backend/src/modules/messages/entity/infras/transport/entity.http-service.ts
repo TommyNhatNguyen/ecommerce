@@ -1,12 +1,12 @@
-import { Request, Response } from 'express';
+import { Request, Response } from "express";
 import {
   IEntityByTypeAndKindDTOSchema,
   IEntityConditionDTOSchema,
   IEntityCreateDTOSchema,
   IEntityUpdateDTOSchema,
-} from 'src/modules/messages/entity/models/entity.dto';
-import { IEntityUseCase } from 'src/modules/messages/entity/models/entity.interface';
-import { PagingDTOSchema } from 'src/share/models/paging';
+} from "src/modules/messages/entity/models/entity.dto";
+import { IEntityUseCase } from "src/modules/messages/entity/models/entity.interface";
+import { PagingDTOSchema } from "src/share/models/paging";
 
 export class EntityHttpService {
   constructor(private readonly entityUseCase: IEntityUseCase) {}
@@ -24,12 +24,12 @@ export class EntityHttpService {
         data.kind
       );
       if (!entity) {
-        res.status(404).json({ message: 'Entity not found' });
+        res.status(404).json({ message: "Entity not found" });
         return;
       }
-      res.status(200).json({ message: 'Entity found', ...entity });
+      res.status(200).json({ message: "Entity found", ...entity });
     } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: "Internal server error" });
       return;
     }
   }
@@ -38,12 +38,12 @@ export class EntityHttpService {
     try {
       const entity = await this.entityUseCase.getEntityById(id);
       if (!entity) {
-        res.status(404).json({ message: 'Entity not found' });
+        res.status(404).json({ message: "Entity not found" });
         return;
       }
       res.status(200).json(entity);
     } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: "Internal server error" });
       return;
     }
   }
@@ -70,12 +70,12 @@ export class EntityHttpService {
         condition
       );
       if (!entityList) {
-        res.status(404).json({ message: 'Entity list not found' });
+        res.status(404).json({ message: "Entity list not found" });
         return;
       }
       res.status(200).json(entityList);
     } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: "Internal server error" });
       return;
     }
   }
@@ -88,12 +88,12 @@ export class EntityHttpService {
     try {
       const entity = await this.entityUseCase.createEntity(data);
       if (!entity) {
-        res.status(404).json({ message: 'Failed to create entity' });
+        res.status(404).json({ message: "Failed to create entity" });
         return;
       }
       res.status(200).json(entity);
     } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: "Internal server error" });
       return;
     }
   }
@@ -107,17 +107,17 @@ export class EntityHttpService {
     try {
       const entity = await this.entityUseCase.getEntityById(id);
       if (!entity) {
-        res.status(404).json({ message: 'Entity not found' });
+        res.status(404).json({ message: "Entity not found" });
         return;
       }
       const updatedEntity = await this.entityUseCase.updateEntity(id, data);
       if (!updatedEntity) {
-        res.status(404).json({ message: 'Failed to update entity' });
+        res.status(404).json({ message: "Failed to update entity" });
         return;
       }
       res.status(200).json(updatedEntity);
     } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: "Internal server error" });
       return;
     }
   }
@@ -126,17 +126,17 @@ export class EntityHttpService {
     try {
       const entity = await this.entityUseCase.getEntityById(id);
       if (!entity) {
-        res.status(404).json({ message: 'Entity not found' });
+        res.status(404).json({ message: "Entity not found" });
         return;
       }
       const deletedEntity = await this.entityUseCase.deleteEntity(id);
       if (!deletedEntity) {
-        res.status(404).json({ message: 'Failed to delete entity' });
+        res.status(404).json({ message: "Failed to delete entity" });
         return;
       }
       res.status(200).json(deletedEntity);
     } catch (error) {
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: "Internal server error" });
       return;
     }
   }

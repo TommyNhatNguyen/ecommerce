@@ -50,7 +50,8 @@ export interface OrderDetailModel {
   shipping_method_id: string;
   payment_id: string;
   customer_id: string;
-  customer_name: string;
+  customer_firstName: string;
+  customer_lastName: string;
   customer_phone: string;
   customer_email: string | null;
   customer_address: string;

@@ -34,6 +34,8 @@ import { cn, formatCurrency, formatNumber } from "@/app/shared/utils/utils";
 import { ProductModel } from "@/app/shared/models/products/products.model";
 import { Plus } from "lucide-react";
 import ProductSelectionModal from "../../ProductSelectionModal";
+import { OrderCreateDTO } from "@/app/shared/interfaces/orders/order.dto";
+import { OrderState } from "@/app/shared/models/orders/orders.model";
 
 export type ProductColumnType = Exclude<
   TableProps<ProductModel>["columns"],
@@ -42,14 +44,16 @@ export type ProductColumnType = Exclude<
 
 type CreateOrderDetailModalPropsType = {
   isOpen: boolean;
-  handleCreateOrder: (data: any) => void;
+  handleCreateOrder: (data: OrderCreateDTO, callback: () => void) => void;
   handleCloseCreateOrderModal: () => void;
+  loading?: boolean;
 };
 
 const CreateOrderDetailModal = ({
   isOpen = false,
   handleCreateOrder,
   handleCloseCreateOrderModal,
+  loading = false,
 }: CreateOrderDetailModalPropsType) => {
   const [isOpenProductSelectionModal, setIsOpenProductSelctionModal] =
     useState(false);
@@ -76,7 +80,7 @@ const CreateOrderDetailModal = ({
   } = useForm({
     defaultValues: {
       description: "",
-      order_state: ORDER_STATE.PENDING,
+      order_state: ORDER_STATE.PENDING as OrderState,
       order_detail_info: {
         subtotal: 0, // disabled
         total_shipping_fee: 0, // disabled
@@ -87,11 +91,16 @@ const CreateOrderDetailModal = ({
         total_product_discount: 0, // disabled
         total: 0, // disabled
         shipping_method_id: "", // Select from shipping
-        payment_id: "", // not have
         payment_info: {
           payment_method_id: "", // Select from payment methods
           paid_amount: 0, // User input
         },
+        products_detail: [
+          {
+            id: "",
+            quantity: 0,
+          },
+        ],
         customer_id: "", // Select current active users
         customer_firstName: "", // User input
         customer_lastName: "",
@@ -130,15 +139,6 @@ const CreateOrderDetailModal = ({
     queryKey: ["customer"],
     queryFn: () => customerService.getList({}),
   });
-  const _onCloseModal = () => {
-    handleCloseCreateOrderModal();
-  };
-  const _onConfirmCreateOrder = (data: any) => {
-    console.log(data);
-    const payload = {};
-    handleCreateOrder(data);
-  };
-
   const handleCloseProductSelectionModal = () => {
     setIsOpenProductSelctionModal(false);
   };
@@ -153,6 +153,37 @@ const CreateOrderDetailModal = ({
   };
   const _onRemoveAllProducts = () => {
     setSelectedProductList([]);
+  };
+  const _onResetData = () => {
+    reset();
+    _onRemoveAllProducts();
+  };
+  const _onCloseModal = () => {
+    handleCloseCreateOrderModal();
+    _onResetData();
+  };
+  const _onConfirmCreateOrder = (data: OrderCreateDTO) => {
+    const {
+      order_detail_info: { customer_id, ...rest_order_detail_info },
+      ...rest
+    } = data;
+    let payload: OrderCreateDTO = {
+      ...rest,
+      order_detail_info: {
+        ...rest_order_detail_info,
+        products_detail: productsOrder,
+      },
+    };
+    if (customer_id) {
+      payload = {
+        ...payload,
+        order_detail_info: {
+          customer_id: customer_id,
+          ...payload.order_detail_info,
+        },
+      };
+    }
+    handleCreateOrder(payload, _onResetData);
   };
   useEffect(() => {
     const selectedCustomerId = getValues("order_detail_info.customer_id");
@@ -190,7 +221,6 @@ const CreateOrderDetailModal = ({
               )
               .reduce((acc, curr) => acc + curr)
           : 0;
-      console.log(subtotal);
       const total_shipping_fee =
         shippingMethodList?.data.find(
           (item) => item.id === watch("order_detail_info.shipping_method_id"),
@@ -429,7 +459,6 @@ const CreateOrderDetailModal = ({
         const [editing, setEditing] = useState(false);
         const inputRef = useRef<InputRef>(null);
         const _handleChange = (value: number) => {
-          console.log(value);
           setProduct({ id: record.id, quantity: value });
         };
         const save = () => {
@@ -561,7 +590,6 @@ const CreateOrderDetailModal = ({
                 <Controller
                   name="order_detail_info.customer_address"
                   control={control}
-                  disabled={!!watch("order_detail_info.customer_id")}
                   rules={{
                     required: {
                       value: true,
@@ -572,6 +600,7 @@ const CreateOrderDetailModal = ({
                     <InputAdmin
                       required={true}
                       {...field}
+                      disabled={!!watch("order_detail_info.customer_id")}
                       label="Customer address"
                       placeholder="Enter customer address"
                       groupClassName="flex-1"
@@ -1057,6 +1086,8 @@ const CreateOrderDetailModal = ({
         renderFooter={_renderFooter}
         renderContent={_renderBody}
         open={isOpen}
+        onCancel={handleCloseCreateOrderModal}
+        loading={loading}
       />
       <ProductSelectionModal
         open={isOpenProductSelectionModal}

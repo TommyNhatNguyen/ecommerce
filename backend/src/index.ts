@@ -1,5 +1,5 @@
 var cors = require("cors");
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import { config } from "dotenv";
 import path from "path";
 import { sequelize } from "src/share/sequelize";
@@ -100,6 +100,7 @@ import { setupActorRouter } from "src/modules/messages/actor";
 import { setupEntityRouter } from "src/modules/messages/entity";
 import { setupMessageRouter } from "src/modules/messages";
 import { instrument } from "@socket.io/admin-ui";
+import { errorHandler } from "./share/helpers/error-handler";
 config();
 
 (async () => {
@@ -153,6 +154,7 @@ app.use("/v1", setupCartRouter(sequelize));
 app.use("/v1", setupCostRouter(sequelize));
 app.use("/v1", setupPaymentMethodRouter(sequelize));
 initializeAssociation();
+app.use(errorHandler);
 
 io.engine.on("connection_error", (err) => {
   console.log(err.req); // the request object

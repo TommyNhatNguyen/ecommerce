@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import {
   IMessageConditionDTOSchema,
   IMessageCreateDTOSchema,
@@ -62,7 +62,7 @@ export class MessageHttpService {
       return;
     }
   }
-  async createMessage(req: Request, res: Response) {
+  async createMessage(req: Request, res: Response, next: NextFunction) {
     const { success, data, error } = IMessageCreateDTOSchema.omit({
       entity_id: true,
       actor_id: true,
@@ -80,7 +80,7 @@ export class MessageHttpService {
       }
       res.status(200).json(message);
     } catch (error) {
-      console.log(error);
+      next(error)
       res.status(500).json({ message: 'Internal server error' });
       return;
     }

@@ -1,4 +1,7 @@
-import { OrderConditionDTO } from "@/app/shared/interfaces/orders/order.dto";
+import {
+  OrderCreateDTO,
+  OrderConditionDTO,
+} from "@/app/shared/interfaces/orders/order.dto";
 import { ListResponseModel } from "@/app/shared/models/others/list-response.model";
 import { axiosInstance } from "@/app/shared/utils/axiosInstance";
 import {
@@ -43,6 +46,10 @@ export const orderService = {
   },
   async deleteOrder(order_id: string) {
     const response = await axiosInstance.delete(`/order/${order_id}`);
+    return response.data;
+  },
+  async createOrder(data: OrderCreateDTO): Promise<OrderModel> {
+    const response = await axiosInstance.post("/order", data);
     return response.data;
   },
 };

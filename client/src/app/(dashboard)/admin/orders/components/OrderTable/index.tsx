@@ -44,6 +44,7 @@ import { CostModel } from "@/app/shared/models/cost/cost.model";
 import { useAppSelector } from "@/app/shared/hooks/useRedux";
 import { ListResponseModel } from "@/app/shared/models/others/list-response.model";
 import CreateOrderDetailModal from "@/app/shared/components/GeneralModal/components/CreateOrderDetailModal";
+import { OrderCreateDTO } from "@/app/shared/interfaces/orders/order.dto";
 
 type OrderTablePropsType = {
   handleChangeOrderState: (order_id: string, order_state: OrderState) => void;
@@ -77,6 +78,9 @@ type OrderTablePropsType = {
   isDeleteOrderLoading: boolean;
   isDeleteOrderError: boolean;
   isPermanentDelete?: boolean;
+  handleCreateOrder: (data: OrderCreateDTO) => void;
+  isCreateOrderLoading: boolean;
+  createOrderError: any;
 };
 export type OrderTableDataType = {
   key: string;
@@ -84,6 +88,8 @@ export type OrderTableDataType = {
   order_state: string;
   description: string;
   cost: CostModel[];
+  customer_firstName: string;
+  customer_lastName: string;
   customer_name: string;
   customer_phone: string;
   customer_email: string;
@@ -148,6 +154,9 @@ const OrderTable = ({
   isDeleteOrderLoading,
   isDeleteOrderError,
   isPermanentDelete = false,
+  handleCreateOrder,
+  isCreateOrderLoading,
+  createOrderError,
 }: OrderTablePropsType) => {
   const [orderPage, setOrderPage] = useState(1);
   const [orderLimit, setOrderLimit] = useState(10);
@@ -170,6 +179,7 @@ const OrderTable = ({
             isDeleteOrderLoading,
             orderPage,
             orderLimit,
+            isCreateOrderLoading,
           ],
         }
       : {
@@ -254,7 +264,11 @@ const OrderTable = ({
       order_state: order.order_state || "",
       description: order.description || "",
       cost: order.order_detail.cost as CostModel[],
-      customer_name: order.order_detail.customer_name || "",
+      customer_lastName: order.order_detail.customer_lastName || "",
+      customer_firstName: order.order_detail.customer_firstName || "",
+      customer_name:
+        `${order.order_detail.customer_firstName} ${order.order_detail.customer_lastName}` ||
+        "",
       customer_phone: order.order_detail.customer_phone || "",
       customer_email: order.order_detail.customer_email || "",
       customer_address: order.order_detail.customer_address || "",
@@ -724,6 +738,7 @@ const OrderTable = ({
   const orderExpandedRowRender = (dataScource: ProductTableDataType[]) => {
     return (
       <Table<ProductTableDataType>
+        tableLayout="auto"
         columns={productColumns}
         dataSource={dataScource}
         pagination={false}
@@ -739,8 +754,10 @@ const OrderTable = ({
   const _onCloseCreateOrderModal = () => {
     setIsOpenCreateOrderModal(false);
   };
-  const _onCreateOrder = (data: any) => {
-    console.log(data);
+  const _onCreateOrder = (data: any, resetDataCallback: () => void) => {
+    handleCreateOrder(data);
+    _onCloseCreateOrderModal();
+    resetDataCallback();
   };
   return (
     <div className="order-table rounded-lg bg-white p-4">
@@ -755,6 +772,7 @@ const OrderTable = ({
       </div>
       <div className="mt-4">
         <Table
+          tableLayout="auto"
           columns={orderColumns}
           dataSource={orderDataSource}
           rowClassName={"max-h-[100px] overflow-hidden"}
@@ -805,6 +823,7 @@ const OrderTable = ({
         isOpen={isOpenCreateOrderModal}
         handleCloseCreateOrderModal={_onCloseCreateOrderModal}
         handleCreateOrder={_onCreateOrder}
+        loading={isCreateOrderLoading}
       />
     </div>
   );

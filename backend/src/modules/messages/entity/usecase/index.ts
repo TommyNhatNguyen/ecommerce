@@ -2,22 +2,25 @@ import {
   IActorConditionDTO,
   IActorCreateDTO,
   IActorUpdateDTO,
-} from 'src/modules/messages/actor/models/actor.dto';
+} from "src/modules/messages/actor/models/actor.dto";
 import {
   IActorRepository,
   IActorUseCase,
-} from 'src/modules/messages/actor/models/actor.interface';
-import { Actor } from 'src/modules/messages/actor/models/actor.model';
+} from "src/modules/messages/actor/models/actor.interface";
+import { Actor } from "src/modules/messages/actor/models/actor.model";
 import {
   IEntityConditionDTO,
   IEntityCreateDTO,
   IEntityUpdateDTO,
-} from 'src/modules/messages/entity/models/entity.dto';
-import { IEntityRepository } from 'src/modules/messages/entity/models/entity.interface';
-import { IEntityUseCase } from 'src/modules/messages/entity/models/entity.interface';
-import { Entity, EntityKind } from 'src/modules/messages/entity/models/entity.model';
-import { ListResponse } from 'src/share/models/base-model';
-import { PagingDTO } from 'src/share/models/paging';
+} from "src/modules/messages/entity/models/entity.dto";
+import { IEntityRepository } from "src/modules/messages/entity/models/entity.interface";
+import { IEntityUseCase } from "src/modules/messages/entity/models/entity.interface";
+import {
+  Entity,
+  EntityKind,
+} from "src/modules/messages/entity/models/entity.model";
+import { ListResponse } from "src/share/models/base-model";
+import { PagingDTO } from "src/share/models/paging";
 
 export class EntityUsecase implements IEntityUseCase {
   constructor(private readonly entityRepo: IEntityRepository) {}
@@ -42,10 +45,11 @@ export class EntityUsecase implements IEntityUseCase {
   ): Promise<ListResponse<Entity[]>> {
     return this.entityRepo.getEntityList(paging, condition);
   }
-  getEntityByTypeAndKind(
+  async getEntityByTypeAndKind(
     type: string,
     kind: EntityKind
   ): Promise<Entity | null> {
-    return this.entityRepo.getEntityByTypeAndKind(type, kind);
+    const res = await this.entityRepo.getEntityByTypeAndKind(type, kind);
+    return res;
   }
 }
