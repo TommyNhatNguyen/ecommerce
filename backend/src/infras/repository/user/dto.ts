@@ -29,7 +29,7 @@ export const userInit = (sequelize: Sequelize) => {
         unique: true,
       },
       hash_password: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
       },
       email: {

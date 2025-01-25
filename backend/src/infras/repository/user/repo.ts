@@ -2,18 +2,33 @@ import {
   IUserConditionDTO,
   IUserCreateDTO,
   IUserUpdateDTO,
-} from '@models/user/user.dto';
-import { IUserRepository } from '@models/user/user.interface';
-import { User } from '@models/user/user.model';
-import { Sequelize } from 'sequelize';
-import { ListResponse } from 'src/share/models/base-model';
-import { PagingDTO } from 'src/share/models/paging';
+} from "@models/user/user.dto";
+import { IUserRepository } from "@models/user/user.interface";
+import { User } from "@models/user/user.model";
+import { Op } from "sequelize";
+import { Sequelize } from "sequelize";
+import { ListResponse, ModelStatus } from "src/share/models/base-model";
+import { PagingDTO } from "src/share/models/paging";
 
 export class PostgresUserRepository implements IUserRepository {
   constructor(
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+  async getUserByUsername(
+    username: string,
+    condition?: IUserConditionDTO
+  ): Promise<User> {
+    const user = await this.sequelize.models[this.modelName].findOne({
+      where: {
+        username: {
+          [Op.like]: username,
+        },
+      },
+    });
+    return user?.dataValues;
+  }
+
   async getUserById(id: string): Promise<User> {
     const user = await this.sequelize.models[this.modelName].findByPk(id);
     return user?.dataValues;

@@ -116,7 +116,6 @@ const SettingsPage = (props: Props) => {
   };
   return (
     <main className="setting-page">
-      SettingsPage
       <div className="grid min-h-[300px] grid-flow-row grid-cols-3 gap-4">
         {/* Shipping Card */}
         <Card
@@ -316,7 +315,6 @@ const SettingsPage = (props: Props) => {
           )}
         </Card>
       </div>
-      <p>cost</p>
       {/* Modals */}
       <CreateShippingModal
         isModalCreateShippingOpen={isOpenModalCreateShipping}
