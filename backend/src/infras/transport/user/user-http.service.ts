@@ -6,6 +6,7 @@ import {
 } from "@models/user/user.dto";
 import { IUserUseCase } from "@models/user/user.interface";
 import { NextFunction, Request, Response } from "express";
+import { CustomRequest } from "src/middlewares/jwt";
 import { PagingDTOSchema } from "src/share/models/paging";
 
 export class UserHttpService {
@@ -18,8 +19,11 @@ export class UserHttpService {
       return;
     }
     try {
-      const isLogin = await this.userUseCase.login(data);
-      if (isLogin) res.status(200).json({ message: "Login successful" });
+      const username = await this.userUseCase.login(data);
+      if (username) {
+        res.locals.username = username
+        next();
+      }
     } catch (error) {
       next(error);
       return;
@@ -41,7 +45,7 @@ export class UserHttpService {
     }
   }
 
-  async getUsers(req: Request, res: Response) {
+  async getUsers(req: CustomRequest, res: Response) {
     const { success: pagingSuccess, data: pagingData } =
       PagingDTOSchema.safeParse(req.query);
     const { success: conditionSuccess, data: conditionData } =

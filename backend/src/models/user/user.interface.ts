@@ -18,7 +18,7 @@ export interface IUserUseCase {
   updateUser(id: string, data: IUserUpdateDTO): Promise<User>;
   deleteUser(id: string): Promise<boolean>;
   getUserByUsername(username: string, condition?: IUserConditionDTO): Promise<User>;
-  login(data: IUserLoginDTO): Promise<boolean>;
+  login(data: IUserLoginDTO): Promise<boolean | string>;
 }
 
 export interface IUserRepository extends IQueryRepository, ICommandRepository {}

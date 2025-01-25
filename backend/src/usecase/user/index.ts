@@ -20,15 +20,15 @@ export class UserUseCase implements IUserUseCase {
     return await this.userRepository.getUserByUsername(username, condition);
   }
 
-  async login(data: IUserLoginDTO): Promise<boolean> {
-    const {username, password} = data
+  async login(data: IUserLoginDTO): Promise<boolean | string> {
+    const { username, password } = data;
     // Check if user exist
-    const user = await this.getUserByUsername(username)
-    if (!user) throw USER_NOT_FOUND_ERROR
+    const user = await this.getUserByUsername(username);
+    if (!user) throw USER_NOT_FOUND_ERROR;
     // Check if password is correct
-    const isCorrectPassword = compare(password, user.hash_password)
-    if (!isCorrectPassword) throw WRONG_PASSWORD
-    return isCorrectPassword
+    const isCorrectPassword = compare(password, user.hash_password);
+    if (!isCorrectPassword) throw WRONG_PASSWORD;
+    return user?.username;
   }
 
   getUserById(id: string): Promise<User> {
