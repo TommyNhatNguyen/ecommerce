@@ -61,11 +61,11 @@ export enum PaymentMethod {
 export enum Roles {
   SUPER_ADMIN = 'SUPER_ADMIN',
   ADMIN = 'ADMIN',
+  STAFF_MANAGER = 'STAFF_MANAGER',
   STAFF = 'STAFF',
-  USER = 'USER',
 }
 
-export enum PermissionType {
+export enum ResourcesType {
   CATEGORY = 'CATEGORY',
   CUSTOMER = 'CUSTOMER',
   DISCOUNT = 'DISCOUNT',
@@ -81,3 +81,11 @@ export enum PermissionType {
   USER = 'USER',
   VARIANT = 'VARIANT',
 }
+
+export enum PermissionType {
+  CREATE = 'CREATE',
+  READ = 'READ',
+  UPDATE = 'UPDATE',
+  DELETE = 'DELETE',
+}
+  

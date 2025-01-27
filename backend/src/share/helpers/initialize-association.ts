@@ -54,13 +54,15 @@ import { ImagePersistence } from 'src/infras/repository/image/dto';
 import { imageModelName } from 'src/infras/repository/image/dto';
 import { ReviewPersistence } from 'src/infras/repository/review/dto';
 import { InventoryPersistence } from 'src/modules/inventory/infras/repo/postgres/dto';
-import { userModelName, UserPersistence } from 'src/infras/repository/user/dto';
 import {
   permissionModelName,
   PermissionPersistence,
-} from 'src/infras/repository/permission/dto';
-import { roleModelName, RolePersistence } from 'src/infras/repository/role/dto';
-import { permissionRoleModelName } from 'src/infras/repository/permission/dto';
+} from 'src/modules/permission/infras/repo/dto';
+import {
+  roleModelName,
+  RolePersistence,
+} from 'src/modules/role/infras/repo/dto';
+import { permissionRoleModelName } from 'src/modules/permission/infras/repo/dto';
 import {
   messageModelName,
   MessagePersistence,
@@ -71,6 +73,13 @@ import {
   actorModelName,
   ActorPersistence,
 } from 'src/modules/messages/actor/infras/postgres/dto';
+import { userModelName } from 'src/modules/user/infras/repo/dto';
+import { UserPersistence } from 'src/modules/user/infras/repo/dto';
+import {
+  resourcePermissionModelName,
+  resourcesModelName,
+  ResourcesPersistence,
+} from 'src/modules/resources/infras/repo/resources.dto';
 
 export const initializeAssociation = () => {
   MessagePersistence.belongsTo(ActorPersistence, {
@@ -314,6 +323,13 @@ export const initializeAssociation = () => {
     as: userModelName.toLowerCase(),
   });
 
+  RolePersistence.belongsToMany(PermissionPersistence, {
+    through: permissionRoleModelName,
+    foreignKey: 'role_id',
+    otherKey: 'permission_id',
+    as: permissionModelName.toLowerCase(),
+  });
+
   PermissionPersistence.belongsToMany(RolePersistence, {
     through: permissionRoleModelName,
     foreignKey: 'permission_id',
@@ -321,10 +337,17 @@ export const initializeAssociation = () => {
     as: roleModelName.toLowerCase(),
   });
 
-  RolePersistence.belongsToMany(PermissionPersistence, {
-    through: permissionRoleModelName,
-    foreignKey: 'role_id',
-    otherKey: 'permission_id',
-    as: permissionModelName.toLowerCase(),
-  });
+  // ResourcesPersistence.belongsToMany(PermissionPersistence, {
+  //   through: resourcePermissionModelName,
+  //   foreignKey: 'resource_id',
+  //   otherKey: 'permission_id',
+  //   as: permissionModelName.toLowerCase(),
+  // });
+
+  // PermissionPersistence.belongsToMany(ResourcesPersistence, {
+  //   through: resourcePermissionModelName,
+  //   foreignKey: 'permission_id',
+  //   otherKey: 'resource_id',
+  //   as: resourcesModelName.toLowerCase(),
+  // });
 };
