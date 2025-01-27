@@ -36,7 +36,7 @@ export class UserUseCase implements IUserUseCase {
   ): Promise<ListResponse<User[]>> {
     return this.userRepository.getUsers(paging, condition);
   }
-  async createUser(data: IUserCreateDTO): Promise<User> {
+  async createUser(data: IUserCreateDTO): Promise<Omit<User, "hash_password">> {
     const { password, ...rest } = data;
     const hash_password = await hash(password, Number(process.env.BCRYPT_SALT));
     const payload: Omit<IUserCreateDTO, "password"> = {

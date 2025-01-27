@@ -51,11 +51,12 @@ export class PostgresUserRepository implements IUserRepository {
       },
     };
   }
-  async createUser(data: IUserCreateDTO): Promise<User> {
+  async createUser(data: IUserCreateDTO): Promise<Omit<User, "hash_password">> {
     const newUser = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });
-    return newUser.dataValues;
+    const { hash_password, ...rest } = newUser.dataValues;
+    return rest;
   }
   async updateUser(id: string, data: IUserUpdateDTO): Promise<User> {
     const updatedUser = await this.sequelize.models[this.modelName].update(

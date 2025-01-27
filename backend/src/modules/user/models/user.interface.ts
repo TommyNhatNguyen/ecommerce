@@ -10,7 +10,7 @@ export interface IUserUseCase {
     paging: PagingDTO,
     condition: IUserConditionDTO
   ): Promise<ListResponse<User[]>>;
-  createUser(data: Omit<IUserCreateDTO, "hash_password">): Promise<User>;
+  createUser(data: Omit<IUserCreateDTO, "hash_password">): Promise<Omit<User, "hash_password">>;
   updateUser(id: string, data: IUserUpdateDTO): Promise<User>;
   deleteUser(id: string): Promise<boolean>;
   getUserByUsername(username: string, condition?: IUserConditionDTO): Promise<User>;
@@ -29,7 +29,7 @@ export interface IQueryRepository {
 }
 
 export interface ICommandRepository {
-  createUser(data: Omit<IUserCreateDTO, "password">): Promise<User>;
+  createUser(data: Omit<IUserCreateDTO, "password">): Promise<Omit<User, "hash_password">>;
   updateUser(id: string, data: IUserUpdateDTO): Promise<User>;
   deleteUser(id: string): Promise<boolean>;
 }

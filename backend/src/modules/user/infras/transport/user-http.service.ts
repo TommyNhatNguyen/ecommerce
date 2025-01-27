@@ -72,6 +72,7 @@ export class UserHttpService {
     }
     try {
       const user = await this.userUseCase.createUser(data);
+      
       if (!user) {
         res.status(400).json({ message: "Create user failed" });
         return;
