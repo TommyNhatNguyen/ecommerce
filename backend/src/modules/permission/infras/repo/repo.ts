@@ -1,6 +1,10 @@
-import { Sequelize, where } from 'sequelize';
+import { Includeable, Sequelize, where } from 'sequelize';
 import { Permission } from 'src/modules/permission/models/permission.model';
-import { PermissionConditionDTO, PermissionUpdateDTO, PermissionCreateDTO } from 'src/modules/permission/models/permission.dto';
+import {
+  PermissionConditionDTO,
+  PermissionUpdateDTO,
+  PermissionCreateDTO,
+} from 'src/modules/permission/models/permission.dto';
 import { IPermissionRepository } from 'src/modules/permission/models/permission.interface';
 import {
   roleModelName,
@@ -13,6 +17,7 @@ import {
   ListResponse,
 } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
+import { WhereOptions } from '@sequelize/core';
 
 export class PermissionRepository implements IPermissionRepository {
   constructor(
@@ -23,19 +28,24 @@ export class PermissionRepository implements IPermissionRepository {
     id: string,
     condition: PermissionConditionDTO
   ): Promise<Permission | null> {
+    const where: WhereOptions = {};
+    const include: Includeable[] = [];
+    if (condition.include_role) {
+      include.push({
+        model: RolePersistence,
+        as: roleModelName,
+        attributes: {
+          exclude: EXCLUDE_ATTRIBUTES,
+        },
+        through: {
+          attributes: [],
+        },
+      });
+    }
     const permission = await this.sequelize.models[this.modelName].findByPk(
       id,
       {
-        include: {
-          model: RolePersistence,
-          as: roleModelName,
-          attributes: {
-            exclude: EXCLUDE_ATTRIBUTES,
-          },
-          through: {
-            attributes: [],
-          },
-        },
+        include,
       }
     );
     return permission?.dataValues ?? null;
@@ -44,6 +54,19 @@ export class PermissionRepository implements IPermissionRepository {
     paging: PagingDTO,
     condition: PermissionConditionDTO
   ): Promise<ListResponse<Permission[]>> {
+    const include: Includeable[] = [];
+    if (condition.include_role) {
+      include.push({
+        model: RolePersistence,
+        as: roleModelName,
+        attributes: {
+          exclude: EXCLUDE_ATTRIBUTES,
+        },
+        through: {
+          attributes: [],
+        },
+      });
+    }
     const { page, limit } = paging;
     const order = condition?.order || BaseOrder.DESC;
     const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
@@ -53,16 +76,7 @@ export class PermissionRepository implements IPermissionRepository {
       order: [[sortBy, order]],
       limit,
       offset: (page - 1) * limit,
-      include: {
-        model: RolePersistence,
-        as: roleModelName,
-        attributes: {
-          exclude: EXCLUDE_ATTRIBUTES,
-        },
-        through: {
-          attributes: [],
-        },
-      },
+      include,
     });
     return {
       data: rows.map((row) => row.dataValues),

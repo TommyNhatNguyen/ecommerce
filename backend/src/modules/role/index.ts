@@ -21,9 +21,9 @@ export const setupRoleRouter = (sequelize: Sequelize) => {
   const roleHttpService = new RoleHttpService(roleUseCase);
   router.get('/roles', roleHttpService.getRoles.bind(roleHttpService));
   router.get('/roles/:id', roleHttpService.getRoleById.bind(roleHttpService));
-  router.get('/roles/:id/permissions', roleHttpService.getRoleWithPermissions.bind(roleHttpService));
   router.post('/roles', roleHttpService.createRole.bind(roleHttpService));
   router.put('/roles/:id', roleHttpService.updateRole.bind(roleHttpService));
+  router.get('/roles/:id/permissions', roleHttpService.getRoleWithPermissions.bind(roleHttpService));
   router.put(
     '/roles/:id/update-permissions',
     roleHttpService.updatePermissionToRole.bind(roleHttpService)

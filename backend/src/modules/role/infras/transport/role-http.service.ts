@@ -37,14 +37,14 @@ export class RoleHttpService {
   async getRoleWithPermissions(req: Request, res: Response) {
     const { id } = req.params;
     try {
-      const role = await this.roleUseCase.getRoleWithPermissions(id);
-      if (!role) {
-        res.status(404).json({ message: 'Role not found' });
+      const permissions = await this.roleUseCase.getRoleWithPermissions(id);
+      if (!permissions || permissions.length === 0) {
+        res.status(404).json({ message: 'Permission not found' });
         return;
       }
       res.status(200).json({
-        message: 'Role with permissions fetched successfully',
-        ...role,
+        message: 'Permissions by role fetched successfully',
+        ...permissions,
       });
     } catch (error) {
       console.log(error);

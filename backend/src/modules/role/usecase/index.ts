@@ -22,13 +22,20 @@ export class RoleUserCase implements IRoleUseCase {
   getRoleWithPermissions(id: string): Promise<RoleWithPermissions[]> {
     return this.permissionRoleRepository.getRoleWithPermissions(id);
   }
-  addPermissionToRole(data: IRolePermissionCreateDTO[]): Promise<boolean> {
-    return this.permissionRoleRepository.addPermissionToRole(data);
+  async addPermissionToRole(data: IRolePermissionCreateDTO[]): Promise<RoleWithPermissions[]> {
+    return await this.permissionRoleRepository.addPermissionToRole(data);
   }
-  updatePermissionToRole(
+  async updatePermissionToRole(
     data: IRolePermissionUpdateDTO
   ): Promise<RoleWithPermissions> {
-    return this.permissionRoleRepository.updatePermissionToRole(data);
+    const role = (await this.getRoleWithPermissions(data.role_id || '')).find(
+      (item) => item.permission_id === data.permission_id
+    );
+    if (!role) {
+      console.log(data);
+      return (await this.permissionRoleRepository.addPermissionToRole([data]))[0];
+    }
+    return await this.permissionRoleRepository.updatePermissionToRole(data);
   }
   getRoleById(id: string): Promise<Role> {
     return this.roleRepository.getRoleById(id);

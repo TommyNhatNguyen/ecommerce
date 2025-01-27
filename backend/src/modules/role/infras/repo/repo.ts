@@ -21,7 +21,7 @@ export class PostgresRoleRepository implements IRoleRepository {
   ) {}
   async addPermissionToRole(
     data: IRolePermissionCreateDTO[]
-  ): Promise<boolean> {
+  ): Promise<RoleWithPermissions[]> {
     console.log(data);
     const result = await this.sequelize.models[this.modelName].bulkCreate(
       data,
@@ -29,8 +29,7 @@ export class PostgresRoleRepository implements IRoleRepository {
         returning: true,
       }
     );
-    console.log(result);
-    return result.length > 0;
+    return result.map((item) => item.dataValues);
   }
 
   async updatePermissionToRole(

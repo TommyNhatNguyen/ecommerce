@@ -18,7 +18,7 @@ export interface IRoleUseCase {
   createRole(data: IRoleCreateDTO): Promise<Role>;
   updateRole(id: string, data: IRoleUpdateDTO): Promise<Role>;
   deleteRole(id: string): Promise<boolean>;
-  addPermissionToRole(data: IRolePermissionCreateDTO[]): Promise<boolean>;
+  addPermissionToRole(data: IRolePermissionCreateDTO[]): Promise<RoleWithPermissions[]>;
   updatePermissionToRole(
     data: IRolePermissionUpdateDTO
   ): Promise<RoleWithPermissions>;
@@ -26,7 +26,7 @@ export interface IRoleUseCase {
 }
 
 export interface IRoleRepository extends IQueryRepository, ICommandRepository {
-  addPermissionToRole(data: IRolePermissionCreateDTO[]): Promise<boolean>;
+  addPermissionToRole(data: IRolePermissionCreateDTO[]): Promise<RoleWithPermissions[]>;
   getRoleWithPermissions(id: string): Promise<RoleWithPermissions[]>;
   updatePermissionToRole(
     data: IRolePermissionUpdateDTO
