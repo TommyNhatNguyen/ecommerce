@@ -53,6 +53,8 @@ import { socketServices } from "@/app/shared/services/sockets";
 import { notificationServices } from "@/app/shared/services/notification/notificationService";
 import Notification from "@/app/layouts/components/Notification";
 import { getNotificationThunk } from "@/app/shared/store/reducers/notification";
+import { cookiesStorage } from "@/app/shared/utils/localStorage";
+import { getUserInfo } from "@/app/shared/store/reducers/auth";
 const { Header, Footer, Sider, Content } = Layout;
 type DashboardLayoutPropsType = {
   children: React.ReactNode;
@@ -125,6 +127,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   const { notificationApi } = useNotification();
   const currentPath = pathname.split("/").slice(1);
   const { orderCreated } = useAppSelector((state) => state.socket);
+  const { userInfo } = useAppSelector((state) => state.auth);
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   };
@@ -151,6 +154,19 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   useEffect(() => {
     dispatch(getNotificationThunk({}));
   }, []);
+  useEffect(() => {
+    // If login, then get user info
+    if (cookiesStorage.getToken()) {
+      dispatch(getUserInfo());
+    } else {
+      router.push(ADMIN_ROUTES.login);
+    }
+  }, []);
+  useEffect(() => {
+    if (!cookiesStorage.getToken()) {
+      router.push(ADMIN_ROUTES.login);
+    }
+  }, [cookiesStorage.getToken()]);
   return (
     <Layout className="h-screen">
       <Sider className="bg-white" collapsed={collapsed}>

@@ -10,8 +10,8 @@ import { X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
+import mockProductImage from "@/app/shared/resources/images/homepage/product-2.jpg";
 import { twMerge } from "tailwind-merge";
-import mockProductImage from "@/app/resources/images/homepage/product-2.jpg";
 type CartPagePropsType = {};
 const products = [
   {

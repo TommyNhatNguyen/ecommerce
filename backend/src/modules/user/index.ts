@@ -28,5 +28,6 @@ export const setupUserRouter = (sequelize: Sequelize) => {
   router.post('/users', userHttpService.createUser.bind(userHttpService));
   router.put('/users/:id', userHttpService.updateUser.bind(userHttpService));
   router.delete('/users/:id', userHttpService.deleteUser.bind(userHttpService));
+  router.get('/users-info', jwtVerify, userHttpService.getUserByUsername.bind(userHttpService));
   return router;
 };

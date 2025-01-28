@@ -1,3 +1,4 @@
+import { authReducer } from "@/app/shared/store/reducers/auth";
 import { counterReducer } from "@/app/shared/store/reducers/counter";
 import { notificationReducer } from "@/app/shared/store/reducers/notification";
 import { socketReducer } from "@/app/shared/store/reducers/socket";
@@ -8,6 +9,7 @@ export const store = configureStore({
     counter: counterReducer,
     socket: socketReducer,
     notification: notificationReducer,
+    auth: authReducer,
   },
 });
 

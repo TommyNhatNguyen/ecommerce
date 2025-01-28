@@ -10,6 +10,7 @@ export const errorHandler = (
     res.status(404).json({ message: err.message });
     return;
   } else {
+    console.log(err);
     res.status(500).json({ message: "Internal server error" });
     return;
   }

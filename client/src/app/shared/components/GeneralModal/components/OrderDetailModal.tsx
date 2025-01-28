@@ -1,4 +1,4 @@
-import { ProductTableDataType } from "@/app/(dashboard)/admin/orders/components/OrderTable";
+import { ProductTableDataType } from "@/app/(dashboard)/admin/(content)/orders/components/OrderTable";
 import { DISCOUNT_SCOPE, DISCOUNT_TYPE } from "@/app/constants/enum";
 import { ORDER_STATE } from "@/app/constants/order-state";
 import { statusOptions } from "@/app/constants/seeds";

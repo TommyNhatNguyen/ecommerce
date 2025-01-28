@@ -7,7 +7,11 @@ export type JWTTokenObject = {
   refreshToken: string;
 };
 export type CustomRequest = Request & {
-  username?: string | JwtPayload; // User data from the token payload
+  data?: {
+    data: string;
+    iat: number;
+    exp: number;
+  } | JwtPayload; // User data from the token payload
 };
 
 export const RefreshTokenCreateDTOSchema = z.object({
@@ -78,7 +82,7 @@ export const jwtVerify = (
       accessToken,
       process.env.ACCESS_JWT_PRIVATE_KEY as string
     ) as JwtPayload;
-    req.username = decoded;
+    req.data = decoded;
     next();
   } catch (error: any) {
     if (error.name === "TokenExpiredError") {

@@ -16,6 +16,8 @@ export const ROUTES = {
 
 export const ADMIN_ROUTES = {
   dashboard: "/admin/dashboard",
+  register: "/admin/register",
+  login: "/admin/login",
   orders: {
     index: "/admin/orders",
     pending: "/admin/orders/pending",
