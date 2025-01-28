@@ -1,4 +1,5 @@
 import { LoginDTO } from "@/app/shared/interfaces/auth/auth.dto";
+import { Permission } from "@/app/shared/models/permission/permission.model";
 import { User } from "@/app/shared/models/user/user.model";
 import { authServices } from "@/app/shared/services/auth/authServices";
 import { userService } from "@/app/shared/services/user/userService";
@@ -10,6 +11,7 @@ interface AuthState {
   loginError: any;
   isLogin: boolean;
   userInfo: User | null;
+  userPermission: Partial<Permission>[] | [];
 }
 
 const initialState: AuthState = {
@@ -17,6 +19,7 @@ const initialState: AuthState = {
   loginError: null,
   isLogin: false,
   userInfo: null,
+  userPermission: [],
 };
 
 export const authSlice = createSlice({
@@ -47,13 +50,18 @@ export const authSlice = createSlice({
       state.loginError = null;
     });
     builder.addCase(getUserInfo.fulfilled, (state, action) => {
-      state.userInfo = action.payload;
+      const {role, ...userInfo} = action.payload
+      const {permission, ...roleInfo} = role || {}
+      state.userPermission = permission || []
+      state.userInfo = {...userInfo, role: {...roleInfo}};
     });
     builder.addCase(getUserInfo.rejected, (state, action) => {
       state.userInfo = null;
+      state.userPermission = []
     });
     builder.addCase(getUserInfo.pending, (state) => {
       state.userInfo = null;
+      state.userPermission = []
     }); 
   },
 });
@@ -65,8 +73,12 @@ export const getUserInfo = createAsyncThunk(
   "auth/getUserInfo",
   async (_, thunkAPI) => {
     try {
-      const response = await userService.getUserInfo();
+      const response = await userService.getUserInfo({
+        include_permission: true,
+        include_role: true,
+      });
       if (response) {
+        console.log(response.data);
         return response.data;
       }
       return thunkAPI.rejectWithValue("Failed to get user info");

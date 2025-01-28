@@ -14,12 +14,21 @@ export class UserHttpService {
 
   async getUserByUsername(req: CustomRequest, res: Response) {
     const username = req.data?.data;
+    const { data: conditionData, success: conditionSuccess } =
+      IUserConditionSchema.safeParse(req.query);
+    if (!conditionSuccess) {
+      res.status(400).json({ message: 'Invalid condition data' });
+      return;
+    }
     if (!username) {
       res.status(400).json({ message: 'Username is required' });
       return;
     }
     try {
-      const user = await this.userUseCase.getUserByUsername(username as string);
+      const user = await this.userUseCase.getUserByUsername(
+        username as string,
+        conditionData
+      );
       if (!user) {
         res.status(404).json({ message: 'User not found' });
         return;

@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Includeable, Op } from 'sequelize';
 import { Sequelize } from 'sequelize';
 import { IUserRepository } from 'src/modules/user/models/user.interface';
 import {
@@ -14,6 +14,7 @@ import {
   RolePersistence,
 } from 'src/modules/role/infras/repo/dto';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
+import { permissionModelName, PermissionPersistence } from 'src/modules/permission/infras/repo/dto';
 
 export class PostgresUserRepository implements IUserRepository {
   constructor(
@@ -24,21 +25,40 @@ export class PostgresUserRepository implements IUserRepository {
     username: string,
     condition?: IUserConditionDTO
   ): Promise<User> {
+    const include: Includeable[] = [];
+    const roleInclude: Includeable[] = [];
+    const { include_role, include_permission } = condition || {};
+    if (include_role) {
+      include.push({
+        model: RolePersistence,
+        as: roleModelName,
+        attributes: {
+          exclude: [...EXCLUDE_ATTRIBUTES, "id"],
+        },
+        include: roleInclude,
+      });
+    }
+    if (include_permission) {
+      roleInclude.push({
+        model: PermissionPersistence,
+        as: permissionModelName,
+        attributes: {
+          exclude: [...EXCLUDE_ATTRIBUTES, "id"],
+        },
+        through: {
+          attributes: {
+            exclude: [...EXCLUDE_ATTRIBUTES]
+          }
+        }
+      });
+    }
     const user = await this.sequelize.models[this.modelName].findOne({
       where: {
         username: {
           [Op.like]: username,
         },
       },
-      include: [
-        {
-          model: RolePersistence,
-          as: roleModelName,
-          attributes: {
-            exclude: [...EXCLUDE_ATTRIBUTES],
-          },
-        },
-      ],
+      include,
     });
     return user?.dataValues;
   }

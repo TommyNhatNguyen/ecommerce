@@ -35,6 +35,16 @@ export const IUserConditionSchema = z.object({
   phone: z.string().optional(),
   email: z.string().email().optional(),
   role_id: z.string().uuid().optional(),
+  include_role: z
+    .string()
+    .refine((value) => value === "true" || value === "false")
+    .transform((value) => value === "true")
+    .optional(),
+  include_permission: z
+    .string()
+    .refine((value) => value === "true" || value === "false")
+    .transform((value) => value === "true")
+    .optional(),
 });
 
 export type IUserCreateDTO = z.infer<typeof IUserCreateDTOSchema>;

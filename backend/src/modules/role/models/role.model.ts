@@ -1,12 +1,14 @@
+import { PermissionSchema } from "src/modules/permission/models/permission.model";
 import { ModelStatus, Roles } from "src/share/models/base-model";
 import z from "zod";
 
 export const RoleSchema = z.object({
   id: z.string().uuid(),
-  name: z.nativeEnum(Roles),
+  name: z.string(),
   status: z.nativeEnum(ModelStatus),
   created_at: z.date(),
   updated_at: z.date(),
+  permission: z.array(PermissionSchema).optional(),
 })
 
 export const RoleWithPermissionsSchema = z.object({

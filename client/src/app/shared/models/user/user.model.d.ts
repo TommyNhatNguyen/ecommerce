@@ -1,4 +1,5 @@
 import { ModelStatus } from "@/app/shared/models/others/status.model";
+import { Role } from "@/app/shared/models/role/role.model";
 
 export interface User {
   id: string;
@@ -9,4 +10,5 @@ export interface User {
   status: ModelStatus;
   created_at: string;
   updated_at: string;
+  role?: Partial<Role>;
 }
