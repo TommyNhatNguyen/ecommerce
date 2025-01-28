@@ -4,6 +4,5 @@ export type LoginDTO = {
 };
 
 export type RefreshTokenDTO = {
-  username: string;
   refreshToken: string;
 };

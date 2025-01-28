@@ -62,7 +62,7 @@ export enum Roles {
   SUPER_ADMIN = 'SUPER_ADMIN',
   ADMIN = 'ADMIN',
   STAFF_MANAGER = 'STAFF_MANAGER',
-  STAFF = 'STAFF',
+  STAFF = 'STAFF', 
 }
 
 export enum ResourcesType {

@@ -1,21 +1,22 @@
-import { NextFunction, Request, Response } from "express";
-import { JwtPayload, sign, verify } from "jsonwebtoken";
-import z from "zod";
+import { NextFunction, Request, Response } from 'express';
+import { JwtPayload, sign, verify } from 'jsonwebtoken';
+import z from 'zod';
 
 export type JWTTokenObject = {
   accessToken: string;
   refreshToken: string;
 };
 export type CustomRequest = Request & {
-  data?: {
-    data: string;
-    iat: number;
-    exp: number;
-  } | JwtPayload; // User data from the token payload
+  data?:
+    | {
+        data: string;
+        iat: number;
+        exp: number;
+      }
+    | JwtPayload; // User data from the token payload
 };
 
 export const RefreshTokenCreateDTOSchema = z.object({
-  username: z.string(),
   refreshToken: z.string(),
 });
 
@@ -49,7 +50,7 @@ export const jwtSign = (req: Request, res: Response, next: NextFunction) => {
     const { accessToken, refreshToken } = generateTokens(username);
     if (accessToken && refreshToken) {
       res.status(200).send({
-        message: "Login successful",
+        message: 'Login successful',
         data: {
           accessToken,
           refreshToken,
@@ -57,7 +58,7 @@ export const jwtSign = (req: Request, res: Response, next: NextFunction) => {
       });
     } else {
       res.status(500).send({
-        messgae: "Internal server error",
+        messgae: 'Internal server error',
       });
     }
   } catch (error) {
@@ -72,10 +73,10 @@ export const jwtVerify = (
   next: NextFunction
 ) => {
   try {
-    const accessToken = req.headers.authorization?.split(" ")[1] || "";
+    const accessToken = req.headers.authorization?.split(' ')[1] || '';
     if (!accessToken) {
       res.status(401).send({
-        message: "Unathorized! Access denied",
+        message: 'Unathorized! Access denied',
       });
     }
     const decoded = verify(
@@ -85,11 +86,11 @@ export const jwtVerify = (
     req.data = decoded;
     next();
   } catch (error: any) {
-    if (error.name === "TokenExpiredError") {
-      res.status(401).json({ message: "Please log in again." });
+    if (error.name === 'TokenExpiredError') {
+      res.status(401).json({ message: 'Please log in again.' });
       return;
     }
-    res.status(401).json({ message: "Invalid token." });
+    res.status(401).json({ message: 'Invalid token.' });
     return;
   }
 };
@@ -98,20 +99,21 @@ export const jwtRefresh = (req: Request, res: Response, next: NextFunction) => {
   const { data, success } = RefreshTokenCreateDTOSchema.safeParse(req.body);
   if (!success) {
     res.status(400).send({
-      message: "Wrong payload",
+      message: 'Wrong payload',
     });
   }
-  const { username, refreshToken } = data!;
+  const { refreshToken } = data!;
   try {
     const refreshPrivateKey = process.env.REFRESH_JWT_PRIVATE_KEY as string;
-    if (!refreshToken) res.status(400).send({ message: "Invalid request" });
+    if (!refreshToken) res.status(400).send({ message: 'Invalid request' });
     const decoded = verify(refreshToken, refreshPrivateKey) as JwtPayload;
-    if (!decoded) res.status(406).send({ message: "Unauthorized" });
+    const username = decoded.data as string;
+    if (!decoded) res.status(403).send({ message: 'Unauthorized' });
     const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
       generateTokens(username);
     if (newAccessToken && newRefreshToken) {
       res.status(200).send({
-        message: "Successful",
+        message: 'Successful',
         data: {
           accessToken: newAccessToken,
           refreshToken: newRefreshToken,

@@ -1,10 +1,19 @@
-import { Op } from "sequelize";
-import { Sequelize } from "sequelize";
-import { IUserRepository } from "src/modules/user/models/user.interface";
-import { IUserConditionDTO, IUserCreateDTO, IUserUpdateDTO } from "src/modules/user/models/user.dto";
-import { ListResponse, ModelStatus } from "src/share/models/base-model";
-import { PagingDTO } from "src/share/models/paging";
-import { User } from "src/modules/user/models/user.model";
+import { Op } from 'sequelize';
+import { Sequelize } from 'sequelize';
+import { IUserRepository } from 'src/modules/user/models/user.interface';
+import {
+  IUserConditionDTO,
+  IUserCreateDTO,
+  IUserUpdateDTO,
+} from 'src/modules/user/models/user.dto';
+import { ListResponse, ModelStatus } from 'src/share/models/base-model';
+import { PagingDTO } from 'src/share/models/paging';
+import { User } from 'src/modules/user/models/user.model';
+import {
+  roleModelName,
+  RolePersistence,
+} from 'src/modules/role/infras/repo/dto';
+import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
 
 export class PostgresUserRepository implements IUserRepository {
   constructor(
@@ -21,6 +30,15 @@ export class PostgresUserRepository implements IUserRepository {
           [Op.like]: username,
         },
       },
+      include: [
+        {
+          model: RolePersistence,
+          as: roleModelName,
+          attributes: {
+            exclude: [...EXCLUDE_ATTRIBUTES],
+          },
+        },
+      ],
     });
     return user?.dataValues;
   }
@@ -51,7 +69,7 @@ export class PostgresUserRepository implements IUserRepository {
       },
     };
   }
-  async createUser(data: IUserCreateDTO): Promise<Omit<User, "hash_password">> {
+  async createUser(data: IUserCreateDTO): Promise<Omit<User, 'hash_password'>> {
     const newUser = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });

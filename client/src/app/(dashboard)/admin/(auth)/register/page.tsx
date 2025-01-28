@@ -8,9 +8,11 @@ import Image from "next/image";
 import facebookLogo from "@/app/shared/resources/images/facebook-logo.png";
 import googleLogo from "@/app/shared/resources/images/google-logo.png";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
 type Props = {};
 
 const RegisterPage = (props: Props) => {
+  const { register, handleSubmit } = useForm();
   return (
     <div className="flex h-full w-full flex-col justify-center p-4">
       <div className="flex w-full flex-col gap-2">

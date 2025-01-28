@@ -1,5 +1,5 @@
 import { logout } from "@/app/shared/store/reducers/auth";
-import { useAppDispatch } from "@/app/shared/hooks/useRedux";
+import { useAppDispatch, useAppSelector } from "@/app/shared/hooks/useRedux";
 import { cookiesStorage } from "@/app/shared/utils/localStorage";
 import axios from "axios";
 import { authServices } from "@/app/shared/services/auth/authServices";
@@ -24,10 +24,8 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async (error) => {
-    const dispatch = useAppDispatch();
     error.config._retry = false;
     const prevRequest = error.config;
-    console.log(prevRequest);
     if (
       (error.response.status === 401 || error.response.status === 403) &&
       !prevRequest._retry
@@ -35,7 +33,6 @@ axiosInstance.interceptors.response.use(
       prevRequest._retry = true;
       try {
         const response = await authServices.refreshToken({
-          username: "tommy",
           refreshToken: cookiesStorage.getToken().refreshToken,
         });
         cookiesStorage.setToken(response.data);
@@ -43,10 +40,10 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(prevRequest);
       } catch (error) {
         console.log(error);
-        dispatch(logout());
+        cookiesStorage.deleteToken();
       }
     } else {
-      dispatch(logout());
+      cookiesStorage.deleteToken();
       return Promise.reject(error);
     }
   },
