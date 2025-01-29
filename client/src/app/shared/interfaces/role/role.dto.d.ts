@@ -5,6 +5,7 @@ export interface RoleListConditionDTO {
   created_at?: Date;
   updated_at?: Date;
   is_get_all?: boolean;
+  include_permissions?: boolean;
   page?: number;
   limit?: number;
 }

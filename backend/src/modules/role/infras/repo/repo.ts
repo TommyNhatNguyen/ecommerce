@@ -13,6 +13,7 @@ import {
   IRolePermissionUpdateDTO,
   IRoleUpdateDTO,
 } from 'src/modules/role/models/role.dto';
+import { WhereOptions } from '@sequelize/core';
 
 export class PostgresRoleRepository implements IRoleRepository {
   constructor(
@@ -44,20 +45,24 @@ export class PostgresRoleRepository implements IRoleRepository {
     });
     return result[1][0].dataValues;
   }
-  async getRoleById(id: string): Promise<Role> {
-    const role = await this.sequelize.models[this.modelName].findByPk(id, {
-      include: {
+  async getRoleById(id: string, condition: IRoleConditionDTO): Promise<Role> {
+    const include: Includeable[] = [];
+    if (condition?.include_permissions) {
+      include.push({
         model: PermissionPersistence,
         as: permissionModelName,
         attributes: {
-          exclude: EXCLUDE_ATTRIBUTES,
+          exclude: [...EXCLUDE_ATTRIBUTES],
         },
         through: {
           attributes: {
             exclude: ['role_id', 'permission_id', ...EXCLUDE_ATTRIBUTES],
           },
         },
-      },
+      });
+    }
+    const role = await this.sequelize.models[this.modelName].findByPk(id, {
+      include,
     });
     return role?.dataValues;
   }
@@ -77,7 +82,11 @@ export class PostgresRoleRepository implements IRoleRepository {
     paging: PagingDTO,
     condition: IRoleConditionDTO
   ): Promise<ListResponse<Role[]>> {
+    const where: WhereOptions = {};
     const include: Includeable[] = [];
+    where.name = {
+      [Op.ne]: 'SUPER_ADMIN',
+    };
     const { page, limit } = paging;
     if (condition?.include_permissions) {
       include.push({
@@ -95,7 +104,7 @@ export class PostgresRoleRepository implements IRoleRepository {
     }
     if (condition?.is_get_all) {
       const roles = await this.sequelize.models[this.modelName].findAll({
-        // where: condition,
+        where,
         include,
       });
       return {
@@ -111,7 +120,7 @@ export class PostgresRoleRepository implements IRoleRepository {
     const { rows, count } = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({
-      // where: condition,
+      where,
       limit,
       offset: (page - 1) * limit,
       include,

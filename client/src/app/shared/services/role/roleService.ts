@@ -10,4 +10,11 @@ export const roleService = {
     const response = await axiosInstance.get("/roles", { params: query });
     return response.data;
   },
+  getRoleById: async (
+    id: string,
+    query: RoleListConditionDTO,
+  ): Promise<Role> => {
+    const response = await axiosInstance.get(`/roles/${id}`, { params: query });
+    return response.data;
+  },
 };

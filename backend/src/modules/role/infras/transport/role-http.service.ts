@@ -76,8 +76,14 @@ export class RoleHttpService {
   }
   async getRoleById(req: Request, res: Response) {
     const { id } = req.params;
+    const { success: conditionSuccess, data: conditionData } =
+      IRoleConditionSchema.safeParse(req.query);
+    if (!conditionSuccess) {
+      res.status(400).json({ message: 'Invalid condition data' });
+      return;
+    }
     try {
-      const role = await this.roleUseCase.getRoleById(id);
+      const role = await this.roleUseCase.getRoleById(id, conditionData);
       if (!role) {
         res.status(404).json({ message: 'Role not found' });
         return;

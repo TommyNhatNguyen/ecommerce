@@ -37,8 +37,8 @@ export class RoleUserCase implements IRoleUseCase {
     }
     return await this.permissionRoleRepository.updatePermissionToRole(data);
   }
-  getRoleById(id: string): Promise<Role> {
-    return this.roleRepository.getRoleById(id);
+  getRoleById(id: string, condition: IRoleConditionDTO): Promise<Role> {
+    return this.roleRepository.getRoleById(id, condition);
   }
   getRoles(
     paging: PagingDTO,

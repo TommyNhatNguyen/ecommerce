@@ -10,7 +10,7 @@ import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
 export interface IRoleUseCase {
-  getRoleById(id: string): Promise<Role>;
+  getRoleById(id: string, condition: IRoleConditionDTO): Promise<Role>;
   getRoles(
     paging: PagingDTO,
     condition: IRoleConditionDTO
@@ -34,7 +34,7 @@ export interface IRoleRepository extends IQueryRepository, ICommandRepository {
 }
 
 export interface IQueryRepository {
-  getRoleById(id: string): Promise<Role>;
+  getRoleById(id: string, condition: IRoleConditionDTO): Promise<Role>;
   getRoles(
     paging: PagingDTO,
     condition: IRoleConditionDTO
