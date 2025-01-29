@@ -7,6 +7,7 @@ const protectedRoutes = [
   "/admin/orders",
   "/admin/customers",
   "/admin/resources",
+  "/admin/permissions",
 ];
 const publicRoutes = ["/admin/login", "/admin/register", "/"];
 

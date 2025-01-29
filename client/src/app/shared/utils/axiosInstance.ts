@@ -43,7 +43,6 @@ axiosInstance.interceptors.response.use(
         cookiesStorage.deleteToken();
       }
     } else {
-      cookiesStorage.deleteToken();
       return Promise.reject(error);
     }
   },

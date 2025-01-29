@@ -59,10 +59,6 @@ export const authSlice = createSlice({
       state.userInfo = null;
       state.userPermission = []
     });
-    builder.addCase(getUserInfo.pending, (state) => {
-      state.userInfo = null;
-      state.userPermission = []
-    }); 
   },
 });
 
@@ -78,7 +74,6 @@ export const getUserInfo = createAsyncThunk(
         include_role: true,
       });
       if (response) {
-        console.log(response.data);
         return response.data;
       }
       return thunkAPI.rejectWithValue("Failed to get user info");

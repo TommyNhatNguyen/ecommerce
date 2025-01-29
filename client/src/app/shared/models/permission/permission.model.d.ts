@@ -35,5 +35,5 @@ export interface Permission {
   status: ModelStatus,
   created_at: string,
   updated_at: string,
-  permission_role?: Partial<RoleWithPermissions>[],  
+  permission_role?: Partial<RoleWithPermissions>,  
 }

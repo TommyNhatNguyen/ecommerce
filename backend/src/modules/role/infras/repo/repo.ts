@@ -1,4 +1,4 @@
-import { Op, Sequelize } from 'sequelize';
+import { Includeable, Op, Sequelize } from 'sequelize';
 import { PermissionPersistence } from 'src/modules/permission/infras/repo/dto';
 import { permissionModelName } from 'src/modules/permission/infras/repo/dto';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
@@ -68,7 +68,7 @@ export class PostgresRoleRepository implements IRoleRepository {
         role_id: {
           [Op.eq]: id,
         },
-      },  
+      },
     });
     return role.map((item) => item.dataValues);
   }
@@ -77,25 +77,44 @@ export class PostgresRoleRepository implements IRoleRepository {
     paging: PagingDTO,
     condition: IRoleConditionDTO
   ): Promise<ListResponse<Role[]>> {
+    const include: Includeable[] = [];
     const { page, limit } = paging;
-    const { rows, count } = await this.sequelize.models[
-      this.modelName
-    ].findAndCountAll({
-      where: condition,
-      limit,
-      offset: (page - 1) * limit,
-      include: {
+    if (condition?.include_permissions) {
+      include.push({
         model: PermissionPersistence,
         as: permissionModelName,
         attributes: {
-          exclude: EXCLUDE_ATTRIBUTES,
+          exclude: [...EXCLUDE_ATTRIBUTES],
         },
         through: {
           attributes: {
             exclude: ['role_id', 'permission_id', ...EXCLUDE_ATTRIBUTES],
           },
         },
-      },
+      });
+    }
+    if (condition?.is_get_all) {
+      const roles = await this.sequelize.models[this.modelName].findAll({
+        // where: condition,
+        include,
+      });
+      return {
+        data: roles.map((role) => role.dataValues),
+        meta: {
+          limit: roles.length,
+          total_count: roles.length,
+          total_page: 1,
+          current_page: 1,
+        },
+      };
+    }
+    const { rows, count } = await this.sequelize.models[
+      this.modelName
+    ].findAndCountAll({
+      // where: condition,
+      limit,
+      offset: (page - 1) * limit,
+      include,
     });
     return {
       data: rows.map((row) => row.dataValues),

@@ -25,10 +25,11 @@ export class PermissionHttpService {
     }
   }
   async getPermissions(req: Request, res: Response) {
+    console.log(req.query);
     const { success: pagingSuccess, data: pagingData } =
       PagingDTOSchema.safeParse(req.query);
     const { success: conditionSuccess, data: conditionData } =
-      PermissionConditionDTOSchema.safeParse(req.body);
+      PermissionConditionDTOSchema.safeParse(req.query);
     if (!pagingSuccess || !conditionSuccess) {
       res.status(400).json({ message: 'Invalid paging or condition' });
       return;

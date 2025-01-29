@@ -70,6 +70,21 @@ export class PermissionRepository implements IPermissionRepository {
     const { page, limit } = paging;
     const order = condition?.order || BaseOrder.DESC;
     const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
+    if (condition.is_get_all) {
+      const permissions = await this.sequelize.models[this.modelName].findAll({
+        include,
+        order: [[sortBy, order]],
+      });
+      return {
+        data: permissions.map((permission) => permission.dataValues),
+        meta: {
+          limit: permissions.length,
+          total_count: permissions.length,
+          total_page: 1,
+          current_page: 1,
+        },
+      };
+    }
     const { count, rows } = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({

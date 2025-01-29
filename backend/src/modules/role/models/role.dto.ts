@@ -37,6 +37,16 @@ export const IRoleConditionSchema = z.object({
   status: z.nativeEnum(ModelStatus).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
+  is_get_all: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  include_permissions: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
 });
 
 export type IRoleCreateDTO = z.infer<typeof IRoleCreateDTOSchema>;

@@ -20,6 +20,11 @@ export const PermissionConditionDTOSchema = z.object({
   updated_at: z.date().optional(),
   order: z.nativeEnum(BaseOrder).optional(),
   sortBy: z.nativeEnum(BaseSortBy).optional(),
+  is_get_all: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
   include_role: z
     .string()
     .refine((value) => value === 'true' || value === 'false')
