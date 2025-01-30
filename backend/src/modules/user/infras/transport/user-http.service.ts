@@ -92,7 +92,7 @@ export class UserHttpService {
         res.status(404).json({ message: 'No users found' });
         return;
       }
-      res.status(200).json({ message: 'Get users success', data: users });
+      res.status(200).json({ message: 'Get users success', ...users });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
       return;

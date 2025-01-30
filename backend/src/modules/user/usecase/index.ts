@@ -1,10 +1,21 @@
-import { compare, hash } from "bcrypt";
-import { ListResponse, ModelStatus } from "src/share/models/base-model";
-import { USER_NOT_FOUND_ERROR, WRONG_PASSWORD } from "src/modules/user/models/user.error";
-import { PagingDTO } from "src/share/models/paging";
-import { IUserConditionDTO, IUserCreateDTO, IUserLoginDTO, IUserUpdateDTO } from "src/modules/user/models/user.dto";
-import { User } from "src/modules/user/models/user.model";
-import { IUserRepository, IUserUseCase } from "src/modules/user/models/user.interface";
+import { compare, hash } from 'bcrypt';
+import { ListResponse, ModelStatus } from 'src/share/models/base-model';
+import {
+  USER_NOT_FOUND_ERROR,
+  WRONG_PASSWORD,
+} from 'src/modules/user/models/user.error';
+import { PagingDTO } from 'src/share/models/paging';
+import {
+  IUserConditionDTO,
+  IUserCreateDTO,
+  IUserLoginDTO,
+  IUserUpdateDTO,
+} from 'src/modules/user/models/user.dto';
+import { User } from 'src/modules/user/models/user.model';
+import {
+  IUserRepository,
+  IUserUseCase,
+} from 'src/modules/user/models/user.interface';
 
 export class UserUseCase implements IUserUseCase {
   constructor(private readonly userRepository: IUserRepository) {}
@@ -27,25 +38,25 @@ export class UserUseCase implements IUserUseCase {
     return user?.username;
   }
 
-  getUserById(id: string): Promise<User> {
+  getUserById(id: string): Promise<Omit<User, 'hash_password'>> {
     return this.userRepository.getUserById(id);
   }
   getUsers(
     paging: PagingDTO,
     condition: IUserConditionDTO
-  ): Promise<ListResponse<User[]>> {
+  ): Promise<ListResponse<Omit<User, 'hash_password'>[]>> {
     return this.userRepository.getUsers(paging, condition);
   }
-  async createUser(data: IUserCreateDTO): Promise<Omit<User, "hash_password">> {
+  async createUser(data: IUserCreateDTO): Promise<Omit<User, 'hash_password'>> {
     const { password, ...rest } = data;
     const hash_password = await hash(password, Number(process.env.BCRYPT_SALT));
-    const payload: Omit<IUserCreateDTO, "password"> = {
+    const payload: Omit<IUserCreateDTO, 'password'> = {
       ...rest,
       hash_password: hash_password,
     };
     return this.userRepository.createUser(payload);
   }
-  updateUser(id: string, data: IUserUpdateDTO): Promise<User> {
+  updateUser(id: string, data: IUserUpdateDTO): Promise<Omit<User, 'hash_password'>> {
     return this.userRepository.updateUser(id, data);
   }
   deleteUser(id: string): Promise<boolean> {

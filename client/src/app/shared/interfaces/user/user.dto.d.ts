@@ -9,6 +9,15 @@ export interface IUserConditionDTO {
   phone?: string;
   email?: string;
   role_id?: string;
+  is_get_all?: boolean;
   include_role?: boolean;
   include_permission?: boolean;
+}
+
+export interface ICreateUserDTO {
+  username: string;
+  password: string;
+  phone: string;
+  email?: string;
+  role_id: string;
 }

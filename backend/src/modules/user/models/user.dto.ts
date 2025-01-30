@@ -1,10 +1,14 @@
-import { ModelStatus } from "src/share/models/base-model";
-import z from "zod";
+import {
+  BaseOrder,
+  BaseSortBy,
+  ModelStatus,
+} from 'src/share/models/base-model';
+import z from 'zod';
 
 export const IUserLoginDTOSchema = z.object({
   username: z.string(),
-  password: z.string()
-})
+  password: z.string(),
+});
 
 export const IUserCreateDTOSchema = z.object({
   username: z.string(),
@@ -35,15 +39,22 @@ export const IUserConditionSchema = z.object({
   phone: z.string().optional(),
   email: z.string().email().optional(),
   role_id: z.string().uuid().optional(),
+  order: z.string().optional().default(BaseOrder.DESC),
+  sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
+  is_get_all: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
   include_role: z
     .string()
-    .refine((value) => value === "true" || value === "false")
-    .transform((value) => value === "true")
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
     .optional(),
   include_permission: z
     .string()
-    .refine((value) => value === "true" || value === "false")
-    .transform((value) => value === "true")
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
     .optional(),
 });
 

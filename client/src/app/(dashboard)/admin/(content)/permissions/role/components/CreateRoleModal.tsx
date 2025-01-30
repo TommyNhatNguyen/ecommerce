@@ -1,5 +1,4 @@
 "use client";
-import { useRole } from "@/app/(dashboard)/admin/(content)/permissions/role/hooks/useRole";
 import { ERROR_MESSAGE } from "@/app/constants/errors";
 import GeneralModal from "@/app/shared/components/GeneralModal";
 import InputAdmin from "@/app/shared/components/InputAdmin";
@@ -14,17 +13,26 @@ type Props = {
   handleCreateRole: (data: any, callback: () => void) => void;
 };
 
-const CreateRoleModal = ({ isOpen, onClose, handleCreateRole, loading=false }: Props) => {
+const CreateRoleModal = ({
+  isOpen,
+  onClose,
+  handleCreateRole,
+  loading = false,
+}: Props) => {
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm();
   const _onConfirmCreateRole = (data: any) => {
-    handleCreateRole(data, onClose);
+    handleCreateRole(data, () => {
+      onClose();
+      reset();
+    });
   };
   const _renderTitle = () => {
-    return <h1 className="text-2xl font-bold">Create Category</h1>;
+    return <h1 className="text-2xl font-bold">Create Role</h1>;
   };
   const _renderContent = () => {
     return (

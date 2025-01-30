@@ -6,5 +6,6 @@ export const ERROR_MESSAGE = {
   INVALID_NUMBER: "Invalid number",
   INVALID_DATE: "Invalid date",
   INVALID_TIME: "Invalid time",
+  PASSWORD_NOT_MATCH: "Passwords do not match",
 };
 
