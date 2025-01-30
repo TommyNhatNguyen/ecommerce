@@ -1,3 +1,5 @@
+import { BaseOrder, BaseSortBy } from "@/app/shared/models/others/status.model";
+
 export enum ImageType {
   CATEGORY = "CATEGORY",
   CUSTOMER = "CUSTOMER",
@@ -18,4 +20,18 @@ export enum ImageType {
 
 export type ImageCreateDTO = {
   type: ImageType;
+};
+
+export type ImageConditionDTO = {
+  page?: number;
+  limit?: number;
+  typeList?: ImageType[];
+  id?: string;
+  url?: string;
+  cloudinary_id?: string;
+  status?: ModelStatus;
+  created_at?: Date;
+  updated_at?: Date;
+  orderBy?: BaseOrder;
+  sortBy?: BaseSortBy;
 };

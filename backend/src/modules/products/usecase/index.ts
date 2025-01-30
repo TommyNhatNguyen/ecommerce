@@ -109,7 +109,7 @@ export class ProductUseCase implements IProductUseCase {
       price_after_discounts,
     };
     // --- DISCOUNT ---
-    if (data.discountIds) {
+    if (data.discountIds && data.discountIds.length > 0) {
       const discountList = await this.discountUseCase?.listDiscount(
         { page: 1, limit: data.discountIds.length },
         { ids: data.discountIds }
@@ -146,7 +146,7 @@ export class ProductUseCase implements IProductUseCase {
       total_value: (data.cost ?? 0) * (data.quantity ?? 0),
     });
     // --- CATEGORY ---
-    if (data.categoryIds) {
+    if (data.categoryIds && data.categoryIds.length > 0) {
       await this.productCategoryRepository.addCategories(
         data.categoryIds.map((id) => ({
           product_id: product.id,
@@ -155,7 +155,7 @@ export class ProductUseCase implements IProductUseCase {
       );
     }
     // --- IMAGE ---
-    if (data.imageIds) {
+    if (data.imageIds && data.imageIds.length > 0) {
       await this.imageRepository?.addImages(
         data.imageIds.map((id) => ({
           product_id: product.id,
@@ -164,7 +164,7 @@ export class ProductUseCase implements IProductUseCase {
       );
     }
     // --- VARIANTS ---
-    if (data.variantIds && this.productVariantRepository) {
+    if (data.variantIds && this.productVariantRepository && data.variantIds.length > 0) {
       await this.productVariantRepository.addVariants(
         data.variantIds.map((id) => ({
           product_id: product.id,

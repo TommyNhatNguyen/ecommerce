@@ -1,4 +1,4 @@
-import { ImageCreateDTO, ImageUpdateDTO } from '@models/image/image.dto';
+import { ImageConditionDTO, ImageCreateDTO, ImageUpdateDTO } from '@models/image/image.dto';
 import { Image } from '@models/image/image.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { Meta, PagingDTO } from 'src/share/models/paging';
@@ -8,7 +8,7 @@ export interface IImageUseCase {
   updateImage(id: string, data: ImageUpdateDTO): Promise<Image>;
   deleteImage(id: string): Promise<boolean>;
   getImage(id: string): Promise<Image | null>;
-  listImage(paging: PagingDTO): Promise<ListResponse<Image[]>>;
+  listImage(paging: PagingDTO, condition: ImageConditionDTO): Promise<ListResponse<Image[]>>;
 }
 
 export interface IImageRepository
@@ -21,7 +21,7 @@ export interface IImageCloudinaryRepository {
 
 export interface IQueryRepository {
   get(id: string): Promise<Image | null>;
-  list(paging: PagingDTO): Promise<ListResponse<Image[]>>;
+  list(paging: PagingDTO, condition: ImageConditionDTO): Promise<ListResponse<Image[]>>;
 }
 
 export interface ICommandRepository {

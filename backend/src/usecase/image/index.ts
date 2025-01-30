@@ -1,4 +1,4 @@
-import { ImageCreateDTO, ImageUpdateDTO } from "@models/image/image.dto";
+import { ImageConditionDTO, ImageCreateDTO, ImageUpdateDTO } from "@models/image/image.dto";
 import { IImageCloudinaryRepository, IImageRepository, IImageUseCase } from "@models/image/image.interface";
 import { Image } from "@models/image/image.model";
 import { ListResponse } from "src/share/models/base-model";
@@ -27,7 +27,7 @@ export class ImageUseCase implements IImageUseCase {
     return this.imageRepository.get(id);
   }
 
-  async listImage(paging: PagingDTO): Promise<ListResponse<Image[]>> {
-    return this.imageRepository.list(paging);
+  async listImage(paging: PagingDTO, condition: ImageConditionDTO): Promise<ListResponse<Image[]>> {
+    return this.imageRepository.list(paging, condition);
   }
 }

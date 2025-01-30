@@ -1,4 +1,5 @@
 import {
+  ImageConditionSchema,
   ImageCreateDTOSchema,
   ImageUpdateDTOSchema,
 } from '@models/image/image.dto';
@@ -16,25 +17,40 @@ export class ImageHttpService {
         res.status(404).json({ message: 'Image not found' });
         return;
       }
-      res.status(200).json({ message: 'Image retrieved successfully',  ...image });
+      res
+        .status(200)
+        .json({ message: 'Image retrieved successfully', ...image });
     } catch (error) {
       res.status(500).json({ message: 'Failed to retrieve image' });
       return;
     }
   }
   async listImage(req: Request, res: Response) {
-    const { success: pagingSuccess, data: pagingData, error: pagingError } = PagingDTOSchema.safeParse(req.query);
-    if (!pagingSuccess) {
-      res.status(400).json({ message: pagingError?.message });
+    const {
+      success: pagingSuccess,
+      data: pagingData,
+      error: pagingError,
+    } = PagingDTOSchema.safeParse(req.query);
+    const {
+      success: conditionSuccess,
+      data: conditionData,
+      error: conditionError,
+    } = ImageConditionSchema.safeParse(req.query);
+    if (!pagingSuccess || !conditionSuccess) {
+      res
+        .status(400)
+        .json({ message: pagingError?.message || conditionError?.message });
       return;
     }
     try {
-      const images = await this.useCase.listImage(pagingData);
+      const images = await this.useCase.listImage(pagingData, conditionData);
       if (!images) {
         res.status(404).json({ message: 'Images not found' });
         return;
       }
-      res.status(200).json({ message: 'Images retrieved successfully', ...images });
+      res
+        .status(200)
+        .json({ message: 'Images retrieved successfully', ...images });
     } catch (error) {
       res.status(500).json({ message: 'Failed to retrieve images' });
       return;
@@ -48,9 +64,7 @@ export class ImageHttpService {
     }
     try {
       const image = await this.useCase.createImage(data);
-      res
-        .status(200)
-        .json({ message: 'Image created successfully', ...image });
+      res.status(200).json({ message: 'Image created successfully', ...image });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: 'Failed to create image' });

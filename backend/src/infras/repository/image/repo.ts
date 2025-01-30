@@ -1,14 +1,24 @@
-import { ImageCreateDTO, ImageUpdateDTO } from '@models/image/image.dto';
-import { IImageCloudinaryRepository, IImageRepository } from '@models/image/image.interface';
+import {
+  ImageConditionDTO,
+  ImageCreateDTO,
+  ImageUpdateDTO,
+} from '@models/image/image.dto';
+import {
+  IImageCloudinaryRepository,
+  IImageRepository,
+} from '@models/image/image.interface';
 import { Image } from '@models/image/image.model';
-import { Sequelize, where } from 'sequelize';
-import { ListResponse } from 'src/share/models/base-model';
+import { Op, Sequelize, where, WhereOptions } from 'sequelize';
+import {
+  BaseOrder,
+  BaseSortBy,
+  ListResponse,
+} from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
 // export class CloudinaryImageRepository implements IImageRepository {
 //   constructor(private readonly cloudinary: Cloudinary) {}
 // }
-
 
 export class PostgresImageRepository implements IImageRepository {
   constructor(
@@ -19,20 +29,33 @@ export class PostgresImageRepository implements IImageRepository {
     const image = await this.squelize.models[this.modelName].findByPk(id);
     return image?.dataValues;
   }
-  async list(paging: PagingDTO): Promise<ListResponse<Image[]>> {
+  async list(
+    paging: PagingDTO,
+    condition: ImageConditionDTO
+  ): Promise<ListResponse<Image[]>> {
+    const where: WhereOptions = {};
     const { limit, page } = paging;
-    const offset = (page - 1) * limit;
-    const images = await this.squelize.models[this.modelName].findAll({
+    const order = condition.orderBy || BaseOrder.DESC;
+    const sortBy = condition.sortBy || BaseSortBy.CREATED_AT;
+    if (condition.typeList && condition.typeList.length > 0) {
+      where.type = {
+        [Op.in]: condition.typeList,
+      };
+    }
+    const { rows, count } = await this.squelize.models[
+      this.modelName
+    ].findAndCountAll({
+      where,
       limit,
-      offset,
-      order: [['created_at', 'DESC']],
+      offset: (page - 1) * limit,
+      order: [[sortBy, order]],
     });
     return {
-      data: images.map((image) => image.dataValues),
+      data: rows.map((image) => image.dataValues),
       meta: {
-        total_count: images.length,
-        total_page: Math.ceil(images.length / limit),
+        total_count: count,
         current_page: page,
+        total_page: Math.ceil(count / limit),
         limit,
       },
     };

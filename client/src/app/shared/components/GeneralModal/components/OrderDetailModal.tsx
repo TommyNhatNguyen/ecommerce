@@ -103,7 +103,7 @@ const OrderDetailModal = ({
         status: orderDetail.status,
         order_state: orderDetail.order_state,
         cost: orderDetail.order_detail?.cost || [],
-        customer_name: orderDetail.order_detail.customer_name,
+        customer_name: orderDetail.order_detail?.customer_lastName,
         shipping_address: orderDetail.order_detail.customer_address,
         shipping_phone: orderDetail.order_detail.customer_phone,
         shipping_method: orderDetail.order_detail.shipping?.type,
