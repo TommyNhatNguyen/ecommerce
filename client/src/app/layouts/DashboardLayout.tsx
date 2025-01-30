@@ -55,6 +55,7 @@ import Notification from "@/app/layouts/components/Notification";
 import { getNotificationThunk } from "@/app/shared/store/reducers/notification";
 import { cookiesStorage } from "@/app/shared/utils/localStorage";
 import { getUserInfo, logout } from "@/app/shared/store/reducers/auth";
+import { defaultImage } from "@/app/shared/resources/images/default-image";
 const { Header, Footer, Sider, Content } = Layout;
 type DashboardLayoutPropsType = {
   children: React.ReactNode;
@@ -202,11 +203,18 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
                 items: dropdownItems,
               }}
               trigger={["click"]}
+              className="cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <Avatar shape="square" icon={<User />} />
+                <Avatar
+                  shape="square"
+                  src={userInfo?.image?.url || defaultImage}
+                />
                 <div className="h-fit">
-                  <p className="h-fit font-open-sans-medium">John Doe</p>
+                  <p className="font-semibold leading-none">
+                    {userInfo?.username}
+                  </p>
+                  <p className="leading-none">{userInfo?.email}</p>
                 </div>
                 <ChevronDown />
               </div>
@@ -223,7 +231,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
                   kind: "create",
                   type: "order",
                 },
-                actor_info_id: "0194972f-5b24-739b-85a1-a1c68d45a5d0",
+                actor_info_id: "0194b65d-b3de-71bc-9e42-8becb989a0f3",
                 actor_type: "customer",
                 message: "Order created",
               }),

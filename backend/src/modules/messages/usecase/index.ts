@@ -72,12 +72,13 @@ export class MessageUsecase implements IMessageUseCase {
         actor.actor_info_id,
         {}
       );
+      console.log("🚀 ~ MessageUsecase ~ createMessage ~ customer:", customer)
       const template = entity.template;
       payload.message = `${template
         .replace('{{kind}}', entity.kind.toLowerCase())
         .replace(
           '{{actor_id}}',
-          `${customer.first_name || ''} ${customer.last_name || ''}`
+          `${customer?.first_name || ''} ${customer?.last_name || ''}`
         )} at ${new Date().toLocaleString()}`;
     }
     return await this.messageRepo.createMessage(payload);

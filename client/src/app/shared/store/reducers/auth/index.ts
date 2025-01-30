@@ -72,6 +72,7 @@ export const getUserInfo = createAsyncThunk(
       const response = await userService.getUserInfo({
         include_permission: true,
         include_role: true,
+        include_image: true,
       });
       if (response) {
         return response.data;

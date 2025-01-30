@@ -167,6 +167,7 @@ const UserPage = ({}: UserPagePropsType) => {
         dataSource={userData?.data}
         pagination={false}
         tableLayout="auto"
+        rowKey={(record) => record.id}
       />
       <CreateUserModal
         isOpen={isOpenCreateUserModal}
