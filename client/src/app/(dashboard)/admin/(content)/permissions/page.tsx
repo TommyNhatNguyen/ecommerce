@@ -18,7 +18,7 @@ export default function PermissionPage() {
   const dispatch = useAppDispatch();
   const { userPermission, userInfo } = useAppSelector((state) => state.auth);
   return (
-    <div>
+    <div className="rounded-lg bg-white px-4 py-2">
       <h3 className="text-lg font-bold text-blue-600">My Permission</h3>
       <PermissionTable
         userPermission={userPermission}

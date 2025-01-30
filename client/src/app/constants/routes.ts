@@ -39,5 +39,9 @@ export const ADMIN_ROUTES = {
   customers: "/admin/customers",
   resources: "/admin/resources",
   settings: "/admin/settings",
-  permissions: "/admin/permissions",
+  permissions: {
+    index: "/admin/permissions",
+    role: "/admin/permissions/role",
+    user: "/admin/permissions/user",
+  },
 };

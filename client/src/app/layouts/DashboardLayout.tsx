@@ -54,7 +54,7 @@ import { notificationServices } from "@/app/shared/services/notification/notific
 import Notification from "@/app/layouts/components/Notification";
 import { getNotificationThunk } from "@/app/shared/store/reducers/notification";
 import { cookiesStorage } from "@/app/shared/utils/localStorage";
-import { getUserInfo } from "@/app/shared/store/reducers/auth";
+import { getUserInfo, logout } from "@/app/shared/store/reducers/auth";
 const { Header, Footer, Sider, Content } = Layout;
 type DashboardLayoutPropsType = {
   children: React.ReactNode;
@@ -88,24 +88,10 @@ const items: MenuItem[] = [
     icon: <FolderOpen size={16} />,
   },
   {
-    key: ADMIN_ROUTES.permissions,
+    key: ADMIN_ROUTES.permissions.index,
     label: "Permissions",
     icon: <Lock size={16} />,
   },
-];
-
-const dropdownItems: MenuItem[] = [
-  {
-    key: "1",
-    label: "Administrator",
-    disabled: true,
-  },
-  {
-    type: "divider",
-  },
-  { key: "1", label: "Profile", icon: <User size={16} /> },
-  { key: "2", label: "Settings", icon: <Settings size={16} /> },
-  { key: "3", label: "Logout", icon: <LogOut size={16} /> },
 ];
 
 export const DashboardWrapper = ({ children }: DashboardLayoutPropsType) => {
@@ -134,6 +120,28 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   const handleSelect = (key: string) => {
     router.push(key);
   };
+  const _onLogout = () => {
+    dispatch(logout());
+    router.push(ADMIN_ROUTES.login);
+  };
+  const dropdownItems: MenuItem[] = [
+    // {
+    //   key: "1",
+    //   label: "Administrator",
+    //   disabled: true,
+    // },
+    // {
+    //   type: "divider",
+    // },
+    // { key: "1", label: "Profile", icon: <User size={16} /> },
+    // { key: "2", label: "Settings", icon: <Settings size={16} /> },
+    {
+      key: "3",
+      label: "Logout",
+      icon: <LogOut size={16} />,
+      onClick: _onLogout,
+    },
+  ];
   // --- ORDER NOTIFICATION ---
   useSocket(
     socketServices.orderIo,
@@ -162,11 +170,6 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
       router.push(ADMIN_ROUTES.login);
     }
   }, []);
-  useEffect(() => {
-    if (!cookiesStorage.getToken()) {
-      router.push(ADMIN_ROUTES.login);
-    }
-  }, [cookiesStorage.getToken()]);
   return (
     <Layout className="h-screen">
       <Sider className="bg-white" collapsed={collapsed}>

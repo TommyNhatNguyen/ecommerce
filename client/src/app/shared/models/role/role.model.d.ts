@@ -1,4 +1,5 @@
 import { Permission } from "@/app/shared/models/permission/permission.model";
+import { User } from "@/app/shared/models/user/user.model";
 
 export interface Role {
   id: string;
@@ -7,4 +8,5 @@ export interface Role {
   created_at: string;
   updated_at: string;
   permission?: Partial<Permission>[];
+  user?: Partial<User>[];
 }

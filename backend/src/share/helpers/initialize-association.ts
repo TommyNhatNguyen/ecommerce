@@ -318,7 +318,7 @@ export const initializeAssociation = () => {
     as: roleModelName.toLowerCase(),
   });
 
-  RolePersistence.hasOne(UserPersistence, {
+  RolePersistence.hasMany(UserPersistence, {
     foreignKey: 'role_id',
     as: userModelName.toLowerCase(),
   });

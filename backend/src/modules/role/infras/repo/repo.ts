@@ -2,7 +2,11 @@ import { Includeable, Op, Sequelize } from 'sequelize';
 import { PermissionPersistence } from 'src/modules/permission/infras/repo/dto';
 import { permissionModelName } from 'src/modules/permission/infras/repo/dto';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
-import { ListResponse } from 'src/share/models/base-model';
+import {
+  BaseOrder,
+  BaseSortBy,
+  ListResponse,
+} from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { IRoleRepository } from 'src/modules/role/models/role.interface';
 import { Role, RoleWithPermissions } from 'src/modules/role/models/role.model';
@@ -14,6 +18,8 @@ import {
   IRoleUpdateDTO,
 } from 'src/modules/role/models/role.dto';
 import { WhereOptions } from '@sequelize/core';
+import { UserPersistence } from 'src/modules/user/infras/repo/dto';
+import { userModelName } from 'src/modules/user/infras/repo/dto';
 
 export class PostgresRoleRepository implements IRoleRepository {
   constructor(
@@ -88,6 +94,8 @@ export class PostgresRoleRepository implements IRoleRepository {
       [Op.ne]: 'SUPER_ADMIN',
     };
     const { page, limit } = paging;
+    const order = condition?.order || BaseOrder.DESC;
+    const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
     if (condition?.include_permissions) {
       include.push({
         model: PermissionPersistence,
@@ -102,10 +110,18 @@ export class PostgresRoleRepository implements IRoleRepository {
         },
       });
     }
+    if (condition?.include_users) {
+      include.push({
+        model: UserPersistence,
+        as: userModelName,
+        attributes: ['username', 'email', 'phone', 'id'],
+      });
+    }
     if (condition?.is_get_all) {
       const roles = await this.sequelize.models[this.modelName].findAll({
         where,
         include,
+        order: [[sortBy, order]],
       });
       return {
         data: roles.map((role) => role.dataValues),
@@ -124,6 +140,7 @@ export class PostgresRoleRepository implements IRoleRepository {
       limit,
       offset: (page - 1) * limit,
       include,
+      order: [[sortBy, order]],
     });
     return {
       data: rows.map((row) => row.dataValues),
