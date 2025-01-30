@@ -313,6 +313,14 @@ export const initializeAssociation = () => {
     foreignKey: 'image_id',
   });
 
+  UserPersistence.belongsTo(ImagePersistence, {
+    foreignKey: 'image_id',
+  });
+
+  ImagePersistence.hasOne(UserPersistence, {
+    foreignKey: 'image_id',
+  });
+
   UserPersistence.belongsTo(RolePersistence, {
     foreignKey: 'role_id',
     as: roleModelName.toLowerCase(),

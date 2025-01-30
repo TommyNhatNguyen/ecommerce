@@ -5,7 +5,7 @@ import { User } from "src/modules/user/models/user.model";
 import { IUserConditionDTO, IUserCreateDTO, IUserLoginDTO, IUserUpdateDTO } from "src/modules/user/models/user.dto";
 
 export interface IUserUseCase {
-  getUserById(id: string): Promise<Omit<User, "hash_password">>;
+  getUserById(id: string, condition?: IUserConditionDTO): Promise<Omit<User, "hash_password">>;
   getUsers(
     paging: PagingDTO,
     condition: IUserConditionDTO
@@ -20,7 +20,7 @@ export interface IUserUseCase {
 export interface IUserRepository extends IQueryRepository, ICommandRepository {}
 
 export interface IQueryRepository {
-  getUserById(id: string): Promise<Omit<User, "hash_password">>;
+  getUserById(id: string, condition?: IUserConditionDTO): Promise<Omit<User, "hash_password">>;
   getUsers(
     paging: PagingDTO,
     condition: IUserConditionDTO

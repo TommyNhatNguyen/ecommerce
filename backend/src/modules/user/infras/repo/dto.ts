@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { DataTypes, Model } from 'sequelize';
+import { imageModelName } from 'src/infras/repository/image/dto';
 import { ModelStatus } from 'src/share/models/base-model';
 import { v7 as uuidv7 } from 'uuid';
 export class UserPersistence extends Model {
@@ -45,6 +46,14 @@ export const userInit = (sequelize: Sequelize) => {
       role_id: {
         type: DataTypes.UUID,
         allowNull: false,
+      },
+      image_id: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        references: {
+          model: `${imageModelName}s`,
+          key: 'id',
+        },
       },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),

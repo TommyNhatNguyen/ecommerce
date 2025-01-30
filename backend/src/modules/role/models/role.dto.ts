@@ -44,6 +44,11 @@ export const IRoleConditionSchema = z.object({
     .refine((value) => value === 'true' || value === 'false')
     .transform((value) => value === 'true')
     .optional(),
+  include_user_image: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
   is_get_all: z
     .string()
     .refine((value) => value === 'true' || value === 'false')

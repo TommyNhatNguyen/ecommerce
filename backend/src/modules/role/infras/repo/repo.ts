@@ -20,6 +20,8 @@ import {
 import { WhereOptions } from '@sequelize/core';
 import { UserPersistence } from 'src/modules/user/infras/repo/dto';
 import { userModelName } from 'src/modules/user/infras/repo/dto';
+import { ImagePersistence } from 'src/infras/repository/image/dto';
+import { imageModelName } from 'src/infras/repository/image/dto';
 
 export class PostgresRoleRepository implements IRoleRepository {
   constructor(
@@ -53,6 +55,7 @@ export class PostgresRoleRepository implements IRoleRepository {
   }
   async getRoleById(id: string, condition: IRoleConditionDTO): Promise<Role> {
     const include: Includeable[] = [];
+    const includeUser: Includeable[] = [];
     if (condition?.include_permissions) {
       include.push({
         model: PermissionPersistence,
@@ -65,6 +68,25 @@ export class PostgresRoleRepository implements IRoleRepository {
             exclude: ['role_id', 'permission_id', ...EXCLUDE_ATTRIBUTES],
           },
         },
+      });
+    }
+    if (condition?.include_users) {
+      if (condition?.include_user_image) {
+        includeUser.push({
+          model: ImagePersistence,
+          as: imageModelName,
+          attributes: {
+            exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'],
+          },
+        });
+      }
+      include.push({
+        model: UserPersistence,
+        as: userModelName,
+        attributes: {
+          exclude: [...EXCLUDE_ATTRIBUTES],
+        },
+        include: includeUser,
       });
     }
     const role = await this.sequelize.models[this.modelName].findByPk(id, {
@@ -90,6 +112,7 @@ export class PostgresRoleRepository implements IRoleRepository {
   ): Promise<ListResponse<Role[]>> {
     const where: WhereOptions = {};
     const include: Includeable[] = [];
+    const includeUser: Includeable[] = [];
     where.name = {
       [Op.ne]: 'SUPER_ADMIN',
     };
@@ -111,10 +134,20 @@ export class PostgresRoleRepository implements IRoleRepository {
       });
     }
     if (condition?.include_users) {
+      if (condition?.include_user_image) {
+        includeUser.push({
+          model: ImagePersistence,
+          as: imageModelName,
+          attributes: {
+            exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'],
+          },
+        });
+      }
       include.push({
         model: UserPersistence,
         as: userModelName,
         attributes: ['username', 'email', 'phone', 'id'],
+        include: includeUser,
       });
     }
     if (condition?.is_get_all) {

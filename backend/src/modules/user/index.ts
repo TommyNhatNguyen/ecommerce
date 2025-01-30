@@ -1,17 +1,20 @@
 import { Router } from 'express';
 import { Sequelize } from 'sequelize';
+import { CloudinaryImageRepository } from 'src/infras/repository/image/repo';
 import { jwtRefresh, jwtSign, jwtVerify } from 'src/middlewares/jwt';
 import { userModelName } from 'src/modules/user/infras/repo/dto';
 import { userInit } from 'src/modules/user/infras/repo/dto';
 import { PostgresUserRepository } from 'src/modules/user/infras/repo/repo';
 import { UserHttpService } from 'src/modules/user/infras/transport/user-http.service';
 import { UserUseCase } from 'src/modules/user/usecase';
+import cloudinary from 'src/share/cloudinary';
 
 export const setupUserRouter = (sequelize: Sequelize) => {
   userInit(sequelize);
   const router = Router();
   const userRepository = new PostgresUserRepository(sequelize, userModelName);
-  const userUseCase = new UserUseCase(userRepository);
+  const cloudinaryImageRepository = new CloudinaryImageRepository(cloudinary);
+  const userUseCase = new UserUseCase(userRepository, cloudinaryImageRepository);
   const userHttpService = new UserHttpService(userUseCase);
   router.get(
     '/users',
@@ -28,6 +31,10 @@ export const setupUserRouter = (sequelize: Sequelize) => {
   router.post('/users', userHttpService.createUser.bind(userHttpService));
   router.put('/users/:id', userHttpService.updateUser.bind(userHttpService));
   router.delete('/users/:id', userHttpService.deleteUser.bind(userHttpService));
-  router.get('/users-info', jwtVerify, userHttpService.getUserByUsername.bind(userHttpService));
+  router.get(
+    '/users-info',
+    jwtVerify,
+    userHttpService.getUserByUsername.bind(userHttpService)
+  );
   return router;
 };

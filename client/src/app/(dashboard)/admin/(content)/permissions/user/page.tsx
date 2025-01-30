@@ -5,7 +5,7 @@ import { cn } from "@/app/shared/utils/utils";
 import { User } from "@/app/shared/models/user/user.model";
 import { userService } from "@/app/shared/services/user/userService";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { Button, Select, Table, TableProps } from "antd";
+import { Avatar, Button, Image, Select, Table, TableProps } from "antd";
 import React, { useState } from "react";
 import ActionGroup from "@/app/shared/components/ActionGroup";
 import { roleService } from "@/app/shared/services/role/roleService";
@@ -13,6 +13,7 @@ import { AArrowDown, Plus } from "lucide-react";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { useUser } from "@/app/(dashboard)/admin/(content)/permissions/user/hooks/useUser";
 import CreateUserModal from "@/app/(dashboard)/admin/(content)/permissions/user/components/CreateUserModal";
+import { defaultImage } from "@/app/shared/resources/images/default-image";
 
 type UserPagePropsType = {};
 
@@ -27,7 +28,8 @@ const UserPage = ({}: UserPagePropsType) => {
   } = useUser();
   const { data: userData, refetch: refetchUserData } = useQuery({
     queryKey: ["user-info", isCreateUserLoading],
-    queryFn: () => userService.getUserList({ is_get_all: true }),
+    queryFn: () =>
+      userService.getUserList({ is_get_all: true, include_image: true }),
     placeholderData: keepPreviousData,
     enabled: !isCreateUserLoading,
   });
@@ -54,6 +56,14 @@ const UserPage = ({}: UserPagePropsType) => {
     setIsOpenCreateUserModal(false);
   };
   const columns: TableProps<User>["columns"] = [
+    {
+      title: "Image",
+      dataIndex: "image",
+      key: "image",
+      render: (_, { image }) => {
+        return <Avatar src={image?.url || defaultImage} size={50} />;
+      },
+    },
     {
       title: "Username",
       dataIndex: "username",

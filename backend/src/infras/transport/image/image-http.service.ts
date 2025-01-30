@@ -52,6 +52,7 @@ export class ImageHttpService {
         .status(200)
         .json({ message: 'Image created successfully', ...image });
     } catch (error) {
+      console.log(error);
       res.status(500).json({ message: 'Failed to create image' });
       return;
     }

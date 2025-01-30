@@ -18,6 +18,8 @@ import {
   permissionModelName,
   PermissionPersistence,
 } from 'src/modules/permission/infras/repo/dto';
+import { ImagePersistence } from 'src/infras/repository/image/dto';
+import { imageModelName } from 'src/infras/repository/image/dto';
 
 export class PostgresUserRepository implements IUserRepository {
   constructor(
@@ -30,7 +32,16 @@ export class PostgresUserRepository implements IUserRepository {
   ): Promise<User> {
     const include: Includeable[] = [];
     const roleInclude: Includeable[] = [];
-    const { include_role, include_permission } = condition || {};
+    const { include_role, include_permission, include_image } = condition || {};
+    if (include_image) {
+      include.push({
+        model: ImagePersistence,
+        as: imageModelName,
+        attributes: {
+          exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'],
+        },
+      });
+    }
     if (include_role) {
       include.push({
         model: RolePersistence,
@@ -66,11 +77,23 @@ export class PostgresUserRepository implements IUserRepository {
     return user?.dataValues;
   }
 
-  async getUserById(id: string): Promise<User> {
+  async getUserById(id: string, condition?: IUserConditionDTO): Promise<User> {
+    const include: Includeable[] = [];
+    const { include_image } = condition || {};
+    if (include_image) {
+      include.push({
+        model: ImagePersistence,
+        as: imageModelName,
+        attributes: {
+          exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'],
+        },
+      });
+    }
     const user = await this.sequelize.models[this.modelName].findByPk(id, {
       attributes: {
         exclude: ['hash_password'],
       },
+      include,
     });
     return user?.dataValues;
   }
@@ -80,12 +103,23 @@ export class PostgresUserRepository implements IUserRepository {
   ): Promise<ListResponse<User[]>> {
     const { page, limit } = paging;
     const { order, sortBy } = condition;
+    const include: Includeable[] = [];
+    if (condition.include_image) {
+      include.push({
+        model: ImagePersistence,
+        as: imageModelName,
+        attributes: {
+          exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'],
+        },
+      });
+    }
     if (condition.is_get_all) {
       const users = await this.sequelize.models[this.modelName].findAll({
         attributes: {
           exclude: ['hash_password'],
         },
         order: [[sortBy, order]],
+        include,
       });
       return {
         data: users.map((user) => user.dataValues),
@@ -107,6 +141,7 @@ export class PostgresUserRepository implements IUserRepository {
         exclude: ['hash_password'],
       },
       order: [[sortBy, order]],
+      include,
     });
     return {
       data: rows.map((row) => row.dataValues),

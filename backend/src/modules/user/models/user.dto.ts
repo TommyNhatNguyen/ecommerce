@@ -17,6 +17,7 @@ export const IUserCreateDTOSchema = z.object({
   phone: z.string(),
   email: z.string().email().optional(),
   role_id: z.string().uuid(),
+  image_id: z.string().uuid().optional(),
 });
 
 export const IUserUpdateDTOSchema = z.object({
@@ -26,6 +27,7 @@ export const IUserUpdateDTOSchema = z.object({
   email: z.string().email().optional(),
   role_id: z.string().uuid().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
+  image_id: z.string().uuid().optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
 });
@@ -41,6 +43,12 @@ export const IUserConditionSchema = z.object({
   role_id: z.string().uuid().optional(),
   order: z.string().optional().default(BaseOrder.DESC),
   sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
+  image_id: z.string().uuid().optional(),
+  include_image: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
   is_get_all: z
     .string()
     .refine((value) => value === 'true' || value === 'false')

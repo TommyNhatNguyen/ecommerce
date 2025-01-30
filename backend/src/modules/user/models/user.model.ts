@@ -9,6 +9,7 @@ export const UserSchema = z.object({
   phone: z.string(),
   role_id: z.string().uuid(),
   status: z.nativeEnum(ModelStatus),
+  image_id: z.string().uuid().optional(),
   created_at: z.date(),
   updated_at: z.date(),
 })

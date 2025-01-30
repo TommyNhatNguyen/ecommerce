@@ -12,6 +12,7 @@ export interface IUserConditionDTO {
   is_get_all?: boolean;
   include_role?: boolean;
   include_permission?: boolean;
+  include_image?: boolean;
 }
 
 export interface ICreateUserDTO {
@@ -20,4 +21,5 @@ export interface ICreateUserDTO {
   phone: string;
   email?: string;
   role_id: string;
+  image_id?: string;
 }

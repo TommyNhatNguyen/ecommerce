@@ -1,5 +1,10 @@
 import { compare, hash } from 'bcrypt';
-import { ListResponse, ModelStatus } from 'src/share/models/base-model';
+import {
+  BaseOrder,
+  BaseSortBy,
+  ListResponse,
+  ModelStatus,
+} from 'src/share/models/base-model';
 import {
   USER_NOT_FOUND_ERROR,
   WRONG_PASSWORD,
@@ -16,9 +21,13 @@ import {
   IUserRepository,
   IUserUseCase,
 } from 'src/modules/user/models/user.interface';
+import { IImageCloudinaryRepository } from '@models/image/image.interface';
 
 export class UserUseCase implements IUserUseCase {
-  constructor(private readonly userRepository: IUserRepository) {}
+  constructor(
+    private readonly userRepository: IUserRepository,
+    private readonly cloudinaryImageRepository: IImageCloudinaryRepository
+  ) {}
 
   async getUserByUsername(
     username: string,
@@ -38,8 +47,11 @@ export class UserUseCase implements IUserUseCase {
     return user?.username;
   }
 
-  getUserById(id: string): Promise<Omit<User, 'hash_password'>> {
-    return this.userRepository.getUserById(id);
+  getUserById(
+    id: string,
+    condition?: IUserConditionDTO
+  ): Promise<Omit<User, 'hash_password'>> {
+    return this.userRepository.getUserById(id, condition);
   }
   getUsers(
     paging: PagingDTO,
@@ -56,10 +68,30 @@ export class UserUseCase implements IUserUseCase {
     };
     return this.userRepository.createUser(payload);
   }
-  updateUser(id: string, data: IUserUpdateDTO): Promise<Omit<User, 'hash_password'>> {
-    return this.userRepository.updateUser(id, data);
+  async updateUser(
+    id: string,
+    data: IUserUpdateDTO
+  ): Promise<Omit<User, 'hash_password'>> {
+    const updatedUser = await this.userRepository.getUserById(id, {
+      include_image: true,
+      order: BaseOrder.DESC,
+      sortBy: BaseSortBy.CREATED_AT,
+    });
+    if (updatedUser?.image_id) {
+      await this.cloudinaryImageRepository.delete(updatedUser.image_id);
+    }
+    const user = await this.userRepository.updateUser(id, data);
+    return user;
   }
-  deleteUser(id: string): Promise<boolean> {
-    return this.userRepository.deleteUser(id);
+  async deleteUser(id: string): Promise<boolean> {
+    const user = await this.userRepository.getUserById(id, {
+      include_image: true,
+      order: BaseOrder.DESC,
+      sortBy: BaseSortBy.CREATED_AT,
+    });
+    if (user?.image_id) {
+      await this.cloudinaryImageRepository.delete(user.image_id);
+    }
+    return await this.userRepository.deleteUser(id);
   }
 }

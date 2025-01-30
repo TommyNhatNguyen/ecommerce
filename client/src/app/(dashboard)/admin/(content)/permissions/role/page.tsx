@@ -26,9 +26,19 @@ const RolePage = (props: Props) => {
   } = useRole();
   const [isAddNewRoleModalOpen, setIsAddNewRoleModalOpen] = useState(false);
   const { data: roleData, isLoading: roleLoading } = useQuery({
-    queryKey: ["role-list", isChangeStatusLoading, isDeleteRoleLoading, isCreateRoleLoading],
-    queryFn: () => roleService.getRoleList({ is_get_all: true, include_users: true }),
-    placeholderData: keepPreviousData
+    queryKey: [
+      "role-list",
+      isChangeStatusLoading,
+      isDeleteRoleLoading,
+      isCreateRoleLoading,
+    ],
+    queryFn: () =>
+      roleService.getRoleList({
+        is_get_all: true,
+        include_users: true,
+        include_user_image: true,
+      }),
+    placeholderData: keepPreviousData,
   });
   const _onChangeRoleStatus = (role_id: string, role_status: ModelStatus) => {
     handleChangeRoleStatus(role_id, role_status);
@@ -70,7 +80,7 @@ const RolePage = (props: Props) => {
                   </div>
                 )}
               >
-                <Avatar src={defaultImage} />
+                <Avatar src={item?.image?.url || defaultImage} />
               </Tooltip>
             ))}
           </Avatar.Group>
@@ -131,8 +141,8 @@ const RolePage = (props: Props) => {
     },
   ];
   return (
-    <div className="bg-white p-4 rounded-lg">
-      <div className="flex justify-between items-center mb-4">
+    <div className="rounded-lg bg-white p-4">
+      <div className="mb-4 flex items-center justify-between">
         <h3 className="text-md font-semibold">Role table</h3>
         <Button type="primary" icon={<Plus />} onClick={_onOpenAddNewRoleModal}>
           Add new role
