@@ -7,9 +7,18 @@ import {
   useInfiniteQuery,
   useQuery,
 } from "@tanstack/react-query";
-import { Button, Card, Checkbox, CheckboxProps, Image } from "antd";
+import {
+  Button,
+  Card,
+  Checkbox,
+  CheckboxChangeEvent,
+  CheckboxProps,
+  Image,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
+import { useResources } from "@/app/(dashboard)/admin/(content)/resources/hooks/useResources";
+import { Trash2 } from "lucide-react";
 
 type Props = {};
 
@@ -17,12 +26,26 @@ export default function ResourcesPage() {
   const { ref, inView } = useInView({
     threshold: 0,
   });
-  const [checkedList, setCheckedList] = useState<ImageType[]>([]);
+  const {
+    checkedList,
+    checkAll,
+    indeterminate,
+    handleCheckAllChange,
+    handleChangeCheckedList,
+    handleDeleteImage,
+    deleteImageLoading,
+  } = useResources();
+  const _onChangeCheckedList = (e: ImageType[]) => {
+    handleChangeCheckedList(e);
+  };
+  const _onCheckAll = (e: CheckboxChangeEvent) => {
+    handleCheckAllChange(e);
+  };
   const {
     data: imageData,
     fetchNextPage,
     hasNextPage,
-    isFetching,
+    refetch
   } = useInfiniteQuery({
     queryKey: ["images", checkedList],
     queryFn: (p) =>
@@ -39,21 +62,10 @@ export default function ResourcesPage() {
     },
     initialPageParam: 1,
   });
-  const checkAll = Object.values(IMAGE_TYPE).length === checkedList.length;
-  const indeterminate =
-    checkedList.length > 0 &&
-    checkedList.length < Object.values(IMAGE_TYPE).length;
-  const onCheckAllChange: CheckboxProps["onChange"] = (e) => {
-    setCheckedList(
-      e.target.checked
-        ? (Object.values(IMAGE_TYPE) as ImageType[])
-        : ([] as ImageType[]),
-    );
-  };
-  const onCheckedListChange: CheckboxProps["onChange"] = (
-    value: ImageType[],
-  ) => {
-    setCheckedList(value);
+  const _onDeleteImage = (id: string) => {
+    handleDeleteImage(id, () => {
+      refetch();
+    });
   };
   useEffect(() => {
     if (inView && hasNextPage) {
@@ -61,16 +73,18 @@ export default function ResourcesPage() {
     }
   }, [inView, hasNextPage]);
   return (
-    <div className="h-full">
-      <div>
+    <div className="flex h-full items-start gap-2">
+      <div className="flex flex-col gap-1 rounded-md bg-white p-2">
+        <h3 className="text-lg font-medium">Type of resources</h3>
         <Checkbox
           indeterminate={indeterminate}
-          onChange={onCheckAllChange}
+          onChange={_onCheckAll}
           checked={checkAll}
         >
           All
         </Checkbox>
         <Checkbox.Group
+          className="flex flex-col gap-1"
           options={Object.values(
             IMAGE_TYPE as { [key: string]: ImageType },
           ).map((type) => ({
@@ -78,12 +92,10 @@ export default function ResourcesPage() {
             value: type,
           }))}
           value={checkedList}
-          onChange={(checkValue: ImageType[]) =>
-            onCheckedListChange(checkValue)
-          }
+          onChange={_onChangeCheckedList}
         />
       </div>
-      <div className="grid h-full max-h-[70%] grid-cols-3 gap-4 overflow-y-auto">
+      <div className="grid h-full max-h-[70%] flex-1 grid-cols-3 gap-4 overflow-y-auto">
         {imageData?.pages.map((page) => {
           return page.data.map((image, index) => {
             if (index === page.data.length - 1) {
@@ -101,7 +113,17 @@ export default function ResourcesPage() {
                     }
                     className="relative p-2"
                   >
-                    <Card.Meta title={image.type} />
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-md font-medium capitalize">
+                        {image.type}
+                      </h3>
+                      <Button
+                        type="text"
+                        icon={<Trash2 className="h-4 w-4 text-red-500" />}
+                        onClick={() => _onDeleteImage(image.id)}
+                        loading={deleteImageLoading}
+                      />
+                    </div>
                     <div ref={ref} className="absolute bottom-0 right-0"></div>
                   </Card>
                 </>
@@ -120,7 +142,17 @@ export default function ResourcesPage() {
                 }
                 className="p-2"
               >
-                <Card.Meta title={image.type} />
+                <div className="flex items-center justify-between">
+                  <h3 className="text-md font-medium capitalize">
+                    {image.type}
+                  </h3>
+                  <Button
+                    type="text"
+                    icon={<Trash2 className="h-4 w-4 text-red-500" />}
+                    onClick={() => _onDeleteImage(image.id)}
+                    loading={deleteImageLoading}
+                  />
+                </div>
               </Card>
             );
           });

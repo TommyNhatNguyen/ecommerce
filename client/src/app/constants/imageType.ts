@@ -1,3 +1,5 @@
+import { ImageType } from "@/app/shared/interfaces/image/image.dto";
+
 export const IMAGE_TYPE = {
   CATEGORY: "CATEGORY",
   CUSTOMER: "CUSTOMER",
@@ -14,4 +16,4 @@ export const IMAGE_TYPE = {
   USER: "USER",
   VARIANT: "VARIANT",
   OTHER: "OTHER",
-} ;
+} as Record<string, ImageType>;
