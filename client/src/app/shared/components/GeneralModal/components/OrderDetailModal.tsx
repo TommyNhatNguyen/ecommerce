@@ -15,6 +15,7 @@ import { orderService } from "@/app/shared/services/orders/orderService";
 import { paymentService } from "@/app/shared/services/payment/paymentServcie";
 import { productService } from "@/app/shared/services/products/productService";
 import { shippingService } from "@/app/shared/services/shipping/shippingService";
+import { formatCurrency } from "@/app/shared/utils/utils";
 import { useQuery } from "@tanstack/react-query";
 import {
   Button,
@@ -93,6 +94,7 @@ const OrderDetailModal = ({
       total_cost: 0,
       total_discount: 0,
       total: 0,
+      paid_amount: 0,
     },
   });
   useEffect(() => {
@@ -103,7 +105,10 @@ const OrderDetailModal = ({
         status: orderDetail.status,
         order_state: orderDetail.order_state,
         cost: orderDetail.order_detail?.cost || [],
-        customer_name: orderDetail.order_detail?.customer_lastName,
+        customer_name:
+          orderDetail.order_detail?.customer_firstName +
+          " " +
+          orderDetail.order_detail?.customer_lastName,
         shipping_address: orderDetail.order_detail.customer_address,
         shipping_phone: orderDetail.order_detail.customer_phone,
         shipping_method: orderDetail.order_detail.shipping?.type,
@@ -117,6 +122,7 @@ const OrderDetailModal = ({
         total_discount: orderDetail.order_detail.total_discount,
         total: orderDetail.order_detail.total,
         order_discount: orderDetail.order_detail.discount,
+        paid_amount: orderDetail.order_detail.payment?.paid_amount || 0,
       });
     }
   }, [orderDetail]);
@@ -399,7 +405,12 @@ const OrderDetailModal = ({
                 disabled={true}
                 customComponent={(props, ref: any) => {
                   return (
-                    <InputNumber {...props} ref={ref} className="w-full" />
+                    <InputNumber
+                      {...props}
+                      ref={ref}
+                      className="w-full"
+                      formatter={(value) => `${formatCurrency(Number(value))}`}
+                    />
                   );
                 }}
               />
@@ -422,6 +433,7 @@ const OrderDetailModal = ({
                       watch("total_payment_fee") +
                       watch("total_discount")
                     }
+                    formatter={(value) => `${formatCurrency(Number(value))}`}
                   />
                 );
               }}
@@ -438,7 +450,14 @@ const OrderDetailModal = ({
                     disabled={true}
                     customComponent={(props, ref: any) => {
                       return (
-                        <InputNumber {...props} ref={ref} className="w-full" />
+                        <InputNumber
+                          {...props}
+                          ref={ref}
+                          className="w-full"
+                          formatter={(value) =>
+                            `${formatCurrency(Number(value))}`
+                          }
+                        />
                       );
                     }}
                   />
@@ -456,6 +475,9 @@ const OrderDetailModal = ({
                         ref={ref}
                         className="w-full"
                         value={orderDetail?.order_detail.total_product_discount}
+                        formatter={(value) =>
+                          `${formatCurrency(Number(value))}`
+                        }
                       />
                     );
                   }}
@@ -471,6 +493,9 @@ const OrderDetailModal = ({
                         ref={ref}
                         className="w-full"
                         value={orderDetail?.order_detail.total_order_discount}
+                        formatter={(value) =>
+                          `${formatCurrency(Number(value))}`
+                        }
                       />
                     );
                   }}
@@ -489,7 +514,14 @@ const OrderDetailModal = ({
                     disabled={true}
                     customComponent={(props, ref: any) => {
                       return (
-                        <InputNumber {...props} ref={ref} className="w-full" />
+                        <InputNumber
+                          {...props}
+                          ref={ref}
+                          className="w-full"
+                          formatter={(value) =>
+                            `${formatCurrency(Number(value))}`
+                          }
+                        />
                       );
                     }}
                   />
@@ -510,6 +542,9 @@ const OrderDetailModal = ({
                           ref={ref}
                           className="w-full"
                           value={item.cost}
+                          formatter={(value) =>
+                            `${formatCurrency(Number(value))}`
+                          }
                         />
                       );
                     }}
@@ -528,7 +563,14 @@ const OrderDetailModal = ({
                   disabled={true}
                   customComponent={(props, ref: any) => {
                     return (
-                      <InputNumber {...props} ref={ref} className="w-full" />
+                      <InputNumber
+                        {...props}
+                        ref={ref}
+                        className="w-full"
+                        formatter={(value) =>
+                          `${formatCurrency(Number(value))}`
+                        }
+                      />
                     );
                   }}
                 />
@@ -545,7 +587,14 @@ const OrderDetailModal = ({
                   disabled={true}
                   customComponent={(props, ref: any) => {
                     return (
-                      <InputNumber {...props} ref={ref} className="w-full" />
+                      <InputNumber
+                        {...props}
+                        ref={ref}
+                        className="w-full"
+                        formatter={(value) =>
+                          `${formatCurrency(Number(value))}`
+                        }
+                      />
                     );
                   }}
                 />
@@ -563,7 +612,35 @@ const OrderDetailModal = ({
                 disabled={true}
                 customComponent={(props, ref: any) => {
                   return (
-                    <InputNumber {...props} ref={ref} className="w-full" />
+                    <InputNumber
+                      {...props}
+                      ref={ref}
+                      className="w-full"
+                      formatter={(value) => `${formatCurrency(Number(value))}`}
+                    />
+                  );
+                }}
+              />
+            )}
+          />
+          <Controller
+            control={control}
+            name="paid_amount"
+            render={({ field }) => (
+              <InputAdmin
+                {...field}
+                label="Paid amount"
+                placeholder="Paid amount"
+                disabled={true}
+                error={errors.paid_amount?.message}
+                customComponent={(props, ref: any) => {
+                  return (
+                    <InputNumber
+                      {...props}
+                      ref={ref}
+                      className="w-full"
+                      formatter={(value) => `${formatCurrency(Number(value))}`}
+                    />
                   );
                 }}
               />

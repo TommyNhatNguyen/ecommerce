@@ -64,15 +64,21 @@ type DashboardLayoutPropsType = {
 const items: MenuItem[] = [
   {
     key: ADMIN_ROUTES.dashboard,
-    label: "Dashboard",
+    label: "Dashboard (Coming soon)",
     icon: <LayoutDashboard size={16} />,
+    disabled: true,
   },
   {
     key: ADMIN_ROUTES.orders.index,
     label: "Orders",
     icon: <ShoppingCart size={16} />,
   },
-  { key: ADMIN_ROUTES.sales, label: "Sales", icon: <BarChart size={16} /> },
+  {
+    key: ADMIN_ROUTES.sales,
+    label: "Sales (Coming soon)",
+    icon: <BarChart size={16} />,
+    disabled: true,
+  },
   {
     key: ADMIN_ROUTES.inventory.index,
     label: "Inventory",
@@ -80,8 +86,9 @@ const items: MenuItem[] = [
   },
   {
     key: ADMIN_ROUTES.customers,
-    label: "Customers",
+    label: "Customers (Coming soon)",
     icon: <Users size={16} />,
+    disabled: true,
   },
   {
     key: ADMIN_ROUTES.resources,
@@ -221,7 +228,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
             </Dropdown>
           </div>
         </Header>
-        <Button
+        {/* <Button
           onClick={() =>
             useSocketPush(
               socketServices.orderIo,
@@ -239,17 +246,16 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
           }
         >
           Create Order
-        </Button>
-        <Content className="mb-4 min-h-screen p-2">
-          <h1 className="text-xl font-bold capitalize">
-            {currentPath.map((path) => path.toUpperCase()).join(" - ")}
-          </h1>
-          <Divider />
+        </Button> */}
+        <Content className="mb-4 overflow-y-auto overflow-x-hidden p-2">
+          <div className="mb-4 rounded-lg bg-white px-4 py-2">
+            <h1 className="text-xl font-bold capitalize">
+              {currentPath.map((path) => path.toUpperCase()).join(" - ")}
+            </h1>
+          </div>
           {children}
         </Content>
-        <Footer className="bg-white text-center">
-          @copyright 2023 Nguyen Anh Nhat
-        </Footer>
+        <Footer className="text-center">@copyright 2023 Nguyen Anh Nhat</Footer>
       </Layout>
     </Layout>
   );

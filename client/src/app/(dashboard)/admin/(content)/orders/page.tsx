@@ -10,7 +10,7 @@ export default function OrdersPage() {
   const { orderTableProps, orderStatisticsProps } = useOrder(null);
   return (
     <main className="orders-page">
-      <OrderStatistics {...orderStatisticsProps} />
+      {/* <OrderStatistics {...orderStatisticsProps} /> */}
       <OrderTable {...orderTableProps} />
     </main>
   );

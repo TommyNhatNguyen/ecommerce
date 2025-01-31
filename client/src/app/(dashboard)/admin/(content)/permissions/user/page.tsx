@@ -168,6 +168,9 @@ const UserPage = ({}: UserPagePropsType) => {
         pagination={false}
         tableLayout="auto"
         rowKey={(record) => record.id}
+        scroll={{
+          x: "w-fit",
+        }}
       />
       <CreateUserModal
         isOpen={isOpenCreateUserModal}

@@ -801,6 +801,9 @@ const CreateOrderDetailModal = ({
                         {...props}
                         ref={ref}
                         min={0}
+                        formatter={(value) =>
+                          `${formatCurrency(Number(value))}`
+                        }
                       />
                     )}
                   />

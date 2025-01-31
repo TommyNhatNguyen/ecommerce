@@ -91,7 +91,7 @@ const LoginPage = ({}: LoginPagePropsType) => {
               customComponent={(props, ref: any) => (
                 <Checkbox {...props} ref={ref} checked={field.value}>
                   Agree with the{" "}
-                  <Link href="/" className="underline">
+                  <Link href="/" className="underline" target="_blank">
                     terms and conditions
                   </Link>
                 </Checkbox>
@@ -116,6 +116,7 @@ const LoginPage = ({}: LoginPagePropsType) => {
           <Button
             variant="outlined"
             className="flex w-full items-center gap-2 py-1"
+            disabled={true}
           >
             <Image
               src={googleLogo}
@@ -124,11 +125,12 @@ const LoginPage = ({}: LoginPagePropsType) => {
               height={36}
               className="w-fit object-contain object-center"
             />
-            Login with Google
+            Login with Google (Coming soon)
           </Button>
           <Button
             variant="outlined"
             className="flex w-full items-center gap-2 py-1"
+            disabled={true}
           >
             <Image
               src={facebookLogo}
@@ -137,18 +139,24 @@ const LoginPage = ({}: LoginPagePropsType) => {
               height={36}
               className="w-fit object-contain object-center"
             />
-            Login with Facebook
+            Login with Facebook (Coming soon)
           </Button>
         </div>
       </div>
       <div className="mt-5 flex w-full items-center justify-center gap-2">
-        Need an account?
-        <Link
+        Want to try demo?
+        {/* <Link
           href={ADMIN_ROUTES.register}
           className="font-bold uppercase text-blue-600 underline"
         >
           SIGN UP
-        </Link>
+        </Link> */}
+        <a
+          href="tel:+84909284493"
+          className="text-sm text-gray-500 underline"
+        >
+          Contact us for more information
+        </a>
       </div>
     </div>
   );

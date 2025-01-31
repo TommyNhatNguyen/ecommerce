@@ -45,7 +45,7 @@ export default function ResourcesPage() {
     data: imageData,
     fetchNextPage,
     hasNextPage,
-    refetch
+    refetch,
   } = useInfiniteQuery({
     queryKey: ["images", checkedList],
     queryFn: (p) =>
@@ -74,7 +74,7 @@ export default function ResourcesPage() {
   }, [inView, hasNextPage]);
   return (
     <div className="flex h-full items-start gap-2">
-      <div className="flex flex-col gap-1 rounded-md bg-white p-2">
+      <div className="flex h-full flex-col gap-1 rounded-md bg-white p-2">
         <h3 className="text-lg font-medium">Type of resources</h3>
         <Checkbox
           indeterminate={indeterminate}
@@ -95,7 +95,7 @@ export default function ResourcesPage() {
           onChange={_onChangeCheckedList}
         />
       </div>
-      <div className="grid h-full max-h-[70%] flex-1 grid-cols-3 gap-4 overflow-y-auto">
+      <div className="grid h-full flex-1 grid-cols-3 gap-4 overflow-y-auto">
         {imageData?.pages.map((page) => {
           return page.data.map((image, index) => {
             if (index === page.data.length - 1) {

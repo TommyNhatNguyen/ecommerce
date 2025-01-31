@@ -1,28 +1,28 @@
-import { IImageCloudinaryRepository } from "@models/image/image.interface";
+import { IImageCloudinaryRepository } from '@models/image/image.interface';
 import {
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
   ProductGetStatsDTO,
   ProductStatsSortBy,
   ProductUpdateDTOSchema,
-} from "../models/product.dto";
+} from '../models/product.dto';
 import {
   IProductRepository,
   IProductUseCase,
-} from "../models/product.interface";
-import { Product } from "../models/product.model";
+} from '../models/product.interface';
+import { Product } from '../models/product.model';
 import {
   BaseOrder,
   ListResponse,
   ModelStatus,
-} from "src/share/models/base-model";
-import { PagingDTO } from "src/share/models/paging";
+} from 'src/share/models/base-model';
+import { PagingDTO } from 'src/share/models/paging';
 import {
   IDiscountRepository,
   IDiscountUseCase,
-} from "src/modules/discount/models/discount.interface";
-import { DISCOUNT_NOT_FOUND_ERROR } from "src/modules/products/models/errors";
-import { IInventoryUseCase } from "src/modules/inventory/models/inventory.interface";
+} from 'src/modules/discount/models/discount.interface';
+import { DISCOUNT_NOT_FOUND_ERROR } from 'src/modules/products/models/errors';
+import { IInventoryUseCase } from 'src/modules/inventory/models/inventory.interface';
 
 export class ProductUseCase implements IProductUseCase {
   constructor(
@@ -65,28 +65,6 @@ export class ProductUseCase implements IProductUseCase {
     paging: PagingDTO
   ): Promise<ListResponse<Product[]>> {
     const data = await this.repository.list(condition, paging);
-    if (
-      condition.sortBy === ProductStatsSortBy.INVENTORY_VALUE &&
-      data.data.length > 0
-    ) {
-      const inventoryValue = data.data.map((item, index) => ({
-        inventory_value:
-          item.inventory?.quantity || 0 * (item.inventory?.cost || 0),
-        index,
-      }));
-      const sortedIndex = inventoryValue
-        .sort((a, b) => {
-          if (condition.order === BaseOrder.ASC) {
-            return b.inventory_value - a.inventory_value;
-          }
-          return a.inventory_value - b.inventory_value;
-        })
-        .map((item) => item.index);
-      return {
-        ...data,
-        data: sortedIndex.map((index) => data.data[index]),
-      };
-    }
     return data;
   }
   async getProductById(
@@ -98,7 +76,7 @@ export class ProductUseCase implements IProductUseCase {
   async createNewProduct(
     data: Omit<
       ProductCreateDTOSchema,
-      "total_discounts" | "price_after_discounts"
+      'total_discounts' | 'price_after_discounts'
     >
   ): Promise<Product> {
     let total_discounts: number = 0;
@@ -117,14 +95,13 @@ export class ProductUseCase implements IProductUseCase {
       payload.total_discounts =
         data.price *
           ((discountList?.data || [])
-            .filter((item) => item.type === "percentage")
-            .map((item) => item.amount)
-            .reduce((arr, curr) => arr + curr) /
-            100) +
-        (discountList?.data || [])
-          .filter((item) => item.type === "fixed")
-          .map((item) => item.amount)
-          .reduce((arr, curr) => arr + curr);
+            ?.filter((item) => item.type === 'percentage')
+            ?.map((item) => item.amount)
+            ?.reduce((arr, curr) => arr + curr, 0) / 100 || 0) +
+        ((discountList?.data || [])
+          ?.filter((item) => item.type === 'fixed')
+          ?.map((item) => item.amount)
+          ?.reduce((arr, curr) => arr + curr, 0) || 0);
       payload.price_after_discounts = data.price - payload.total_discounts;
     }
     const product = await this.repository.insert(payload);
@@ -164,7 +141,11 @@ export class ProductUseCase implements IProductUseCase {
       );
     }
     // --- VARIANTS ---
-    if (data.variantIds && this.productVariantRepository && data.variantIds.length > 0) {
+    if (
+      data.variantIds &&
+      this.productVariantRepository &&
+      data.variantIds.length > 0
+    ) {
       await this.productVariantRepository.addVariants(
         data.variantIds.map((id) => ({
           product_id: product.id,

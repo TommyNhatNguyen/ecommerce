@@ -214,12 +214,20 @@ export class PostgresProductRepository implements IProductRepository {
       { model: DiscountPersistence, as: discountModelName },
       condition?.sortBy,
     ];
+    const inventoryValueSortBy = condition?.sortBy ==
+      ProductStatsSortBy.INVENTORY_VALUE && [
+      { model: InventoryPersistence, as: inventoryModelName },
+      'total_value',
+    ];
     if (inventorySortBy) {
       customOrder = [[...inventorySortBy, order]];
     }
     if (discountSortBy) {
       customOrder = [[...discountSortBy, order]];
       condition.includeDiscount = true;
+    }
+    if (inventoryValueSortBy) {
+      customOrder = [[...inventoryValueSortBy, order]];
     }
     if (condition.maxPrice) where.price = { [Op.lte]: condition.maxPrice };
     if (condition.minPrice)
@@ -305,7 +313,6 @@ export class PostgresProductRepository implements IProductRepository {
         ],
       });
     }
-
     const { rows: productRows, count: countRows } = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({

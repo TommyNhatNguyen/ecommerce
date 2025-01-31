@@ -50,7 +50,7 @@ const InventoryOverall = (props: Props) => {
         order: "DESC",
       }),
   });
-  const { data: bottm10Products } = useQuery({
+  const { data: bottom10Products } = useQuery({
     queryKey: ["bottm-10-products", sortBy, debouncedTopBotLimit],
     queryFn: () =>
       productService.getProducts({
@@ -199,7 +199,7 @@ const InventoryOverall = (props: Props) => {
             <div className="flex flex-col gap-2">
               <h5 className="text-sm font-medium">Bottom {topBotLimit}</h5>
               <div className="grid max-h-[100px] min-h-[100px] grid-cols-2 gap-4 overflow-y-auto">
-                {bottm10Products?.data?.map((item) => {
+                {bottom10Products?.data?.map((item) => {
                   return (
                     <InventoryItem
                       key={item?.id}

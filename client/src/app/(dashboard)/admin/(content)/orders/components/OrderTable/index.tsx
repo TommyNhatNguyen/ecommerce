@@ -192,6 +192,8 @@ const OrderTable = ({
             orderCreated,
             isSoftDeleteOrderLoading,
             isDeleteOrderLoading,
+            isCreateOrderLoading,
+            
           ],
           queryFn: () =>
             orderService.getList({
@@ -329,10 +331,10 @@ const OrderTable = ({
         <Tooltip title={id}>
           <Button
             type="link"
-            className="overflow-hidden text-ellipsis"
+            className="overflow-hidden text-ellipsis break-all"
             onClick={() => _onOpenModalOrderDetail(id)}
           >
-            {id}
+            {id.substring(0, 10)}
           </Button>
         </Tooltip>
       ),
@@ -553,10 +555,19 @@ const OrderTable = ({
       title: "Total",
       dataIndex: "total",
       key: "total",
-      fixed: "right",
       render: (_, { total }) => (
         <Tooltip title={formatCurrency(total)}>
           <span>{formatCurrency(total)}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: "Paid Amount",
+      dataIndex: "paid_amount",
+      key: "paid_amount",
+      render: (_, { payment_info }) => (
+        <Tooltip title={formatCurrency(payment_info.paid_amount)}>
+          <span>{formatCurrency(payment_info.paid_amount)}</span>
         </Tooltip>
       ),
     },
