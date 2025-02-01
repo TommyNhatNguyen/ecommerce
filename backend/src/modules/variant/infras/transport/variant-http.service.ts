@@ -34,20 +34,21 @@ export class VariantHttpService {
       success: successCondition,
       data: condition,
       error: errorCondition,
-    } = VariantConditionDTOSchema.safeParse(req.body);
+    } = VariantConditionDTOSchema.safeParse(req.query);
     if (!successCondition) {
       res.status(400).json({ message: errorCondition?.message });
       return;
     }
     try {
       const variants = await this.useCase.listVariant(paging, condition);
-      res.status(200).json({ message: 'Variant found', data: variants });
+      res.status(200).json({ message: 'Variant found', ...variants });
     } catch (error) {
       res.status(500).json({ message: 'Failed to get variant' });
       return;
     }
   }
   async createVariant(req: Request, res: Response) {
+    console.log(req.body)
     const { success, data, error } = VariantCreateDTOSchema.safeParse(req.body);
     if (!success) {
       res.status(400).json({ message: error?.message });

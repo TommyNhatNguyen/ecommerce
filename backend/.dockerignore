@@ -1,0 +1,8 @@
+/node_modules
+/build
+/config
+/seeders
+.dockerignore
+.git
+.gitignore
+Dockerfile

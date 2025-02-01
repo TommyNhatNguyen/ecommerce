@@ -9,3 +9,11 @@
     overflow-x: hidden !important;
   }
 }
+
+.ant-tree-node-content-wrapper {
+  width: 100% !important;
+}
+
+.ant-tree-treenode {
+  width: 100% !important;
+}

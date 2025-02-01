@@ -1,8 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Button, Card, Empty, Tooltip } from "antd";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
+  Button,
+  Card,
+  ColorPicker,
+  Empty,
+  Tooltip,
+  Tree,
+  TreeDataNode,
+} from "antd";
 import { Pencil, PlusIcon, Trash2Icon } from "lucide-react";
 
 import { useCategory } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useCategory";
@@ -12,7 +20,6 @@ import { useProducts } from "@/app/(dashboard)/admin/(content)/inventory/product
 import CreateCategoryModal from "@/app/shared/components/GeneralModal/components/CreateCategoryModal";
 import CreateDiscountModal from "@/app/shared/components/GeneralModal/components/CreateDiscountModal";
 import CreateProductModal from "@/app/shared/components/GeneralModal/components/CreateProductModal";
-import LoadingComponent from "@/app/shared/components/LoadingComponent";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 
 import { CreateDiscountDTO } from "@/app/shared/interfaces/discounts/discounts.dto";
@@ -36,6 +43,10 @@ import {
 } from "@/app/shared/utils/utils";
 import { DISCOUNT_SCOPE, DISCOUNT_TYPE } from "@/app/constants/enum";
 import ActionGroup from "@/app/shared/components/ActionGroup";
+import CreateVariantModal from "@/app/shared/components/GeneralModal/components/CreateVariantModal";
+import { variantServices } from "@/app/shared/services/variant/variantService";
+import { VariantModel } from "@/app/shared/models/variant/variant.model";
+import { useVariants } from "./hooks/useVariants";
 
 type Props = {};
 
@@ -60,6 +71,8 @@ const ProductPage = (props: Props) => {
     useState(false);
   const [updateProductId, setUpdateProductId] = useState<string>("");
   const [isModalUpdateCategoryOpen, setIsModalUpdateCategoryOpen] =
+    useState(false);
+  const [isModalCreateVariantOpen, setIsModalCreateVariantOpen] =
     useState(false);
   const [updateCategoryId, setUpdateCategoryId] = useState<string>("");
   const [
@@ -86,6 +99,9 @@ const ProductPage = (props: Props) => {
   const { loadingSoftDelete: deleteProductLoading, handleSoftDeleteProduct } =
     useProducts();
 
+  const { handleDeleteVariant, loadingDelete: deleteVariantLoading } =
+    useVariants();
+
   // Queries for fetching data
   const {
     data: categories,
@@ -94,6 +110,7 @@ const ProductPage = (props: Props) => {
   } = useQuery({
     queryKey: ["categories", createCategoryLoading, deleteCategoryLoading],
     queryFn: () => categoriesService.getCategories({}, {}),
+    placeholderData: keepPreviousData,
   });
 
   const {
@@ -106,6 +123,7 @@ const ProductPage = (props: Props) => {
       discountsService.getDiscounts({
         scope: DISCOUNT_SCOPE.PRODUCT,
       }),
+    placeholderData: keepPreviousData,
   });
 
   const {
@@ -115,6 +133,17 @@ const ProductPage = (props: Props) => {
   } = useQuery({
     queryKey: ["products", deleteProductLoading],
     queryFn: () => productService.getProducts({}),
+    placeholderData: keepPreviousData,
+  });
+
+  const {
+    data: variants,
+    isLoading: isLoadingVariants,
+    refetch: refetchVariants,
+  } = useQuery({
+    queryKey: ["variants", deleteVariantLoading],
+    queryFn: () => variantServices.getList({}),
+    placeholderData: keepPreviousData,
   });
 
   // Handlers for delete actions
@@ -128,6 +157,10 @@ const ProductPage = (props: Props) => {
 
   const _onDeleteDiscount = async (id: string) => {
     await hanldeDeleteDiscount(id);
+  };
+
+  const _onDeleteVariants = async (id: string) => {
+    await handleDeleteVariant(id);
   };
 
   // Handlers for opening and closing modals
@@ -174,6 +207,14 @@ const ProductPage = (props: Props) => {
     setIsModalCreateCategoryOpen(false);
   };
 
+  const _onOpenModalCreateVariant = () => {
+    setIsModalCreateVariantOpen(true);
+  };
+
+  const handleClostModalCreateVariant = () => {
+    setIsModalCreateVariantOpen(false);
+  };
+
   const _onOpenModalCreateDiscountCampaign = () => {
     setIsModalCreateDiscountCampaignOpen(true);
   };
@@ -207,6 +248,80 @@ const ProductPage = (props: Props) => {
     handleCloseModalCreateDiscountCampaign();
   };
 
+  const _buildVariantTree = (variants: VariantModel[]) => {
+    const newData: {
+      [type: string]: { name: string; value: string }[];
+    } = {};
+    variants.forEach((item) => {
+      const value: { name: string; value: string } = {
+        name: item.name,
+        value: item.value,
+      };
+      newData[item.type] = newData[item.type]
+        ? [...newData[item.type], value]
+        : [value];
+    });
+    const treeData: TreeDataNode[] = Object.keys(newData).map((item) => {
+      return {
+        title: () => {
+          const title = item.replace("color-", "");
+          return (
+            <div
+              className="flex w-full items-center justify-between"
+              key={item}
+            >
+              {title}
+              <div className="flex items-center gap-1">
+                <Button
+                  type="text"
+                  className="aspect-square rounded-full p-0"
+                  onClick={() => {
+                    // _onOpenModalUpdateDiscountCampaign(item.id);
+                  }}
+                >
+                  <Pencil className="h-4 w-4 stroke-yellow-500" />
+                </Button>
+                <ButtonDeleteWithPopover
+                  title={`Delete ${item}?`}
+                  trigger={"click"}
+                  handleDelete={() => {
+                    _onDeleteVariants(
+                      variants.find((variant) => variant.type == item)?.id ||
+                        "",
+                    );
+                  }}
+                />
+              </div>
+            </div>
+          );
+        },
+        key: item,
+        className: "w-full",
+        children: newData[item].map((data) => {
+          return {
+            title: () => {
+              return item.trim().toLocaleLowerCase().split("-")[0] ==
+                "color" ? (
+                <Tooltip
+                  title={data.value}
+                  className="flex w-full items-center gap-2"
+                >
+                  <ColorPicker defaultValue={data.value} disabled />
+                  <span>{data.name}</span>
+                </Tooltip>
+              ) : (
+                <div className="w-full">
+                  {data.name} - {data.value}
+                </div>
+              );
+            },
+            key: data.name + data.value + item,
+          };
+        }),
+      };
+    });
+    return treeData;
+  };
   return (
     <div className="grid min-h-[300px] grid-flow-row grid-cols-3 gap-4">
       {/* Product Card */}
@@ -260,7 +375,6 @@ const ProductPage = (props: Props) => {
             <Empty description="No products found" />
           </div>
         )}
-        <LoadingComponent isLoading={isLoadingProducts} />
       </Card>
 
       {/* Category Card */}
@@ -307,7 +421,6 @@ const ProductPage = (props: Props) => {
             <Empty description="No categories found" />
           </div>
         )}
-        <LoadingComponent isLoading={isLoadingCategories} />
       </Card>
 
       {/* Discount Campaign Card */}
@@ -370,7 +483,37 @@ const ProductPage = (props: Props) => {
             <Empty description="No discounts found" />
           </div>
         )}
-        <LoadingComponent isLoading={isLoadingDiscounts} />
+      </Card>
+
+      {/* Variant Card */}
+      <Card
+        title="Product variants"
+        className="h-full max-h-[300px] overflow-y-auto"
+        extra={
+          <Button
+            type="primary"
+            className="flex items-center gap-2"
+            onClick={_onOpenModalCreateVariant}
+          >
+            <PlusIcon className="h-4 w-4" />
+            Add new
+          </Button>
+        }
+      >
+        <div className="flex flex-col gap-2">
+          {variants && (
+            <Tree
+              showLine
+              selectable={false}
+              treeData={_buildVariantTree(variants.data)}
+            />
+          )}
+        </div>
+        {variants && variants.data.length === 0 && (
+          <div className="flex h-full items-center justify-center">
+            <Empty description="No variants found" />
+          </div>
+        )}
       </Card>
 
       {/* Modals */}
@@ -414,6 +557,11 @@ const ProductPage = (props: Props) => {
         }
         updateDiscountCampaignId={updateDiscountCampaignId}
         refetch={refetchDiscounts}
+      />
+      <CreateVariantModal
+        isOpen={isModalCreateVariantOpen}
+        handleCloseModal={handleClostModalCreateVariant}
+        refetch={refetchVariants}
       />
     </div>
   );

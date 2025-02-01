@@ -2,16 +2,16 @@ import {
   VariantConditionDTO,
   VariantCreateDTO,
   VariantUpdateDTO,
-} from 'src/modules/variant/models/variant.dto';
-import { IVariantRepository } from 'src/modules/variant/models/variant.interface';
-import { Variant } from 'src/modules/variant/models/variant.model';
-import { Sequelize } from 'sequelize';
+} from "src/modules/variant/models/variant.dto";
+import { IVariantRepository } from "src/modules/variant/models/variant.interface";
+import { Variant } from "src/modules/variant/models/variant.model";
+import { Sequelize } from "sequelize";
 import {
   BaseSortBy,
   BaseOrder,
   ListResponse,
-} from 'src/share/models/base-model';
-import { PagingDTO } from 'src/share/models/paging';
+} from "src/share/models/base-model";
+import { PagingDTO } from "src/share/models/paging";
 
 export class PostgresVariantRepository implements IVariantRepository {
   constructor(
@@ -47,7 +47,6 @@ export class PostgresVariantRepository implements IVariantRepository {
     };
   }
   async insert(data: VariantCreateDTO): Promise<Variant> {
-
     const result = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });
@@ -61,7 +60,9 @@ export class PostgresVariantRepository implements IVariantRepository {
     return result[1][0].dataValues;
   }
   async delete(id: string): Promise<boolean> {
-    await this.sequelize.models[this.modelName].destroy({ where: { id } });
+    await this.sequelize.models[this.modelName].destroy({
+      where: { id },
+    });
     return true;
   }
 }

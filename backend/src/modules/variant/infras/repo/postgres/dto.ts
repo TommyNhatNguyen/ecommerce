@@ -21,6 +21,7 @@ export const variantInit = (sequelize: Sequelize) => {
         allowNull: false,
         defaultValue: () => uuidv7(),
       },
+      type: { type: DataTypes.STRING, allowNull: false },
       name: { type: DataTypes.STRING, allowNull: false },
       value: { type: DataTypes.STRING, allowNull: false },
       status: {
