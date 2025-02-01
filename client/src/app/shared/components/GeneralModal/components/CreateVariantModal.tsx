@@ -94,9 +94,10 @@ const CreateVariantModal = ({
         variantComponentIds.map((_, index) => {
           const type = data.type;
           const payload: VariantCreateDTO = {
-            type: isOpenColor ? `color-${type}` : type,
+            type: type,
             name: data.value[index].name,
             value: data.value[index].value,
+            is_color: isOpenColor,
           };
           const promise = handleCreateVariant(payload);
           return promise;

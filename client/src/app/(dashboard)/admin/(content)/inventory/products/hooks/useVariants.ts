@@ -11,17 +11,9 @@ export const useVariants = () => {
     try {
       const response = await variantServices.delete(id);
       if (response) {
-        notificationApi.success({
-          message: "Delete variant success",
-          description: "Variant deleted successfully",
-        });
         return response;
       }
     } catch (error: any) {
-      notificationApi.error({
-        message: "Delete variant failed",
-        description: "Please try again",
-      });
       setErrorDelete(error.message);
     } finally {
       setLoadingDelete(false);
@@ -30,6 +22,6 @@ export const useVariants = () => {
   return {
     handleDeleteVariant,
     loadingDelete,
-    errorDelete
+    errorDelete,
   };
 };

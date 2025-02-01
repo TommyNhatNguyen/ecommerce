@@ -8,6 +8,7 @@ export type VariantCreateDTO = {
   type: string;
   name: string;
   value: string;
+  is_color?: boolean;
 };
 
 export type VariantConditionDTO = {
@@ -17,6 +18,7 @@ export type VariantConditionDTO = {
   status?: ModelStatus;
   created_at?: string;
   updated_at?: string;
+  is_color?: boolean;
   order?: BaseOrder;
   sortBy?: BaseSortBy;
   page?: number;
@@ -28,4 +30,5 @@ export type VariantUpdateDTO = {
   name?: string;
   value?: string;
   status?: ModelStatus;
+  is_color?: boolean;
 };

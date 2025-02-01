@@ -24,6 +24,7 @@ export const variantInit = (sequelize: Sequelize) => {
       type: { type: DataTypes.STRING, allowNull: false },
       name: { type: DataTypes.STRING, allowNull: false },
       value: { type: DataTypes.STRING, allowNull: false },
+      is_color: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
         allowNull: false,

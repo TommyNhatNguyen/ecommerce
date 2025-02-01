@@ -6,6 +6,7 @@ export const VariantSchema = z.object({
   type: z.string(),
   name: z.string(),
   value: z.string(),
+  is_color: z.boolean().optional(),
   created_at: z.date(),
   updated_at: z.date(),
   status: z.nativeEnum(ModelStatus),

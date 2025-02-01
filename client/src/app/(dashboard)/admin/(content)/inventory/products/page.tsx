@@ -47,6 +47,7 @@ import CreateVariantModal from "@/app/shared/components/GeneralModal/components/
 import { variantServices } from "@/app/shared/services/variant/variantService";
 import { VariantModel } from "@/app/shared/models/variant/variant.model";
 import { useVariants } from "./hooks/useVariants";
+import { useNotification } from "@/app/contexts/NotificationContext";
 
 type Props = {};
 
@@ -81,6 +82,7 @@ const ProductPage = (props: Props) => {
   ] = useState(false);
   const [updateDiscountCampaignId, setUpdateDiscountCampaignId] =
     useState<string>("");
+  const { notificationApi } = useNotification();
   // Hooks for category, discount, and product management
   const {
     loading: createCategoryLoading,
@@ -159,8 +161,28 @@ const ProductPage = (props: Props) => {
     await hanldeDeleteDiscount(id);
   };
 
-  const _onDeleteVariants = async (id: string) => {
-    await handleDeleteVariant(id);
+  const _onDeleteVariants = async (type: string) => {
+    const variant = variants?.data.filter((item) => item.type === type);
+    try {
+      if (variant) {
+        const response = await Promise.all(
+          variant.map(async (item) => {
+            await handleDeleteVariant(item.id);
+          }),
+        );
+        if (response) {
+          notificationApi.success({
+            message: "Delete variant success",
+            description: "Variant deleted successfully",
+          });
+        }
+      }
+    } catch (error) {
+      notificationApi.error({
+        message: "Delete variant failed",
+        description: "Please try again",
+      });
+    }
   };
 
   // Handlers for opening and closing modals
@@ -250,12 +272,13 @@ const ProductPage = (props: Props) => {
 
   const _buildVariantTree = (variants: VariantModel[]) => {
     const newData: {
-      [type: string]: { name: string; value: string }[];
+      [type: string]: { name: string; value: string; is_color: boolean }[];
     } = {};
     variants.forEach((item) => {
-      const value: { name: string; value: string } = {
+      const value: { name: string; value: string; is_color: boolean } = {
         name: item.name,
         value: item.value,
+        is_color: item.is_color,
       };
       newData[item.type] = newData[item.type]
         ? [...newData[item.type], value]
@@ -264,13 +287,13 @@ const ProductPage = (props: Props) => {
     const treeData: TreeDataNode[] = Object.keys(newData).map((item) => {
       return {
         title: () => {
-          const title = item.replace("color-", "");
+          const isColor = newData[item][0].is_color;
           return (
             <div
               className="flex w-full items-center justify-between"
               key={item}
             >
-              {title}
+              {isColor ? `Color-${item}` : item}
               <div className="flex items-center gap-1">
                 <Button
                   type="text"
@@ -285,10 +308,7 @@ const ProductPage = (props: Props) => {
                   title={`Delete ${item}?`}
                   trigger={"click"}
                   handleDelete={() => {
-                    _onDeleteVariants(
-                      variants.find((variant) => variant.type == item)?.id ||
-                        "",
-                    );
+                    _onDeleteVariants(item);
                   }}
                 />
               </div>
@@ -300,8 +320,7 @@ const ProductPage = (props: Props) => {
         children: newData[item].map((data) => {
           return {
             title: () => {
-              return item.trim().toLocaleLowerCase().split("-")[0] ==
-                "color" ? (
+              return data.is_color ? (
                 <Tooltip
                   title={data.value}
                   className="flex w-full items-center gap-2"

@@ -5,6 +5,7 @@ export type VariantModel = {
   type: string;
   name: string;
   value: string;
+  is_color: boolean;
   created_at: string;
   updated_at: string;
   status: ModelStatus;

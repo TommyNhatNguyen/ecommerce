@@ -2,16 +2,16 @@ import {
   VariantConditionDTO,
   VariantCreateDTO,
   VariantUpdateDTO,
-} from "src/modules/variant/models/variant.dto";
-import { IVariantRepository } from "src/modules/variant/models/variant.interface";
-import { Variant } from "src/modules/variant/models/variant.model";
-import { Sequelize } from "sequelize";
+} from 'src/modules/variant/models/variant.dto';
+import { IVariantRepository } from 'src/modules/variant/models/variant.interface';
+import { Variant } from 'src/modules/variant/models/variant.model';
+import { Sequelize } from 'sequelize';
 import {
   BaseSortBy,
   BaseOrder,
   ListResponse,
-} from "src/share/models/base-model";
-import { PagingDTO } from "src/share/models/paging";
+} from 'src/share/models/base-model';
+import { PagingDTO } from 'src/share/models/paging';
 
 export class PostgresVariantRepository implements IVariantRepository {
   constructor(
