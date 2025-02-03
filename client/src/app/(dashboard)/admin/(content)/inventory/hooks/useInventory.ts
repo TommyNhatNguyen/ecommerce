@@ -4,26 +4,8 @@ import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { ProductModel } from "@/app/shared/models/products/products.model";
 import { productService } from "@/app/shared/services/products/productService";
 import { useState } from "react";
-export interface DataType {
-  id: string;
-  key: string;
-  name: string;
-  description: string;
-  category: ProductModel["category"];
-  price_after_discounts: number,
-  total_discounts: number,
-  price: number;
-  cost: number;
-  quantity: number;
-  discounts: ProductModel["discount"];
-  totalInventoryValue: ProductModel["inventory"]["total_value"];
-  status: "ACTIVE" | "INACTIVE" | "DELETED";
-  createdAt: string;
-  images: string[];
-  stock_status: ProductModel["inventory"]["stock_status"];
-}
 export function useInventory() {
-  const [selectedRows, setSelectedRows] = useState<DataType[]>([]);
+  const [selectedRows, setSelectedRows] = useState<ProductModel[]>([]);
   const [softDeleteProductLoading, setSoftDeleteProductLoading] =
     useState(false);
 
@@ -67,15 +49,15 @@ export function useInventory() {
   };
   const handleSelectAllRow = (
     selected: boolean,
-    selectedRows: DataType[],
-    changeRows: DataType[],
+    selectedRows: ProductModel[],
+    changeRows: ProductModel[],
   ) => {
     setSelectedRows(selectedRows);
   };
   const handleSelectRow = (
-    record: DataType,
+    record: ProductModel,
     selected: boolean,
-    selectedRows: DataType[],
+    selectedRows: ProductModel[],
   ) => {
     setSelectedRows(selectedRows);
   };

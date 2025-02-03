@@ -7,6 +7,7 @@ export type InventoryModel = {
   low_stock_threshold?: number;
   stock_status?: StockStatus;
   status?: ModelStatus;
+  cost?: number;
   total_value?: number;
   created_at?: Date;
   updated_at?: Date;

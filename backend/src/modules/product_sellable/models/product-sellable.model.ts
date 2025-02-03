@@ -16,14 +16,13 @@ export const ProductSellableSchema = z.object({
   price: z.number().nonnegative().min(0),
   total_discounts: z.number().nonnegative().min(0),
   price_after_discounts: z.number().nonnegative().min(0),
+  variant_id: z.string().uuid(),
   status: z.nativeEnum(ModelStatus),
   created_at: z.date(),
   updated_at: z.date(),
-  [categoryModelName]: z.array(CategorySchema).optional(),
   [discountModelName]: z.array(DiscountSchema).optional(),
   [imageModelName]: z.array(ImageSchema).optional(),
   [inventoryModelName]: z.object({ ...InventorySchema.shape }).optional(),
-  [reviewModelName]: z.array(ReviewSchema).optional(),
 });
 
 export type ProductSellable = z.infer<typeof ProductSellableSchema>;

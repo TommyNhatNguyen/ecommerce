@@ -1,5 +1,5 @@
 import { PagingDTO } from 'src/share/models/paging';
-import { Sequelize, Op, Model } from 'sequelize';
+import { Sequelize, Op, Model, Includeable } from 'sequelize';
 import {
   categoryModelName,
   CategoryPersistence,
@@ -46,6 +46,16 @@ import { Product } from 'src/modules/products/models/product.model';
 import { productModelName } from 'src/modules/products/infras/repo/postgres/dto';
 import { customerModelName } from 'src/modules/customer/infras/repo/postgres/customer.dto';
 import { CustomerPersistence } from 'src/modules/customer/infras/repo/postgres/customer.dto';
+import {
+  productSellableModelName,
+  ProductSellablePersistence,
+} from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import {
+  optionsModelName,
+  OptionsPersistence,
+  optionValueModelName,
+  OptionValuePersistence,
+} from 'src/modules/options/infras/repo/postgres/dto';
 
 export class PostgresProductRepository implements IProductRepository {
   constructor(
@@ -70,7 +80,7 @@ export class PostgresProductRepository implements IProductRepository {
       {
         model: InventoryPersistence,
         as: inventoryModelName,
-        exclude: [...EXCLUDE_ATTRIBUTES, 'product_id'],
+        exclude: [...EXCLUDE_ATTRIBUTES],
       },
     ];
 
@@ -80,6 +90,14 @@ export class PostgresProductRepository implements IProductRepository {
         as: categoryModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
+      });
+    }
+
+    if (condition?.includeVariant) {
+      include.push({
+        model: VariantPersistence,
+        as: variantModelName,
+        attributes: { exclude: EXCLUDE_ATTRIBUTES },
       });
     }
 
@@ -124,14 +142,77 @@ export class PostgresProductRepository implements IProductRepository {
         where.created_at = { [Op.lte]: new Date(condition.toCreatedAt) };
       }
     }
-    const include: any[] = [];
-
+    const include: Includeable[] = [];
+    const variantInclude: Includeable[] = [];
+    const variantInfoInclude: Includeable[] = [];
+    const optionValueInclude: Includeable[] = [];
     if (condition.includeCategory) {
       include.push({
         model: CategoryPersistence,
         as: categoryModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
+      });
+    }
+
+    if (condition.includeReview) {
+      include.push({
+        model: ReviewPersistence,
+        as: reviewModelName,
+        attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+      });
+    }
+
+    if (condition.includeVariant) {
+      if (condition.includeVariantInfo) {
+        if (condition.includeVariantInventory) {
+          variantInfoInclude.push({
+            model: InventoryPersistence,
+            as: inventoryModelName,
+            attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+          });
+        }
+        if (condition.includeImage) {
+          variantInfoInclude.push({
+            model: ImagePersistence,
+            as: imageModelName,
+            attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+          });
+        }
+        if (condition.includeDiscount) {
+          variantInfoInclude.push({
+            model: DiscountPersistence,
+            as: discountModelName,
+            attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+          });
+        }
+        variantInclude.push({
+          model: ProductSellablePersistence,
+          as: productSellableModelName,
+          attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+          include: variantInfoInclude,
+        });
+      }
+      if (condition.includeVariantOption) {
+        if (condition.includeVariantOptionType) {
+          optionValueInclude.push({
+            model: OptionsPersistence,
+            as: optionsModelName,
+            attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+          });
+        }
+        variantInclude.push({
+          model: OptionValuePersistence,
+          as: optionValueModelName,
+          attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+          through: { attributes: [] },
+          include: optionValueInclude,
+        });
+      }
+      include.push({
+        model: VariantPersistence,
+        as: variantModelName,
+        include: variantInclude,
       });
     }
 

@@ -44,7 +44,47 @@ export const ProductConditionDTOSchema = z.object({
   sortBy: z.nativeEnum(ProductStatsSortBy).optional(),
   fromCreatedAt: z.string().date().optional(),
   toCreatedAt: z.string().date().optional(),
+  includeVariant: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  includeVariantInfo: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  includeVariantInventory: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  includeVariantOption: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  includeVariantOptionType: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
   includeCategory: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  includeImage: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  includeDiscount: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  includeReview: z
     .string()
     .refine((value) => value === 'true' || value === 'false')
     .transform((value) => value === 'true')

@@ -61,11 +61,15 @@ export type GetProductsBodyDTO = {
   sortBy?: ProductStatsSortBy | BaseSortBy;
   fromCreatedAt?: DateString;
   toCreatedAt?: DateString;
-  includeDiscount?: boolean;
-  includeCategory?: boolean;
   includeVariant?: boolean;
+  includeVariantInfo?: boolean;
+  includeVariantInventory?: boolean;
+  includeCategory?: boolean;
   includeImage?: boolean;
+  includeDiscount?: boolean;
   includeReview?: boolean;
+  includeVariantOption?: boolean;
+  includeVariantOptionType?: boolean;
 };
 
 export enum ProductStatsType {

@@ -10,7 +10,7 @@ export default function InventoryPage() {
   const { inventoryOverallProps, inventoryTableProps } = useInventory();
   return (
     <main className="inventory-page">
-      <InventoryOverall {...inventoryOverallProps} />
+      {/* <InventoryOverall {...inventoryOverallProps} /> */}
       <InventoryTable {...inventoryTableProps} />
     </main>
   );

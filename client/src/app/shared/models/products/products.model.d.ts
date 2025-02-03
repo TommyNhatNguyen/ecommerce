@@ -6,6 +6,7 @@ import { CategoryModel } from "@/app/shared/models/categories/categories.model";
 import { DiscountModel } from "@/app/shared/models/discounts/discounts.model";
 import { StockStatus } from "@/app/shared/models/inventories/stock-status";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
+import { VariantProductModel } from "@/app/shared/models/variant/variant.model";
 
 export type ProductModel = {
   id: string;
@@ -17,10 +18,8 @@ export type ProductModel = {
   price_after_discounts: number;
   created_at: string;
   updated_at: string;
-  inventory: InventoryModel;
-  discount?: DiscountModel[];
   category?: CategoryModel[];
-  image?: ImageModel[];
+  variant?: VariantProductModel[];
 };
 
 export type ProductStatsModel = {

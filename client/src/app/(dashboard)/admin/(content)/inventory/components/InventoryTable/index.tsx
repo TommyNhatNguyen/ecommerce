@@ -66,36 +66,36 @@ import {
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { defaultImage } from "@/app/shared/resources/images/default-image";
 import { ProductModel } from "@/app/shared/models/products/products.model";
-import { DataType } from "@/app/(dashboard)/admin/(content)/inventory/hooks/useInventory";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { DateString } from "@/app/shared/types/datestring.model";
 import UpdateProductModal from "@/app/shared/components/GeneralModal/components/UpdateProductModal";
 import { StockStatus } from "@/app/shared/models/inventories/stock-status";
 import { STOCK_STATUS } from "@/app/constants/stock-status";
 import { DISCOUNT_TYPE } from "@/app/constants/enum";
+import { VariantProductModel } from "@/app/shared/models/variant/variant.model";
 
 type InventoryTablePropsType = {
   handleSelectAllRow: (
     selected: boolean,
-    selectedRows: DataType[],
-    changeRows: DataType[],
+    selectedRows: ProductModel[],
+    changeRows: ProductModel[],
   ) => void;
   handleSoftDeleteProduct: (id: string) => Promise<ProductModel | null>;
   softDeleteProductLoading: boolean;
   handleSelectRow: (
-    record: DataType,
+    record: ProductModel,
     selected: boolean,
-    selectedRows: DataType[],
+    selectedRows: ProductModel[],
   ) => void;
   handleClearAllSelectedRows: () => void;
-  selectedRows: DataType[];
+  selectedRows: ProductModel[];
   handleUpdateStatus: (id: string, status: ModelStatus) => Promise<boolean>;
   updateStatusLoading: boolean;
   handleSoftDeleteSelectedProducts: () => Promise<void>;
   softDeleteSelectedProductsLoading: boolean;
 };
 
-type OnChange = NonNullable<TableProps<DataType>["onChange"]>;
+type OnChange = NonNullable<TableProps<ProductModel>["onChange"]>;
 type Filters = Parameters<OnChange>[1];
 
 type GetSingle<T> = T extends (infer U)[] ? U : never;
@@ -165,7 +165,12 @@ const InventoryTable = ({
         limit: inventoryLimit,
         includeCategory: true,
         includeDiscount: true,
+        includeVariant: true,
+        includeVariantInfo: true,
+        includeVariantInventory: true,
         includeImage: true,
+        includeVariantOption: true,
+        includeVariantOptionType: true,
         fromCreatedAt: sortedDate[0] || undefined,
         toCreatedAt: sortedDate[1] || undefined,
       }),
@@ -191,16 +196,16 @@ const InventoryTable = ({
     await handleSoftDeleteProduct(id);
   };
   const _onSelectRow = (
-    record: DataType,
+    record: ProductModel,
     selected: boolean,
-    selectedRows: DataType[],
+    selectedRows: ProductModel[],
   ) => {
     handleSelectRow(record, selected, selectedRows);
   };
   const _onSelectAllRow = (
     selected: boolean,
-    selectedRows: DataType[],
-    changeRows: DataType[],
+    selectedRows: ProductModel[],
+    changeRows: ProductModel[],
   ) => {
     handleSelectAllRow(selected, selectedRows, changeRows);
   };
@@ -235,73 +240,15 @@ const InventoryTable = ({
   const _onSelectStatus = async (status: ModelStatus, id: string) => {
     await handleUpdateStatus(id, status);
   };
-  const _onGenerateTableDataSource = (inventories: ProductModel[]) => {
-    let tableDataSource: DataType[] = [];
-    inventories.forEach((item) => {
-      const images =
-        item.image && item.image.length > 0
-          ? item.image.map((image) => image.url)
-          : [defaultImage];
-      tableDataSource.push({
-        key: item.id,
-        id: item.id,
-        name: item.name,
-        description: item.description,
-        price: item.price,
-        price_after_discounts: item?.price_after_discounts || 0,
-        total_discounts: item?.total_discounts || 0,
-        cost: item.inventory ? item.inventory.cost || 0 : 0,
-        images: images,
-        category: item.category,
-        quantity: item.inventory ? item.inventory.quantity || 0 : 0,
-        discounts: item.discount,
-        totalInventoryValue: item.inventory?.total_value || 0,
-        status: item.status,
-        createdAt: item.created_at,
-        stock_status: item.inventory?.stock_status || StockStatus.IN_STOCK,
-      });
-    });
-    return tableDataSource;
-  };
-  const tableDataSource =
-    inventoriesData && _onGenerateTableDataSource(inventoriesData);
-  const columns: TableProps<DataType>["columns"] = [
-    {
-      title: null,
-      dataIndex: "images",
-      key: "images",
-      className: "max-w-[150px]",
-      minWidth: 150,
-      render: (_, { images }) => {
-        return (
-          <Image.PreviewGroup
-            items={images}
-            preview={{
-              movable: false,
-            }}
-          >
-            <Carousel autoplay dotPosition="bottom">
-              {images.map((item) => (
-                <Image
-                  key={item}
-                  src={item}
-                  alt="product"
-                  fallback={defaultImage}
-                  className="object-contain object-center"
-                />
-              ))}
-            </Carousel>
-          </Image.PreviewGroup>
-        );
-      },
-    },
+
+  const columns: TableProps<ProductModel>["columns"] = [
     {
       title: "Product Name",
       dataIndex: "name",
       key: "name",
       filterSearch: true,
-      filters: tableDataSource
-        ? tableDataSource.map((item) => ({
+      filters: inventoriesData
+        ? inventoriesData.map((item) => ({
             text: item.name,
             value: item.name,
           }))
@@ -343,129 +290,12 @@ const InventoryTable = ({
         0,
     },
     {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-      sorter: (a, b) => a.price - b.price,
-      sortOrder: sortedInfo.columnKey === "price" ? sortedInfo.order : null,
-      render: (_, { price }) => <span>{formatCurrency(price)}</span>,
-    },
-    {
-      title: "Price after discounts",
-      dataIndex: "price_after_discounts",
-      key: "price_after_discounts",
-      sorter: (a, b) => a.price_after_discounts - b.price_after_discounts,
-      sortOrder:
-        sortedInfo.columnKey === "price_after_discounts"
-          ? sortedInfo.order
-          : null,
-      render: (_, { price_after_discounts }) => (
-        <span>{formatCurrency(price_after_discounts)}</span>
-      ),
-    },
-    {
-      title: "Cost",
-      dataIndex: "cost",
-      key: "cost",
-      sorter: (a, b) => a.cost - b.cost,
-      sortOrder: sortedInfo.columnKey === "cost" ? sortedInfo.order : null,
-      render: (_, { cost }) => <span>{formatCurrency(cost)}</span>,
-    },
-    {
-      title: "In stock",
-      key: "quantity",
-      dataIndex: "quantity",
-      sorter: (a, b) => a.quantity - b.quantity,
-      sortOrder: sortedInfo.columnKey === "quantity" ? sortedInfo.order : null,
-      render: (_, { quantity, stock_status }) => {
-        const stockStatus = {
-          textColor:
-            stock_status === StockStatus.OUT_OF_STOCK
-              ? "text-red-500"
-              : stock_status === StockStatus.LOW_STOCK
-                ? "text-yellow-500"
-                : "text-green-500",
-          text:
-            stock_status === StockStatus.OUT_OF_STOCK
-              ? STOCK_STATUS.OUT_OF_STOCK
-              : stock_status === StockStatus.LOW_STOCK
-                ? STOCK_STATUS.LOW_STOCK
-                : STOCK_STATUS.IN_STOCK,
-        };
-        const stockQuantity = formatNumber(quantity || 0);
-        return (
-          <Tooltip
-            title={stockStatus.text}
-            className={cn("font-bold", stockStatus.textColor)}
-          >
-            {stockQuantity}
-          </Tooltip>
-        );
+      title: "Variant",
+      key: "variant",
+      dataIndex: "variant",
+      render: (_, { variant }) => {
+        return variant?.length || 0;
       },
-    },
-    {
-      title: "Discount",
-      key: "discounts",
-      dataIndex: "discounts",
-      sorter: (a, b) => a.total_discounts - b.total_discounts,
-      sortOrder:
-        sortedInfo.columnKey === "total_discounts" ? sortedInfo.order : null,
-      render: (_, { discounts, total_discounts }) => {
-        return (
-          <div className="flex flex-col gap-2">
-            <h3>
-              <span className="font-semibold">Totals discount:</span>{" "}
-              {formatCurrency(total_discounts || 0)}
-            </h3>
-            {discounts?.map((discount, index) => (
-              <Tooltip
-                title={discount?.description}
-                popupVisible={discount?.description ? true : false}
-                key={discount?.id}
-              >
-                <Tag>
-                  <span>
-                    {discount?.name} -{" "}
-                    {discount?.type === DISCOUNT_TYPE.PERCENTAGE
-                      ? formatDiscountPercentage(discount?.amount || 0)
-                      : formatCurrency(discount?.amount || 0)}
-                  </span>
-                </Tag>
-              </Tooltip>
-            ))}
-          </div>
-        );
-      },
-    },
-    {
-      title: "Total Inventory Value",
-      key: "totalInventoryValue",
-      dataIndex: "totalInventoryValue",
-      sorter: (a, b) => a.totalInventoryValue - b.totalInventoryValue,
-      sortOrder:
-        sortedInfo.columnKey === "totalInventoryValue"
-          ? sortedInfo.order
-          : null,
-      render: (_, { totalInventoryValue }) => (
-        <span>{formatCurrency(totalInventoryValue)}</span>
-      ),
-    },
-    {
-      title: "Created At",
-      key: "createdAt",
-      dataIndex: "createdAt",
-      render: (_, { createdAt }) => (
-        <span>
-          {new Date(createdAt).toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-          })}
-        </span>
-      ),
-      sorter: (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-      sortOrder: sortedInfo.columnKey === "createdAt" ? sortedInfo.order : null,
     },
     {
       title: "Status",
@@ -526,6 +356,233 @@ const InventoryTable = ({
       ),
     },
   ];
+
+  const variantColumns: TableProps<VariantProductModel>["columns"] = [
+    {
+      title: "",
+      dataIndex: "image",
+      key: "image",
+      className: "max-w-[150px]",
+      render: (_, { product_sellable }) => {
+        const images = product_sellable?.image || [];
+        return (
+          <Image.PreviewGroup
+            items={images.map((item) => item.url)}
+            preview={{
+              movable: false,
+            }}
+          >
+            <Carousel autoplay dotPosition="bottom">
+              {images.map((item) => (
+                <Image src={item.url} alt={item.url} key={item.id} />
+              ))}
+            </Carousel>
+          </Image.PreviewGroup>
+        );
+      },
+    },
+    {
+      title: "Variant Name",
+      dataIndex: "name",
+      key: "name",
+      render: (_, { name }) => (
+        <Tooltip title={name}>
+          <span>{name}</span>
+        </Tooltip>
+      ),
+    },
+    {
+      title: "Options",
+      dataIndex: "options",
+      key: "options",
+      render: (_, { option_values }) => {
+        return (
+          <div className="flex flex-col gap-2 w-full">
+            {option_values?.map((item) => (
+              <Tag key={item.id}>
+                {item.options.name} - {item.name}
+              </Tag>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
+      title: "Price",
+      dataIndex: "price",
+      key: "price",
+      render: (_, { product_sellable }) => (
+        <Tooltip title={formatCurrency(product_sellable?.price || 0)}>
+          {formatCurrency(product_sellable?.price || 0)}
+        </Tooltip>
+      ),
+    },
+    {
+      title: "Discount",
+      key: "discounts",
+      dataIndex: "discounts",
+      render: (_, { product_sellable }) => {
+        const discounts = product_sellable?.discount || [];
+        const total_discounts = discounts.reduce(
+          (acc, discount) => acc + discount.amount,
+          0,
+        );
+        return (
+          <div className="flex flex-col gap-2">
+            <h3>
+              <span className="font-semibold">Total discount:</span>{" "}
+              {formatCurrency(total_discounts || 0)}
+            </h3>
+            {discounts?.map((discount, index) => (
+              <Tooltip
+                title={discount?.description}
+                popupVisible={discount?.description ? true : false}
+                key={discount?.id}
+              >
+                <Tag>
+                  <span>
+                    {discount?.name} -{" "}
+                    {discount?.type === DISCOUNT_TYPE.PERCENTAGE
+                      ? formatDiscountPercentage(discount?.amount || 0)
+                      : formatCurrency(discount?.amount || 0)}
+                  </span>
+                </Tag>
+              </Tooltip>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
+      title: "Price After Discount",
+      dataIndex: "price_after_discount",
+      key: "price_after_discount",
+      render: (_, { product_sellable }) => (
+        <Tooltip
+          title={formatCurrency(product_sellable?.price_after_discounts || 0)}
+        >
+          {formatCurrency(product_sellable?.price_after_discounts || 0)}
+        </Tooltip>
+      ),
+    },
+    {
+      title: "Cost",
+      dataIndex: "cost",
+      key: "cost",
+      render: (_, { product_sellable }) => (
+        <Tooltip title={formatCurrency(product_sellable?.inventory?.cost || 0)}>
+          {formatCurrency(product_sellable?.inventory?.cost || 0)}
+        </Tooltip>
+      ),
+    },
+    {
+      title: "Stock Status",
+      dataIndex: "stock_status",
+      key: "stock_status",
+      render: (_, { product_sellable }) => {
+        const stockStatus =
+          product_sellable?.inventory?.stock_status === StockStatus.LOW_STOCK
+            ? "text-yellow-500"
+            : product_sellable?.inventory?.stock_status ===
+                StockStatus.OUT_OF_STOCK
+              ? "text-red-500"
+              : "text-green-500";
+        return (
+          <Tooltip
+            title={() => (
+              <p className={cn("capitalize", `${stockStatus}`)}>
+                {product_sellable?.inventory?.stock_status}
+              </p>
+            )}
+          >
+            <span className={cn("font-semibold", `${stockStatus}`)}>
+              {formatNumber(product_sellable?.inventory?.quantity || 0)}
+            </span>
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: "Total Inventory Value",
+      key: "totalInventoryValue",
+      dataIndex: "totalInventoryValue",
+      render: (_, { product_sellable }) => (
+        <Tooltip
+          title={formatCurrency(product_sellable?.inventory?.total_value || 0)}
+        >
+          {formatCurrency(product_sellable?.inventory?.total_value || 0)}
+        </Tooltip>
+      ),
+    },
+    {
+      title: "Status",
+      key: "status",
+      dataIndex: "status",
+      render: (_, { status }) => {
+        return (
+          <Select
+            options={statusOptions}
+            defaultValue={status}
+            disabled={updateStatusLoading}
+            // TODO: add onSelect
+            // onSelect={(value) => {
+            //   _onSelectStatus(value, id);
+            // }}
+            className="min-w-[120px]"
+            labelRender={(option) => {
+              const textColor =
+                option.value === "ACTIVE" ? "text-green-500" : "text-red-500";
+              return (
+                <div className={cn("font-semibold capitalize", `${textColor}`)}>
+                  {option.label}
+                </div>
+              );
+            }}
+            dropdownRender={(menu) => {
+              return (
+                <div className="min-w-fit">
+                  <div>{menu}</div>
+                </div>
+              );
+            }}
+          />
+        );
+      },
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, { id }) => (
+        // TODO: add handleDelete
+        <ActionGroup
+          isWithDeleteConfirmPopover={false}
+          deleteConfirmPopoverProps={{
+            title: "Are you sure you want to delete this product?",
+          }}
+          // handleDelete={() => {
+          //   _onSoftDeleteProduct(id);
+          // }}
+          // handleEdit={() => {
+          //   _onOpenModalUpdateProduct(id);
+          // }}
+        />
+      ),
+    },
+  ];
+
+  const variantExpandedRowRender = (dataScource: VariantProductModel[]) => {
+    return (
+      <Table<VariantProductModel>
+        tableLayout="auto"
+        columns={variantColumns}
+        dataSource={dataScource}
+        pagination={false}
+        size="small"
+        rowKey={(record) => record.id}
+        scroll={{ x: "100%" }}
+      />
+    );
+  };
   return (
     <>
       <div
@@ -585,9 +642,21 @@ const InventoryTable = ({
         <div className={cn("inventory-page__table-content", "mt-4")}>
           <Table
             tableLayout="auto"
-            dataSource={tableDataSource as any}
+            dataSource={inventoriesData}
             columns={columns}
             onChange={_onChangeTable}
+            expandable={{
+              expandedRowRender: (record) => {
+                const variantData =
+                  (inventoriesData &&
+                    inventoriesData.flatMap((item) => item.variant || [])) ||
+                  [];
+                const data = variantData.filter(
+                  (item) => item?.product_id === record.id,
+                );
+                return variantExpandedRowRender(data);
+              },
+            }}
             rowKey={(record) => record.id}
             rowSelection={{
               onSelect: (record, selected, selectedRows, nativeEvent) =>
@@ -595,7 +664,7 @@ const InventoryTable = ({
               onSelectAll: (selected, selectedRows, changeRows) =>
                 _onSelectAllRow(selected, selectedRows, changeRows),
             }}
-            scroll={{ x: "100vw" }}
+            scroll={{ x: "100%" }}
             pagination={{
               current: current_page,
               pageSize: limit,
