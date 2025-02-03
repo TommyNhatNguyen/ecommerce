@@ -1,23 +1,34 @@
 import {
   VariantConditionDTO,
   VariantCreateDTO,
+  VariantOptionValueCreateDTO,
   VariantUpdateDTO,
 } from 'src/modules/variant/models/variant.dto';
 import { IVariantRepository } from 'src/modules/variant/models/variant.interface';
 import { Variant } from 'src/modules/variant/models/variant.model';
-import { Sequelize } from 'sequelize';
+import { Includeable, Sequelize } from 'sequelize';
 import {
   BaseSortBy,
   BaseOrder,
   ListResponse,
 } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
+import {
+  productModelName,
+  ProductPersistence,
+} from 'src/modules/products/infras/repo/postgres/dto';
+import { optionValueModelName } from 'src/modules/options/infras/repo/postgres/dto';
+import { OptionValuePersistence } from 'src/modules/options/infras/repo/postgres/dto';
 
 export class PostgresVariantRepository implements IVariantRepository {
   constructor(
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+  async addOptionValue(data: VariantOptionValueCreateDTO[]): Promise<boolean> {
+    await this.sequelize.models[this.modelName].bulkCreate(data);
+    return true;
+  }
   async get(id: string, condition: VariantConditionDTO): Promise<Variant> {
     const variant = await this.sequelize.models[this.modelName].findByPk(id);
     return variant?.dataValues;
@@ -26,6 +37,16 @@ export class PostgresVariantRepository implements IVariantRepository {
     paging: PagingDTO,
     condition: VariantConditionDTO
   ): Promise<ListResponse<Variant[]>> {
+    const include: Includeable[] = [];
+    if (condition.include_options_value) {
+      include.push({
+        model: OptionValuePersistence,
+        as: optionValueModelName.toLowerCase(),
+        through: {
+          attributes: [],
+        },
+      });
+    }
     const { page, limit } = paging;
     const order = condition?.order || BaseOrder.DESC;
     const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
@@ -35,6 +56,7 @@ export class PostgresVariantRepository implements IVariantRepository {
       limit,
       offset: (page - 1) * limit,
       order: [[sortBy, order]],
+      include,
     });
     return {
       data: rows.map((row) => row.dataValues),

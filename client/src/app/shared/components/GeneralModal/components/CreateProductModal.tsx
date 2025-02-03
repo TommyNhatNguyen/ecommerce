@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
   Button,
@@ -10,6 +10,8 @@ import {
   Input,
   InputNumber,
   Select,
+  TreeDataNode,
+  TreeSelect,
   Upload,
   UploadFile,
 } from "antd";
@@ -35,6 +37,8 @@ import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { ImageType } from "@/app/shared/interfaces/image/image.dto";
 import { formatCurrency, formatNumber } from "@/app/shared/utils/utils";
 import { DISCOUNT_SCOPE } from "@/app/constants/enum";
+import { variantServices } from "@/app/shared/services/variant/variantService";
+import { buildVariantTree } from "@/app/shared/utils/common";
 
 type CreateProductModalPropsType = {
   isModalCreateProductOpen: boolean;
@@ -55,6 +59,7 @@ const CreateProductModal = ({
     discountIds: [],
     status: "ACTIVE",
     imageFileList: [],
+    variantIds: [],
   });
   const [uploadImageLoading, setUploadImageLoading] = useState(false);
 
@@ -78,7 +83,23 @@ const CreateProductModal = ({
       discountsService.getDiscounts({ scope: DISCOUNT_SCOPE.PRODUCT }),
     enabled: isModalCreateProductOpen,
   });
+  const { data: variants, isLoading: isLoadingVariants } = useQuery({
+    queryKey: ["variants", isModalCreateProductOpen],
+    queryFn: () => variantServices.getList(),
+    enabled: isModalCreateProductOpen,
+  });
 
+  const variantTreeData = buildVariantTree(variants?.data || []);
+  const variantTree = Object.keys(variantTreeData).map((item) => {
+    return {
+      title: item,
+      value: item,
+      children: variantTreeData[item].map((variant) => ({
+        title: variant.name,
+        value: variant.id,
+      })),
+    };
+  });
   // Custom hooks
   const { hanldeCreateProduct, loading } = useCreateProductModal();
   const createProductLoading = loading || uploadImageLoading;
@@ -136,7 +157,7 @@ const CreateProductModal = ({
             throw new Error("Failed to upload image");
           }
         }),
-      );  
+      );
       if (response.length > 0) {
         const imageIds = response.map((item) => item?.id);
         return imageIds;
@@ -220,6 +241,11 @@ const CreateProductModal = ({
         imageFileList,
       };
     });
+  };
+
+  const _onChangeVariant = (value: string[]) => {
+    console.log("🚀 ~ const_onChangeVariant= ~ value:", value);
+    setCreateProductForm((prev) => ({ ...prev, variantIds: value }));
   };
   // Render functions
   const _renderTitleModalCreateProduct = () => {
@@ -343,7 +369,6 @@ const CreateProductModal = ({
               />
             )}
           />
-          
           <Controller
             control={control}
             name="cost"
@@ -375,7 +400,6 @@ const CreateProductModal = ({
               />
             )}
           />
-
           <Controller
             control={control}
             name="quantity"
@@ -453,6 +477,23 @@ const CreateProductModal = ({
                     </div>
                   )
                 }
+              />
+            )}
+          />
+          <InputAdmin
+            label="Variant"
+            placeholder="Variant"
+            customComponent={(props, ref) => (
+              <TreeSelect
+                {...props}
+                onChange={(value) => {
+                  _onChangeVariant(value);
+                }}
+                treeData={variantTree}
+                placeholder="Select Variant"
+                value={createProductForm.variantIds}
+                treeCheckable={true}
+                showCheckedStrategy="SHOW_CHILD"
               />
             )}
           />

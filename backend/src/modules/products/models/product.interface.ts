@@ -2,11 +2,7 @@ import {
   ProductCategoryCreateDTO,
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
-  ProductDiscountCreateDTO,
-  ProductGetStatsDTO,
-  ProductImageCreateDTO,
   ProductUpdateDTOSchema,
-  ProductVariantCreateDTO,
 } from "./product.dto";
 import { Product } from "./product.model";
 import { ListResponse } from "src/share/models/base-model";
@@ -29,18 +25,13 @@ export interface IProductUseCase {
     condition?: ProductConditionDTOSchema
   ): Promise<Product | null>;
   countTotalProduct(): Promise<number>;
-  getTotalInventoryByGroup(condition?: ProductGetStatsDTO): Promise<any>;
 }
 
 export interface IProductRepository
   extends IQueryRepository,
     ICommandRepository {
   countTotalProduct(): Promise<number>;
-  getTotalInventoryByGroup(condition?: ProductGetStatsDTO): Promise<any>;
   addCategories(data: ProductCategoryCreateDTO[]): Promise<boolean>;
-  addDiscounts(data: ProductDiscountCreateDTO[]): Promise<boolean>;
-  addImages(data: ProductImageCreateDTO[]): Promise<boolean>;
-  addVariants(data: ProductVariantCreateDTO[]): Promise<boolean>;
 }
 
 export interface IQueryRepository {

@@ -11,13 +11,13 @@ import {
 } from 'src/modules/cart/models/cart.dto';
 import { Cart } from 'src/modules/cart/models/cart.model';
 import { CART_PRODUCT_ERROR } from 'src/modules/cart/models/cart.error';
-import { IProductUseCase } from 'src/modules/products/models/product.interface';
+import { IProductSellableUseCase } from 'src/modules/product_sellable/models/product-sellable.interface';
 
 export class CartUseCase implements ICartUseCase {
   constructor(
     private readonly cartRepository: ICartRepository,
     private readonly cartProductRepository: ICartRepository,
-    private readonly productUseCase: IProductUseCase
+    private readonly productSellableUseCase: IProductSellableUseCase
   ) {}
   async getById(id: string, condition: CartConditionDTO): Promise<Cart> {
     return await this.cartRepository.getById(id, condition);
@@ -44,7 +44,7 @@ export class CartUseCase implements ICartUseCase {
     let productCarts: CartAddProductsDTO[] = [];
     // --- PRODUCTS ---
     if (products_cart.length === 0) throw CART_PRODUCT_ERROR;
-    const products = await this.productUseCase.getProducts(
+    const products = await this.productSellableUseCase.getProductSellables(
       {
         ids: products_cart.map((product) => product.id),
       },

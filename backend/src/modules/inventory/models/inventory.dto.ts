@@ -8,7 +8,7 @@ import { StockStatus } from 'src/modules/inventory/models/inventory.model';
 export const InventoryCreateDTOSchema = z.object({
   quantity: z.number().min(0),
   cost: z.number().min(0),
-  product_id: z.string().uuid(),
+  product_sellable_id: z.string().uuid(),
   low_stock_threshold: z.number().min(0).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
   total_value: z.number().min(0).optional(),
@@ -32,6 +32,7 @@ export enum InventorySortBy {
 }
 
 export const InventoryConditionDTOSchema = z.object({
+  product_sellable_id: z.string().uuid(),
   quantity: z.number().min(0).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),

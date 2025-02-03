@@ -21,10 +21,7 @@ export const variantInit = (sequelize: Sequelize) => {
         allowNull: false,
         defaultValue: () => uuidv7(),
       },
-      type: { type: DataTypes.STRING, allowNull: false },
       name: { type: DataTypes.STRING, allowNull: false },
-      value: { type: DataTypes.STRING, allowNull: false },
-      is_color: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
         allowNull: false,
@@ -38,6 +35,36 @@ export const variantInit = (sequelize: Sequelize) => {
       createdAt: 'created_at',
       updatedAt: 'updated_at',
       modelName: variantModelName,
+    }
+  );
+};
+
+export class VariantOptionValuePersistence extends Model {
+  declare id: string;
+  declare variant_id: string;
+  declare option_value_id: string;
+}
+
+export const variantOptionValueModelName = 'variant_option_value';
+
+export const variantOptionValueInit = (sequelize: Sequelize) => {
+  VariantOptionValuePersistence.init(
+    {
+      variant_id: { type: DataTypes.UUID, allowNull: false },
+      option_value_id: { type: DataTypes.UUID, allowNull: false },
+      status: {
+        type: DataTypes.ENUM(...Object.values(ModelStatus)),
+        allowNull: false,
+        defaultValue: ModelStatus.ACTIVE,
+      },
+    },
+    {
+      sequelize,
+      tableName: variantOptionValueModelName,
+      timestamps: true,
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+      modelName: variantOptionValueModelName,
     }
   );
 };

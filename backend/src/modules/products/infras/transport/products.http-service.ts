@@ -12,10 +12,7 @@ export class ProductHttpService {
   constructor(private readonly productUseCase: IProductUseCase) {}
 
   async createNewProduct(req: Request, res: Response) {
-    const { success, data, error } = ProductCreateDTOSchema.omit({
-      total_discounts: true,
-      price_after_discounts: true
-    }).safeParse(req.body);
+    const { success, data, error } = ProductCreateDTOSchema.safeParse(req.body);
     if (!success) {
       res.status(400).json({ error: error.message });
       return;
@@ -72,9 +69,7 @@ export class ProductHttpService {
     }
 
     try {
-      const product = await this.productUseCase.getProductById(id, {
-        includeImage: true,
-      });
+      const product = await this.productUseCase.getProductById(id);
       if (!product) {
         res.status(404).json({ error: "Product not found" });
         return;
@@ -147,33 +142,4 @@ export class ProductHttpService {
     }
   }
 
-  async getProductStatistics(req: Request, res: Response) {
-    const {
-      success: conditionSuccess,
-      data: condition,
-      error: conditionError,
-    } = ProductGetStatsDTOSchema.safeParse(req.query);
-    if (!conditionSuccess) {
-      res.status(400).json({ error: conditionError?.message });
-      return;
-    }
-    try {
-      // const totalProducts = await this.productUseCase.countTotalProduct();
-      const totalInventoryQuantity =
-        await this.productUseCase.getTotalInventoryByGroup(condition);
-      if (!totalInventoryQuantity) {
-        res.status(404).json({ error: "Product not found" });
-        return;
-      }
-      res.status(200).json({
-        message: "Product statistics fetched successfully",
-        data: {
-          totalInventoryQuantity,
-        },
-      });
-    } catch (error) {
-      res.status(500).json({ error: (error as Error).message });
-      return;
-    }
-  }
 }

@@ -9,8 +9,6 @@ import {
 } from 'src/modules/cost/infras/repo/postgres/cost.dto';
 import { DiscountPersistence } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
-import { orderDetailProductModelName } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
-import { PostgresOrderDetailProductPersistence } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import {
   OrderDetailAddCostsDTO,
   OrderDetailAddDiscountsDTO,
@@ -32,6 +30,10 @@ import {
   paymentModelName,
   PaymentPersistence,
 } from 'src/modules/payment/infras/repo/postgres/payment.dto';
+import {
+  productSellableModelName,
+  ProductSellablePersistence,
+} from 'src/modules/product_sellable/infras/repo/postgres/dto';
 
 export class PostgresOrderDetailRepository implements IOrderDetailRepository {
   constructor(
@@ -59,9 +61,11 @@ export class PostgresOrderDetailRepository implements IOrderDetailRepository {
       distinct: true,
       include: [
         {
-          model: ProductPersistence,
-          as: productModelName,
-          attributes: ['id', 'name'],
+          model: ProductSellablePersistence,
+          as: productSellableModelName,
+          attributes: {
+            exclude: [...EXCLUDE_ATTRIBUTES],
+          },
           through: {
             attributes: [
               'quantity',

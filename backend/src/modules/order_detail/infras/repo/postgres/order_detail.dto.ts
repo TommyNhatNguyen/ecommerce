@@ -1,8 +1,8 @@
-import { DataTypes, Sequelize } from "sequelize";
-import { Model } from "sequelize";
-import { DiscountType } from "src/modules/discount/models/discount.model";
-import { ModelStatus, NumberType } from "src/share/models/base-model";
-import { v7 as uuidv7 } from "uuid";
+import { DataTypes, Sequelize } from 'sequelize';
+import { Model } from 'sequelize';
+import { DiscountType } from 'src/modules/discount/models/discount.model';
+import { ModelStatus, NumberType } from 'src/share/models/base-model';
+import { v7 as uuidv7 } from 'uuid';
 export class OrderDetailPersistence extends Model {
   declare id: string;
   declare subtotal: number;
@@ -25,7 +25,7 @@ export class OrderDetailPersistence extends Model {
   declare updated_at: Date;
 }
 
-export const orderDetailModelName = "order_detail";
+export const orderDetailModelName = 'order_detail';
 
 export const orderDetailInit = (sequelize: Sequelize) => {
   OrderDetailPersistence.init(
@@ -91,7 +91,7 @@ export const orderDetailInit = (sequelize: Sequelize) => {
       customer_firstName: {
         type: DataTypes.STRING,
         allowNull: true,
-        defaultValue: "",
+        defaultValue: '',
       },
       customer_lastName: {
         type: DataTypes.STRING,
@@ -117,16 +117,16 @@ export const orderDetailInit = (sequelize: Sequelize) => {
     },
     {
       sequelize,
-      tableName: "order_detail",
+      tableName: 'order_detail',
       timestamps: true,
-      createdAt: "created_at",
-      updatedAt: "updated_at",
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
       modelName: orderDetailModelName,
     }
   );
 };
 
-export class PostgresOrderDetailProductPersistence extends Model {
+export class PostgresOrderDetailProductSellablePersistence extends Model {
   declare order_detail_id: string;
   declare product_id: string;
   declare quantity: number;
@@ -138,16 +138,16 @@ export class PostgresOrderDetailProductPersistence extends Model {
   declare updated_at: Date;
 }
 
-export const orderDetailProductModelName = "orderdetailproduct";
+export const orderDetailProductSellableModelName = 'orderdetailproductsellable';
 
-export function orderDetailProductInit(sequelize: Sequelize) {
-  PostgresOrderDetailProductPersistence.init(
+export function orderDetailProductSellableInit(sequelize: Sequelize) {
+  PostgresOrderDetailProductSellablePersistence.init(
     {
       order_detail_id: {
         type: DataTypes.UUID,
         allowNull: false,
       },
-      product_id: {
+      product_sellable_id: {
         type: DataTypes.UUID,
         allowNull: false,
       },
@@ -190,9 +190,9 @@ export function orderDetailProductInit(sequelize: Sequelize) {
     },
     {
       sequelize,
-      tableName: "order_detail_product",
+      tableName: 'order_detail_product_sellable',
       timestamps: false,
-      modelName: orderDetailProductModelName,
+      modelName: orderDetailProductSellableModelName,
     }
   );
 }
@@ -208,7 +208,7 @@ export class PostgresOrderDetailCostPersistence extends Model {
   declare updated_at: Date;
 }
 
-export const orderDetailCostModelName = "orderdetailcost";
+export const orderDetailCostModelName = 'orderdetailcost';
 
 export function orderDetailCostInit(sequelize: Sequelize) {
   PostgresOrderDetailCostPersistence.init(
@@ -239,7 +239,7 @@ export function orderDetailCostInit(sequelize: Sequelize) {
     },
     {
       sequelize,
-      tableName: "order_detail_cost",
+      tableName: 'order_detail_cost',
       timestamps: false,
       modelName: orderDetailCostModelName,
     }
@@ -257,7 +257,7 @@ export class PostgresOrderDetailDiscountPersistence extends Model {
   declare updated_at: Date;
 }
 
-export const orderDetailDiscountModelName = "orderdetaildiscount";
+export const orderDetailDiscountModelName = 'orderdetaildiscount';
 
 export function orderDetailDiscountInit(sequelize: Sequelize) {
   PostgresOrderDetailDiscountPersistence.init(
@@ -288,7 +288,7 @@ export function orderDetailDiscountInit(sequelize: Sequelize) {
     },
     {
       sequelize,
-      tableName: "order_detail_discount",
+      tableName: 'order_detail_discount',
       timestamps: false,
       modelName: orderDetailDiscountModelName,
     }

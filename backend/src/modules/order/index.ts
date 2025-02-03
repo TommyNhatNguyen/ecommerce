@@ -11,7 +11,7 @@ import {
   orderDetailCostModelName,
   orderDetailDiscountModelName,
   orderDetailModelName,
-  orderDetailProductModelName,
+  orderDetailProductSellableModelName,
 } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import { PostgresOrderDetailRepository } from 'src/modules/order_detail/infras/repo/postgres/order_detail.repo';
 import { OrderDetailUseCase } from 'src/modules/order_detail/usecase';
@@ -24,7 +24,6 @@ import { cartModelName } from 'src/modules/cart/infras/repo/postgres/cart.dto';
 import { PostgresShippingRepository } from 'src/modules/shipping/infras/postgres/repo/shipping.repo';
 import {
   productCategoryModelName,
-  productDiscountModelName,
   productModelName,
 } from 'src/modules/products/infras/repo/postgres/dto';
 import { PostgresPaymentRepository } from 'src/modules/payment/infras/repo/postgres/payment.repo';
@@ -47,6 +46,14 @@ import { ShippingUseCase } from 'src/modules/shipping/usecase';
 import { DiscountUseCase } from 'src/modules/discount/usecase';
 import { PaymentUseCase } from 'src/modules/payment/usecase';
 import { PaymentMethodUseCase } from 'src/modules/payment_method/usecase';
+import { PostgresProductSellableRepository } from 'src/modules/product_sellable/infras/repo/postgres/repo';
+import { ProductSellableUseCase } from 'src/modules/product_sellable/usecase';
+import {
+  productSellableDiscountModelName,
+  productSellableImageModelName,
+  productSellableModelName,
+  productSellableVariantModelName,
+} from 'src/modules/product_sellable/infras/repo/postgres/dto';
 
 export function setupOrderRouter(sequelize: Sequelize) {
   orderInit(sequelize);
@@ -59,9 +66,9 @@ export function setupOrderRouter(sequelize: Sequelize) {
     sequelize,
     orderDetailModelName
   );
-  const orderDetailProductRepository = new PostgresOrderDetailRepository(
+  const orderDetailProductSellableRepository = new PostgresOrderDetailRepository(
     sequelize,
-    orderDetailProductModelName
+    orderDetailProductSellableModelName
   );
   const orderDetailDiscountRepository = new PostgresOrderDetailRepository(
     sequelize,
@@ -76,9 +83,9 @@ export function setupOrderRouter(sequelize: Sequelize) {
     customerModelName
   );
   const cartRepository = new PostgresCartRepository(sequelize, cartModelName);
-  const productRepository = new PostgresProductRepository(
+  const productSellableRepository = new PostgresProductSellableRepository(
     sequelize,
-    productModelName
+    productSellableModelName
   );
   const shippingRepository = new PostgresShippingRepository(
     sequelize,
@@ -98,26 +105,38 @@ export function setupOrderRouter(sequelize: Sequelize) {
     discountModelName
   );
   const cloudinaryRepository = new CloudinaryImageRepository(cloudinary);
-  const productCategoryRepository = new PostgresProductRepository(
-    sequelize,
-    productCategoryModelName
-  );
-  const productDiscountRepository = new PostgresProductRepository(
-    sequelize,
-    productDiscountModelName
-  );
   const inventoryRepository = new PostgresInventoryRepository(
     sequelize,
     inventoryModelName
   );
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository);
-  const productUseCase = new ProductUseCase(
-    productRepository,
-    cloudinaryRepository,
-    productCategoryRepository,
-    productDiscountRepository,
-    inventoryUseCase
+  const productSellableDiscountRepository =
+    new PostgresProductSellableRepository(
+      sequelize,
+      productSellableDiscountModelName
+    );
+  const productSellableVariantRepository =
+    new PostgresProductSellableRepository(
+      sequelize,
+      productSellableVariantModelName
+    );
+  const productSellableImageRepository = new PostgresProductSellableRepository(
+    sequelize,
+    productSellableImageModelName
   );
+  const discountUseCase = new DiscountUseCase(discountRepository);
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository);
+
+  const productSellableUseCase = new ProductSellableUseCase(
+    productSellableRepository,
+    cloudinaryRepository,
+    productSellableDiscountRepository,
+    inventoryUseCase,
+    productSellableVariantRepository,
+    discountRepository,
+    productSellableImageRepository,
+    discountUseCase
+  );
+
   const customerUseCase = new CustomerUseCase(
     customerRepository,
     cartRepository
@@ -128,14 +147,13 @@ export function setupOrderRouter(sequelize: Sequelize) {
   const paymentMethodUseCase = new PaymentMethodUseCase(
     paymentMethodRepository
   );
-  const discountUseCase = new DiscountUseCase(discountRepository);
   const orderDetailUseCase = new OrderDetailUseCase(
     orderDetailRepository,
-    orderDetailProductRepository,
+    orderDetailProductSellableRepository,
     orderDetailDiscountRepository,
     orderDetailCostRepository,
     customerUseCase,
-    productUseCase,
+    productSellableUseCase,
     shippingUseCase,
     paymentUseCase,
     paymentMethodUseCase,

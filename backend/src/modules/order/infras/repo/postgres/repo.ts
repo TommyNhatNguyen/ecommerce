@@ -30,6 +30,18 @@ import {
 import { ImagePersistence } from 'src/infras/repository/image/dto';
 import { imageModelName } from 'src/infras/repository/image/dto';
 import { Op } from 'sequelize';
+import { productSellableModelName } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import { ProductSellablePersistence } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import {
+  variantModelName,
+  VariantPersistence,
+} from 'src/modules/variant/infras/repo/postgres/dto';
+import {
+  optionsModelName,
+  OptionsPersistence,
+  optionValueModelName,
+  OptionValuePersistence,
+} from 'src/modules/options/infras/repo/postgres/dto';
 export class PostgresOrderRepository implements IOrderRepository {
   constructor(
     private readonly sequelize: Sequelize,
@@ -62,9 +74,11 @@ export class PostgresOrderRepository implements IOrderRepository {
     }
     if (condition.includeProducts) {
       orderDetailInclude.push({
-        model: ProductPersistence,
-        as: productModelName,
-        attributes: ['id', 'name'],
+        model: ProductSellablePersistence,
+        as: productSellableModelName,
+        attributes: {
+          exclude: [...EXCLUDE_ATTRIBUTES],
+        },
         through: {
           attributes: [
             'quantity',
@@ -76,6 +90,10 @@ export class PostgresOrderRepository implements IOrderRepository {
           as: 'product_details',
         },
         include: [
+          {
+            model: VariantPersistence,
+            as: variantModelName,
+          },
           {
             model: ImagePersistence,
             as: imageModelName,
@@ -162,9 +180,11 @@ export class PostgresOrderRepository implements IOrderRepository {
     }
     if (condition.includeProducts) {
       orderDetailInclude.push({
-        model: ProductPersistence,
-        as: productModelName,
-        attributes: ['id', 'name'],
+        model: ProductSellablePersistence,
+        as: productSellableModelName,
+        attributes: {
+          exclude: [...EXCLUDE_ATTRIBUTES],
+        },
         through: {
           attributes: [
             'quantity',
@@ -176,6 +196,22 @@ export class PostgresOrderRepository implements IOrderRepository {
           as: 'product_details',
         },
         include: [
+          {
+            model: VariantPersistence,
+            as: variantModelName,
+            include: [
+              {
+                model: OptionValuePersistence,
+                as: optionValueModelName,
+                include: [
+                  {
+                    model: OptionsPersistence,
+                    as: optionsModelName,
+                  },
+                ],
+              },
+            ],
+          },
           {
             model: ImagePersistence,
             as: imageModelName,

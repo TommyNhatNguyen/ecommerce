@@ -37,15 +37,11 @@ import {
   ProductCategoryCreateDTO,
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
-  ProductDiscountCreateDTO,
-  ProductImageCreateDTO,
   ProductStatsSortBy,
   ProductStatsType,
   ProductUpdateDTOSchema,
-  ProductVariantCreateDTO,
 } from 'src/modules/products/models/product.dto';
 import { IProductRepository } from 'src/modules/products/models/product.interface';
-import { ProductGetStatsDTO } from 'src/modules/products/models/product.dto';
 import { Product } from 'src/modules/products/models/product.model';
 import { productModelName } from 'src/modules/products/infras/repo/postgres/dto';
 import { customerModelName } from 'src/modules/customer/infras/repo/postgres/customer.dto';
@@ -56,77 +52,11 @@ export class PostgresProductRepository implements IProductRepository {
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
-  async addVariants(data: ProductVariantCreateDTO[]): Promise<boolean> {
-    await this.sequelize.models[this.modelName].bulkCreate(data);
-    return true;
-  }
-  async addImages(data: ProductImageCreateDTO[]): Promise<boolean> {
-    await this.sequelize.models[this.modelName].bulkCreate(data);
-    return true;
-  }
-  async addDiscounts(data: ProductDiscountCreateDTO[]): Promise<boolean> {
-    await this.sequelize.models[this.modelName].bulkCreate(data);
-    return true;
-  }
   async addCategories(data: ProductCategoryCreateDTO[]): Promise<boolean> {
     await this.sequelize.models[this.modelName].bulkCreate(data);
     return true;
   }
-  async getTotalInventoryByGroup(condition?: ProductGetStatsDTO): Promise<any> {
-    let attributes: any[] = [];
-    let group: any[] = [];
-    let include: any[] = [
-      {
-        model: InventoryPersistence,
-        as: inventoryModelName,
-        attributes: [],
-      },
-    ];
-    if (condition?.groupBy === ProductStatsType.CATEGORY) {
-      group.push('category.name');
-      attributes.push([sequelize.col('category.name'), 'name']);
-      include.push({
-        model: CategoryPersistence,
-        as: categoryModelName,
-        attributes: [],
-        through: { attributes: [] },
-      });
-    }
-    if (condition?.groupBy === ProductStatsType.DISCOUNT) {
-      attributes.push([sequelize.col('discount.name'), 'name']);
-      include.push({
-        model: DiscountPersistence,
-        as: discountModelName,
-        attributes: [],
-        through: { attributes: [] },
-      });
-    }
-    if (condition?.groupBy === ProductStatsType.STATUS) {
-      group.push('product.status');
-      attributes.push([sequelize.col('product.status'), 'name']);
-    }
-    if (condition?.groupBy === ProductStatsType.STOCK_STATUS) {
-      group.push('inventory.stock_status');
-      attributes.push([sequelize.col('inventory.stock_status'), 'name']);
-    }
-    const data = await this.sequelize.models[this.modelName].findAll({
-      attributes: [
-        ...attributes,
-        [sequelize.fn('SUM', sequelize.col('inventory.quantity')), 'total'],
-        [
-          sequelize.fn(
-            'COUNT',
-            sequelize.fn('DISTINCT', sequelize.col('product.id'))
-          ),
-          'product_count',
-        ],
-      ],
-      group: group,
-      raw: true,
-      include: include,
-    });
-    return data;
-  }
+
   async countTotalProduct(): Promise<number> {
     const count = await this.sequelize.models[this.modelName].count();
     return count;
@@ -143,14 +73,7 @@ export class PostgresProductRepository implements IProductRepository {
         exclude: [...EXCLUDE_ATTRIBUTES, 'product_id'],
       },
     ];
-    if (condition?.includeDiscount) {
-      include.push({
-        model: DiscountPersistence,
-        as: discountModelName,
-        attributes: { exclude: EXCLUDE_ATTRIBUTES },
-        through: { attributes: [] },
-      });
-    }
+
     if (condition?.includeCategory) {
       include.push({
         model: CategoryPersistence,
@@ -159,29 +82,7 @@ export class PostgresProductRepository implements IProductRepository {
         through: { attributes: [] },
       });
     }
-    if (condition?.includeVariant) {
-      include.push({
-        model: VariantPersistence,
-        as: variantModelName,
-        attributes: { exclude: EXCLUDE_ATTRIBUTES },
-        through: { attributes: [] },
-      });
-    }
-    if (condition?.includeImage) {
-      include.push({
-        model: ImagePersistence,
-        as: imageModelName,
-        attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
-        through: { attributes: [] },
-      });
-    }
-    if (condition?.includeReview) {
-      include.push({
-        model: ReviewPersistence,
-        as: reviewModelName,
-        attributes: { exclude: EXCLUDE_ATTRIBUTES },
-      });
-    }
+
     const data = await this.sequelize.models[this.modelName].findByPk(id, {
       include,
     });
@@ -197,41 +98,9 @@ export class PostgresProductRepository implements IProductRepository {
       status: { [Op.not]: ModelStatus.DELETED },
     };
     const order = condition?.order || BaseOrder.DESC;
-    let sortBy: any =
-      (condition?.sortBy != ProductStatsSortBy.INVENTORY_QUANTITY &&
-        condition?.sortBy != ProductStatsSortBy.INVENTORY_VALUE &&
-        condition?.sortBy != ProductStatsSortBy.DISCOUNT_AMOUNT &&
-        condition?.sortBy) ||
-      BaseSortBy.CREATED_AT;
+    let sortBy: any = condition?.sortBy || BaseSortBy.CREATED_AT;
     let customOrder: any = '';
-    const inventorySortBy = condition?.sortBy ==
-      ProductStatsSortBy.INVENTORY_QUANTITY && [
-      { model: InventoryPersistence, as: inventoryModelName },
-      condition?.sortBy.split('_')[1],
-    ];
-    const discountSortBy = condition?.sortBy ==
-      ProductStatsSortBy.DISCOUNT_AMOUNT && [
-      { model: DiscountPersistence, as: discountModelName },
-      condition?.sortBy,
-    ];
-    const inventoryValueSortBy = condition?.sortBy ==
-      ProductStatsSortBy.INVENTORY_VALUE && [
-      { model: InventoryPersistence, as: inventoryModelName },
-      'total_value',
-    ];
-    if (inventorySortBy) {
-      customOrder = [[...inventorySortBy, order]];
-    }
-    if (discountSortBy) {
-      customOrder = [[...discountSortBy, order]];
-      condition.includeDiscount = true;
-    }
-    if (inventoryValueSortBy) {
-      customOrder = [[...inventoryValueSortBy, order]];
-    }
-    if (condition.maxPrice) where.price = { [Op.lte]: condition.maxPrice };
-    if (condition.minPrice)
-      where.price = { ...where.price, [Op.gte]: condition.minPrice };
+
     if (condition.name) where.name = { [Op.iLike]: condition.name };
     if (condition.status) where.status = condition.status;
     if (condition.status === ModelStatus.DELETED) {
@@ -255,24 +124,8 @@ export class PostgresProductRepository implements IProductRepository {
         where.created_at = { [Op.lte]: new Date(condition.toCreatedAt) };
       }
     }
-    const include: any[] = [
-      {
-        model: InventoryPersistence,
-        as: inventoryModelName,
-        attributes: {
-          exclude: [...EXCLUDE_ATTRIBUTES, 'product_id'],
-        },
-      },
-    ];
+    const include: any[] = [];
 
-    if (condition.includeDiscount) {
-      include.push({
-        model: DiscountPersistence,
-        as: discountModelName,
-        attributes: { exclude: EXCLUDE_ATTRIBUTES },
-        through: { attributes: [] },
-      });
-    }
     if (condition.includeCategory) {
       include.push({
         model: CategoryPersistence,
@@ -281,38 +134,7 @@ export class PostgresProductRepository implements IProductRepository {
         through: { attributes: [] },
       });
     }
-    if (condition.includeVariant) {
-      include.push({
-        model: VariantPersistence,
-        as: variantModelName,
-        attributes: { exclude: EXCLUDE_ATTRIBUTES },
-        through: { attributes: [] },
-      });
-    }
-    if (condition.includeImage) {
-      include.push({
-        model: ImagePersistence,
-        as: imageModelName,
-        attributes: { exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'] },
-        through: { attributes: [] },
-      });
-    }
-    if (condition.includeReview) {
-      include.push({
-        model: ReviewPersistence,
-        as: reviewModelName,
-        attributes: {
-          exclude: [...EXCLUDE_ATTRIBUTES, 'product_id', 'customer_id'],
-        },
-        include: [
-          {
-            model: CustomerPersistence,
-            as: customerModelName,
-            attributes: ['id', 'last_name', 'first_name', 'phone'],
-          },
-        ],
-      });
-    }
+
     const { rows: productRows, count: countRows } = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({
@@ -338,23 +160,14 @@ export class PostgresProductRepository implements IProductRepository {
   }
 
   async insert(data: ProductCreateDTOSchema): Promise<Product> {
-    const { quantity, ...rest } = data;
-    const payload = { ...rest };
-    const result = await this.sequelize.models[this.modelName].create(payload, {
+    const result = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });
     return result.dataValues as Product;
   }
 
   async update(id: string, data: ProductUpdateDTOSchema): Promise<Product> {
-    const {
-      categoryIds,
-      discountIds,
-      variantIds,
-      imageIds,
-      quantity,
-      ...rest
-    } = data;
+    const { categoryIds, ...rest } = data;
     const result = await this.sequelize.models[this.modelName].update(rest, {
       where: { id },
       returning: true,
@@ -364,15 +177,6 @@ export class PostgresProductRepository implements IProductRepository {
     ].findByPk(id);
     if (typeof categoryIds === 'object') {
       await updatedProduct.setCategory(categoryIds);
-    }
-    if (typeof discountIds === 'object') {
-      await updatedProduct.setDiscount(discountIds);
-    }
-    if (typeof variantIds === 'object') {
-      await updatedProduct.setVariant(variantIds);
-    }
-    if (typeof imageIds === 'object') {
-      await updatedProduct.setImage(imageIds);
     }
     return result[1][0].dataValues;
   }

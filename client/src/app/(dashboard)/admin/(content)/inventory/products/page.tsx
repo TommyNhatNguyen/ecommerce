@@ -299,6 +299,7 @@ const ProductPage = (props: Props) => {
                   type="text"
                   className="aspect-square rounded-full p-0"
                   onClick={() => {
+                    // TODO: update variant
                     // _onOpenModalUpdateDiscountCampaign(item.id);
                   }}
                 >

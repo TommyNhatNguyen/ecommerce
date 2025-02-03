@@ -2,6 +2,7 @@ import {
   VariantCreateDTO,
   VariantUpdateDTO,
   VariantConditionDTO,
+  VariantOptionValueCreateDTO,
 } from 'src/modules/variant/models/variant.dto';
 import {
   IVariantRepository,
@@ -12,15 +13,28 @@ import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
 export class VariantUseCase implements IVariantUseCase {
-  constructor(private readonly variantRepository: IVariantRepository) {}
+  constructor(
+    private readonly variantRepository: IVariantRepository,
+    private readonly variantOptionValueRepository: IVariantRepository
+  ) {}
+  addOptionValue(data: VariantOptionValueCreateDTO[]): Promise<boolean> {
+    return this.variantOptionValueRepository.addOptionValue(data);
+  }
   getVariantById(
     id: string,
     condition?: VariantConditionDTO
   ): Promise<Variant> {
     return this.variantRepository.get(id, condition);
   }
-  createVariant(data: VariantCreateDTO): Promise<Variant> {
-    return this.variantRepository.insert(data);
+  async createVariant(data: VariantCreateDTO): Promise<Variant> {
+    const variant = await this.variantRepository.insert(data);
+    await this.variantOptionValueRepository.addOptionValue(
+      data.options_value_ids.map((optionValueId) => ({
+        variant_id: variant.id,
+        option_value_id: optionValueId,
+      }))
+    );
+    return variant;
   }
   updateVariant(id: string, data: VariantUpdateDTO): Promise<Variant> {
     return this.variantRepository.update(id, data);

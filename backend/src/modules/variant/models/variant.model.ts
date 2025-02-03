@@ -3,13 +3,20 @@ import z from "zod";
 
 export const VariantSchema = z.object({
   id: z.string().uuid(),
-  type: z.string(),
   name: z.string(),
-  value: z.string(),
-  is_color: z.boolean().optional(),
+  created_at: z.date(),
+  updated_at: z.date(),
+  status: z.nativeEnum(ModelStatus),
+});
+
+export const VariantOptionValueSchema = z.object({
+  id: z.string().uuid(),
+  variant_id: z.string().uuid(),
+  option_value_id: z.string().uuid(),
   created_at: z.date(),
   updated_at: z.date(),
   status: z.nativeEnum(ModelStatus),
 });
 
 export type Variant = z.infer<typeof VariantSchema>;
+export type VariantOptionValue = z.infer<typeof VariantOptionValueSchema>;

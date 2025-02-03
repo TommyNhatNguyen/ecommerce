@@ -9,14 +9,17 @@ import {
 } from 'src/modules/cart/infras/repo/postgres/cart.dto';
 import { CartUseCase } from 'src/modules/cart/usecase';
 import { CartHttpService } from 'src/modules/cart/infras/transport/cart.http-service';
-import { productCategoryModelName, productDiscountModelName, productModelName } from 'src/modules/products/infras/repo/postgres/dto';
-import { PostgresProductRepository } from 'src/modules/products/infras/repo/postgres/repo';
-import { ProductUseCase } from 'src/modules/products/usecase';
 import cloudinary from 'src/share/cloudinary';
 import { CloudinaryImageRepository } from 'src/infras/repository/image/repo';
 import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
 import { InventoryUseCase } from 'src/modules/inventory/usecase';
+import { PostgresProductSellableRepository } from 'src/modules/product_sellable/infras/repo/postgres/repo';
+import { productSellableDiscountModelName, productSellableImageModelName, productSellableModelName, productSellableVariantModelName } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import { DiscountUseCase } from 'src/modules/discount/usecase';
+import { ProductSellableUseCase } from 'src/modules/product_sellable/usecase';
+import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
+import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/postgres/discount.repo';
 
 export function setupCartRouter(sequelize: Sequelize) {
   cartInit(sequelize);
@@ -27,36 +30,53 @@ export function setupCartRouter(sequelize: Sequelize) {
     sequelize,
     cartProductModelName
   );
-  const productRepository = new PostgresProductRepository(
-    sequelize,
-    productModelName
-  );
   const cloudinaryRepository = new CloudinaryImageRepository(cloudinary);
-  const productCategoryRepository = new PostgresProductRepository(
-    sequelize,
-    productCategoryModelName
-  );
-  const productDiscountRepository = new PostgresProductRepository(
-    sequelize,
-    productDiscountModelName
-  );
   const inventoryRepository = new PostgresInventoryRepository(
     sequelize,
     inventoryModelName
   );
   const inventoryUseCase = new InventoryUseCase(inventoryRepository);
+  const productSellableRepository = new PostgresProductSellableRepository(
+    sequelize,
+    productSellableModelName
+  );
 
-  const productUseCase = new ProductUseCase(
-    productRepository,
+  const productSellableDiscountRepository =
+    new PostgresProductSellableRepository(
+      sequelize,
+      productSellableDiscountModelName
+    );
+  const productSellableVariantRepository =
+    new PostgresProductSellableRepository(
+      sequelize,
+      productSellableVariantModelName
+    );
+  const productSellableImageRepository = new PostgresProductSellableRepository(
+    sequelize,
+    productSellableImageModelName
+  );
+
+  const discountRepository = new PostgresDiscountRepository(
+    sequelize,
+    discountModelName
+  );
+  const discountUseCase = new DiscountUseCase(discountRepository);
+  
+
+  const productSellableUseCase = new ProductSellableUseCase(
+    productSellableRepository,
     cloudinaryRepository,
-    productCategoryRepository,
-    productDiscountRepository,
-    inventoryUseCase
+    productSellableDiscountRepository,
+    inventoryUseCase,
+    productSellableVariantRepository,
+    discountRepository,
+    productSellableImageRepository,
+    discountUseCase
   );
   const cartUseCase = new CartUseCase(
     cartRepository,
     cartProductRepository,
-    productUseCase
+    productSellableUseCase
   );
   const cartHttpService = new CartHttpService(cartUseCase);
   router.get('/cart/:id', cartHttpService.getById.bind(cartHttpService));

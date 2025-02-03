@@ -8,10 +8,9 @@ import {
   orderDetailDiscountModelName,
   orderDetailInit,
   orderDetailModelName,
-  orderDetailProductInit,
-  orderDetailProductModelName,
+  orderDetailProductSellableInit,
+  orderDetailProductSellableModelName,
   PostgresOrderDetailCostPersistence,
-  PostgresOrderDetailProductPersistence,
 } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import { PostgresOrderDetailRepository } from 'src/modules/order_detail/infras/repo/postgres/order_detail.repo';
 import { OrderDetailHttpService } from 'src/modules/order_detail/infras/transport/order_detail.http-service';
@@ -36,26 +35,37 @@ import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/pos
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { DiscountUseCase } from 'src/modules/discount/usecase';
 import { PostgresProductRepository } from 'src/modules/products/infras/repo/postgres/repo';
-import { productCategoryModelName, productDiscountModelName, productModelName } from 'src/modules/products/infras/repo/postgres/dto';
+import {
+  productCategoryModelName,
+  productModelName,
+} from 'src/modules/products/infras/repo/postgres/dto';
 import { ProductUseCase } from 'src/modules/products/usecase';
 import { CloudinaryImageRepository } from 'src/infras/repository/image/repo';
 import cloudinary from 'src/share/cloudinary';
 import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
 import { InventoryUseCase } from 'src/modules/inventory/usecase';
+import {
+  productSellableImageModelName,
+  productSellableModelName,
+  productSellableVariantModelName,
+} from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import { productSellableDiscountModelName } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import { PostgresProductSellableRepository } from 'src/modules/product_sellable/infras/repo/postgres/repo';
+import { ProductSellableUseCase } from 'src/modules/product_sellable/usecase';
 export function setupOrderDetailRouter(sequelize: Sequelize) {
   orderDetailInit(sequelize);
-  orderDetailProductInit(sequelize);
+  orderDetailProductSellableInit(sequelize);
   orderDetailCostInit(sequelize);
-  orderDetailDiscountInit(sequelize)
+  orderDetailDiscountInit(sequelize);
   const router = Router();
   const orderDetailRepository = new PostgresOrderDetailRepository(
     sequelize,
     orderDetailModelName
   );
-  const orderDetailProductRepository = new PostgresOrderDetailRepository(
+  const orderDetailProductSellableRepository = new PostgresOrderDetailRepository(
     sequelize,
-    orderDetailProductModelName
+    orderDetailProductSellableModelName
   );
   const orderDetailDiscountRepository = new PostgresOrderDetailRepository(
     sequelize,
@@ -92,26 +102,43 @@ export function setupOrderDetailRouter(sequelize: Sequelize) {
     discountModelName
   );
   const cloudinaryRepository = new CloudinaryImageRepository(cloudinary);
-  const productCategoryRepository = new PostgresProductRepository(
-    sequelize,
-    productCategoryModelName
-  );
-  const productDiscountRepository = new PostgresProductRepository(
-    sequelize,
-    productDiscountModelName
-  );
   const inventoryRepository = new PostgresInventoryRepository(
     sequelize,
     inventoryModelName
   );
   const inventoryUseCase = new InventoryUseCase(inventoryRepository);
-  const productUseCase = new ProductUseCase(
-    productRepository,
-    cloudinaryRepository,
-    productCategoryRepository,
-    productDiscountRepository,
-    inventoryUseCase
+
+  const productSellableDiscountRepository =
+    new PostgresProductSellableRepository(
+      sequelize,
+      productSellableDiscountModelName
+    );
+  const productSellableVariantRepository =
+    new PostgresProductSellableRepository(
+      sequelize,
+      productSellableVariantModelName
+    );
+  const productSellableImageRepository = new PostgresProductSellableRepository(
+    sequelize,
+    productSellableImageModelName
   );
+  const discountUseCase = new DiscountUseCase(discountRepository);
+  const productSellableRepository = new PostgresProductSellableRepository(
+    sequelize,
+    productSellableModelName
+  );
+
+  const productSellableUseCase = new ProductSellableUseCase(
+    productSellableRepository,
+    cloudinaryRepository,
+    productSellableDiscountRepository,
+    inventoryUseCase,
+    productSellableVariantRepository,
+    discountRepository,
+    productSellableImageRepository,
+    discountUseCase
+  );
+
   const customerUseCase = new CustomerUseCase(
     customerRepository,
     cartRepository
@@ -122,19 +149,18 @@ export function setupOrderDetailRouter(sequelize: Sequelize) {
   const paymentMethodUseCase = new PaymentMethodUseCase(
     paymentMethodRepository
   );
-  const discountUseCase = new DiscountUseCase(discountRepository);
   const orderDetailUseCase = new OrderDetailUseCase(
     orderDetailRepository,
-    orderDetailProductRepository,
+    orderDetailProductSellableRepository,
     orderDetailDiscountRepository,
     orderDetailCostRepository,
     customerUseCase,
-    productUseCase,
+    productSellableUseCase,
     shippingUseCase,
     paymentUseCase,
     paymentMethodUseCase,
     costUseCase,
-    discountUseCase,
+    discountUseCase
   );
   const orderDetailHttpService = new OrderDetailHttpService(orderDetailUseCase);
   router.get(

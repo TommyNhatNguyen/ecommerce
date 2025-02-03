@@ -1,5 +1,5 @@
-import { PostgresCustomerRepository } from "src/modules/customer/infras/repo/postgres/customer.repo";
-import { IOrderDetailRepository } from "src/modules/order_detail/models/order_detail.interface";
+import { PostgresCustomerRepository } from 'src/modules/customer/infras/repo/postgres/customer.repo';
+import { IOrderDetailRepository } from 'src/modules/order_detail/models/order_detail.interface';
 import {
   OrderDetailAddCostsDTO,
   OrderDetailAddDiscountsDTO,
@@ -7,24 +7,25 @@ import {
   OrderDetailConditionDTO,
   OrderDetailCreateDTO,
   OrderDetailUpdateDTO,
-} from "src/modules/order_detail/models/order_detail.dto";
-import { IOrderDetailUseCase } from "src/modules/order_detail/models/order_detail.interface";
-import { OrderDetail } from "src/modules/order_detail/models/order_detail.model";
-import { ListResponse } from "src/share/models/base-model";
-import { PagingDTO } from "src/share/models/paging";
-import { ICustomerUseCase } from "src/modules/customer/models/customer.interface";
+} from 'src/modules/order_detail/models/order_detail.dto';
+import { IOrderDetailUseCase } from 'src/modules/order_detail/models/order_detail.interface';
+import { OrderDetail } from 'src/modules/order_detail/models/order_detail.model';
+import { ListResponse } from 'src/share/models/base-model';
+import { PagingDTO } from 'src/share/models/paging';
+import { ICustomerUseCase } from 'src/modules/customer/models/customer.interface';
 import {
   ORDER_DETAIL_DISCOUNT_ERROR,
   ORDER_DETAIL_ERROR,
   ORDER_DETAIL_PRODUCT_ERROR,
-} from "src/modules/order_detail/models/order_detail.error";
-import { IShippingUseCase } from "src/modules/shipping/models/shipping.interface";
-import { IPaymentUseCase } from "src/modules/payment/models/payment.interface";
-import { IPaymentMethodUseCase } from "src/modules/payment_method/models/payment_method.interface";
-import { ICostUseCase } from "src/modules/cost/models/cost.interface";
-import { IDiscountUseCase } from "src/modules/discount/models/discount.interface";
-import { IProductUseCase } from "src/modules/products/models/product.interface";
-import { DiscountType } from "src/modules/discount/models/discount.model";
+} from 'src/modules/order_detail/models/order_detail.error';
+import { IShippingUseCase } from 'src/modules/shipping/models/shipping.interface';
+import { IPaymentUseCase } from 'src/modules/payment/models/payment.interface';
+import { IPaymentMethodUseCase } from 'src/modules/payment_method/models/payment_method.interface';
+import { ICostUseCase } from 'src/modules/cost/models/cost.interface';
+import { IDiscountUseCase } from 'src/modules/discount/models/discount.interface';
+import { IProductUseCase } from 'src/modules/products/models/product.interface';
+import { DiscountType } from 'src/modules/discount/models/discount.model';
+import { IProductSellableUseCase } from 'src/modules/product_sellable/models/product-sellable.interface';
 
 export class OrderDetailUseCase implements IOrderDetailUseCase {
   constructor(
@@ -33,7 +34,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
     private readonly orderDetailDiscountRepository: IOrderDetailRepository,
     private readonly orderDetailCostRepository: IOrderDetailRepository,
     private readonly customerUseCase: ICustomerUseCase,
-    private readonly productUseCase: IProductUseCase,
+    private readonly productSellableUseCase: IProductSellableUseCase,
     private readonly shippingUseCase: IShippingUseCase,
     private readonly paymentUseCase: IPaymentUseCase,
     private readonly paymentMethodUseCase: IPaymentMethodUseCase,
@@ -66,12 +67,12 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
     const orderDetailCosts: OrderDetailAddCostsDTO[] = [];
     const payload = {
       ...rest,
-      customer_id: customer_id || "",
+      customer_id: customer_id || '',
     };
     // ---- CUSTOMER ----
     if (!customer_id) {
       const newCustomer = await this.customerUseCase.createCustomer({
-        first_name: rest.customer_firstName || "",
+        first_name: rest.customer_firstName || '',
         last_name: rest.customer_lastName,
         phone: rest.customer_phone,
         address: rest.customer_address,
@@ -85,7 +86,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
     // ---- PRODUCTS ----
     if (products_detail.length > 0) {
       const productIds = products_detail.map((product) => product.id);
-      const products = await this.productUseCase.getProducts(
+      const products = await this.productSellableUseCase.getProductSellables(
         {
           ids: productIds,
           includeDiscount: true,
@@ -126,8 +127,8 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
       });
       orderDetailProducts.push(
         ...products.data.map((product, index) => ({
-          order_detail_id: "",
-          product_id: product.id,
+          order_detail_id: '',
+          product_sellable_id: product.id,
           quantity:
             products_detail.find((p) => p.id === product.id)?.quantity ?? 0,
           price: product.price,
@@ -167,7 +168,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         }, 0) || 0;
       orderDetailCosts.push(
         ...costs.data.map((cost) => ({
-          order_detail_id: "",
+          order_detail_id: '',
           cost_id: cost.id,
         }))
       );
@@ -215,7 +216,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
 
       orderDetailDiscounts.push(
         ...discounts.data.map((discount) => ({
-          order_detail_id: "",
+          order_detail_id: '',
           discount_id: discount.id,
         }))
       );

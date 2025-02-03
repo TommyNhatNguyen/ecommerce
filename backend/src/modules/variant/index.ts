@@ -4,17 +4,24 @@ import { Router } from 'express';
 import {
   variantInit,
   variantModelName,
+  variantOptionValueInit,
+  variantOptionValueModelName,
 } from 'src/modules/variant/infras/repo/postgres/dto';
 
 import { VariantHttpService } from 'src/modules/variant/infras/transport/variant-http.service';
 import { PostgresVariantRepository } from 'src/modules/variant/infras/repo/postgres/repo';
 export function setupVariantRouter(sequelize: Sequelize) {
   variantInit(sequelize);
+  variantOptionValueInit(sequelize);
   const variantRepository = new PostgresVariantRepository(
     sequelize,
     variantModelName
   );
-  const variantUseCase = new VariantUseCase(variantRepository);
+  const variantOptionValueRepository = new PostgresVariantRepository(
+    sequelize,
+    variantOptionValueModelName
+  );
+  const variantUseCase = new VariantUseCase(variantRepository, variantOptionValueRepository);
   const variantHttpService = new VariantHttpService(variantUseCase);
   const router = Router();
   router.get(

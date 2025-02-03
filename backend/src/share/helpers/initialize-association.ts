@@ -1,7 +1,7 @@
 import {
   orderDetailCostModelName,
   orderDetailDiscountModelName,
-  orderDetailProductModelName,
+  orderDetailProductSellableModelName,
 } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import {
   orderModelName,
@@ -16,10 +16,7 @@ import {
 
 import {
   productCategoryModelName,
-  productDiscountModelName,
-  productImageModelName,
   productModelName,
-  productVariantModelName,
 } from 'src/modules/products/infras/repo/postgres/dto';
 import {
   paymentMethodModelName,
@@ -47,13 +44,19 @@ import {
   categoryModelName,
   CategoryPersistence,
 } from 'src/infras/repository/category/dto';
-import { variantModelName } from 'src/modules/variant/infras/repo/postgres/dto';
+import {
+  variantModelName,
+  variantOptionValueModelName,
+} from 'src/modules/variant/infras/repo/postgres/dto';
 import { VariantPersistence } from 'src/modules/variant/infras/repo/postgres/dto';
 import { reviewModelName } from 'src/infras/repository/review/dto';
 import { ImagePersistence } from 'src/infras/repository/image/dto';
 import { imageModelName } from 'src/infras/repository/image/dto';
 import { ReviewPersistence } from 'src/infras/repository/review/dto';
-import { InventoryPersistence } from 'src/modules/inventory/infras/repo/postgres/dto';
+import {
+  inventoryModelName,
+  InventoryPersistence,
+} from 'src/modules/inventory/infras/repo/postgres/dto';
 import {
   permissionModelName,
   PermissionPersistence,
@@ -80,6 +83,20 @@ import {
   resourcesModelName,
   ResourcesPersistence,
 } from 'src/modules/resources/infras/repo/resources.dto';
+import {
+  optionsModelName,
+  OptionsPersistence,
+  optionValueModelName,
+} from 'src/modules/options/infras/repo/postgres/dto';
+import { OptionValuePersistence } from 'src/modules/options/infras/repo/postgres/dto';
+import {
+  productSellableImageModelName,
+  productSellableModelName,
+  ProductSellablePersistence,
+  ProductSellableVariantPersistence,
+  productSellableVariantModelName,
+  productSellableDiscountModelName,
+} from 'src/modules/product_sellable/infras/repo/postgres/dto';
 
 export const initializeAssociation = () => {
   MessagePersistence.belongsTo(ActorPersistence, {
@@ -124,20 +141,6 @@ export const initializeAssociation = () => {
     as: orderDetailModelName.toLowerCase(),
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
-  });
-
-  OrderDetailPersistence.belongsToMany(ProductPersistence, {
-    through: orderDetailProductModelName,
-    foreignKey: 'order_detail_id',
-    otherKey: 'product_id',
-    as: productModelName.toLowerCase(),
-  });
-
-  ProductPersistence.belongsToMany(OrderDetailPersistence, {
-    through: orderDetailProductModelName,
-    foreignKey: 'product_id',
-    otherKey: 'order_detail_id',
-    as: orderDetailModelName.toLowerCase(),
   });
 
   OrderDetailPersistence.belongsToMany(CostPersistence, {
@@ -187,6 +190,20 @@ export const initializeAssociation = () => {
     as: shippingModelName.toLowerCase(),
   });
 
+  OrderDetailPersistence.belongsToMany(ProductSellablePersistence, {
+    through: orderDetailProductSellableModelName,
+    foreignKey: 'order_detail_id',
+    otherKey: 'product_sellable_id',
+    as: productSellableModelName.toLowerCase(),
+  });
+
+  ProductSellablePersistence.belongsToMany(OrderDetailPersistence, {
+    through: orderDetailProductSellableModelName,
+    foreignKey: 'product_sellable_id',
+    otherKey: 'order_detail_id',
+    as: orderDetailModelName.toLowerCase(),
+  });
+
   ShippingPersistence.hasOne(OrderDetailPersistence, {
     foreignKey: 'shipping_method_id',
     as: orderDetailModelName.toLowerCase(),
@@ -233,46 +250,86 @@ export const initializeAssociation = () => {
     as: productModelName.toLowerCase(),
   });
 
-  ProductPersistence.belongsToMany(DiscountPersistence, {
-    through: productDiscountModelName,
+  ProductPersistence.hasMany(VariantPersistence, {
     foreignKey: 'product_id',
-    otherKey: 'discount_id',
-    as: discountModelName.toLowerCase(),
+    as: variantModelName.toLowerCase(),
   });
 
-  DiscountPersistence.belongsToMany(ProductPersistence, {
-    through: productDiscountModelName,
-    foreignKey: 'discount_id',
-    otherKey: 'product_id',
+  VariantPersistence.belongsTo(ProductPersistence, {
+    foreignKey: 'product_id',
     as: productModelName.toLowerCase(),
   });
 
-  ProductPersistence.belongsToMany(VariantPersistence, {
-    through: productVariantModelName,
-    foreignKey: 'product_id',
+  OptionsPersistence.hasMany(OptionValuePersistence, {
+    foreignKey: 'option_id',
+    as: optionValueModelName.toLowerCase(),
+  });
+
+  OptionValuePersistence.belongsTo(OptionsPersistence, {
+    foreignKey: 'option_id',
+    as: optionsModelName.toLowerCase(),
+  });
+
+  VariantPersistence.belongsToMany(OptionValuePersistence, {
+    through: variantOptionValueModelName,
+    foreignKey: 'variant_id',
+    otherKey: 'option_value_id',
+    as: optionValueModelName.toLowerCase(),
+  });
+
+  OptionValuePersistence.belongsToMany(VariantPersistence, {
+    through: variantOptionValueModelName,
+    foreignKey: 'option_value_id',
     otherKey: 'variant_id',
     as: variantModelName.toLowerCase(),
   });
 
-  VariantPersistence.belongsToMany(ProductPersistence, {
-    through: productVariantModelName,
-    foreignKey: 'variant_id',
-    otherKey: 'product_id',
-    as: productModelName.toLowerCase(),
-  });
-
-  ProductPersistence.belongsToMany(ImagePersistence, {
-    through: productImageModelName,
-    foreignKey: 'product_id',
+  ProductSellablePersistence.belongsToMany(ImagePersistence, {
+    through: productSellableImageModelName,
+    foreignKey: 'product_sellable_id',
     otherKey: 'image_id',
     as: imageModelName.toLowerCase(),
   });
 
-  ImagePersistence.belongsToMany(ProductPersistence, {
-    through: productImageModelName,
+  ImagePersistence.belongsToMany(ProductSellablePersistence, {
+    through: productSellableImageModelName,
     foreignKey: 'image_id',
-    otherKey: 'product_id',
-    as: productModelName.toLowerCase(),
+    otherKey: 'product_sellable_id',
+    as: productSellableModelName.toLowerCase(),
+  });
+
+  ProductSellablePersistence.belongsToMany(DiscountPersistence, {
+    through: productSellableDiscountModelName,
+    foreignKey: 'product_sellable_id',
+    otherKey: 'discount_id',
+    as: discountModelName.toLowerCase(),
+  });
+
+  DiscountPersistence.belongsToMany(ProductSellablePersistence, {
+    through: productSellableDiscountModelName,
+    foreignKey: 'discount_id',
+    otherKey: 'product_sellable_id',
+    as: productSellableModelName.toLowerCase(),
+  });
+
+  ProductSellablePersistence.belongsTo(VariantPersistence, {
+    foreignKey: 'variant_id',
+    as: variantModelName.toLowerCase(),
+  });
+
+  VariantPersistence.hasOne(ProductSellablePersistence, {
+    foreignKey: 'variant_id',
+    as: productSellableModelName.toLowerCase(),
+  });
+
+  ProductSellablePersistence.hasOne(InventoryPersistence, {
+    foreignKey: 'product_sellable_id',
+    as: inventoryModelName.toLowerCase(),
+  });
+
+  InventoryPersistence.belongsTo(ProductSellablePersistence, {
+    foreignKey: 'product_sellable_id',
+    as: productSellableModelName.toLowerCase(),
   });
 
   ProductPersistence.hasMany(ReviewPersistence, {
@@ -293,16 +350,6 @@ export const initializeAssociation = () => {
   CustomerPersistence.hasOne(ReviewPersistence, {
     foreignKey: 'customer_id',
     as: reviewModelName.toLowerCase(),
-  });
-
-  ProductPersistence.hasOne(InventoryPersistence, {
-    foreignKey: 'product_id',
-    onDelete: 'cascade',
-  });
-
-  InventoryPersistence.belongsTo(ProductPersistence, {
-    foreignKey: 'product_id',
-    onDelete: 'cascade',
   });
 
   CategoryPersistence.belongsTo(ImagePersistence, {

@@ -27,18 +27,9 @@ import { IInventoryUseCase } from 'src/modules/inventory/models/inventory.interf
 export class ProductUseCase implements IProductUseCase {
   constructor(
     private readonly repository: IProductRepository,
-    private readonly cloudinaryImageRepository: IImageCloudinaryRepository,
-    private readonly productCategoryRepository: IProductRepository,
-    private readonly productDiscountRepository: IProductRepository,
-    private readonly inventoryUseCase: IInventoryUseCase,
-    private readonly productVariantRepository?: IProductRepository,
-    private readonly discountRepository?: IDiscountRepository,
-    private readonly imageRepository?: IProductRepository,
-    private readonly discountUseCase?: IDiscountUseCase
+    
+    private readonly productCategoryRepository: IProductRepository
   ) {}
-  async getTotalInventoryByGroup(condition?: ProductGetStatsDTO): Promise<any> {
-    return await this.repository.getTotalInventoryByGroup(condition);
-  }
   async countTotalProduct(): Promise<number> {
     return await this.repository.countTotalProduct();
   }
@@ -49,14 +40,6 @@ export class ProductUseCase implements IProductUseCase {
     return await this.repository.update(id, data);
   }
   async deleteProduct(id: string): Promise<boolean> {
-    const product = await this.repository.get(id, { includeImage: true });
-    if (product?.image?.length && product.image.length > 0) {
-      await Promise.all(
-        product.image.map(async (image) => {
-          await this.cloudinaryImageRepository.delete(image.cloudinary_id);
-        })
-      );
-    }
     await this.repository.delete(id);
     return true;
   }
@@ -73,83 +56,14 @@ export class ProductUseCase implements IProductUseCase {
   ): Promise<Product | null> {
     return await this.repository.get(id, condition);
   }
-  async createNewProduct(
-    data: Omit<
-      ProductCreateDTOSchema,
-      'total_discounts' | 'price_after_discounts'
-    >
-  ): Promise<Product> {
-    let total_discounts: number = 0;
-    let price_after_discounts = data.price;
-    let payload: ProductCreateDTOSchema = {
-      ...data,
-      total_discounts,
-      price_after_discounts,
-    };
-    // --- DISCOUNT ---
-    if (data.discountIds && data.discountIds.length > 0) {
-      const discountList = await this.discountUseCase?.listDiscount(
-        { page: 1, limit: data.discountIds.length },
-        { ids: data.discountIds }
-      );
-      payload.total_discounts =
-        data.price *
-          ((discountList?.data || [])
-            ?.filter((item) => item.type === 'percentage')
-            ?.map((item) => item.amount)
-            ?.reduce((arr, curr) => arr + curr, 0) / 100 || 0) +
-        ((discountList?.data || [])
-          ?.filter((item) => item.type === 'fixed')
-          ?.map((item) => item.amount)
-          ?.reduce((arr, curr) => arr + curr, 0) || 0);
-      payload.price_after_discounts = data.price - payload.total_discounts;
-    }
-    const product = await this.repository.insert(payload);
-    if (data.discountIds) {
-      await this.productDiscountRepository.addDiscounts(
-        data.discountIds.map((id) => ({
-          product_id: product.id,
-          discount_id: id,
-        }))
-      );
-    }
-
-    // --- INVENTORY ---
-    await this.inventoryUseCase.createInventory({
-      product_id: product.id,
-      quantity: data.quantity ?? 0,
-      low_stock_threshold: data.low_stock_threshold ?? 0,
-      cost: data.cost ?? 0,
-      total_value: (data.cost ?? 0) * (data.quantity ?? 0),
-    });
+  async createNewProduct(data: ProductCreateDTOSchema): Promise<Product> {
+    const product = await this.repository.insert(data);
     // --- CATEGORY ---
     if (data.categoryIds && data.categoryIds.length > 0) {
       await this.productCategoryRepository.addCategories(
         data.categoryIds.map((id) => ({
           product_id: product.id,
           category_id: id,
-        }))
-      );
-    }
-    // --- IMAGE ---
-    if (data.imageIds && data.imageIds.length > 0) {
-      await this.imageRepository?.addImages(
-        data.imageIds.map((id) => ({
-          product_id: product.id,
-          image_id: id,
-        }))
-      );
-    }
-    // --- VARIANTS ---
-    if (
-      data.variantIds &&
-      this.productVariantRepository &&
-      data.variantIds.length > 0
-    ) {
-      await this.productVariantRepository.addVariants(
-        data.variantIds.map((id) => ({
-          product_id: product.id,
-          variant_id: id,
         }))
       );
     }
