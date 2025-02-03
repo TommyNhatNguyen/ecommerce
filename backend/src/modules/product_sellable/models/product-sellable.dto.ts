@@ -9,10 +9,9 @@ export const ProductSellableCreateDTOSchema = z.object({
     .string()
     .uuid()
     .default(() => uuidv7()),
-  product_id: z.string().uuid(),
   price: z.number().nonnegative().min(0),
-  total_discounts: z.number().nonnegative().min(0),
-  price_after_discounts: z.number().nonnegative().min(0),
+  total_discounts: z.number().nonnegative().min(0).optional(),
+  price_after_discounts: z.number().nonnegative().min(0).optional(),
   quantity: z.number().nonnegative().min(0).optional(),
   low_stock_threshold: z.number().nonnegative().min(0).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
@@ -20,7 +19,7 @@ export const ProductSellableCreateDTOSchema = z.object({
   status: z.nativeEnum(ModelStatus).optional(),
   discountIds: z.array(z.string().uuid()).optional(),
   imageIds: z.array(z.string().uuid()).optional(),
-  variant_id: z.string().uuid(),
+  variant_id: z.string().uuid().optional(),
 });
 
 export const ProductSellableUpdateDTOSchema = z.object({

@@ -17,7 +17,7 @@ export const VariantConditionDTOSchema = z.object({
 export const VariantCreateDTOSchema = z.object({
   name: z.string(),
   options_value_ids: z.array(z.string()),
-  product_id: z.string().uuid(),
+  product_id: z.string().uuid().optional(),
 });
 
 export const VariantUpdateDTOSchema = z.object({

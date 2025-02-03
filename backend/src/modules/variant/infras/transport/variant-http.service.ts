@@ -48,7 +48,6 @@ export class VariantHttpService {
     }
   }
   async createVariant(req: Request, res: Response) {
-    console.log(req.body)
     const { success, data, error } = VariantCreateDTOSchema.safeParse(req.body);
     if (!success) {
       res.status(400).json({ message: error?.message });

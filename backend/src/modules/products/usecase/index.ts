@@ -23,12 +23,15 @@ import {
 } from 'src/modules/discount/models/discount.interface';
 import { DISCOUNT_NOT_FOUND_ERROR } from 'src/modules/products/models/errors';
 import { IInventoryUseCase } from 'src/modules/inventory/models/inventory.interface';
+import { IVariantUseCase } from 'src/modules/variant/models/variant.interface';
+import { IProductSellableUseCase } from 'src/modules/product_sellable/models/product-sellable.interface';
 
 export class ProductUseCase implements IProductUseCase {
   constructor(
     private readonly repository: IProductRepository,
-    
-    private readonly productCategoryRepository: IProductRepository
+    private readonly productCategoryRepository: IProductRepository,
+    private readonly variantUseCase: IVariantUseCase,
+    private readonly productSellableUseCase: IProductSellableUseCase
   ) {}
   async countTotalProduct(): Promise<number> {
     return await this.repository.countTotalProduct();
@@ -57,7 +60,8 @@ export class ProductUseCase implements IProductUseCase {
     return await this.repository.get(id, condition);
   }
   async createNewProduct(data: ProductCreateDTOSchema): Promise<Product> {
-    const product = await this.repository.insert(data);
+    const { variants, ...rest } = data;
+    const product = await this.repository.insert(rest);
     // --- CATEGORY ---
     if (data.categoryIds && data.categoryIds.length > 0) {
       await this.productCategoryRepository.addCategories(
@@ -66,6 +70,27 @@ export class ProductUseCase implements IProductUseCase {
           category_id: id,
         }))
       );
+    }
+    // --- VARIANT AND PRODUCT SELLABLE ---
+    if (variants && variants.length > 0) {
+      const variantsData = await Promise.all(
+        variants.map(async (variant) => {
+          const variantData = await this.variantUseCase.createVariant({
+            ...variant.variant_data,
+            product_id: product.id,
+          });
+          const productSellableData =
+            await this.productSellableUseCase.createNewProductSellable({
+              ...variant.product_sellables,
+              variant_id: variantData.id,
+            });
+          return {
+            variant: variantData,
+            productSellable: productSellableData,
+          };
+        })
+      );
+      console.log(variantsData);
     }
     return product;
   }

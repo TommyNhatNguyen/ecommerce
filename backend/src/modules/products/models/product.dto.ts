@@ -5,6 +5,8 @@ import {
 } from 'src/share/models/base-model';
 import { z } from 'zod';
 import { v7 as uuidv7 } from 'uuid';
+import { VariantCreateDTOSchema } from 'src/modules/variant/models/variant.dto';
+import { ProductSellableCreateDTOSchema } from 'src/modules/product_sellable/models/product-sellable.dto';
 
 export const ProductCreateDTOSchema = z.object({
   id: z
@@ -15,6 +17,14 @@ export const ProductCreateDTOSchema = z.object({
   description: z.string().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   categoryIds: z.array(z.string().uuid()).optional(),
+  variants: z
+    .array(
+      z.object({
+        variant_data: VariantCreateDTOSchema,
+        product_sellables: ProductSellableCreateDTOSchema,
+      })
+    )
+    .optional(),
 });
 
 export const ProductCategoryCreateDTOSchema = z.object({
