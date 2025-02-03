@@ -11,15 +11,27 @@ export const OptionConditionDTOSchema = z.object({
   updated_at: z.date().optional(),
   order: z.string().optional().default(BaseOrder.DESC),
   sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
+  is_color: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  include_option_values: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
 });
 
 export const OptionCreateDTOSchema = z.object({
   name: z.string(),
+  is_color: z.boolean().optional(),
 });
 
 export const OptionUpdateDTOSchema = z.object({
   name: z.string().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
+  is_color: z.boolean().optional(),
 });
 
 export const OptionValueCreateDTOSchema = z.object({
@@ -51,4 +63,6 @@ export type OptionCreateDTO = z.infer<typeof OptionCreateDTOSchema>;
 export type OptionUpdateDTO = z.infer<typeof OptionUpdateDTOSchema>;
 export type OptionValueCreateDTO = z.infer<typeof OptionValueCreateDTOSchema>;
 export type OptionValueUpdateDTO = z.infer<typeof OptionValueUpdateDTOSchema>;
-export type OptionValueConditionDTO = z.infer<typeof OptionValueConditionDTOSchema>;
+export type OptionValueConditionDTO = z.infer<
+  typeof OptionValueConditionDTOSchema
+>;

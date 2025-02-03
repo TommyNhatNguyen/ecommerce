@@ -1,5 +1,6 @@
 import {
   CreateProductDTO,
+  CreateProductDTOV2,
   GetProductsBodyDTO,
   ProductGetStatsCondition,
   UpdateProductDTO,
@@ -12,7 +13,7 @@ import {
 import { axiosInstance } from "@/app/shared/utils/axiosInstance";
 
 export const productService = {
-  createProduct: async (data: CreateProductDTO): Promise<ProductModel> => {
+  createProduct: async (data: CreateProductDTOV2): Promise<ProductModel> => {
     const response = await axiosInstance.post("/products", data);
     return response.data;
   },

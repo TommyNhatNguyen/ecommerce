@@ -1,5 +1,5 @@
 import { useNotification } from "@/app/contexts/NotificationContext";
-import { CreateProductBodyDTO } from "@/app/shared/interfaces/products/product.dto";
+import { CreateProductBodyDTO, CreateProductDTOV2 } from "@/app/shared/interfaces/products/product.dto";
 import { productService } from "@/app/shared/services/products/productService";
 import { useState } from "react";
 
@@ -7,7 +7,7 @@ export function useCreateProductModal() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const { notificationApi } = useNotification();
-  const hanldeCreateProduct = async (data: CreateProductBodyDTO) => {
+  const hanldeCreateProduct = async (data: CreateProductDTOV2) => {
     setLoading(true);
     try {
       const response = await productService.createProduct(data);

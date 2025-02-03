@@ -34,12 +34,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="--dashboard">
-      <body
-        className={`${openSans.variable} ${openSansMedium.variable} ${openSansBold.variable} --dashboard antialiased`}
-      >
-        <DashboardWrapper>{children}</DashboardWrapper>
-      </body>
-    </html>
+    <main
+      className={`${openSans.variable} ${openSansMedium.variable} ${openSansBold.variable} --dashboard antialiased`}
+    >
+      <DashboardWrapper>{children}</DashboardWrapper>
+    </main>
   );
 }

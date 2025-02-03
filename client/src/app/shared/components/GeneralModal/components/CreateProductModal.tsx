@@ -1,44 +1,35 @@
 "use client";
-
 import React, { useMemo, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
   Button,
   Checkbox,
-  CheckboxProps,
+  Divider,
   Empty,
   Input,
   InputNumber,
   Select,
-  TreeDataNode,
-  TreeSelect,
   Upload,
   UploadFile,
 } from "antd";
 import { PlusIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-
 import { statusOptions } from "@/app/constants/seeds";
 import { ERROR_MESSAGE } from "@/app/constants/errors";
 import InputAdmin from "@/app/shared/components/InputAdmin";
 import GeneralModal from "@/app/shared/components/GeneralModal";
 import LoadingComponent from "@/app/shared/components/LoadingComponent";
-
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { discountsService } from "@/app/shared/services/discounts/discountsService";
 import { imagesService } from "@/app/shared/services/images/imagesService";
 import { useCreateProductModal } from "@/app/shared/components/GeneralModal/hooks/useCreateProductModal";
-
-import {
-  CreateProductBodyDTO,
-  CreateProductDTO,
-} from "@/app/shared/interfaces/products/product.dto";
-import { ModelStatus } from "@/app/shared/models/others/status.model";
+import { CreateProductDTOV2 } from "@/app/shared/interfaces/products/product.dto";
 import { ImageType } from "@/app/shared/interfaces/image/image.dto";
 import { formatCurrency, formatNumber } from "@/app/shared/utils/utils";
 import { DISCOUNT_SCOPE } from "@/app/constants/enum";
-import { variantServices } from "@/app/shared/services/variant/variantService";
-import { buildVariantTree } from "@/app/shared/utils/common";
+import { optionService } from "@/app/shared/services/variant/optionService";
+import { generateAllPairs } from "@/app/shared/utils/generateAllPairs";
+import { useNotification } from "@/app/contexts/NotificationContext";
 
 type CreateProductModalPropsType = {
   isModalCreateProductOpen: boolean;
@@ -51,27 +42,37 @@ const CreateProductModal = ({
   handleCloseModalCreateProduct,
   refetch,
 }: CreateProductModalPropsType) => {
-  // State management
-  const [createProductForm, setCreateProductForm] = useState<
-    Omit<CreateProductDTO, "name" | "price" | "quantity">
-  >({
-    categoryIds: [],
-    discountIds: [],
-    status: "ACTIVE",
-    imageFileList: [],
-    variantIds: [],
-  });
+  // ===== State Management =====
+  const [variantImageFileList, setVariantImageFileList] = useState<
+    { id: number; fileList: UploadFile[] }[]
+  >([]);
   const [uploadImageLoading, setUploadImageLoading] = useState(false);
+  const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const [selectedOptionValues, setSelectedOptionValues] = useState<{
+    [key: string]: string[];
+  }>({});
+  const { notificationApi } = useNotification();
 
-  // Form handling
+  // ===== Form Management =====
   const {
     handleSubmit,
     formState: { errors },
     reset,
     control,
-  } = useForm();
+    watch,
+    setValue,
+    getValues,
+  } = useForm<CreateProductDTOV2>({
+    defaultValues: {
+      name: "",
+      description: "",
+      status: "ACTIVE",
+      categoryIds: [],
+      variants: [],
+    },
+  });
 
-  // Queries
+  // ===== Queries =====
   const { data: categories, isLoading: isLoadingCategories } = useQuery({
     queryKey: ["categories", isModalCreateProductOpen],
     queryFn: () => categoriesService.getCategories({}, {}),
@@ -83,454 +84,628 @@ const CreateProductModal = ({
       discountsService.getDiscounts({ scope: DISCOUNT_SCOPE.PRODUCT }),
     enabled: isModalCreateProductOpen,
   });
-  const { data: variants, isLoading: isLoadingVariants } = useQuery({
-    queryKey: ["variants", isModalCreateProductOpen],
-    queryFn: () => variantServices.getList(),
+  const { data: options, isLoading: isLoadingOptions } = useQuery({
+    queryKey: ["options", isModalCreateProductOpen],
+    queryFn: () => optionService.getOptionList({ include_option_values: true }),
     enabled: isModalCreateProductOpen,
   });
 
-  const variantTreeData = buildVariantTree(variants?.data || []);
-  const variantTree = Object.keys(variantTreeData).map((item) => {
-    return {
-      title: item,
-      value: item,
-      children: variantTreeData[item].map((variant) => ({
-        title: variant.name,
-        value: variant.id,
-      })),
-    };
-  });
-  // Custom hooks
+  // ===== Computed Values =====
   const { hanldeCreateProduct, loading } = useCreateProductModal();
   const createProductLoading = loading || uploadImageLoading;
-
-  // Checkbox states
   const checkAll =
-    categories &&
-    categories.data.length === createProductForm.categoryIds.length;
+    categories && categories.data.length === watch("categoryIds").length;
   const indeterminate =
     categories &&
-    createProductForm.categoryIds.length > 0 &&
-    createProductForm.categoryIds.length < categories.data.length;
-  const checkAllDiscounts =
-    discounts && discounts.data.length === createProductForm.discountIds.length;
-  const indeterminateDiscounts =
-    discounts &&
-    createProductForm.discountIds.length > 0 &&
-    createProductForm.discountIds.length < discounts.data.length;
+    watch("categoryIds").length > 0 &&
+    watch("categoryIds").length < categories.data.length;
+  const allPairs = useMemo(
+    () => generateAllPairs(selectedOptionValues),
+    [selectedOptionValues, selectedOptions],
+  );
 
-  // Handlers
-  const _onClearAllCategories = () => {
-    setCreateProductForm((prev) => ({ ...prev, categoryIds: [] }));
-  };
+  // ===== Event Handlers =====
+  const _onClearAllImages = () => setVariantImageFileList([]);
 
-  const _onClearAllDiscounts = () => {
-    setCreateProductForm((prev) => ({ ...prev, discountIds: [] }));
-  };
-
-  const _onClearAllImages = () => {
-    setCreateProductForm((prev) => ({ ...prev, imageFileList: [] }));
-  };
   const _onClearAllFormData = () => {
     reset();
-    _onClearAllCategories();
-    _onClearAllDiscounts();
     _onClearAllImages();
   };
+
   const _onCloseModalCreateProduct = () => {
     handleCloseModalCreateProduct();
     _onClearAllFormData();
   };
+
+  const _onChangeOption = (value: string[]) => {
+    setSelectedOptions(value);
+    setSelectedOptionValues((prev) =>
+      Object.fromEntries(
+        Object.entries(prev).filter(([key]) => value.includes(key)),
+      ),
+    );
+  };
+
+  const _onChangeOptionValue = (optionId: string, value: string[]) => {
+    setSelectedOptionValues((prev) => ({
+      ...prev,
+      [optionId]: value,
+    }));
+    reset({
+      ...getValues(),
+      variants: [],
+    });
+  };
+
   const _onSubmitFileList = async () => {
-    if (!createProductForm.imageFileList) return;
+    if (variantImageFileList.length === 0) return;
     setUploadImageLoading(true);
     try {
-      const response = await Promise.all(
-        createProductForm.imageFileList.map(async (file) => {
-          if (!file?.originFileObj) return;
-          const response = await imagesService.uploadImage(file.originFileObj, {
-            type: "PRODUCT" as ImageType.PRODUCT,
-          });
-          if (response) {
-            return response;
-          } else {
-            throw new Error("Failed to upload image");
-          }
+      const imagesResponseData = await Promise.all(
+        variantImageFileList.map(async (item) => {
+          if (!item?.fileList) return;
+          const imageReponses = await Promise.all(
+            item.fileList.map(async (file) => {
+              if (!file?.originFileObj) return;
+              const response = await imagesService.uploadImage(
+                file.originFileObj,
+                {
+                  type: "PRODUCT" as ImageType.PRODUCT,
+                },
+              );
+              if (response) {
+                return response;
+              } else {
+                throw new Error("Failed to upload image");
+              }
+            }),
+          );
+          return imageReponses;
         }),
       );
-      if (response.length > 0) {
-        const imageIds = response.map((item) => item?.id);
-        return imageIds;
+      if (imagesResponseData.length > 0) {
+        return imagesResponseData.flatMap((item) =>
+          item?.map((image) => image?.id),
+        );
       } else {
         throw new Error("Failed to upload image");
       }
     } catch (error) {
-      console.log(error);
+      throw error;
     } finally {
       setUploadImageLoading(false);
     }
   };
 
-  const _onConfirmCreateProduct: SubmitHandler<any> = async (data) => {
-    const payload: CreateProductBodyDTO = {
-      ...createProductForm,
+  const _onConfirmCreateProduct: SubmitHandler<CreateProductDTOV2> = async (
+    data,
+  ) => {
+    if (allPairs[0].length === 0) {
+      notificationApi.error({
+        message: "Please select at least one option",
+        description: "Please select at least one option",
+      });
+      return;
+    }
+    const payload: CreateProductDTOV2 = {
       ...data,
-      price: Number(data.price),
-      quantity: Number(data.quantity),
     };
-    if (createProductForm.imageFileList) {
-      const imageIds = await _onSubmitFileList();
-      payload.imageIds = imageIds as string[];
+
+    if (variantImageFileList.length > 0 && variantImageFileList[0].fileList) {
+      const imageIds = (await _onSubmitFileList()) || [];
+      payload.variants = payload.variants.map((variant) => ({
+        ...variant,
+        product_sellables: {
+          ...variant.product_sellables,
+          imageIds: imageIds as string[],
+        },
+      }));
     }
     await hanldeCreateProduct(payload);
     refetch();
     _onCloseModalCreateProduct();
   };
 
-  const _onChangeCategories = (list: string[]) => {
-    setCreateProductForm((prev) => ({ ...prev, categoryIds: list }));
+  const _onChangeFileList = (id: number, fileList: UploadFile[]) => {
+    if (variantImageFileList.length === 0) {
+      setVariantImageFileList([{ id, fileList }]);
+    } else {
+      setVariantImageFileList((prev) => {
+        const newList = prev.map((item) => {
+          if (item.id === id) {
+            return { ...item, fileList };
+          }
+          return item;
+        });
+        return newList;
+      });
+    }
   };
 
-  const _onCheckAllCategories: CheckboxProps["onChange"] = (e) => {
-    setCreateProductForm((prev) => {
-      const categoryIds =
-        e.target.checked && categories
-          ? categories?.data.map((item) => item.id)
-          : [];
-      return {
-        ...prev,
-        categoryIds,
-      };
+  const _onRemoveFileList = (id: number) => {
+    setVariantImageFileList((prev) => {
+      const newList = prev.filter((item) => item.id !== id);
+      return newList;
     });
   };
 
-  const _onChangeDiscountCampaign = (value: string[]) => {
-    setCreateProductForm((prev) => ({ ...prev, discountIds: value }));
-  };
-
-  const _onCheckAllDiscounts: CheckboxProps["onChange"] = (e) => {
-    setCreateProductForm((prev) => {
-      const discountIds =
-        e.target.checked && discounts
-          ? discounts?.data.map((item) => item.id)
-          : [];
-      return {
-        ...prev,
-        discountIds,
-      };
-    });
-  };
-
-  const _onChangeStatus = (value: ModelStatus) => {
-    setCreateProductForm((prev) => ({ ...prev, status: value }));
-  };
-
-  const _onChangeFileList = (fileList: UploadFile[]) => {
-    setCreateProductForm((prev) => ({
-      ...prev,
-      imageFileList: fileList,
-    }));
-  };
-
-  const _onRemoveFileList = (file: UploadFile) => {
-    setCreateProductForm((prev) => {
-      const imageFileList =
-        prev.imageFileList?.filter((item) => item.uid !== file.uid) || [];
-      return {
-        ...prev,
-        imageFileList,
-      };
-    });
-  };
-
-  const _onChangeVariant = (value: string[]) => {
-    console.log("🚀 ~ const_onChangeVariant= ~ value:", value);
-    setCreateProductForm((prev) => ({ ...prev, variantIds: value }));
-  };
-  // Render functions
-  const _renderTitleModalCreateProduct = () => {
-    return <h1 className="text-2xl font-bold">Create Product</h1>;
-  };
+  // ===== Render Methods =====
+  const _renderTitleModalCreateProduct = () => (
+    <h1 className="text-2xl font-bold">Create Product</h1>
+  );
 
   const _renderContentModalCreateProduct = () => {
     return (
       <>
         <div className="flex w-full flex-1 flex-shrink-0 flex-col gap-4">
-          <Controller
-            control={control}
-            name="name"
-            rules={{
-              required: {
-                value: true,
-                message: ERROR_MESSAGE.REQUIRED,
-              },
-            }}
-            render={({ field, formState: { errors } }) => (
-              <InputAdmin
-                label="Product Name"
-                required={true}
-                placeholder="Product Name"
-                error={errors.name?.message as string}
-                {...field}
+          {/* Product information */}
+          <div className="flex w-full flex-col gap-2">
+            <h3 className="text-lg font-semibold underline">
+              Product information
+            </h3>
+            <div className="flex w-full flex-col gap-4">
+              <Controller
+                control={control}
+                name="name"
+                rules={{
+                  required: {
+                    value: true,
+                    message: ERROR_MESSAGE.REQUIRED,
+                  },
+                }}
+                render={({ field, formState: { errors } }) => (
+                  <InputAdmin
+                    label="Product Name"
+                    required={true}
+                    placeholder="Product Name"
+                    error={errors.name?.message as string}
+                    {...field}
+                  />
+                )}
               />
-            )}
-          />
-          <InputAdmin
-            label="Category"
-            placeholder="Category"
-            customComponent={(props, ref) => (
-              <Select
-                options={categories?.data.map((item) => ({
-                  label: item.name,
-                  value: item.id,
-                }))}
-                placement="bottomLeft"
-                value={createProductForm.categoryIds}
-                onClear={_onClearAllCategories}
-                placeholder="Select Category"
-                allowClear={true}
-                mode="multiple"
-                onChange={_onChangeCategories}
-                dropdownRender={(menu) =>
-                  categories?.data && categories?.data.length > 0 ? (
-                    <div className="flex flex-col gap-2 p-2">
-                      <Checkbox
-                        className="font-medium"
-                        value="all"
-                        onChange={_onCheckAllCategories}
-                        checked={checkAll}
-                        indeterminate={indeterminate}
-                      >
-                        <span>All</span>
-                      </Checkbox>
-                      <div className="h-[1px] w-full bg-zinc-500/30"></div>
-                      <Checkbox.Group
+              <Controller
+                name="categoryIds"
+                control={control}
+                rules={{
+                  required: {
+                    value: true,
+                    message: ERROR_MESSAGE.REQUIRED,
+                  },
+                }}
+                render={({ field }) => (
+                  <InputAdmin
+                    {...field}
+                    error={errors?.categoryIds?.message || ""}
+                    label="Category"
+                    placeholder="Choose category"
+                    required={true}
+                    customComponent={(props, ref: any) => (
+                      <Select
+                        {...props}
+                        ref={ref}
                         options={categories?.data.map((item) => ({
                           label: item.name,
                           value: item.id,
                         }))}
-                        value={createProductForm.categoryIds}
-                        onChange={_onChangeCategories}
-                        className="flex flex-col gap-2"
+                        placement="bottomLeft"
+                        value={field.value}
+                        onClear={() => field.onChange([])}
+                        placeholder="Select Category"
+                        allowClear={true}
+                        mode="multiple"
+                        dropdownRender={(menu) =>
+                          categories?.data && categories?.data.length > 0 ? (
+                            <div className="flex flex-col gap-2 p-2">
+                              <Checkbox
+                                className="font-medium"
+                                value="all"
+                                onChange={(e) => {
+                                  field.onChange(
+                                    e.target.checked
+                                      ? categories?.data.map((item) => item.id)
+                                      : [],
+                                  );
+                                }}
+                                checked={checkAll}
+                                indeterminate={indeterminate}
+                              >
+                                <span>All</span>
+                              </Checkbox>
+                              <div className="h-[1px] w-full bg-zinc-500/30"></div>
+                              <Checkbox.Group
+                                options={categories?.data.map((item) => ({
+                                  label: item.name,
+                                  value: item.id,
+                                }))}
+                                value={field.value}
+                                onChange={field.onChange}
+                                className="flex flex-col gap-2"
+                              />
+                              <LoadingComponent
+                                isLoading={isLoadingCategories}
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center">
+                              <Empty description="No categories found" />
+                            </div>
+                          )
+                        }
                       />
-                      <LoadingComponent isLoading={isLoadingCategories} />
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center">
-                      <Empty description="No categories found" />
-                    </div>
-                  )
-                }
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="description"
-            render={({ field }) => (
-              <InputAdmin
-                label="Description"
-                placeholder="Description"
-                customComponent={(props: any, ref: any) => (
-                  <Input.TextArea rows={4} {...props} ref={ref} />
-                )}
-                {...field}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="price"
-            rules={{
-              required: {
-                value: true,
-                message: ERROR_MESSAGE.REQUIRED,
-              },
-              pattern: {
-                value: /^[0-9]*\.?[0-9]*$/,
-                message: ERROR_MESSAGE.INVALID_NUMBER,
-              },
-            }}
-            render={({ field }) => (
-              <InputAdmin
-                label="Price"
-                required={true}
-                placeholder="Price"
-                error={errors.price?.message as string}
-                {...field}
-                customComponent={(props: any, ref: any) => (
-                  <InputNumber
-                    className="w-full"
-                    ref={ref}
-                    formatter={(value) => formatCurrency(Number(value))}
-                    {...props}
+                    )}
                   />
                 )}
               />
-            )}
-          />
-          <Controller
-            control={control}
-            name="cost"
-            rules={{
-              required: {
-                value: true,
-                message: ERROR_MESSAGE.REQUIRED,
-              },
-              pattern: {
-                value: /^[0-9]*\.?[0-9]*$/,
-                message: ERROR_MESSAGE.INVALID_NUMBER,
-              },
-            }}
-            render={({ field }) => (
-              <InputAdmin
-                label="Cost"
-                required={true}
-                placeholder="Cost"
-                error={errors.cost?.message as string}
-                {...field}
-                customComponent={(props: any, ref: any) => (
-                  <InputNumber
-                    className="w-full"
-                    ref={ref}
-                    formatter={(value) => formatCurrency(Number(value))}
-                    {...props}
+              <Controller
+                control={control}
+                name="description"
+                render={({ field }) => (
+                  <InputAdmin
+                    label="Description"
+                    placeholder="Description"
+                    customComponent={(props: any, ref: any) => (
+                      <Input.TextArea rows={4} {...props} ref={ref} />
+                    )}
+                    {...field}
                   />
                 )}
               />
-            )}
-          />
-          <Controller
-            control={control}
-            name="quantity"
-            rules={{
-              required: {
-                value: true,
-                message: ERROR_MESSAGE.REQUIRED,
-              },
-              pattern: {
-                value: /^[0-9]+$/,
-                message: ERROR_MESSAGE.INVALID_NUMBER,
-              },
-            }}
-            render={({ field }) => (
+            </div>
+          </div>
+          {/* Product variants */}
+          <div className="flex flex-col gap-2">
+            <h3 className="text-lg font-semibold underline">
+              Product variants
+            </h3>
+            <div className="flex w-full flex-col gap-4">
               <InputAdmin
-                label="Stock"
+                label="Variant options"
+                placeholder="Select some options"
                 required={true}
-                placeholder="Stock"
-                error={errors.quantity?.message as string}
-                {...field}
-                customComponent={(props: any, ref: any) => (
-                  <InputNumber
-                    className="w-full"
-                    formatter={(value) => formatNumber(Number(value))}
-                    ref={ref}
-                    {...props}
+                error={errors?.variants?.message || ""}
+                customComponent={(props, ref) => (
+                  <Select
+                    options={options?.data.map((item) => ({
+                      label: item.name,
+                      value: item.id,
+                    }))}
+                    placeholder="Select option"
+                    allowClear={true}
+                    mode="multiple"
+                    value={selectedOptions}
+                    onChange={_onChangeOption}
                   />
                 )}
               />
-            )}
-          />
-          <InputAdmin
-            label="Discount Campaign"
-            placeholder="Discount Campaign"
-            customComponent={(props, ref) => (
-              <Select
-                options={discounts?.data.map((item) => ({
-                  label: item.name,
-                  value: item.id,
-                }))}
-                placement="bottomLeft"
-                value={createProductForm.discountIds}
-                onClear={_onClearAllDiscounts}
-                placeholder="Select Discount Campaign"
-                allowClear={true}
-                mode="multiple"
-                onChange={_onChangeDiscountCampaign}
-                dropdownRender={(menu) =>
-                  discounts?.data && discounts?.data.length > 0 ? (
-                    <div className="flex flex-col gap-2 p-2">
-                      <Checkbox
-                        className="font-medium"
-                        value="all"
-                        onChange={_onCheckAllDiscounts}
-                        checked={checkAllDiscounts}
-                        indeterminate={indeterminateDiscounts}
-                      >
-                        <span>All</span>
-                      </Checkbox>
-                      <div className="h-[1px] w-full bg-zinc-500/30"></div>
-                      <Checkbox.Group
-                        options={discounts?.data.map((item) => ({
-                          label: item.name,
-                          value: item.id,
-                        }))}
-                        value={createProductForm.discountIds}
-                        onChange={_onChangeDiscountCampaign}
-                        className="flex flex-col gap-2"
-                      />
-                      <LoadingComponent isLoading={isLoadingDiscounts} />
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center">
-                      <Empty description="No discount campaigns found" />
-                    </div>
-                  )
-                }
+              {options?.data
+                .filter((item) => selectedOptions.includes(item.id))
+                .map((option) => (
+                  <div key={option.id}>
+                    <div>{option.name}</div>
+                    <Checkbox.Group
+                      options={option.option_values.map((item) => ({
+                        label: item.name,
+                        value: item.id,
+                      }))}
+                      value={selectedOptionValues[option.id]}
+                      onChange={(value) =>
+                        _onChangeOptionValue(option.id, value)
+                      }
+                    />
+                  </div>
+                ))}
+              {allPairs &&
+                allPairs[0] &&
+                allPairs[0].length > 0 &&
+                allPairs.map((item, index) => (
+                  <Controller
+                    control={control}
+                    name={`variants.${index}`}
+                    key={`${item[0]}-${item[1]}`}
+                    render={({ field }) => (
+                      <div>
+                        {/* Variant data */}
+                        <div className="grid grid-cols-3 gap-2">
+                          <Controller
+                            control={control}
+                            name={`variants.${index}.variant_data.name`}
+                            rules={{
+                              required: {
+                                value: true,
+                                message: ERROR_MESSAGE.REQUIRED,
+                              },
+                            }}
+                            render={({ field }) => (
+                              <InputAdmin
+                                label="Variant Name"
+                                placeholder="Variant Name"
+                                required={true}
+                                error={
+                                  errors?.variants?.[index]?.variant_data?.name
+                                    ?.message || ""
+                                }
+                                {...field}
+                                onChange={(e) => {
+                                  setValue(
+                                    `variants.${index}.variant_data.options_value_ids`,
+                                    allPairs[index],
+                                  );
+                                  field.onChange(e.target.value);
+                                }}
+                              />
+                            )}
+                          />
+                          <InputAdmin
+                            label="Variant options"
+                            placeholder="Select some options"
+                            required={true}
+                            customComponent={(props, ref) => (
+                              <Select
+                                mode="multiple"
+                                suffixIcon={null}
+                                disabled
+                                {...props}
+                                value={options?.data
+                                  ?.flatMap((option) => option.option_values)
+                                  .filter((option) =>
+                                    allPairs[index].includes(option.id),
+                                  )
+                                  .map((item) => item.id)}
+                              >
+                                {options?.data
+                                  ?.flatMap((option) => option.option_values)
+                                  .filter((option) =>
+                                    allPairs[index].includes(option.id),
+                                  )
+                                  .map((item) => (
+                                    <Select.Option
+                                      key={item.id}
+                                      value={item.id}
+                                    >
+                                      {item.name}
+                                    </Select.Option>
+                                  ))}
+                              </Select>
+                            )}
+                          />
+                          {/* Price */}
+                          <Controller
+                            control={control}
+                            name={`variants.${index}.product_sellables.price`}
+                            rules={{
+                              required: {
+                                value: true,
+                                message: ERROR_MESSAGE.REQUIRED,
+                              },
+                            }}
+                            render={({ field }) => (
+                              <InputAdmin
+                                label="Price"
+                                placeholder="Price"
+                                required={true}
+                                error={
+                                  errors?.variants?.[index]?.product_sellables
+                                    ?.price?.message || ""
+                                }
+                                {...field}
+                                customComponent={(props, ref: any) => (
+                                  <InputNumber
+                                    {...props}
+                                    ref={ref}
+                                    className="w-full"
+                                    formatter={(value) =>
+                                      formatCurrency(Number(value))
+                                    }
+                                  />
+                                )}
+                              />
+                            )}
+                          />
+                        </div>
+                        {/* Product sellables */}
+                        <div className="mt-2 flex flex-col gap-2">
+                          <div className="grid grid-cols-3 gap-2">
+                            {/* Inventory quantity */}
+                            <Controller
+                              control={control}
+                              name={`variants.${index}.product_sellables.quantity`}
+                              rules={{
+                                required: {
+                                  value: true,
+                                  message: ERROR_MESSAGE.REQUIRED,
+                                },
+                              }}
+                              render={({ field }) => (
+                                <InputAdmin
+                                  label="Inventory quantity"
+                                  placeholder="Inventory quantity"
+                                  required={true}
+                                  error={
+                                    errors?.variants?.[index]?.product_sellables
+                                      ?.quantity?.message || ""
+                                  }
+                                  {...field}
+                                  customComponent={(props, ref: any) => (
+                                    <InputNumber
+                                      {...props}
+                                      ref={ref}
+                                      className="w-full"
+                                      formatter={(value) =>
+                                        formatNumber(Number(value))
+                                      }
+                                    />
+                                  )}
+                                />
+                              )}
+                            />
+                            {/* Low stock threshold */}
+                            <Controller
+                              control={control}
+                              name={`variants.${index}.product_sellables.low_stock_threshold`}
+                              rules={{
+                                required: {
+                                  value: true,
+                                  message: ERROR_MESSAGE.REQUIRED,
+                                },
+                              }}
+                              render={({ field }) => (
+                                <InputAdmin
+                                  label="Low stock threshold"
+                                  placeholder="Low stock threshold"
+                                  required={true}
+                                  error={
+                                    errors?.variants?.[index]?.product_sellables
+                                      ?.low_stock_threshold?.message || ""
+                                  }
+                                  {...field}
+                                  customComponent={(props, ref: any) => (
+                                    <InputNumber
+                                      {...props}
+                                      ref={ref}
+                                      className="w-full"
+                                      formatter={(value) =>
+                                        formatNumber(Number(value))
+                                      }
+                                    />
+                                  )}
+                                />
+                              )}
+                            />
+                            {/* Cost */}
+                            <Controller
+                              control={control}
+                              name={`variants.${index}.product_sellables.cost`}
+                              rules={{
+                                required: {
+                                  value: true,
+                                  message: ERROR_MESSAGE.REQUIRED,
+                                },
+                              }}
+                              render={({ field }) => (
+                                <InputAdmin
+                                  label="Cost"
+                                  placeholder="Cost"
+                                  required={true}
+                                  error={
+                                    errors?.variants?.[index]?.product_sellables
+                                      ?.cost?.message || ""
+                                  }
+                                  {...field}
+                                  customComponent={(props, ref: any) => (
+                                    <InputNumber
+                                      {...props}
+                                      ref={ref}
+                                      className="w-full"
+                                      formatter={(value) =>
+                                        formatCurrency(Number(value))
+                                      }
+                                    />
+                                  )}
+                                />
+                              )}
+                            />
+                          </div>
+                          {/* Status */}
+                          <Controller
+                            control={control}
+                            name={`variants.${index}.product_sellables.status`}
+                            render={({ field }) => (
+                              <InputAdmin
+                                label="Status"
+                                placeholder="Status"
+                                required={true}
+                                {...field}
+                                customComponent={(props: any, ref: any) => (
+                                  <Select
+                                    options={statusOptions}
+                                    placeholder="Select Status"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    {...props}
+                                    ref={ref}
+                                  />
+                                )}
+                              />
+                            )}
+                          />
+                          {/* Discounts */}
+                          <Controller
+                            control={control}
+                            name={`variants.${index}.product_sellables.discountIds`}
+                            render={({ field }) => (
+                              <InputAdmin
+                                label="Discounts"
+                                placeholder="Discounts"
+                                {...field}
+                                customComponent={(props: any, ref: any) => (
+                                  <Select
+                                    options={discounts?.data.map((item) => ({
+                                      label: item.name,
+                                      value: item.id,
+                                    }))}
+                                    placeholder="Select Discounts"
+                                    mode="multiple"
+                                    {...props}
+                                    ref={ref}
+                                  />
+                                )}
+                              />
+                            )}
+                          />
+                          {/* Images */}
+                          <div className="mt-4">
+                            <InputAdmin
+                              label="Product Image"
+                              required={true}
+                              placeholder="Product Image"
+                              customComponent={() => (
+                                <Upload
+                                  listType="picture-card"
+                                  accept=".jpg,.jpeg,.png,.gif,.webp"
+                                  multiple={true}
+                                  fileList={
+                                    variantImageFileList?.[index]?.fileList ||
+                                    []
+                                  }
+                                  onChange={(info) => {
+                                    _onChangeFileList(index, info.fileList);
+                                  }}
+                                  onRemove={(file) => {
+                                    _onRemoveFileList(index);
+                                  }}
+                                >
+                                  <PlusIcon className="h-4 w-4" />
+                                </Upload>
+                              )}
+                            />
+                          </div>
+                        </div>
+                        <Divider />
+                      </div>
+                    )}
+                  />
+                ))}
+            </div>
+          </div>
+          <Controller
+            control={control}
+            name="status"
+            render={({ field }) => (
+              <InputAdmin
+                label="Status"
+                placeholder="Status"
+                required={true}
+                customComponent={(props: any, ref: any) => (
+                  <Select
+                    options={statusOptions}
+                    placeholder="Select Status"
+                    value={field.value}
+                    onChange={field.onChange}
+                    {...props}
+                    ref={ref}
+                  />
+                )}
               />
-            )}
-          />
-          <InputAdmin
-            label="Variant"
-            placeholder="Variant"
-            customComponent={(props, ref) => (
-              <TreeSelect
-                {...props}
-                onChange={(value) => {
-                  _onChangeVariant(value);
-                }}
-                treeData={variantTree}
-                placeholder="Select Variant"
-                value={createProductForm.variantIds}
-                treeCheckable={true}
-                showCheckedStrategy="SHOW_CHILD"
-              />
-            )}
-          />
-          <InputAdmin
-            label="Status"
-            placeholder="Status"
-            required={true}
-            customComponent={() => (
-              <Select
-                options={statusOptions}
-                placeholder="Select Status"
-                value={createProductForm.status}
-                onChange={_onChangeStatus}
-              />
-            )}
-          />
-        </div>
-        <div className="mt-4">
-          <InputAdmin
-            label="Product Image"
-            required={true}
-            placeholder="Product Image"
-            customComponent={() => (
-              <Upload
-                listType="picture-card"
-                accept=".jpg,.jpeg,.png,.gif,.webp"
-                multiple={true}
-                fileList={createProductForm.imageFileList}
-                onChange={(info) => {
-                  _onChangeFileList(info.fileList);
-                }}
-                onRemove={(file) => {
-                  _onRemoveFileList(file);
-                }}
-              >
-                <PlusIcon className="h-4 w-4" />
-              </Upload>
             )}
           />
         </div>
@@ -560,10 +735,8 @@ const CreateProductModal = ({
       renderTitle={_renderTitleModalCreateProduct}
       renderFooter={_renderFooterModalCreateProduct}
       renderContent={_renderContentModalCreateProduct}
-      // open={isModalCreateProductOpen}
-      open={true}
+      open={isModalCreateProductOpen}
       onCancel={_onCloseModalCreateProduct}
-      onOk={_onConfirmCreateProduct}
       loading={createProductLoading || uploadImageLoading}
     />
   );

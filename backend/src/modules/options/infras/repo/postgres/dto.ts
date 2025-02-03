@@ -39,6 +39,11 @@ export const optionsInit = (sequelize: Sequelize) => {
         allowNull: false,
         defaultValue: ModelStatus.ACTIVE,
       },
+      is_color: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+      },
     },
     {
       sequelize,

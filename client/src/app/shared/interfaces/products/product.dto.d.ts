@@ -1,4 +1,6 @@
 import { PRODUCT_STATS_GROUP_BY } from "@/app/constants/product-stats";
+import { CreateProductSellableDTO } from "@/app/shared/interfaces/products/product-sellable.dto";
+import { CreateVariantDTOV2 } from "@/app/shared/interfaces/variant/variant.interface";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { DateString } from "@/app/shared/types/datestring.model";
 import { UploadFile } from "antd";
@@ -27,6 +29,17 @@ export type CreateProductBodyDTO = {
   quantity: number | string;
   status: "ACTIVE" | "INACTIVE" | "DELETED";
   cost: number | string;
+};
+
+export type CreateProductDTOV2 = {
+  name: string;
+  description?: string;
+  status: "ACTIVE" | "INACTIVE" | "DELETED";
+  categoryIds: string[];
+  variants: {
+    variant_data: CreateVariantDTOV2;
+    product_sellables: CreateProductSellableDTO;
+  }[];
 };
 
 export type UpdateProductDTO = {

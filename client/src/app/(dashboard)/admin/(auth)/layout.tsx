@@ -32,12 +32,10 @@ export default function AuthRootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="--dashboard">
-      <body
-        className={`${openSans.variable} ${openSansMedium.variable} ${openSansBold.variable} --dashboard antialiased`}
-      >
-        <AuthLayout>{children}</AuthLayout>
-      </body>
-    </html>
+    <main
+      className={`${openSans.variable} ${openSansMedium.variable} ${openSansBold.variable} --dashboard antialiased`}
+    >
+      <AuthLayout>{children}</AuthLayout>
+    </main>
   );
 }

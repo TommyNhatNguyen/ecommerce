@@ -11,13 +11,14 @@ import {
   IOptionValueRepository,
 } from 'src/modules/options/models/option.interface';
 import { Option, OptionValue } from 'src/modules/options/models/option.model';
-import { Sequelize } from 'sequelize';
+import { Includeable, Sequelize } from 'sequelize';
 import {
   BaseSortBy,
   BaseOrder,
   ListResponse,
 } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
+import { optionValueModelName, OptionValuePersistence } from 'src/modules/options/infras/repo/postgres/dto';
 
 export class PostgresOptionRepository implements IOptionRepository {
   constructor(
@@ -32,6 +33,13 @@ export class PostgresOptionRepository implements IOptionRepository {
     paging: PagingDTO,
     condition: OptionConditionDTO
   ): Promise<ListResponse<Option[]>> {
+    const include: Includeable[] = [];
+    if (condition.include_option_values) {
+      include.push({
+        model: OptionValuePersistence,
+        as: optionValueModelName,
+      });
+    }
     const { page, limit } = paging;
     const order = condition?.order || BaseOrder.DESC;
     const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
@@ -41,6 +49,7 @@ export class PostgresOptionRepository implements IOptionRepository {
       limit,
       offset: (page - 1) * limit,
       order: [[sortBy, order]],
+      include,
     });
     return {
       data: rows.map((row) => row.dataValues),
