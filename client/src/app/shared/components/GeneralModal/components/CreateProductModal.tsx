@@ -34,7 +34,7 @@ import { useNotification } from "@/app/contexts/NotificationContext";
 type CreateProductModalPropsType = {
   isModalCreateProductOpen: boolean;
   handleCloseModalCreateProduct: () => void;
-  refetch: () => void;
+  refetch?: () => void;
 };
 
 const CreateProductModal = ({
@@ -202,7 +202,7 @@ const CreateProductModal = ({
       }));
     }
     await hanldeCreateProduct(payload);
-    refetch();
+    refetch && refetch();
     _onCloseModalCreateProduct();
   };
 
@@ -278,6 +278,8 @@ const CreateProductModal = ({
                     error={errors?.categoryIds?.message || ""}
                     label="Category"
                     placeholder="Choose category"
+                    groupClassName="w-full"
+                    className="w-full"
                     required={true}
                     customComponent={(props, ref: any) => (
                       <Select
@@ -362,6 +364,8 @@ const CreateProductModal = ({
                 label="Variant options"
                 placeholder="Select some options"
                 required={true}
+                groupClassName="w-full"
+                className="w-full"
                 error={errors?.variants?.message || ""}
                 customComponent={(props, ref) => (
                   <Select
@@ -369,7 +373,7 @@ const CreateProductModal = ({
                       label: item.name,
                       value: item.id,
                     }))}
-                    placeholder="Select option"
+                    {...props}
                     allowClear={true}
                     mode="multiple"
                     value={selectedOptions}
@@ -383,7 +387,7 @@ const CreateProductModal = ({
                   <div key={option.id}>
                     <div>{option.name}</div>
                     <Checkbox.Group
-                      options={option.option_values.map((item) => ({
+                      options={option.option_values?.map((item) => ({
                         label: item.name,
                         value: item.id,
                       }))}
@@ -448,21 +452,21 @@ const CreateProductModal = ({
                                 value={options?.data
                                   ?.flatMap((option) => option.option_values)
                                   .filter((option) =>
-                                    allPairs[index].includes(option.id),
+                                    allPairs[index].includes(option?.id || ''),
                                   )
-                                  .map((item) => item.id)}
+                                  .map((item) => item?.id || '')}
                               >
                                 {options?.data
                                   ?.flatMap((option) => option.option_values)
                                   .filter((option) =>
-                                    allPairs[index].includes(option.id),
+                                    allPairs[index].includes(option?.id || '' ),
                                   )
                                   .map((item) => (
                                     <Select.Option
-                                      key={item.id}
-                                      value={item.id}
+                                      key={item?.id || ''}
+                                      value={item?.id || ''}
                                     >
-                                      {item.name}
+                                      {item?.name || ''}
                                     </Select.Option>
                                   ))}
                               </Select>

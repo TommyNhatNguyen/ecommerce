@@ -19,7 +19,7 @@ type UpdateDiscountModalPropsType = {
   isModalUpdateDiscountCampaignOpen: boolean;
   handleCloseModalUpdateDiscountCampaign: () => void;
   updateDiscountCampaignId: string;
-  refetch: () => void;
+  refetch?: () => void;
 };
 
 const UpdateDiscountModal = ({
@@ -72,7 +72,7 @@ const UpdateDiscountModal = ({
       end_date: data.end_date ? new Date(data.end_date) : new Date(),
     };
     await handleUpdateDiscount(updateDiscountCampaignId, payload);
-    refetch();
+    refetch?.();
     _onCloseModalUpdateDiscountCampaign();
   };
   const _renderTitleModalUpdateDiscountCampaign = () => {

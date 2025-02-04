@@ -18,6 +18,7 @@ type CreateDiscountModalPropsType = {
   handleSubmitCreateDiscountCampaignForm: (data: any) => void;
   loading?: boolean;
   defaultScope?: DiscountScope;
+  refetch?: () => void;
 };
 
 const CreateDiscountModal = ({
@@ -26,6 +27,7 @@ const CreateDiscountModal = ({
   handleSubmitCreateDiscountCampaignForm,
   loading = false,
   defaultScope = DISCOUNT_SCOPE.PRODUCT,
+  refetch,
 }: CreateDiscountModalPropsType) => {
   const {
     handleSubmit,
@@ -42,6 +44,7 @@ const CreateDiscountModal = ({
   const _onConfirmCreateDiscountCampaign = (data: any) => {
     handleSubmitCreateDiscountCampaignForm(data);
     reset();
+    refetch?.();
   };
   useEffect(() => {
     reset({

@@ -1,0 +1,1 @@
+export const OPTION_VALUES_REQUIRED = new Error('Option values are required');

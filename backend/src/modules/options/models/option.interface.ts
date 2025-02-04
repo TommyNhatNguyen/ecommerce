@@ -34,7 +34,7 @@ export interface IQueryRepository {
 }
 
 export interface ICommandRepository {
-  insert(data: OptionCreateDTO): Promise<Option>;
+  insert(data: Omit<OptionCreateDTO, 'option_values'>): Promise<Option>;
   update(id: string, data: OptionUpdateDTO): Promise<Option>;
   delete(id: string): Promise<boolean>;
 }

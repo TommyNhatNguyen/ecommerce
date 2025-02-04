@@ -15,14 +15,33 @@ import { IOptionUseCase } from 'src/modules/options/models/option.interface';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { Option, OptionValue } from 'src/modules/options/models/option.model';
+import { OPTION_VALUES_REQUIRED } from 'src/modules/options/models/option.error';
 
 export class OptionUseCase implements IOptionUseCase {
-  constructor(private readonly optionRepository: IOptionRepository) {}
+  constructor(
+    private readonly optionRepository: IOptionRepository,
+    private readonly optionValueUseCase: IOptionValueUseCase
+  ) {}
   getOptionById(id: string, condition?: OptionConditionDTO): Promise<Option> {
     return this.optionRepository.get(id, condition);
   }
-  createOption(data: OptionCreateDTO): Promise<Option> {
-    return this.optionRepository.insert(data);
+  async createOption(data: OptionCreateDTO): Promise<Option> {
+    const { option_values, ...optionData } = data;
+    const option = await this.optionRepository.insert(optionData);
+    if (option_values) {
+      const optionValuesAll = await Promise.all(
+        option_values.map((optionValue) =>
+          this.optionValueUseCase.createOptionValue({
+            ...optionValue,
+            option_id: option.id,
+          })
+        )
+      );
+      console.log(optionValuesAll);
+    } else {
+      throw OPTION_VALUES_REQUIRED;
+    }
+    return option;
   }
   updateOption(id: string, data: OptionUpdateDTO): Promise<Option> {
     return this.optionRepository.update(id, data);

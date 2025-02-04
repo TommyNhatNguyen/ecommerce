@@ -11,7 +11,16 @@ export const VariantConditionDTOSchema = z.object({
   updated_at: z.date().optional(),
   order: z.string().optional().default(BaseOrder.DESC),
   sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
-  include_options_value: z.boolean().optional().default(false),
+  include_options_value: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  include_option: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
 });
 
 export const VariantCreateDTOSchema = z.object({
@@ -35,4 +44,6 @@ export const VariantOptionValueCreateDTOSchema = z.object({
 export type VariantConditionDTO = z.infer<typeof VariantConditionDTOSchema>;
 export type VariantCreateDTO = z.infer<typeof VariantCreateDTOSchema>;
 export type VariantUpdateDTO = z.infer<typeof VariantUpdateDTOSchema>;
-export type VariantOptionValueCreateDTO = z.infer<typeof VariantOptionValueCreateDTOSchema>;
+export type VariantOptionValueCreateDTO = z.infer<
+  typeof VariantOptionValueCreateDTOSchema
+>;

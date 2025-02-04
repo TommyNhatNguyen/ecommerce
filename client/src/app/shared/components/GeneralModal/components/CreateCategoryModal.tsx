@@ -14,6 +14,7 @@ type CreateCategoryModalPropsType = {
   handleCloseModalCreateCategory: () => void;
   handleSubmitCreateCategoryForm: (data: any) => void;
   loading?: boolean;
+  refetch?: () => void;
 };
 
 const CreateCategoryModal = ({
@@ -21,6 +22,7 @@ const CreateCategoryModal = ({
   handleCloseModalCreateCategory,
   handleSubmitCreateCategoryForm,
   loading = false,
+  refetch,
 }: CreateCategoryModalPropsType) => {
   const {
     handleSubmit,
@@ -78,6 +80,7 @@ const CreateCategoryModal = ({
     }
     handleSubmitCreateCategoryForm(payload);
     _onCloseModalCreateCategory();
+    refetch?.();
   };
   const _renderFooterModalCreateCategory = () => {
     return (

@@ -30,7 +30,7 @@ type UpdateCategoryModalPropsType = {
   isModalUpdateCategoryOpen: boolean;
   handleCloseModalUpdateCategory: () => void;
   updateCategoryId: string;
-  refetch: () => void;
+  refetch?: () => void;
 };
 
 const UpdateCategoryModal = ({
@@ -80,7 +80,7 @@ const UpdateCategoryModal = ({
       payload.image_id = imageIds?.[0];
     }
     await handleUpdateCategory(updateCategoryId, payload);
-    refetch();
+    refetch?.();
     _onCloseModalUpdateCategory();
   };
   const _renderTitleModalUpdateCategory = () => {

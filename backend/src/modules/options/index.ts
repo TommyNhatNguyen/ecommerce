@@ -22,7 +22,12 @@ export function setupOptionRouter(sequelize: Sequelize) {
     sequelize,
     optionsModelName
   );
-  const optionUseCase = new OptionUseCase(optionRepository);
+  const optionValueRepository = new PostgresOptionValueRepository(
+    sequelize,
+    optionValueModelName
+  );
+  const optionValueUseCase = new OptionValueUseCase(optionValueRepository);
+  const optionUseCase = new OptionUseCase(optionRepository, optionValueUseCase);
   const optionHttpService = new OptionHttpService(optionUseCase);
   const router = Router();
   router.get(

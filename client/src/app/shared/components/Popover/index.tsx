@@ -1,3 +1,5 @@
+'use client'
+
 import { Button, Popover, PopoverProps } from "antd";
 import { Trash2Icon, XIcon } from "lucide-react";
 import React, { useState } from "react";

@@ -39,7 +39,7 @@ type UpdateProductModalPropsType = {
   isModalUpdateProductOpen: boolean;
   handleCloseModalUpdateProduct: () => void;
   updateProductId: string;
-  refetch: () => void;
+  refetch?: () => void;
 };
 
 const UpdateProductModal = ({
@@ -182,7 +182,7 @@ const UpdateProductModal = ({
       payload.imageIds = [...currentImageIds, ...imageIds] as string[];
     }
     await handleUpdateProduct(updateProductId, payload);
-    refetch();
+    refetch && refetch();
     _onClearAllFormData();
     _onCloseModalUpdateProduct();
   };

@@ -363,6 +363,7 @@ const InventoryTable = ({
       dataIndex: "image",
       key: "image",
       className: "max-w-[150px]",
+      minWidth: 150,
       render: (_, { product_sellable }) => {
         const images = product_sellable?.image || [];
         return (
@@ -374,7 +375,12 @@ const InventoryTable = ({
           >
             <Carousel autoplay dotPosition="bottom">
               {images.map((item) => (
-                <Image src={item.url} alt={item.url} key={item.id} />
+                <Image
+                  className="object-contain object-center"
+                  src={item.url}
+                  alt={item.url}
+                  key={item.id}
+                />
               ))}
             </Carousel>
           </Image.PreviewGroup>
@@ -397,7 +403,7 @@ const InventoryTable = ({
       key: "options",
       render: (_, { option_values }) => {
         return (
-          <div className="flex flex-col gap-2 w-full">
+          <div className="flex w-full flex-col gap-2">
             {option_values?.map((item) => (
               <Tag key={item.id}>
                 {item.options.name} - {item.name}
@@ -429,10 +435,6 @@ const InventoryTable = ({
         );
         return (
           <div className="flex flex-col gap-2">
-            <h3>
-              <span className="font-semibold">Total discount:</span>{" "}
-              {formatCurrency(total_discounts || 0)}
-            </h3>
             {discounts?.map((discount, index) => (
               <Tooltip
                 title={discount?.description}

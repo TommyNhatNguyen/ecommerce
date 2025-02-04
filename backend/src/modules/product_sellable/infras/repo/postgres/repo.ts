@@ -171,7 +171,20 @@ export class PostgresProductSellableRepository
         },
       },
     ];
-
+    const variantInclude: Includeable[] = [
+      {
+        model: OptionValuePersistence,
+        as: optionValueModelName.toLowerCase(),
+        attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        include: [
+          {
+            model: OptionsPersistence,
+            as: optionsModelName.toLowerCase(),
+            attributes: { exclude: EXCLUDE_ATTRIBUTES },
+          },
+        ],
+      },
+    ];
     if (condition.includeDiscount) {
       include.push({
         model: DiscountPersistence,
@@ -182,26 +195,21 @@ export class PostgresProductSellableRepository
     }
 
     if (condition.includeVariant) {
+      if (condition?.includeProduct) {
+        variantInclude.push({
+          model: ProductPersistence,
+          as: productModelName,
+          attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        });
+      }
       include.push({
         model: VariantPersistence,
         as: variantModelName.toLowerCase(),
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
-        include: [
-          {
-            model: OptionValuePersistence,
-            as: optionValueModelName.toLowerCase(),
-            attributes: { exclude: EXCLUDE_ATTRIBUTES },
-            include: [
-              {
-                model: OptionsPersistence,
-                as: optionsModelName.toLowerCase(),
-                attributes: { exclude: EXCLUDE_ATTRIBUTES },
-              },
-            ],
-          },
-        ],
+        include: variantInclude,
       });
     }
+
     if (condition.includeImage) {
       include.push({
         model: ImagePersistence,

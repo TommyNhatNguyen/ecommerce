@@ -4,36 +4,6 @@ import {
   ModelStatus,
 } from 'src/share/models/base-model';
 import z from 'zod';
-export const OptionConditionDTOSchema = z.object({
-  name: z.string().optional(),
-  status: z.nativeEnum(ModelStatus).optional(),
-  created_at: z.date().optional(),
-  updated_at: z.date().optional(),
-  order: z.string().optional().default(BaseOrder.DESC),
-  sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
-  is_color: z
-    .string()
-    .refine((value) => value === 'true' || value === 'false')
-    .transform((value) => value === 'true')
-    .optional(),
-  include_option_values: z
-    .string()
-    .refine((value) => value === 'true' || value === 'false')
-    .transform((value) => value === 'true')
-    .optional(),
-});
-
-export const OptionCreateDTOSchema = z.object({
-  name: z.string(),
-  is_color: z.boolean().optional(),
-});
-
-export const OptionUpdateDTOSchema = z.object({
-  name: z.string().optional(),
-  status: z.nativeEnum(ModelStatus).optional(),
-  is_color: z.boolean().optional(),
-});
-
 export const OptionValueCreateDTOSchema = z.object({
   name: z.string(),
   value: z.string(),
@@ -56,6 +26,41 @@ export const OptionValueConditionDTOSchema = z.object({
   updated_at: z.date().optional(),
   order: z.string().optional().default(BaseOrder.DESC),
   sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
+});
+
+export const OptionConditionDTOSchema = z.object({
+  name: z.string().optional(),
+  status: z.nativeEnum(ModelStatus).optional(),
+  created_at: z.date().optional(),
+  updated_at: z.date().optional(),
+  order: z.string().optional().default(BaseOrder.DESC),
+  sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
+  is_color: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  include_option_values: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+});
+
+export const OptionCreateDTOSchema = z.object({
+  name: z.string(),
+  is_color: z.boolean().optional(),
+  option_values: z.array(
+    OptionValueCreateDTOSchema.partial({
+      option_id: true,
+    })
+  ),
+});
+
+export const OptionUpdateDTOSchema = z.object({
+  name: z.string().optional(),
+  status: z.nativeEnum(ModelStatus).optional(),
+  is_color: z.boolean().optional(),
 });
 
 export type OptionConditionDTO = z.infer<typeof OptionConditionDTOSchema>;

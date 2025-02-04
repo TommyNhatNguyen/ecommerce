@@ -17,7 +17,11 @@ import {
   productModelName,
   ProductPersistence,
 } from 'src/modules/products/infras/repo/postgres/dto';
-import { optionValueModelName } from 'src/modules/options/infras/repo/postgres/dto';
+import {
+  optionsModelName,
+  OptionsPersistence,
+  optionValueModelName,
+} from 'src/modules/options/infras/repo/postgres/dto';
 import { OptionValuePersistence } from 'src/modules/options/infras/repo/postgres/dto';
 
 export class PostgresVariantRepository implements IVariantRepository {
@@ -38,13 +42,21 @@ export class PostgresVariantRepository implements IVariantRepository {
     condition: VariantConditionDTO
   ): Promise<ListResponse<Variant[]>> {
     const include: Includeable[] = [];
+    const optionValueInclude: Includeable[] = [];
     if (condition.include_options_value) {
+      if (condition.include_option) {
+        optionValueInclude.push({
+          model: OptionsPersistence,
+          as: optionsModelName.toLowerCase(),
+        });
+      }
       include.push({
         model: OptionValuePersistence,
         as: optionValueModelName.toLowerCase(),
         through: {
           attributes: [],
         },
+        include: optionValueInclude,
       });
     }
     const { page, limit } = paging;

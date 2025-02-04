@@ -1,4 +1,6 @@
+import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import clsx from "clsx";
+import { Trash2Icon } from "lucide-react";
 import Link, { LinkProps } from "next/link";
 import React from "react";
 import { twMerge } from "tailwind-merge";
@@ -71,5 +73,13 @@ const withLink = (
     </Link>
   );
 };
+
+// Button with delete confirmation popover
+export const ButtonDeleteWithPopover = withDeleteConfirmPopover(
+  <Button className="aspect-square rounded-full p-0">
+    <Trash2Icon className="h-4 w-4 stroke-red-500" />
+  </Button>,
+);
+
 
 export default Button;

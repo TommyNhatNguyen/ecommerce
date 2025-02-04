@@ -21,6 +21,8 @@ export type VariantConditionDTO = {
   is_color?: boolean;
   order?: BaseOrder;
   sortBy?: BaseSortBy;
+  include_options_value?: boolean;
+  include_option?: boolean;
   page?: number;
   limit?: number;
 };
@@ -36,6 +38,17 @@ export type VariantUpdateDTO = {
 export type CreateVariantDTOV2 = {
   name: string;
   options_value_ids: string[];
+};
+
+export type OptionCreateDTO = {
+  name: string;
+  is_color?: boolean;
+  option_values: OptionValueCreateDTO[];
+};
+
+export type OptionValueCreateDTO = {
+  name: string;
+  value: string;
 };
 
 export type OptionValueConditionDTO = {
