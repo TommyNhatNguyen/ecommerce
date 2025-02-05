@@ -34,7 +34,6 @@ const ProductCard = ({
       }),
     placeholderData: keepPreviousData,
   });
-  
   const _onSoftDeleteProduct = async (id: string) => {
     await handleSoftDeleteProduct(id);
   };

@@ -1,3 +1,5 @@
+'use client'
+
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import clsx from "clsx";
 import { Trash2Icon } from "lucide-react";

@@ -30,6 +30,7 @@ import { DISCOUNT_SCOPE } from "@/app/constants/enum";
 import { optionService } from "@/app/shared/services/variant/optionService";
 import { generateAllPairs } from "@/app/shared/utils/generateAllPairs";
 import { useNotification } from "@/app/contexts/NotificationContext";
+import { filterOption } from "@/lib/antd";
 
 type CreateProductModalPropsType = {
   isModalCreateProductOpen: boolean;
@@ -43,16 +44,15 @@ const CreateProductModal = ({
   refetch,
 }: CreateProductModalPropsType) => {
   // ===== State Management =====
-  const [variantImageFileList, setVariantImageFileList] = useState<
-    { id: number; fileList: UploadFile[] }[]
-  >([]);
+  const [variantImageFileList, setVariantImageFileList] = useState<{
+    [key: number]: UploadFile[];
+  }>({});
   const [uploadImageLoading, setUploadImageLoading] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [selectedOptionValues, setSelectedOptionValues] = useState<{
     [key: string]: string[];
   }>({});
   const { notificationApi } = useNotification();
-
   // ===== Form Management =====
   const {
     handleSubmit,
@@ -71,7 +71,6 @@ const CreateProductModal = ({
       variants: [],
     },
   });
-
   // ===== Queries =====
   const { data: categories, isLoading: isLoadingCategories } = useQuery({
     queryKey: ["categories", isModalCreateProductOpen],
@@ -89,7 +88,6 @@ const CreateProductModal = ({
     queryFn: () => optionService.getOptionList({ include_option_values: true }),
     enabled: isModalCreateProductOpen,
   });
-
   // ===== Computed Values =====
   const { hanldeCreateProduct, loading } = useCreateProductModal();
   const createProductLoading = loading || uploadImageLoading;
@@ -127,25 +125,31 @@ const CreateProductModal = ({
   };
 
   const _onChangeOptionValue = (optionId: string, value: string[]) => {
+    const currentVariantIndexList = allPairs
+      .filter((pair) => pair.some((i) => value.includes(i)))
+      .map((pair) => allPairs.indexOf(pair));
     setSelectedOptionValues((prev) => ({
       ...prev,
       [optionId]: value,
     }));
     reset({
       ...getValues(),
-      variants: [],
+      variants: getValues("variants").filter((variant, index) =>
+        currentVariantIndexList.includes(index),
+      ),
     });
+    _onClearAllImages();
   };
 
   const _onSubmitFileList = async () => {
-    if (variantImageFileList.length === 0) return;
+    if (Object.keys(variantImageFileList).length === 0) return;
     setUploadImageLoading(true);
     try {
       const imagesResponseData = await Promise.all(
-        variantImageFileList.map(async (item) => {
-          if (!item?.fileList) return;
+        Object.entries(variantImageFileList).map(async ([id, item]) => {
+          if (!item) return;
           const imageReponses = await Promise.all(
-            item.fileList.map(async (file) => {
+            item.map(async (file) => {
               if (!file?.originFileObj) return;
               const response = await imagesService.uploadImage(
                 file.originFileObj,
@@ -190,41 +194,28 @@ const CreateProductModal = ({
     const payload: CreateProductDTOV2 = {
       ...data,
     };
-
-    if (variantImageFileList.length > 0 && variantImageFileList[0].fileList) {
-      const imageIds = (await _onSubmitFileList()) || [];
-      payload.variants = payload.variants.map((variant) => ({
-        ...variant,
-        product_sellables: {
-          ...variant.product_sellables,
-          imageIds: imageIds as string[],
-        },
-      }));
-    }
+    const imageIds = (await _onSubmitFileList()) || [];
+    payload.variants = payload.variants.map((variant) => ({
+      ...variant,
+      product_sellables: {
+        ...variant.product_sellables,
+        imageIds: imageIds as string[],
+      },
+    }));
     await hanldeCreateProduct(payload);
+    _onClearAllFormData();
     refetch && refetch();
     _onCloseModalCreateProduct();
   };
 
   const _onChangeFileList = (id: number, fileList: UploadFile[]) => {
-    if (variantImageFileList.length === 0) {
-      setVariantImageFileList([{ id, fileList }]);
-    } else {
-      setVariantImageFileList((prev) => {
-        const newList = prev.map((item) => {
-          if (item.id === id) {
-            return { ...item, fileList };
-          }
-          return item;
-        });
-        return newList;
-      });
-    }
+    setVariantImageFileList({ ...variantImageFileList, [id]: fileList });
   };
 
   const _onRemoveFileList = (id: number) => {
     setVariantImageFileList((prev) => {
-      const newList = prev.filter((item) => item.id !== id);
+      const newList = { ...prev };
+      delete newList[id];
       return newList;
     });
   };
@@ -295,8 +286,9 @@ const CreateProductModal = ({
                         placeholder="Select Category"
                         allowClear={true}
                         mode="multiple"
-                        dropdownRender={(menu) =>
-                          categories?.data && categories?.data.length > 0 ? (
+                        dropdownRender={(menu) => {
+                          return categories?.data &&
+                            categories?.data.length > 0 ? (
                             <div className="flex flex-col gap-2 p-2">
                               <Checkbox
                                 className="font-medium"
@@ -331,8 +323,8 @@ const CreateProductModal = ({
                             <div className="flex items-center justify-center">
                               <Empty description="No categories found" />
                             </div>
-                          )
-                        }
+                          );
+                        }}
                       />
                     )}
                   />
@@ -374,6 +366,8 @@ const CreateProductModal = ({
                       value: item.id,
                     }))}
                     {...props}
+                    showSearch={true}
+                    filterOption={filterOption}
                     allowClear={true}
                     mode="multiple"
                     value={selectedOptions}
@@ -405,7 +399,7 @@ const CreateProductModal = ({
                   <Controller
                     control={control}
                     name={`variants.${index}`}
-                    key={`${item[0]}-${item[1]}`}
+                    key={`${item[0]}-${item[1]}-${index}`}
                     render={({ field }) => (
                       <div>
                         {/* Variant data */}
@@ -442,31 +436,33 @@ const CreateProductModal = ({
                           <InputAdmin
                             label="Variant options"
                             placeholder="Select some options"
+                            className="w-full"
                             required={true}
                             customComponent={(props, ref) => (
                               <Select
                                 mode="multiple"
                                 suffixIcon={null}
                                 disabled
+                                showSearch={true}
                                 {...props}
                                 value={options?.data
                                   ?.flatMap((option) => option.option_values)
                                   .filter((option) =>
-                                    allPairs[index].includes(option?.id || ''),
+                                    allPairs[index].includes(option?.id || ""),
                                   )
-                                  .map((item) => item?.id || '')}
+                                  .map((item) => item?.id || "")}
                               >
                                 {options?.data
                                   ?.flatMap((option) => option.option_values)
                                   .filter((option) =>
-                                    allPairs[index].includes(option?.id || '' ),
+                                    allPairs[index].includes(option?.id || ""),
                                   )
                                   .map((item) => (
                                     <Select.Option
-                                      key={item?.id || ''}
-                                      value={item?.id || ''}
+                                      key={item?.id || ""}
+                                      value={item?.id || ""}
                                     >
-                                      {item?.name || ''}
+                                      {item?.name || ""}
                                     </Select.Option>
                                   ))}
                               </Select>
@@ -609,6 +605,32 @@ const CreateProductModal = ({
                               )}
                             />
                           </div>
+                          {/* Discounts */}
+                          <Controller
+                            control={control}
+                            name={`variants.${index}.product_sellables.discountIds`}
+                            render={({ field }) => (
+                              <InputAdmin
+                                label="Discounts"
+                                placeholder="Discounts"
+                                className="w-full"
+                                {...field}
+                                customComponent={(props: any, ref: any) => (
+                                  <Select
+                                    options={discounts?.data.map((item) => ({
+                                      label: item.name,
+                                      value: item.id,
+                                    }))}
+                                    showSearch={true}
+                                    placeholder="Select Discounts"
+                                    mode="multiple"
+                                    {...props}
+                                    ref={ref}
+                                  />
+                                )}
+                              />
+                            )}
+                          />
                           {/* Status */}
                           <Controller
                             control={control}
@@ -618,6 +640,7 @@ const CreateProductModal = ({
                                 label="Status"
                                 placeholder="Status"
                                 required={true}
+                                className="w-full"
                                 {...field}
                                 customComponent={(props: any, ref: any) => (
                                   <Select
@@ -625,30 +648,6 @@ const CreateProductModal = ({
                                     placeholder="Select Status"
                                     value={field.value}
                                     onChange={field.onChange}
-                                    {...props}
-                                    ref={ref}
-                                  />
-                                )}
-                              />
-                            )}
-                          />
-                          {/* Discounts */}
-                          <Controller
-                            control={control}
-                            name={`variants.${index}.product_sellables.discountIds`}
-                            render={({ field }) => (
-                              <InputAdmin
-                                label="Discounts"
-                                placeholder="Discounts"
-                                {...field}
-                                customComponent={(props: any, ref: any) => (
-                                  <Select
-                                    options={discounts?.data.map((item) => ({
-                                      label: item.name,
-                                      value: item.id,
-                                    }))}
-                                    placeholder="Select Discounts"
-                                    mode="multiple"
                                     {...props}
                                     ref={ref}
                                   />
@@ -667,10 +666,7 @@ const CreateProductModal = ({
                                   listType="picture-card"
                                   accept=".jpg,.jpeg,.png,.gif,.webp"
                                   multiple={true}
-                                  fileList={
-                                    variantImageFileList?.[index]?.fileList ||
-                                    []
-                                  }
+                                  fileList={variantImageFileList[index] || []}
                                   onChange={(info) => {
                                     _onChangeFileList(index, info.fileList);
                                   }}
@@ -699,6 +695,7 @@ const CreateProductModal = ({
                 label="Status"
                 placeholder="Status"
                 required={true}
+                className="w-full"
                 customComponent={(props: any, ref: any) => (
                   <Select
                     options={statusOptions}

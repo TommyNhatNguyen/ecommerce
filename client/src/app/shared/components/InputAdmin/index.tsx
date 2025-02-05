@@ -11,12 +11,13 @@ type InputAdminPropsType = {
   error?: string;
   required?: boolean;
   customComponent?: (
-    props: ControllerRenderProps<any, any>,
+    props: ControllerRenderProps<any, any> & { className?: string },
     ref: React.RefObject<InputRef>,
   ) => React.ReactNode;
   groupClassName?: string;
   labelClassName?: string;
   renderNextToInput?: () => React.ReactNode;
+  className?: string;
 } & InputProps;
 
 const InputAdmin = forwardRef(
@@ -29,12 +30,13 @@ const InputAdmin = forwardRef(
       groupClassName,
       labelClassName,
       renderNextToInput,
+      className,
       ...props
     }: InputAdminPropsType,
     ref: any,
   ) => {
     return (
-      <div className={cn(groupClassName)}>
+      <div className={cn(groupClassName, "w-full")}>
         <div className="mb-2">
           <label className={cn("font-medium", labelClassName)}>
             {required && <span className="text-red-500">*</span>}
@@ -43,16 +45,20 @@ const InputAdmin = forwardRef(
         </div>
         {customComponent ? (
           customComponent(
-            props as ControllerRenderProps<any, any>,
+            {
+              ...props,
+              ...{ className: cn(className, "w-full") },
+            } as ControllerRenderProps<any, any> & { className?: string },
             ref as React.RefObject<InputRef>,
           )
         ) : (
-          <div className="flex items-center gap-2">
+          <div className="flex w-full items-center gap-2">
             <Input
               ref={ref}
               className={cn(
                 "w-full",
                 error ? "border-red-500 text-red-500" : "",
+                className,
               )}
               {...props}
             />

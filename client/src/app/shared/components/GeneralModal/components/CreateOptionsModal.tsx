@@ -56,7 +56,7 @@ const CreateOptionsModal = ({
   const { notificationApi } = useNotification();
   const _resetData = () => {
     reset({
-      name: "",
+      name: getValues("name"),
       is_color: getValues("is_color"),
       option_values: [
         {
@@ -138,7 +138,6 @@ const CreateOptionsModal = ({
               <InputAdmin
                 label="Name"
                 placeholder="Name"
-                groupClassName="flex-1"
                 error={errors.name?.message as string}
                 required={true}
                 {...field}

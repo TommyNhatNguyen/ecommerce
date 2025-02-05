@@ -108,7 +108,7 @@ const CreateDiscountModal = ({
             />
           )}
         />
-        <div className="flex items-start gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <Controller
             control={control}
             name="type"
