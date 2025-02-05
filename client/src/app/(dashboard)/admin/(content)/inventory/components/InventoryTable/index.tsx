@@ -93,6 +93,10 @@ type InventoryTablePropsType = {
   updateStatusLoading: boolean;
   handleSoftDeleteSelectedProducts: () => Promise<void>;
   softDeleteSelectedProductsLoading: boolean;
+  handleUpdateVariantStatus: (id: string, status: ModelStatus) => Promise<void>;
+  updateVariantStatusLoading: boolean;
+  handleDeleteVariant: (id: string) => Promise<boolean>;
+  deleteVariantLoading: boolean;
 };
 
 type OnChange = NonNullable<TableProps<ProductModel>["onChange"]>;
@@ -112,6 +116,10 @@ const InventoryTable = ({
   selectedRows,
   handleSoftDeleteSelectedProducts,
   softDeleteSelectedProductsLoading,
+  handleUpdateVariantStatus,
+  updateVariantStatusLoading,
+  handleDeleteVariant,
+  deleteVariantLoading,
 }: InventoryTablePropsType) => {
   const [filteredInfo, setFilteredInfo] = useState<Filters>({});
   const [sortedInfo, setSortedInfo] = useState<Sorts>({});
@@ -156,8 +164,10 @@ const InventoryTable = ({
       inventoryPage,
       inventoryLimit,
       updateStatusLoading,
+      updateVariantStatusLoading,
       softDeleteSelectedProductsLoading,
       isFilterDate,
+      deleteVariantLoading,
     ],
     queryFn: () =>
       productService.getProducts({
@@ -194,6 +204,9 @@ const InventoryTable = ({
   };
   const _onSoftDeleteProduct = async (id: string) => {
     await handleSoftDeleteProduct(id);
+  };
+  const _onDeleteVariant = async (id: string) => {
+    await handleDeleteVariant(id);
   };
   const _onSelectRow = (
     record: ProductModel,
@@ -239,6 +252,10 @@ const InventoryTable = ({
   };
   const _onSelectStatus = async (status: ModelStatus, id: string) => {
     await handleUpdateStatus(id, status);
+  };
+
+  const _onSelectVariantStatus = async (status: ModelStatus, id: string) => {
+    await handleUpdateVariantStatus(id, status);
   };
 
   const columns: TableProps<ProductModel>["columns"] = [
@@ -520,16 +537,15 @@ const InventoryTable = ({
       title: "Status",
       key: "status",
       dataIndex: "status",
-      render: (_, { status }) => {
+      render: (_, { status, id }) => {
         return (
           <Select
             options={statusOptions}
             defaultValue={status}
-            disabled={updateStatusLoading}
-            // TODO: add onSelect
-            // onSelect={(value) => {
-            //   _onSelectStatus(value, id);
-            // }}
+            disabled={updateVariantStatusLoading}
+            onSelect={(value) => {
+              _onSelectVariantStatus(value, id);
+            }}
             className="min-w-[120px]"
             labelRender={(option) => {
               const textColor =
@@ -561,9 +577,9 @@ const InventoryTable = ({
           deleteConfirmPopoverProps={{
             title: "Are you sure you want to delete this product?",
           }}
-          // handleDelete={() => {
-          //   _onSoftDeleteProduct(id);
-          // }}
+          handleDelete={() => {
+            _onDeleteVariant(id);
+          }}
           // handleEdit={() => {
           //   _onOpenModalUpdateProduct(id);
           // }}

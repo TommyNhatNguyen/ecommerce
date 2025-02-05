@@ -5,6 +5,7 @@ import {
   VariantCreateDTO,
 } from "../../interfaces/variant/variant.interface";
 import { axiosInstance } from "../../utils/axiosInstance";
+import { ModelStatus } from "@/app/shared/models/others/status.model";
 
 export const variantServices = {
   create: async (data: VariantCreateDTO): Promise<VariantProductModel> => {
@@ -21,6 +22,15 @@ export const variantServices = {
   },
   delete: async (id: string): Promise<boolean> => {
     const response = await axiosInstance.delete(`/variants/${id}`);
+    return response.data;
+  },
+  updateStatus: async (
+    id: string,
+    status: ModelStatus,
+  ): Promise<VariantProductModel> => {
+    const response = await axiosInstance.put(`/variants/${id}`, {
+      status,
+    });
     return response.data;
   },
 };

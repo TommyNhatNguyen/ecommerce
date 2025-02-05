@@ -76,14 +76,10 @@ export class PostgresProductRepository implements IProductRepository {
     id: string,
     condition?: ProductConditionDTOSchema
   ): Promise<Product | null> {
-    const include: any[] = [
-      {
-        model: InventoryPersistence,
-        as: inventoryModelName,
-        exclude: [...EXCLUDE_ATTRIBUTES],
-      },
-    ];
-
+    const include: Includeable[] = [];
+    const variantInclude: Includeable[] = [];
+    const variantInfoInclude: Includeable[] = [];
+    const optionValueInclude: Includeable[] = [];
     if (condition?.includeCategory) {
       include.push({
         model: CategoryPersistence,
@@ -93,14 +89,66 @@ export class PostgresProductRepository implements IProductRepository {
       });
     }
 
-    if (condition?.includeVariant) {
+    if (condition?.includeReview) {
       include.push({
-        model: VariantPersistence,
-        as: variantModelName,
-        attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        model: ReviewPersistence,
+        as: reviewModelName,
+        attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
       });
     }
 
+    if (condition?.includeVariant) {
+      if (condition?.includeVariantInfo) {
+        if (condition?.includeVariantInventory) {
+          variantInfoInclude.push({
+            model: InventoryPersistence,
+            as: inventoryModelName,
+            attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+          });
+        }
+        if (condition?.includeImage) {
+          variantInfoInclude.push({
+            model: ImagePersistence,
+            as: imageModelName,
+            attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+          });
+        }
+        if (condition?.includeDiscount) {
+          variantInfoInclude.push({
+            model: DiscountPersistence,
+            as: discountModelName,
+            attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+          });
+        }
+        variantInclude.push({
+          model: ProductSellablePersistence,
+          as: productSellableModelName,
+          attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+          include: variantInfoInclude,
+        });
+      }
+      if (condition?.includeVariantOption) {
+        if (condition?.includeVariantOptionType) {
+          optionValueInclude.push({
+            model: OptionsPersistence,
+            as: optionsModelName,
+            attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+          });
+        }
+        variantInclude.push({
+          model: OptionValuePersistence,
+          as: optionValueModelName,
+          attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+          through: { attributes: [] },
+          include: optionValueInclude,
+        });
+      }
+      include.push({
+        model: VariantPersistence,
+        as: variantModelName,
+        include: variantInclude,
+      });
+    }
     const data = await this.sequelize.models[this.modelName].findByPk(id, {
       include,
     });
