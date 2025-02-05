@@ -406,7 +406,7 @@ const InventoryTable = ({
           <div className="flex w-full flex-col gap-2">
             {option_values?.map((item) => (
               <Tag key={item.id}>
-                {item.options.name} - {item.name}
+                {item.options?.name} - {item.name}
               </Tag>
             ))}
           </div>

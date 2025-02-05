@@ -3,16 +3,21 @@ import { useInventorySetting } from "@/app/(dashboard)/admin/(content)/inventory
 import { STOCK_STATUS } from "@/app/constants/stock-status";
 import InputAdmin from "@/app/shared/components/InputAdmin";
 import LoadingComponent from "@/app/shared/components/LoadingComponent";
+import { ProductModel } from "@/app/shared/models/products/products.model";
+import { VariantProductModel } from "@/app/shared/models/variant/variant.model";
 import { defaultImage } from "@/app/shared/resources/images/default-image";
 import { productService } from "@/app/shared/services/products/productService";
 import { formatCurrency } from "@/app/shared/utils/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
   Button,
+  Carousel,
   Divider,
   Image,
   InputNumber,
   Pagination,
+  Table,
+  TableProps,
   Tag,
   Tooltip,
 } from "antd";
@@ -22,185 +27,216 @@ import { Controller, useForm } from "react-hook-form";
 
 type Props = {};
 const SettingsPage = (props: Props) => {
-  const [page, setPage] = useState(1);
-  const [limitPerPage, setLimitPerPage] = useState(10);
-  const { handleUpdateLowStockThreshold, updateThresholdLoading } =
-    useInventorySetting();
+  const { control, setValue } = useForm<
+    {
+      id: string;
+      threshold: number;
+    }[]
+  >();
   const {
-    data: productData,
-    isLoading: isProductLoading,
-    isError: isProductError,
-  } = useQuery({
-    queryKey: [
-      "inventory-low-stock-threshold",
-      page,
-      limitPerPage,
-      updateThresholdLoading,
-    ],
-    queryFn: () =>
+    data: productsData,
+    fetchNextPage,
+    hasNextPage,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ["inventory-low-stock-threshold"],
+    queryFn: (p) =>
       productService.getProducts({
-        page,
-        limit: limitPerPage,
+        page: p.pageParam,
+        limit: 3,
+        includeVariant: true,
+        includeVariantInfo: true,
+        includeVariantInventory: true,
         includeCategory: true,
         includeImage: true,
       }),
+    getNextPageParam: (lastPage) => {
+      if (lastPage.meta.current_page === lastPage.meta.total_page) {
+        return undefined;
+      }
+      return lastPage.meta.current_page + 1;
+    },
+    initialPageParam: 1,
   });
-  const { meta, data: products } = productData || {};
-  const { limit, total_count, current_page } = meta || {};
-
-  const { control, handleSubmit, reset } = useForm();
-  useEffect(() => {
-    if (products) {
-      const inventory = products.map((item) => item.inventory);
-      const inventoryDataObject: Record<string, number> = {};
-      inventory.forEach((item) => {
-        inventoryDataObject[`low_stock_threshold${item?.id}`] =
-          item?.low_stock_threshold || 0;
-      });
-      reset(inventoryDataObject);
-    }
-  }, [productData]);
-
+  const { handleUpdateLowStockThreshold, updateThresholdLoading } =
+    useInventorySetting();
   const _onUpdateLowStockThreshold = (id: string, threshold: number) => {
     handleUpdateLowStockThreshold(id, threshold);
-    reset();
+    refetch();
   };
-  const _onPageChange = (page: number, limitPerPage: number) => {
-    setPage(page);
-    setLimitPerPage(limitPerPage);
+  const productColumns: TableProps<ProductModel>["columns"] = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+      render: (_, { category }) => {
+        return (
+          <div className="flex flex-wrap gap-2">
+            {category?.map((item) => <Tag key={item.id}>{item.name}</Tag>)}
+          </div>
+        );
+      },
+    },
+    {
+      title: "Total Variant",
+      dataIndex: "total_variant",
+      key: "total_variant",
+      render: (_, { variant }) => {
+        return variant?.length || 0;
+      },
+    },
+  ];
+  const variantColumns: TableProps<VariantProductModel>["columns"] = [
+    {
+      title: "",
+      dataIndex: "image",
+      key: "image",
+      className: "max-w-[100px]",
+      minWidth: 100,
+      render: (_, { product_sellable }) => {
+        const images = product_sellable?.image || [];
+        return (
+          <Image.PreviewGroup
+            items={images.map((item) => item.url)}
+            preview={{
+              movable: false,
+            }}
+          >
+            <Carousel autoplay dotPosition="bottom">
+              {images.map((item) => (
+                <Image
+                  className="object-contain object-center"
+                  src={item.url}
+                  alt={item.url}
+                  key={item.id}
+                />
+              ))}
+            </Carousel>
+          </Image.PreviewGroup>
+        );
+      },
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Inventory",
+      dataIndex: "inventory",
+      key: "inventory",
+      render: (_, { product_sellable }) => {
+        return product_sellable?.inventory?.quantity || 0;
+      },
+    },
+    {
+      title: "Stock status",
+      dataIndex: "stock_status",
+      key: "stock_status",
+      render: (_, { product_sellable }) => {
+        return product_sellable?.inventory?.stock_status || "";
+      },
+    },
+    {
+      title: "Update low stock threshold",
+      dataIndex: "update_low_stock_threshold",
+      key: "update_low_stock_threshold",
+      render: (_, { product_sellable }, index) => {
+        const id = product_sellable?.inventory?.id || "";
+        const threshold = product_sellable?.inventory?.low_stock_threshold || 0;
+        setValue(`${index}.id`, id);
+        setValue(`${index}.threshold`, threshold);
+        return (
+          <Controller
+            control={control}
+            name={`${index}.threshold`}
+            render={({ field }) => {
+              return (
+                <InputAdmin
+                  placeholder="Enter low stock threshold"
+                  {...field}
+                  customComponent={(props, ref: any) => {
+                    return (
+                      <div className="flex w-full items-center gap-1">
+                        <InputNumber
+                          {...props}
+                          ref={ref}
+                          className="w-full"
+                          min={0}
+                        />
+                        <Button
+                          type="primary"
+                          onClick={() =>
+                            _onUpdateLowStockThreshold(id, props.value)
+                          }
+                        >
+                          Update
+                        </Button>
+                      </div>
+                    );
+                  }}
+                />
+              );
+            }}
+          />
+        );
+      },
+    },
+  ];
+  const variantExpandedRowRender = (data: VariantProductModel[]) => {
+    return (
+      <Table
+        columns={variantColumns}
+        dataSource={data}
+        pagination={false}
+        rowKey={(record) => record.id}
+        tableLayout="auto"
+      />
+    );
   };
-  const loading = isProductLoading || updateThresholdLoading;
   return (
     <div className="relative mb-4 rounded-lg bg-white px-4 py-2">
       <h2 className="text-lg font-medium">
         Inventory low stock threshold settings
       </h2>
-      <div className="max-h-[700px] min-h-[500px] overflow-y-auto">
-        {products &&
-          products.map((item) => {
-            const { id, category, inventory, name, image, price, description } =
-              item;
-            const {
-              quantity,
-              stock_status,
-              id: inventoryId,
-              cost,
-            } = inventory || {};
-            const stockStatus =
-              STOCK_STATUS[stock_status as keyof typeof STOCK_STATUS] ||
-              "OUT_OF_STOCK";
-            const imageUrl = image?.[0]?.url || defaultImage;
-            const categoryNames = category?.map((item) => item.name) || [];
-            return (
-              <React.Fragment key={id}>
-                <Divider />
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex flex-1 gap-2">
-                    <Image
-                      src={imageUrl}
-                      alt="default"
-                      width={100}
-                      height={100}
-                      className="object-contain"
-                    />
-                    <div className="flex flex-1 flex-col gap-1">
-                      <Tooltip title={description}>
-                        <h3 className="text-lg font-medium">{name}</h3>
-                      </Tooltip>
-                      <p>
-                        Price:{" "}
-                        <span className="font-bold">
-                          {formatCurrency(price || 0)}
-                        </span>
-                      </p>
-                      <p>
-                        Cost:{" "}
-                        <span className="font-bold">
-                          {formatCurrency(cost || 0)}
-                        </span>
-                      </p>
-                      <p>
-                        Quantity:{" "}
-                        <span className="font-bold">{quantity || 0}</span>
-                      </p>
-                      <p>
-                        Category:{" "}
-                        <span className="font-bold">
-                          {categoryNames.map((item) => (
-                            <Tag color="blue" key={item}>
-                              {item}
-                            </Tag>
-                          ))}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-end gap-1">
-                    <Controller
-                      control={control}
-                      name={`low_stock_threshold${inventoryId}`}
-                      render={({ field, formState: { errors } }) => (
-                        <InputAdmin
-                          {...field}
-                          error={
-                            errors[`low_stock_threshold${inventoryId}`]
-                              ?.message as string
-                          }
-                          label={() => {
-                            return (
-                              <p className="flex items-center gap-1">
-                                Stock Status:{" "}
-                                <span className="font-bold">{stockStatus}</span>
-                              </p>
-                            );
-                          }}
-                          customComponent={(props, ref: any) => {
-                            return (
-                              <InputNumber
-                                min={0}
-                                className="h-full w-full"
-                                {...props}
-                                ref={ref}
-                                disabled={loading}
-                              />
-                            );
-                          }}
-                        />
-                      )}
-                    />
-
-                    <Button
-                      type="primary"
-                      disabled={loading}
-                      onClick={handleSubmit((data) =>
-                        _onUpdateLowStockThreshold(
-                          inventoryId || "",
-                          data[`low_stock_threshold${inventoryId}`] || 0,
-                        ),
-                      )}
-                    >
-                      <PlusIcon className="h-4 w-4" />
-                      Update
-                    </Button>
-                  </div>
-                </div>
-              </React.Fragment>
-            );
-          })}
-      </div>
-      <div className="mt-4">
-        <Pagination
-          className="justify-end"
-          total={total_count || 0}
-          showTotal={(total, range) =>
-            `${range[0]}-${range[1]} of ${total} items`
-          }
-          pageSize={limit || 10}
-          current={current_page || 1}
-          onChange={_onPageChange}
-          showSizeChanger={true}
-          pageSizeOptions={[10, 20, 30, 40, 50, Number(total_count)]}
+      <div className="relative mt-4 h-full">
+        <Table
+          tableLayout="auto"
+          columns={productColumns}
+          dataSource={productsData?.pages.flatMap((page) => page.data)}
+          pagination={false}
+          rowKey={(record) => record.id}
+          expandable={{
+            expandRowByClick: true,
+            expandedRowRender: (record) => {
+              const variantData =
+                (productsData &&
+                  productsData.pages.flatMap((page) =>
+                    page.data.flatMap((item) => item.variant || []),
+                  )) ||
+                [];
+              const data = variantData.filter(
+                (item) => item?.product_id === record.id,
+              );
+              return variantExpandedRowRender(data);
+            },
+          }}
         />
+
+        {hasNextPage && (
+          <Button
+            className="mx-auto self-center mt-4"
+            variant="outlined"
+            onClick={() => fetchNextPage()}
+          >
+            Load more
+          </Button>
+        )}
       </div>
     </div>
   );

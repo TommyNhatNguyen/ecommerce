@@ -12,10 +12,7 @@ export type ProductModel = {
   id: string;
   name: string;
   description: string;
-  price: number;
   status: ModelStatus;
-  total_discounts: number;
-  price_after_discounts: number;
   created_at: string;
   updated_at: string;
   category?: CategoryModel[];
