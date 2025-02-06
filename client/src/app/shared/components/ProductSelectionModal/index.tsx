@@ -33,7 +33,7 @@ const ProductSelectionModal = ({
     handleCloseModal();
   };
   const { data, isLoading: isProductSellableLoading } = useQuery({
-    queryKey: ["product-sellable"],
+    queryKey: ["product-sellable", currentPage, limit],
     queryFn: () =>
       productSellableService.getProductSellable({
         includeVariant: true,
