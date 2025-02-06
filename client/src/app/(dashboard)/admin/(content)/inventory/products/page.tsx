@@ -9,7 +9,7 @@ type ProductPagePropsType = {};
 
 const ProductPage = ({}: ProductPagePropsType) => {
   return (
-    <div className="grid min-h-[300px] grid-flow-row grid-cols-2 gap-4">
+    <div className="grid h-full min-h-[300px] grid-flow-row grid-cols-2 gap-4">
       <ProductCard />
       <CategoryCard />
       <DiscountCard />

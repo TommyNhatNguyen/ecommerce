@@ -1,15 +1,23 @@
 import DataCard from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/DataCard";
 import { useOptions } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useOptions";
-import { ButtonDeleteWithPopover } from "@/app/shared/components/Button";
 import CreateOptionsModal from "@/app/shared/components/GeneralModal/components/CreateOptionsModal";
+import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import { optionService } from "@/app/shared/services/variant/optionService";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useQuery,
+} from "@tanstack/react-query";
 import { Button, ColorPicker, Empty, Tree } from "antd";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2Icon } from "lucide-react";
 import React, { useState } from "react";
 
 type Props = {};
-
+const ButtonDeleteWithPopover = withDeleteConfirmPopover(
+  <Button type="text" className="aspect-square rounded-full p-0">
+    <Trash2Icon className="h-4 w-4 stroke-red-500" />
+  </Button>,
+);
 const OptionsCard = (props: Props) => {
   const [isModalCreateOptionOpen, setIsModalCreateOptionOpen] = useState(false);
   const { handleDeleteOption, loadingDelete: deleteOptionLoading } =
@@ -18,13 +26,23 @@ const OptionsCard = (props: Props) => {
     data: options,
     isLoading: isLoadingOptions,
     refetch: refetchOptions,
-  } = useQuery({
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
     queryKey: ["options", deleteOptionLoading],
-    queryFn: () =>
+    queryFn: (p) =>
       optionService.getOptionList({
+        page: p.pageParam,
+        limit: 10,
         include_option_values: true,
       }),
-    placeholderData: keepPreviousData,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.meta.current_page === lastPage.meta.total_page) {
+        return undefined;
+      }
+      return lastPage.meta.current_page + 1;
+    },
+    initialPageParam: 1,
   });
   const _onDeleteOption = async (id: string) => {
     await handleDeleteOption(id);
@@ -38,7 +56,7 @@ const OptionsCard = (props: Props) => {
   return (
     <DataCard
       title="Options"
-      data={options?.data || []}
+      data={options?.pages.flatMap((page) => page.data) || []}
       isModalCreateOpen={isModalCreateOptionOpen}
       isModalUpdateOpen={false}
       updateId=""
@@ -46,11 +64,14 @@ const OptionsCard = (props: Props) => {
       handleCloseModalCreate={_onCloseModalCreateOption}
       handleCloseModalUpdate={() => {}}
       refetch={refetchOptions}
+      fetchNextPage={fetchNextPage}
+      hasNextPage={hasNextPage}
       renderComponent={(data) => (
         <div className="flex flex-col gap-2">
           <Tree
             showLine
             selectable={false}
+            className="min-h-[100px]"
             treeData={data.map((item) => ({
               title: () => {
                 return (
@@ -64,7 +85,7 @@ const OptionsCard = (props: Props) => {
                 title: () => {
                   const isColor = item.is_color || false;
                   return (
-                    <div>
+                    <div className="flex items-center justify-between gap-2">
                       {isColor ? (
                         <div className="flex items-center gap-2">
                           <ColorPicker value={option.value} disabled />

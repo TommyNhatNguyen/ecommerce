@@ -15,6 +15,7 @@ type CreatePaymentMethodPropsType = {
   handleCloseModalCreatePaymentMethod: () => void;
   handleSubmitCreatePaymentMethod: (data: any) => void;
   loading?: boolean;
+  refetch?: () => void;
 };
 
 const CreatePaymentMethodModal = ({
@@ -22,6 +23,7 @@ const CreatePaymentMethodModal = ({
   handleCloseModalCreatePaymentMethod,
   handleSubmitCreatePaymentMethod,
   loading = false,
+  refetch,
 }: CreatePaymentMethodPropsType) => {
   const {
     control,
@@ -42,6 +44,7 @@ const CreatePaymentMethodModal = ({
   const _onConfirmCreatePaymentMethod = (data: any) => {
     handleSubmitCreatePaymentMethod(data);
     _onCloseModalCreatePaymentMethod();
+    refetch?.();
   };
   const _renderTitle = () => {
     return <h1 className="text-2xl font-bold">Create Payment Method</h1>;

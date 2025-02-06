@@ -376,8 +376,8 @@ const CreateProductModal = ({
                 )}
               />
               {options?.data
-                .filter((item) => selectedOptions.includes(item.id))
-                .map((option) => (
+                ?.filter((item) => selectedOptions.includes(item.id))
+                ?.map((option) => (
                   <div key={option.id}>
                     <div>{option.name}</div>
                     <Checkbox.Group

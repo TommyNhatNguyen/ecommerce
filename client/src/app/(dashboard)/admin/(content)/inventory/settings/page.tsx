@@ -1,28 +1,20 @@
 "use client";
 import { useInventorySetting } from "@/app/(dashboard)/admin/(content)/inventory/hooks/useInventorySetting";
-import { STOCK_STATUS } from "@/app/constants/stock-status";
 import InputAdmin from "@/app/shared/components/InputAdmin";
-import LoadingComponent from "@/app/shared/components/LoadingComponent";
 import { ProductModel } from "@/app/shared/models/products/products.model";
 import { VariantProductModel } from "@/app/shared/models/variant/variant.model";
-import { defaultImage } from "@/app/shared/resources/images/default-image";
 import { productService } from "@/app/shared/services/products/productService";
-import { formatCurrency } from "@/app/shared/utils/utils";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, } from "@tanstack/react-query";
 import {
   Button,
   Carousel,
-  Divider,
   Image,
   InputNumber,
-  Pagination,
   Table,
   TableProps,
   Tag,
-  Tooltip,
 } from "antd";
-import { Divide, PlusIcon } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
 
 type Props = {};
@@ -43,7 +35,7 @@ const SettingsPage = (props: Props) => {
     queryFn: (p) =>
       productService.getProducts({
         page: p.pageParam,
-        limit: 3,
+        limit: 10,
         includeVariant: true,
         includeVariantInfo: true,
         includeVariantInventory: true,

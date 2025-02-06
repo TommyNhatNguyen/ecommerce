@@ -1,4 +1,3 @@
-
 import { Button, Card, Empty, Tooltip } from "antd";
 import { PlusIcon } from "lucide-react";
 import React from "react";
@@ -25,6 +24,8 @@ type DataCardPropsType<T> = {
     refetch?: () => void,
   ) => React.ReactNode;
   title: string;
+  fetchNextPage: () => void;
+  hasNextPage: boolean;
 };
 
 const DataCard = <T,>({
@@ -40,6 +41,8 @@ const DataCard = <T,>({
   renderComponent,
   renderCreateModal,
   renderUpdateModal,
+  fetchNextPage,
+  hasNextPage,
 }: DataCardPropsType<T>) => {
   const _onOpenCreateModel = () => {
     handleOpenCreateModal();
@@ -53,11 +56,16 @@ const DataCard = <T,>({
   const _onRefetch = () => {
     refetch();
   };
+  const _onLoadMore = () => {
+    if (hasNextPage) {
+      fetchNextPage();
+    }
+  };
   return (
     <>
       <Card
         title={title}
-        className="h-full max-h-[300px] flex-1 overflow-y-auto"
+        className="h-full min-h-[300px] flex-1 overflow-y-auto"
         extra={
           <Button
             type="primary"
@@ -75,12 +83,17 @@ const DataCard = <T,>({
             <Empty description="No data found" />
           </div>
         )}
+        <Button
+          type="default"
+          variant="outlined"
+          className="mx-auto mt-4 block"
+          onClick={_onLoadMore}
+          disabled={!hasNextPage}
+        >
+          Load more
+        </Button>
       </Card>
-      {renderCreateModal(
-        isModalCreateOpen,
-        _onCloseModalCreate,
-        _onRefetch,
-      )}
+      {renderCreateModal(isModalCreateOpen, _onCloseModalCreate, _onRefetch)}
       {renderUpdateModal(
         isModalUpdateOpen,
         _onCloseModalUpdate,

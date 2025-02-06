@@ -44,4 +44,6 @@ export type DiscountConditionDTO = {
   updated_at?: Date;
   order?: BaseOrder;
   sortBy?: BaseSortBy;
+  page?: number;
+  limit?: number;
 };

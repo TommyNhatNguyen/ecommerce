@@ -179,7 +179,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
     }
   }, []);
   return (
-    <Layout className="h-screen">
+    <Layout  className="h-screen" >
       <Sider className="bg-white" collapsed={collapsed}>
         <div className="flex items-center justify-between gap-2 p-2">
           <Logo />
@@ -196,7 +196,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
           mode="inline"
         />
       </Sider>
-      <Layout>
+      <Layout >
         <Header className="flex items-center justify-between bg-white px-4">
           <Input.Search
             placeholder="Search..."
@@ -247,7 +247,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
         >
           Create Order
         </Button> */}
-        <Content className="mb-4 overflow-y-auto overflow-x-hidden p-2">
+        <Content  className="mb-4 overflow-y-auto overflow-x-hidden p-2">
           <div className="mb-4 rounded-lg bg-white px-4 py-2">
             <h1 className="text-xl font-bold capitalize">
               {currentPath.map((path) => path.toUpperCase()).join(" - ")}

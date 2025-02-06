@@ -1,7 +1,6 @@
 import DataCard from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/DataCard";
 import { useDiscounts } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useDiscounts";
 import { DISCOUNT_SCOPE, DISCOUNT_TYPE } from "@/app/constants/enum";
-import { ButtonDeleteWithPopover } from "@/app/shared/components/Button";
 import CreateDiscountModal from "@/app/shared/components/GeneralModal/components/CreateDiscountModal";
 import UpdateDiscountModal from "@/app/shared/components/GeneralModal/components/UpdateDiscountModal";
 import { CreateDiscountDTO } from "@/app/shared/interfaces/discounts/discounts.dto";
@@ -11,13 +10,21 @@ import {
   formatCurrency,
   formatDiscountPercentage,
 } from "@/app/shared/utils/utils";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useQuery,
+} from "@tanstack/react-query";
 import { Button, Empty, Tooltip } from "antd";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2Icon } from "lucide-react";
 import React, { useState } from "react";
-
+import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 type Props = {};
-
+const ButtonDeleteWithPopover = withDeleteConfirmPopover(
+  <Button type="text" className="aspect-square rounded-full p-0">
+    <Trash2Icon className="h-4 w-4 stroke-red-500" />
+  </Button>,
+);
 const DiscountCard = (props: Props) => {
   const [
     isModalCreateDiscountCampaignOpen,
@@ -39,13 +46,23 @@ const DiscountCard = (props: Props) => {
     data: discounts,
     isLoading: isLoadingDiscounts,
     refetch: refetchDiscounts,
-  } = useQuery({
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
     queryKey: ["discounts", deleteDiscountLoading],
-    queryFn: () =>
+    queryFn: (p) =>
       discountsService.getDiscounts({
         scope: DISCOUNT_SCOPE.PRODUCT,
+        page: p.pageParam,
+        limit: 10,
       }),
-    placeholderData: keepPreviousData,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.meta.current_page === lastPage.meta.total_page) {
+        return undefined;
+      }
+      return lastPage.meta.current_page + 1;
+    },
+    initialPageParam: 1,
   });
 
   const _onDeleteDiscount = async (id: string) => {
@@ -84,7 +101,7 @@ const DiscountCard = (props: Props) => {
   return (
     <DataCard
       title="Discount Campaign"
-      data={discounts?.data || []}
+      data={discounts?.pages.flatMap((page) => page.data) || []}
       isModalCreateOpen={isModalCreateDiscountCampaignOpen}
       isModalUpdateOpen={isModalUpdateDiscountCampaignOpen}
       updateId={updateDiscountCampaignId}
@@ -92,8 +109,10 @@ const DiscountCard = (props: Props) => {
       handleCloseModalCreate={handleCloseModalCreateDiscountCampaign}
       handleCloseModalUpdate={handleCloseModalUpdateDiscountCampaign}
       refetch={refetchDiscounts}
+      fetchNextPage={fetchNextPage}
+      hasNextPage={hasNextPage}
       renderComponent={(data) => (
-        <div className="flex flex-col gap-2">
+        <div className="flex min-h-[100px] flex-col gap-2">
           {data.map((item) => (
             <Tooltip
               title={

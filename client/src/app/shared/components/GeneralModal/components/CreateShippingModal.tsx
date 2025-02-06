@@ -15,6 +15,7 @@ type CreateShippingModalPropsType = {
   handleCloseModalCreateShipping: () => void;
   handleSubmitCreateShippingForm: (data: any) => void;
   loading?: boolean;
+  refetch?: () => void;
 };
 
 const CreateShippingModal = ({
@@ -22,6 +23,7 @@ const CreateShippingModal = ({
   handleCloseModalCreateShipping,
   handleSubmitCreateShippingForm,
   loading = false,
+  refetch,
 }: CreateShippingModalPropsType) => {
   const {
     control,
@@ -42,6 +44,7 @@ const CreateShippingModal = ({
   const _onConfirmCreateShipping = (data: any) => {
     handleSubmitCreateShippingForm(data);
     _onCloseModalCreateShipping();
+    refetch?.();  
   };
   const _renderTitle = () => {
     return <h1 className="text-2xl font-bold">Create Shipping</h1>;

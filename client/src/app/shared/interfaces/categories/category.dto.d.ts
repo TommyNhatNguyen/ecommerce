@@ -24,6 +24,8 @@ export type GetCategoriesBodyDTO = {
   sortBy?: string;
   created_at?: string;
   updated_at?: string;
+  page?: number;
+  limit?: number;
 };
 
 export type UpdateCategoryDTO = {

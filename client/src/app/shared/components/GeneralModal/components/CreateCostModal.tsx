@@ -19,6 +19,7 @@ type CreateCostModalPropsType = {
   handleCloseModalCreateCost: () => void;
   handleSubmitCreateCostForm: (data: any) => void;
   loading?: boolean;
+  refetch?: () => void;
 };
 
 const CreateCostModal = ({
@@ -26,6 +27,7 @@ const CreateCostModal = ({
   handleCloseModalCreateCost,
   handleSubmitCreateCostForm,
   loading = false,
+  refetch,
 }: CreateCostModalPropsType) => {
   const {
     control,
@@ -46,6 +48,7 @@ const CreateCostModal = ({
   };
   const _onConfirmCreateCost = (data: any) => {
     handleSubmitCreateCostForm(data);
+    refetch?.();
     _onCloseModalCreateCost();
   };
   const _renderTitle = () => {
