@@ -147,6 +147,9 @@ export class PostgresProductSellableRepository
     if (condition.ids) {
       where.id = { [Op.in]: condition.ids };
     }
+    if (condition.variant_ids) {
+      where.variant_id = { [Op.in]: condition.variant_ids };
+    }
     if (condition.fromCreatedAt && condition.toCreatedAt) {
       where.created_at = {
         [Op.between]: [

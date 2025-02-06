@@ -88,7 +88,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
       const productIds = products_detail.map((product) => product.id);
       const products = await this.productSellableUseCase.getProductSellables(
         {
-          ids: productIds,
+          variant_ids: productIds,
           includeDiscount: true,
         },
         { page: 1, limit: products_detail.length }
