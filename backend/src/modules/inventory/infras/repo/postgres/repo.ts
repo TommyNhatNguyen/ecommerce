@@ -1,4 +1,3 @@
-
 import { Sequelize } from 'sequelize';
 import { IInventoryRepository } from 'src/modules/inventory/models/inventory.interface';
 import {
@@ -8,13 +7,29 @@ import {
 } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { Inventory } from 'src/modules/inventory/models/inventory.model';
-import { InventoryConditionDTO, InventoryCreateDTO, InventoryUpdateDTO } from 'src/modules/inventory/models/inventory.dto';
+import {
+  InventoryConditionDTO,
+  InventoryCreateDTO,
+  InventoryUpdateDTO,
+} from 'src/modules/inventory/models/inventory.dto';
 
 export class PostgresInventoryRepository implements IInventoryRepository {
   constructor(
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+
+  async updateInventoryQuantity(
+    productSellableId: string,
+    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>
+  ): Promise<Inventory> {
+    const inventory = await this.sequelize.models[this.modelName].update(data, {
+      where: { product_sellable_id: productSellableId },
+      returning: true,
+    });
+    return inventory[1][0].dataValues;
+  }
+
   async get(id: string): Promise<Inventory> {
     const inventory = await this.sequelize.models[this.modelName].findByPk(id);
     return inventory?.dataValues;

@@ -17,6 +17,7 @@ import {
   ORDER_DETAIL_DISCOUNT_ERROR,
   ORDER_DETAIL_ERROR,
   ORDER_DETAIL_PRODUCT_ERROR,
+  ORDER_DETAIL_PRODUCT_OUT_OF_STOCK_ERROR,
 } from 'src/modules/order_detail/models/order_detail.error';
 import { IShippingUseCase } from 'src/modules/shipping/models/shipping.interface';
 import { IPaymentUseCase } from 'src/modules/payment/models/payment.interface';
@@ -26,6 +27,9 @@ import { IDiscountUseCase } from 'src/modules/discount/models/discount.interface
 import { IProductUseCase } from 'src/modules/products/models/product.interface';
 import { DiscountType } from 'src/modules/discount/models/discount.model';
 import { IProductSellableUseCase } from 'src/modules/product_sellable/models/product-sellable.interface';
+import { StockStatus } from 'src/modules/inventory/models/inventory.model';
+import { IInventoryUseCase } from 'src/modules/inventory/models/inventory.interface';
+import { checkSufficientInventory } from 'src/modules/order_detail/usecase/checkSufficientInventory';
 
 export class OrderDetailUseCase implements IOrderDetailUseCase {
   constructor(
@@ -39,7 +43,8 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
     private readonly paymentUseCase: IPaymentUseCase,
     private readonly paymentMethodUseCase: IPaymentMethodUseCase,
     private readonly costUseCase: ICostUseCase,
-    private readonly discountUseCase: IDiscountUseCase
+    private readonly discountUseCase: IDiscountUseCase,
+    private readonly inventoryUseCase: IInventoryUseCase
   ) {}
   async getById(
     id: string,
@@ -69,19 +74,6 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
       ...rest,
       customer_id: customer_id || '',
     };
-    // ---- CUSTOMER ----
-    if (!customer_id) {
-      const newCustomer = await this.customerUseCase.createCustomer({
-        first_name: rest.customer_firstName || '',
-        last_name: rest.customer_lastName,
-        phone: rest.customer_phone,
-        address: rest.customer_address,
-        email: rest.customer_email,
-      });
-      if (newCustomer) {
-        payload.customer_id = newCustomer.id;
-      }
-    }
 
     // ---- PRODUCTS ----
     if (products_detail.length > 0) {
@@ -93,7 +85,38 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         },
         { page: 1, limit: products_detail.length }
       );
-      console.log('🚀 ~ OrderDetailUseCase ~ create ~ products:', products);
+      const isSufficientInventory = products.data.every((product) => {
+        const orderQuantity =
+          products_detail.find((item) => item.id === product.variant_id)
+            ?.quantity ?? 0;
+        console.log(
+          checkSufficientInventory(
+            product.inventory?.quantity ?? 0,
+            orderQuantity
+          )
+        );
+        return checkSufficientInventory(
+          product.inventory?.quantity ?? 0,
+          orderQuantity
+        );
+      });
+      if (!isSufficientInventory) {
+        throw ORDER_DETAIL_PRODUCT_OUT_OF_STOCK_ERROR;
+      } else {
+        const response = await Promise.all(
+          products.data.map(async (product) => {
+            const orderQuantity =
+              products_detail.find((item) => item.id === product.variant_id)
+                ?.quantity ?? 0;
+            return await this.inventoryUseCase.updateInventoryQuantity(
+              product.id,
+              {
+                quantity: (product.inventory?.quantity ?? 0) - orderQuantity,
+              }
+            );
+          })
+        );
+      }
       if (products.data.length !== products_detail.length)
         throw ORDER_DETAIL_PRODUCT_ERROR;
       payload.subtotal = products.data.reduce((acc, product) => {
@@ -150,6 +173,19 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
             discountAmountList[index],
         }))
       );
+    }
+    // ---- CUSTOMER ----
+    if (!customer_id) {
+      const newCustomer = await this.customerUseCase.createCustomer({
+        first_name: rest.customer_firstName || '',
+        last_name: rest.customer_lastName,
+        phone: rest.customer_phone,
+        address: rest.customer_address,
+        email: rest.customer_email,
+      });
+      if (newCustomer) {
+        payload.customer_id = newCustomer.id;
+      }
     }
 
     // ---- SHIPPING ----

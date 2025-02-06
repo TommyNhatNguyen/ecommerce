@@ -7,7 +7,10 @@ import {
   IInventoryRepository,
   IInventoryUseCase,
 } from 'src/modules/inventory/models/inventory.interface';
-import { Inventory, StockStatus } from 'src/modules/inventory/models/inventory.model';
+import {
+  Inventory,
+  StockStatus,
+} from 'src/modules/inventory/models/inventory.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
@@ -30,6 +33,22 @@ export class InventoryUseCase implements IInventoryUseCase {
       quantity: data.quantity,
       low_stock_threshold: data.low_stock_threshold,
     });
+  }
+
+  async updateInventoryQuantity(
+    productSellableId: string,
+    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>
+  ): Promise<Inventory> {
+    const updatedInventory =
+      await this.inventoryRepository.updateInventoryQuantity(
+        productSellableId,
+        data
+      );
+    await this.updateInventoryStockStatus(updatedInventory.id, {
+      quantity: updatedInventory.quantity,
+      low_stock_threshold: updatedInventory.low_stock_threshold,
+    });
+    return updatedInventory;
   }
 
   async updateInventoryStockStatus(

@@ -12,6 +12,7 @@ interface AuthState {
   isLogin: boolean;
   userInfo: User | null;
   userPermission: Partial<Permission>[] | [];
+  isAdmin: boolean;
 }
 
 const initialState: AuthState = {
@@ -20,6 +21,7 @@ const initialState: AuthState = {
   isLogin: false,
   userInfo: null,
   userPermission: [],
+  isAdmin: false,
 };
 
 export const authSlice = createSlice({
@@ -32,10 +34,11 @@ export const authSlice = createSlice({
       state.loginError = null;
       state.isLogin = false;
       state.userInfo = null;
+      state.isAdmin = false;
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(login.fulfilled, (state) => {
+    builder.addCase(login.fulfilled, (state, action) => {
       state.isLogin = true;
       state.isLoginLoading = false;
       state.loginError = null;
@@ -44,20 +47,26 @@ export const authSlice = createSlice({
       state.isLogin = false;
       state.isLoginLoading = false;
       state.loginError = action.payload;
+      state.isAdmin = false;
     });
     builder.addCase(login.pending, (state) => {
       state.isLoginLoading = true;
       state.loginError = null;
+      state.isAdmin = false;
     });
     builder.addCase(getUserInfo.fulfilled, (state, action) => {
       const {role, ...userInfo} = action.payload
       const {permission, ...roleInfo} = role || {}
       state.userPermission = permission || []
       state.userInfo = {...userInfo, role: {...roleInfo}};
+      state.isAdmin =
+        state.userInfo?.role?.name ===
+        process.env.NEXT_PUBLIC_SUPER_ADMIN_ROLE_NAME;
     });
     builder.addCase(getUserInfo.rejected, (state, action) => {
       state.userInfo = null;
       state.userPermission = []
+      state.isAdmin = false;
     });
   },
 });

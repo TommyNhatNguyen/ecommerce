@@ -160,7 +160,8 @@ export function setupOrderDetailRouter(sequelize: Sequelize) {
     paymentUseCase,
     paymentMethodUseCase,
     costUseCase,
-    discountUseCase
+    discountUseCase,
+    inventoryUseCase
   );
   const orderDetailHttpService = new OrderDetailHttpService(orderDetailUseCase);
   router.get(

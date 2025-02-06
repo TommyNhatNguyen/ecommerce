@@ -17,11 +17,20 @@ export interface IInventoryUseCase {
     id: string,
     data: Required<Pick<InventoryUpdateDTO, 'low_stock_threshold'>>
   ): Promise<Inventory>;
+  updateInventoryQuantity(
+    productSellableId: string,
+    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>
+  ): Promise<Inventory>;
 }
 
 export interface IInventoryRepository
   extends IQueryRepository,
-    ICommandRepository {}
+    ICommandRepository {
+  updateInventoryQuantity(
+    productSellableId: string,
+    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>
+  ): Promise<Inventory>;
+}
 
 export interface IQueryRepository {
   get(id: string): Promise<Inventory>;

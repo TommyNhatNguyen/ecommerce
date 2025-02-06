@@ -3,11 +3,7 @@ import GeneralModal from "../GeneralModal";
 import { Button, Carousel, Image, Table, TableProps } from "antd";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { defaultImage } from "../../resources/images/default-image";
-import {
-  cn,
-  formatCurrency,
-  formatNumber,
-} from "../../utils/utils";
+import { cn, formatCurrency, formatNumber } from "../../utils/utils";
 import { productSellableService } from "@/app/shared/services/products/productSellableService";
 import { ProductSellableModel } from "@/app/shared/models/products/products-sellable.model";
 
@@ -164,7 +160,7 @@ const ProductSelectionModal = ({
               disabled: isDisabledSelectedRows
                 ? currentSelectedRows
                     ?.map((item) => item.id)
-                    .includes(record.id)
+                    .includes(record.id) || record.inventory?.quantity === 0
                 : false,
             }),
           }}

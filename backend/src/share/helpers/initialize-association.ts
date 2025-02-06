@@ -317,6 +317,7 @@ export const initializeAssociation = () => {
   ProductSellablePersistence.belongsTo(VariantPersistence, {
     foreignKey: 'variant_id',
     as: variantModelName.toLowerCase(),
+    onDelete: 'CASCADE',
   });
 
   VariantPersistence.hasOne(ProductSellablePersistence, {
@@ -334,6 +335,7 @@ export const initializeAssociation = () => {
   InventoryPersistence.belongsTo(ProductSellablePersistence, {
     foreignKey: 'product_sellable_id',
     as: productSellableModelName.toLowerCase(),
+    onDelete: 'CASCADE',
   });
 
   ProductPersistence.hasMany(ReviewPersistence, {
