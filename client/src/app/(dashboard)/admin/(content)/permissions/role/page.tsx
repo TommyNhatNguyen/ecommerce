@@ -25,7 +25,7 @@ const RolePage = (props: Props) => {
     isCreateRoleLoading,
   } = useRole();
   const [isAddNewRoleModalOpen, setIsAddNewRoleModalOpen] = useState(false);
-  const { data: roleData, isLoading: roleLoading } = useQuery({
+  const { data: roleData, isLoading: roleLoading, refetch: refetchRoleList } = useQuery({
     queryKey: [
       "role-list",
       isChangeStatusLoading,
@@ -45,6 +45,7 @@ const RolePage = (props: Props) => {
   };
   const _onDeleteRole = (role_id: string) => {
     handleDeleteRole(role_id);
+    refetchRoleList();
   };
   const _onOpenAddNewRoleModal = () => {
     setIsAddNewRoleModalOpen(true);
@@ -131,7 +132,7 @@ const RolePage = (props: Props) => {
         <ActionGroup
           isWithDeleteConfirmPopover={false}
           deleteConfirmPopoverProps={{
-            title: "Are you sure you want to delete this order?",
+            title: "Are you sure you want to delete this role?",
           }}
           handleDelete={() => {
             _onDeleteRole(id);
@@ -160,6 +161,7 @@ const RolePage = (props: Props) => {
         onClose={_onCloseAddNewRoleModal}
         handleCreateRole={handleCreateRole}
         loading={isCreateRoleLoading}
+        refetch={refetchRoleList}
       />
     </div>
   );

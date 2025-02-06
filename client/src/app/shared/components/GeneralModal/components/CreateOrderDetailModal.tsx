@@ -36,11 +36,8 @@ import { Plus } from "lucide-react";
 import ProductSelectionModal from "../../ProductSelectionModal";
 import { OrderCreateDTO } from "@/app/shared/interfaces/orders/order.dto";
 import { OrderState } from "@/app/shared/models/orders/orders.model";
-
-export type ProductColumnType = Exclude<
-  TableProps<ProductModel>["columns"],
-  undefined
->;
+import { ProductSellableModel } from "@/app/shared/models/products/products-sellable.model";
+import { useNotification } from "@/app/contexts/NotificationContext";
 
 type CreateOrderDetailModalPropsType = {
   isOpen: boolean;
@@ -58,17 +55,15 @@ const CreateOrderDetailModal = ({
   const [isOpenProductSelectionModal, setIsOpenProductSelctionModal] =
     useState(false);
   const [selectedProductList, setSelectedProductList] = useState<
-    ProductModel[]
+    ProductSellableModel[]
   >([]);
-  const [productsOrder, setProductsOrder] = useState<
-    { id: string; quantity: number }[]
-  >([]);
-  const _onChangeProductQuantity = (id: string, quantity: number) => {
-    setProductsOrder((prev) => [
-      ...prev.filter((item) => item.id !== id),
-      { id: id, quantity: quantity },
-    ]);
-  };
+  const [productDetailInfoList, setProductDetailInfoList] = useState<{
+    [key: string]: {
+      subtotal: number;
+      total_discounts: number;
+      total: number;
+    };
+  }>({});
   const {
     control,
     handleSubmit,
@@ -77,45 +72,12 @@ const CreateOrderDetailModal = ({
     formState: { errors },
     getValues,
     setValue,
-  } = useForm({
+  } = useForm<OrderCreateDTO>({
     defaultValues: {
-      description: "",
       order_state: ORDER_STATE.PENDING as OrderState,
-      order_detail_info: {
-        subtotal: 0, // disabled
-        total_shipping_fee: 0, // disabled
-        total_payment_fee: 0, // disabled
-        total_costs: 0, // disabled
-        total_discount: 0, // disabled
-        total_order_discount: 0, // disabled
-        total_product_discount: 0, // disabled
-        total: 0, // disabled
-        shipping_method_id: "", // Select from shipping
-        payment_info: {
-          payment_method_id: "", // Select from payment methods
-          paid_amount: 0, // User input
-        },
-        products_detail: [
-          {
-            id: "",
-            quantity: 0,
-          },
-        ],
-        customer_id: "", // Select current active users
-        customer_firstName: "", // User input
-        customer_lastName: "",
-        customer_phone: "", // User input
-        customer_email: "", // User input, optional
-        customer_address: "", // User input
-        costs_detail: [
-          // Select from costs
-        ] as string[],
-        order_discounts: [
-          // Select from order discounts
-        ] as string[],
-      },
     },
   });
+  const { notificationApi } = useNotification();
   const { data: shippingMethodList, isLoading: isShippingMethodList } =
     useQuery({
       queryKey: ["shippingMethod"],
@@ -145,15 +107,133 @@ const CreateOrderDetailModal = ({
   const handleOpenProductSelectionModal = () => {
     setIsOpenProductSelctionModal(true);
   };
-  const handleSelectProducts = (data: ProductModel[]) => {
+  const handleSelectProducts = (data: ProductSellableModel[]) => {
+    const updatedProductDetailList = data.map((item) => ({
+      id: item.id,
+      quantity: 1,
+    }));
     setSelectedProductList((prev) => [...prev, ...data]);
+    setValue("order_detail_info.products_detail", updatedProductDetailList);
   };
   const _onRemoveSelectProducts = (id: string) => {
-    setSelectedProductList((prev) => prev.filter((item) => item.id !== id));
+    setSelectedProductList((prev) =>
+      prev.filter((item) => item.variant?.id !== id),
+    );
+    const filteredProductsDetail = getValues(
+      "order_detail_info.products_detail",
+    ).filter((item) => item.id !== id);
+    setValue("order_detail_info.products_detail", filteredProductsDetail);
   };
   const _onRemoveAllProducts = () => {
     setSelectedProductList([]);
+    setProductDetailInfoList({});
+    reset({
+      ...getValues(),
+      order_detail_info: {
+        ...getValues("order_detail_info"),
+        products_detail: [],
+      },
+    });
   };
+  const _onChangeProductQuantity = (
+    id: number,
+    productId: string,
+    quantity: number,
+  ) => {
+    const updatedProductDetailList = getValues(
+      "order_detail_info.products_detail",
+    ).map((item, index) => ({
+      id: index === id ? productId : item.id,
+      quantity: index === id ? quantity : item.quantity,
+    }));
+    setValue("order_detail_info.products_detail", updatedProductDetailList);
+    // Calculate product information
+    const productPrice =
+      selectedProductList.find((item) => item.variant?.id === productId)
+        ?.price || 0;
+    const productTotalDiscounts =
+      selectedProductList.find((item) => item.variant?.id === productId)
+        ?.total_discounts || 0;
+    setProductDetailInfoList((prev) => ({
+      ...prev,
+      [id]: {
+        subtotal: quantity * productPrice,
+        total_discounts: quantity * productTotalDiscounts,
+        total: quantity * (productPrice - productTotalDiscounts),
+      },
+    }));
+  };
+  useEffect(() => {
+    selectedProductList.forEach((item, index) => {
+      _onChangeProductQuantity(index, item.variant?.id || "", 1);
+    });
+    const subtotal =
+      getValues("order_detail_info.products_detail")?.reduce((acc, item) => {
+        const product = selectedProductList.find(
+          (p) => p.variant?.id === item.id,
+        );
+        return acc + item.quantity * (product?.price || 0);
+      }, 0) || 0;
+    const productDiscount =
+      getValues("order_detail_info.products_detail")?.reduce((acc, item) => {
+        const product = selectedProductList.find(
+          (p) => p.variant?.id === item.id,
+        );
+        return acc + item.quantity * (product?.total_discounts || 0);
+      }, 0) || 0;
+    const orderDiscount =
+      getValues("order_detail_info.order_discounts")?.reduce((acc, curr) => {
+        const discount = discountList?.data.find((item) => item.id === curr);
+        const finalDiscount =
+          discount?.type === DISCOUNT_TYPE.PERCENTAGE
+            ? ((discount?.amount || 0) * (subtotal || 0)) / 100
+            : discount?.amount || 0;
+        return acc + finalDiscount;
+      }, 0) || 0;
+    const totalShippingFee =
+      shippingMethodList?.data.find(
+        (item) => item.id === watch("order_detail_info.shipping_method_id"),
+      )?.cost || 0;
+    const totalPaymentFee =
+      paymentMethodList?.data.find(
+        (item) =>
+          item.id === watch("order_detail_info.payment_info.payment_method_id"),
+      )?.cost || 0;
+    const totalCosts =
+      watch("order_detail_info.costs_detail")?.reduce((acc, curr) => {
+        const cost = costList?.data.find((item) => item.id === curr)?.cost || 0;
+        return acc + cost;
+      }, 0) || 0;
+    const totalDiscount = orderDiscount + productDiscount;
+    const total =
+      subtotal -
+      (totalShippingFee + totalPaymentFee + totalCosts + totalDiscount);
+    setValue("order_detail_info.subtotal", subtotal);
+    setValue("order_detail_info.total_order_discount", orderDiscount);
+    setValue("order_detail_info.total_product_discount", productDiscount);
+    setValue("order_detail_info.total_discount", totalDiscount);
+    setValue("order_detail_info.total_shipping_fee", totalShippingFee);
+    setValue("order_detail_info.total_payment_fee", totalPaymentFee);
+    setValue("order_detail_info.total_costs", totalCosts);
+    setValue("order_detail_info.total", total);
+  }, [selectedProductList]);
+  useEffect(() => {
+    if (watch("order_detail_info.customer_id")) {
+      const customer = customerList?.data.find(
+        (item) => item.id === watch("order_detail_info.customer_id"),
+      );
+      setValue(
+        "order_detail_info.customer_firstName",
+        customer?.first_name || "",
+      );
+      setValue(
+        "order_detail_info.customer_lastName",
+        customer?.last_name || "",
+      );
+      setValue("order_detail_info.customer_phone", customer?.phone || "");
+      setValue("order_detail_info.customer_email", customer?.email || "");
+    }
+  }, [watch("order_detail_info.customer_id")]);
   const _onResetData = () => {
     reset();
     _onRemoveAllProducts();
@@ -163,144 +243,22 @@ const CreateOrderDetailModal = ({
     _onResetData();
   };
   const _onConfirmCreateOrder = (data: OrderCreateDTO) => {
-    const {
-      order_detail_info: { customer_id, ...rest_order_detail_info },
-      ...rest
-    } = data;
-    let payload: OrderCreateDTO = {
-      ...rest,
-      order_detail_info: {
-        ...rest_order_detail_info,
-        products_detail: productsOrder,
-      },
-    };
-    if (customer_id) {
-      payload = {
-        ...payload,
-        order_detail_info: {
-          customer_id: customer_id,
-          ...payload.order_detail_info,
-        },
-      };
+    if (selectedProductList.length === 0) {
+      notificationApi.error({
+        message: "Please select at least one product",
+        description: "Please select at least one product",
+      });
+      return;
     }
-    handleCreateOrder(payload, _onResetData);
+    handleCreateOrder(data, _onResetData);
   };
-  useEffect(() => {
-    const selectedCustomerId = getValues("order_detail_info.customer_id");
-    if (selectedCustomerId) {
-      const customerDetail = customerList?.data?.find(
-        (item) => item.id === selectedCustomerId,
-      );
-      setValue(
-        "order_detail_info.customer_address",
-        customerDetail?.address || "",
-      );
-      setValue("order_detail_info.customer_email", customerDetail?.email || "");
-      setValue("order_detail_info.customer_phone", customerDetail?.phone || "");
-      setValue(
-        "order_detail_info.customer_firstName",
-        customerDetail?.first_name || "",
-      );
-      setValue(
-        "order_detail_info.customer_lastName",
-        customerDetail?.last_name || "",
-      );
-    }
-  }, [watch("order_detail_info.customer_id")]);
-
-  useEffect(() => {
-    if (selectedProductList?.length > 0) {
-      const subtotal =
-        selectedProductList?.length > 0
-          ? selectedProductList
-              .map(
-                (item) =>
-                  item.price *
-                  (productsOrder.find((product) => product.id == item.id)
-                    ?.quantity || 0),
-              )
-              .reduce((acc, curr) => acc + curr)
-          : 0;
-      const total_shipping_fee =
-        shippingMethodList?.data.find(
-          (item) => item.id === watch("order_detail_info.shipping_method_id"),
-        )?.cost || 0;
-      const total_payment_fee =
-        paymentMethodList?.data.find(
-          (item) =>
-            item.id ===
-            watch("order_detail_info.payment_info.payment_method_id"),
-        )?.cost || 0;
-      const total_product_discount =
-        selectedProductList?.length > 0
-          ? selectedProductList
-              .map(
-                (item) =>
-                  item.total_discounts *
-                  (productsOrder.find((product) => product.id == item.id)
-                    ?.quantity || 0),
-              )
-              .reduce((acc, curr) => acc + curr)
-          : 0;
-      const total_order_discount =
-        watch("order_detail_info.order_discounts")?.length > 0
-          ? discountList?.data
-              ?.filter((item) =>
-                watch("order_detail_info.order_discounts").includes(item.id),
-              )
-              .map((item) =>
-                item.type === DISCOUNT_TYPE.PERCENTAGE
-                  ? subtotal * (item.amount / 100)
-                  : item.amount,
-              )
-              .reduce((arr, curr) => arr + curr) || 0
-          : 0;
-      const total_discount = total_order_discount + total_product_discount;
-      const total_cost =
-        watch("order_detail_info.costs_detail")?.length > 0
-          ? costList?.data
-              .filter((item) =>
-                watch("order_detail_info.costs_detail").includes(item.id),
-              )
-              .map((item) =>
-                item.type === NUMBER_TYPE.PERCENTAGE ? item.cost : item.cost,
-              )
-              .reduce((arr, curr) => arr + curr) || 0
-          : 0;
-      const total =
-        subtotal -
-        (total_shipping_fee + total_payment_fee + total_discount + total_cost);
-      setValue("order_detail_info.total_shipping_fee", total_shipping_fee);
-      setValue("order_detail_info.total_payment_fee", total_payment_fee);
-      setValue("order_detail_info.subtotal", subtotal);
-      setValue("order_detail_info.total_order_discount", total_order_discount);
-      setValue(
-        "order_detail_info.total_product_discount",
-        total_product_discount,
-      );
-      setValue("order_detail_info.total_discount", total_discount);
-      setValue("order_detail_info.total_costs", total_cost);
-      setValue("order_detail_info.total", total);
-    }
-  }, [
-    watch("order_detail_info.shipping_method_id"),
-    watch("order_detail_info.payment_info"),
-    watch("order_detail_info.costs_detail"),
-    watch("order_detail_info.order_discounts"),
-    productsOrder,
-  ]);
-  const _renderTitle = () => {
-    return <h1 className="text-2xl font-bold">Create new order</h1>;
-  };
-  const productColumns: (ProductColumnType[number] & {
-    editable?: boolean;
-  })[] = [
+  const productSellableColumns: TableProps<ProductSellableModel>["columns"] = [
     {
       title: null,
       dataIndex: "images",
       key: "images",
-      minWidth: 100,
-      className: "max-w-[100px] max-h-[100px] min-h-[100px]",
+      minWidth: 50,
+      className: "max-w-[50px] max-h-[50px]",
       render: (_, { image }) => {
         const imagesList =
           image && image.length > 0
@@ -313,7 +271,7 @@ const CreateOrderDetailModal = ({
               movable: false,
             }}
           >
-            <Carousel adaptiveHeight dotPosition="bottom">
+            <Carousel adaptiveHeight dotPosition="bottom" arrows>
               {imagesList.map((item) => (
                 <Image
                   key={item}
@@ -332,13 +290,8 @@ const CreateOrderDetailModal = ({
       title: "Name",
       dataIndex: "name",
       key: "name",
-    },
-    {
-      title: "Inventory",
-      dataIndex: "inventory",
-      key: "inventory",
-      render: (_, { inventory }) => {
-        return <p>{formatNumber(inventory?.quantity || 0)}</p>;
+      render: (_, { variant }) => {
+        return <p>{variant?.name}</p>;
       },
     },
     {
@@ -346,40 +299,60 @@ const CreateOrderDetailModal = ({
       dataIndex: "price",
       key: "price",
       render: (_, { price }) => {
-        return <p>{formatCurrency(price || 0)}</p>;
+        return <p>{formatCurrency(price)}</p>;
+      },
+    },
+    {
+      title: "Inventory",
+      dataIndex: "inventory",
+      key: "inventory",
+      render: (_, { inventory }) => {
+        return <p>{inventory?.quantity}</p>;
       },
     },
     {
       title: "Order quantity",
       dataIndex: "quantity",
       key: "quantity",
-      editable: true,
+      render: (_, { variant, inventory }, index) => {
+        return (
+          <Controller
+            control={control}
+            name={`order_detail_info.products_detail.${index}.quantity`}
+            render={({ field }) => (
+              <InputNumber
+                {...field}
+                min={1}
+                max={inventory?.quantity}
+                defaultValue={1}
+                onChange={(value) =>
+                  _onChangeProductQuantity(index, variant?.id || "", value || 0)
+                }
+              />
+            )}
+          />
+        );
+      },
     },
     {
       title: "Subtotal",
       dataIndex: "subtotal",
       key: "subtotal",
-      render: (_, { price, id }) => {
-        const orderQuantity =
-          productsOrder.find((item) => item.id == id)?.quantity || 0;
-        const subTotal = price * orderQuantity;
-        return <p>{formatCurrency(subTotal)}</p>;
+      render: (_, {}, index) => {
+        return (
+          <p>{formatCurrency(productDetailInfoList[index]?.subtotal || 0)}</p>
+        );
       },
     },
     {
-      title: "Total discount",
-      dataIndex: "total_discount",
-      key: "total_discount",
-      render: (_, { total_discounts, id }) => {
-        const orderQuantity =
-          productsOrder.find((item) => item.id == id)?.quantity || 0;
-        const totalDiscount = total_discounts * orderQuantity;
+      title: "Total discounts",
+      dataIndex: "total_discounts",
+      key: "total_discounts",
+      render: (_, {}, index) => {
         return (
-          <Tooltip
-            title={`Discount/item: ${formatCurrency(total_discounts || 0)}`}
-          >
-            {formatCurrency(totalDiscount)}
-          </Tooltip>
+          <p>
+            {formatCurrency(productDetailInfoList[index]?.total_discounts || 0)}
+          </p>
         );
       },
     },
@@ -387,121 +360,42 @@ const CreateOrderDetailModal = ({
       title: "Total",
       dataIndex: "total",
       key: "total",
-      render: (_, { price_after_discounts, id }) => {
-        const orderQuantity =
-          productsOrder.find((item) => item.id == id)?.quantity || 0;
-        const total = price_after_discounts * orderQuantity;
-        return <p>{formatCurrency(total)}</p>;
+      render: (_, {}, index) => {
+        return (
+          <p>{formatCurrency(productDetailInfoList[index]?.total || 0)}</p>
+        );
       },
     },
     {
-      title: () => {
-        return (
-          <div className="flex items-center">
-            <h3>Action</h3>
-            <Button type="link" variant="text" onClick={_onRemoveAllProducts}>
-              Remove All
-            </Button>
-          </div>
-        );
-      },
+      title: "Action",
       dataIndex: "action",
       key: "action",
-      fixed: "right",
-      render: (_, { id }) => {
+      render: (_, { variant }) => {
         return (
           <Button
             type="link"
             variant="text"
-            onClick={() => _onRemoveSelectProducts(id)}
+            onClick={() => _onRemoveSelectProducts(variant?.id || "")}
           >
             Remove
           </Button>
         );
       },
     },
-  ];
-  const renderProductColumns = productColumns.map((col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record: ProductModel) => ({
-        record,
-        editable: col.editable,
-        title: col.title,
-      }),
-    };
-  });
-  const productComponents: TableProps<ProductModel>["components"] = {
-    body: {
-      row: (props: any) => {
-        return <tr {...props} />;
-      },
-      cell: ({
-        record,
-        editable,
-        className,
-        ...props
-      }: {
-        record: ProductModel;
-        editable: boolean;
-        className: string;
-      }) => {
-        const [product, setProduct] = useState<{
-          id: string;
-          quantity: number;
-        }>({
-          id: "",
-          quantity: 0,
-        });
-        const [editing, setEditing] = useState(false);
-        const inputRef = useRef<InputRef>(null);
-        const _handleChange = (value: number) => {
-          setProduct({ id: record.id, quantity: value });
-        };
-        const save = () => {
-          setEditing(!editing);
-          _onChangeProductQuantity(product.id, product.quantity);
-        };
-        useEffect(() => {
-          if (editing) {
-            inputRef.current?.focus();
-          }
-        }, [editing]);
-        if (editable) {
-          return (
-            <td
-              {...props}
-              className={cn(className, "text-center align-middle")}
-            >
-              <InputNumber
-                tabIndex={1}
-                className={cn("w-full")}
-                placeholder="Enter quantity for this product"
-                value={
-                  productsOrder.find((item) => item.id == record.id)?.quantity
-                }
-                onPressEnter={save}
-                onBlur={save}
-                onChange={(value) => _handleChange(Number(value))}
-                controls={false}
-                max={record?.inventory?.quantity}
-                min={1}
-                ref={inputRef as any}
-              />
-            </td>
-          );
-        }
+    {
+      title: () => {
         return (
-          <td
-            {...props}
-            className={cn(className, "text-center align-middle")}
-          />
+          <Button type="link" variant="text" onClick={_onRemoveAllProducts}>
+            Remove all
+          </Button>
         );
       },
+      dataIndex: "remove_all",
+      key: "remove_all",
     },
+  ];
+  const _renderTitle = () => {
+    return <h1 className="text-2xl font-bold">Create new order</h1>;
   };
   const _renderBody = () => {
     return (
@@ -571,6 +465,7 @@ const CreateOrderDetailModal = ({
                       }
                       label="Current Customer"
                       placeholder="Choose current customer"
+                      groupClassName="flex-1"
                       customComponent={(props, ref: any) => (
                         <Select
                           {...props}
@@ -731,6 +626,7 @@ const CreateOrderDetailModal = ({
                     <Select
                       {...props}
                       ref={ref}
+                      allowClear={true}
                       options={shippingMethodList?.data.map((item) => ({
                         label: item.type,
                         value: item.id,
@@ -766,6 +662,7 @@ const CreateOrderDetailModal = ({
                       <Select
                         {...props}
                         ref={ref}
+                        allowClear={true}
                         options={paymentMethodList?.data.map((item) => ({
                           label: item.type,
                           value: item.id,
@@ -813,11 +710,10 @@ const CreateOrderDetailModal = ({
             {/* Products */}
             <Table
               tableLayout="auto"
-              columns={renderProductColumns as ProductColumnType}
+              columns={productSellableColumns}
               dataSource={selectedProductList}
               scroll={{ x: "100%" }}
               rowKey={(record) => record.id}
-              components={productComponents}
               size="small"
               footer={(data) => {
                 return (
@@ -834,35 +730,32 @@ const CreateOrderDetailModal = ({
               }}
               summary={(record) => {
                 const totalQuantity =
-                  productsOrder?.length > 0
-                    ? productsOrder
-                        ?.map((item) => item.quantity)
-                        ?.reduce((arr, curr) => arr + curr)
-                    : 0;
+                  watch("order_detail_info.products_detail")?.reduce(
+                    (acc, curr) => acc + curr.quantity,
+                    0,
+                  ) || 0;
                 const subtotal =
-                  record?.length > 0
-                    ? record
-                        .map(
-                          (item) =>
-                            item.price *
-                            (productsOrder.find(
-                              (product) => product.id == item.id,
-                            )?.quantity || 0),
-                        )
-                        .reduce((acc, curr) => acc + curr)
-                    : 0;
+                  getValues("order_detail_info.products_detail")?.reduce(
+                    (acc, item) => {
+                      const product = selectedProductList.find(
+                        (p) => p.variant?.id === item.id,
+                      );
+                      return acc + item.quantity * (product?.price || 0);
+                    },
+                    0,
+                  ) || 0;
                 const totalDiscount =
-                  record?.length > 0
-                    ? record
-                        .map(
-                          (item) =>
-                            item.total_discounts *
-                            (productsOrder.find(
-                              (product) => product.id == item.id,
-                            )?.quantity || 0),
-                        )
-                        .reduce((acc, curr) => acc + curr)
-                    : 0;
+                  getValues("order_detail_info.products_detail")?.reduce(
+                    (acc, item) => {
+                      const product = selectedProductList.find(
+                        (p) => p.variant?.id === item.id,
+                      );
+                      return (
+                        acc + item.quantity * (product?.total_discounts || 0)
+                      );
+                    },
+                    0,
+                  ) || 0;
                 const total = subtotal - totalDiscount;
                 return (
                   <Table.Summary>
@@ -956,7 +849,9 @@ const CreateOrderDetailModal = ({
                 <InputNumber
                   {...props}
                   className="w-full flex-1"
-                  value={formatCurrency(watch("order_detail_info.subtotal"))}
+                  value={formatCurrency(
+                    watch("order_detail_info.subtotal") || 0,
+                  )}
                 />
               )}
             />
@@ -970,7 +865,7 @@ const CreateOrderDetailModal = ({
                     {...props}
                     className="w-full flex-1"
                     value={formatCurrency(
-                      watch("order_detail_info.total_discount"),
+                      watch("order_detail_info.total_discount") || 0,
                     )}
                   />
                 )}
@@ -984,7 +879,7 @@ const CreateOrderDetailModal = ({
                     {...props}
                     className="w-full flex-1"
                     value={formatCurrency(
-                      watch("order_detail_info.total_order_discount"),
+                      watch("order_detail_info.total_order_discount") || 0,
                     )}
                   />
                 )}
@@ -998,7 +893,7 @@ const CreateOrderDetailModal = ({
                     {...props}
                     className="w-full flex-1"
                     value={formatCurrency(
-                      watch("order_detail_info.total_product_discount"),
+                      watch("order_detail_info.total_product_discount") || 0,
                     )}
                   />
                 )}
@@ -1014,7 +909,7 @@ const CreateOrderDetailModal = ({
                     {...props}
                     className="w-full flex-1"
                     value={formatCurrency(
-                      watch("order_detail_info.total_shipping_fee"),
+                      watch("order_detail_info.total_shipping_fee") || 0,
                     )}
                   />
                 )}
@@ -1028,7 +923,7 @@ const CreateOrderDetailModal = ({
                     {...props}
                     className="w-full flex-1"
                     value={formatCurrency(
-                      watch("order_detail_info.total_payment_fee"),
+                      watch("order_detail_info.total_payment_fee") || 0,
                     )}
                   />
                 )}
@@ -1042,7 +937,7 @@ const CreateOrderDetailModal = ({
                     {...props}
                     className="w-full flex-1"
                     value={formatCurrency(
-                      watch("order_detail_info.total_costs"),
+                      watch("order_detail_info.total_costs") || 0,
                     )}
                   />
                 )}
@@ -1056,7 +951,7 @@ const CreateOrderDetailModal = ({
                 <InputNumber
                   {...props}
                   className="w-full flex-1"
-                  value={formatCurrency(watch("order_detail_info.total"))}
+                  value={formatCurrency(watch("order_detail_info.total") || 0)}
                 />
               )}
             />

@@ -11,6 +11,7 @@ type Props = {
   loading: boolean;
   onClose: () => void;
   handleCreateRole: (data: any, callback: () => void) => void;
+  refetch?: () => void;
 };
 
 const CreateRoleModal = ({
@@ -18,6 +19,7 @@ const CreateRoleModal = ({
   onClose,
   handleCreateRole,
   loading = false,
+  refetch,
 }: Props) => {
   const {
     control,
@@ -29,6 +31,7 @@ const CreateRoleModal = ({
     handleCreateRole(data, () => {
       onClose();
       reset();
+      refetch?.();
     });
   };
   const _renderTitle = () => {

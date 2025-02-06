@@ -45,6 +45,7 @@ import { useAppSelector } from "@/app/shared/hooks/useRedux";
 import { ListResponseModel } from "@/app/shared/models/others/list-response.model";
 import CreateOrderDetailModal from "@/app/shared/components/GeneralModal/components/CreateOrderDetailModal";
 import { OrderCreateDTO } from "@/app/shared/interfaces/orders/order.dto";
+import { ProductSellableDetailsInOrderModel } from "@/app/shared/models/orders/orders.model";
 
 type OrderTablePropsType = {
   handleChangeOrderState: (order_id: string, order_state: OrderState) => void;
@@ -54,16 +55,16 @@ type OrderTablePropsType = {
     order_status: ModelStatus,
   ) => void;
   isUpdateOrderStatusLoading: boolean;
-  selectedRows: OrderTableDataType[];
+  selectedRows: OrderModel[];
   handleSelectAllRow: (
     selected: boolean,
-    selectedRows: OrderTableDataType[],
-    changeRows: OrderTableDataType[],
+    selectedRows: OrderModel[],
+    changeRows: OrderModel[],
   ) => void;
   handleSelectRow: (
-    record: OrderTableDataType,
+    record: OrderModel,
     selected: boolean,
-    selectedRows: OrderTableDataType[],
+    selectedRows: OrderModel[],
   ) => void;
   handleSoftDeleteOrder: (order_id: string) => void;
   isSoftDeleteOrderLoading: boolean;
@@ -82,59 +83,7 @@ type OrderTablePropsType = {
   isCreateOrderLoading: boolean;
   createOrderError: any;
 };
-export type OrderTableDataType = {
-  key: string;
-  id: string;
-  order_state: string;
-  description: string;
-  cost: CostModel[];
-  customer_firstName: string;
-  customer_lastName: string;
-  customer_name: string;
-  customer_phone: string;
-  customer_email: string;
-  customer_address: string;
-  subtotal: number;
-  total_shipping_fee: number;
-  total_payment_fee: number;
-  total_costs: number;
-  total_discount: number;
-  total_order_discount: number;
-  total_product_discount: number;
-  total: number;
-  discount: DiscountModel[];
-  product_discount: DiscountModel[];
-  shipping: {
-    type: string;
-    cost: number;
-  };
-  payment: {
-    type: string;
-    cost: number;
-  };
-  payment_info: {
-    paid_amount: number;
-    paid_all_date: string | null;
-  };
-  created_at: string;
-  status: string;
-};
-export type ProductTableDataType = {
-  key: string;
-  id: string;
-  order_id: string;
-  image: ImageModel[];
-  name: string;
-  discount: DiscountModel[];
-  product_details: {
-    quantity: number;
-    price: number;
-    subtotal: number;
-    discount_amount: number;
-    total: number;
-  };
-};
-type OnChange = NonNullable<TableProps<OrderTableDataType>["onChange"]>;
+type OnChange = NonNullable<TableProps<OrderModel>["onChange"]>;
 type Filters = Parameters<OnChange>[1];
 type GetSingle<T> = T extends (infer U)[] ? U : never;
 type Sorts = GetSingle<Parameters<OnChange>[2]>;
@@ -193,7 +142,6 @@ const OrderTable = ({
             isSoftDeleteOrderLoading,
             isDeleteOrderLoading,
             isCreateOrderLoading,
-            
           ],
           queryFn: () =>
             orderService.getList({
@@ -237,16 +185,16 @@ const OrderTable = ({
     setSortedInfo(sorter as Sorts);
   };
   const _onSelectRow = (
-    record: OrderTableDataType,
+    record: OrderModel,
     selected: boolean,
-    selectedRows: OrderTableDataType[],
+    selectedRows: OrderModel[],
   ) => {
     handleSelectRow(record, selected, selectedRows);
   };
   const _onSelectAllRow = (
     selected: boolean,
-    selectedRows: OrderTableDataType[],
-    changeRows: OrderTableDataType[],
+    selectedRows: OrderModel[],
+    changeRows: OrderModel[],
   ) => {
     handleSelectAllRow(selected, selectedRows, changeRows);
   };
@@ -259,70 +207,7 @@ const OrderTable = ({
   ) => {
     handleChangeOrderStatus(order_id, order_status);
   };
-  const orderDataSource: OrderTableDataType[] | undefined =
-    ordersData?.map((order) => ({
-      key: order.id,
-      id: order.id || "",
-      order_state: order.order_state || "",
-      description: order.description || "",
-      cost: order.order_detail.cost as CostModel[],
-      customer_lastName: order.order_detail.customer_lastName || "",
-      customer_firstName: order.order_detail.customer_firstName || "",
-      customer_name:
-        `${order.order_detail.customer_firstName} ${order.order_detail.customer_lastName}` ||
-        "",
-      customer_phone: order.order_detail.customer_phone || "",
-      customer_email: order.order_detail.customer_email || "",
-      customer_address: order.order_detail.customer_address || "",
-      subtotal: order.order_detail.subtotal || 0,
-      total_shipping_fee: order.order_detail.total_shipping_fee || 0,
-      total_payment_fee: order.order_detail.total_payment_fee || 0,
-      total_costs: order.order_detail.total_costs || 0,
-      total_discount: order.order_detail.total_discount || 0,
-      total_order_discount: order.order_detail.total_order_discount || 0,
-      total_product_discount: order.order_detail.total_product_discount || 0,
-      total: order.order_detail.total || 0,
-      discount: order.order_detail.discount || [],
-      product_discount:
-        order.order_detail.product?.flatMap(
-          (product) =>
-            product.discount?.map((discount) => ({
-              id: discount.id,
-              name: discount.name,
-              amount: discount.amount,
-              type: discount.type,
-              scope: discount.scope,
-            })) as DiscountModel[],
-        ) || [],
-      shipping: {
-        type: order.order_detail.shipping?.type || "",
-        cost: order.order_detail.shipping?.cost || 0,
-      },
-      payment: {
-        type: order.order_detail.payment?.payment_method?.type || "",
-        cost: order.order_detail.payment?.payment_method?.cost || 0,
-      },
-      payment_info: {
-        paid_amount: order.order_detail.payment?.paid_amount || 0,
-        paid_all_date: order.order_detail.payment?.paid_all_date || "",
-      },
-      created_at: order.created_at,
-      status: order.status,
-    })) || [];
-  const productDataSource: ProductTableDataType[] | undefined =
-    ordersData?.flatMap(
-      (order) =>
-        order.order_detail.product?.map((product) => ({
-          key: product.id,
-          id: product.id || "",
-          order_id: order.id || "",
-          image: (product.image as ImageModel[]) || [],
-          name: product.name || "",
-          product_details: product.product_details || [],
-          discount: product.discount as DiscountModel[],
-        })) || [],
-    ) || [];
-  const orderColumns: TableColumnType<OrderTableDataType>[] = [
+  const orderColumns: TableColumnType<OrderModel>[] = [
     {
       title: "ID",
       dataIndex: "id",
@@ -344,23 +229,30 @@ const OrderTable = ({
       title: "Customer Name",
       dataIndex: "customer_name",
       key: "customer_name",
-      render: (
-        _,
-        { customer_name, customer_address, customer_email, customer_phone },
-      ) => (
-        <Tooltip
-          title={
-            <div className="flex flex-col gap-1">
-              <span>Address: {customer_address}</span>
-              <span>Email: {customer_email}</span>
-              <span>Phone: {customer_phone}</span>
-            </div>
-          }
-          className="text-ellipsis"
-        >
-          {customer_name}
-        </Tooltip>
-      ),
+      render: (_, { order_detail }) => {
+        const {
+          customer_address,
+          customer_email,
+          customer_phone,
+          customer_firstName,
+          customer_lastName,
+        } = order_detail || {};
+        const customer_name = `${customer_firstName} ${customer_lastName}`;
+        return (
+          <Tooltip
+            title={
+              <div className="flex flex-col gap-1">
+                <span>Address: {customer_address}</span>
+                <span>Email: {customer_email}</span>
+                <span>Phone: {customer_phone}</span>
+              </div>
+            }
+            className="text-ellipsis"
+          >
+            {customer_name}
+          </Tooltip>
+        );
+      },
     },
     {
       title: "Order State",
@@ -404,172 +296,199 @@ const OrderTable = ({
       title: "Shipping Address",
       dataIndex: "shipping_address",
       key: "shipping_address",
-      render: (_, { customer_address }) => (
-        <Tooltip title={customer_address}>
-          <p className="overflow-hidden text-ellipsis">{customer_address}</p>
-        </Tooltip>
-      ),
+      render: (_, { order_detail }) => {
+        const { customer_address } = order_detail || {};
+        return (
+          <Tooltip title={customer_address}>
+            <p className="overflow-hidden text-ellipsis">{customer_address}</p>
+          </Tooltip>
+        );
+      },
     },
     {
       title: "Shipping Phone",
       dataIndex: "shipping_phone",
       key: "shipping_phone",
-      render: (_, { customer_phone }) => (
-        <Tooltip title={customer_phone}>
-          <p className="overflow-hidden text-ellipsis">{customer_phone}</p>
-        </Tooltip>
-      ),
+      render: (_, { order_detail }) => {
+        const { customer_phone } = order_detail || {};
+        return (
+          <Tooltip title={customer_phone}>
+            <p className="overflow-hidden text-ellipsis">{customer_phone}</p>
+          </Tooltip>
+        );
+      },
     },
     {
       title: "Shipping",
       dataIndex: "shipping_method",
       key: "shipping_method",
-      render: (_, { shipping }) => (
-        <Tooltip title={formatCurrency(shipping.cost)}>
-          <p className="overflow-hidden text-ellipsis">{shipping.type}</p>
-        </Tooltip>
-      ),
+      render: (_, { order_detail }) => {
+        const { shipping } = order_detail || {};
+        return (
+          <Tooltip title={formatCurrency(shipping?.cost || 0)}>
+            <p className="overflow-hidden text-ellipsis">{shipping?.type}</p>
+          </Tooltip>
+        );
+      },
     },
     {
       title: "Payment",
       dataIndex: "payment_method",
       key: "payment_method",
-      render: (_, { payment }) => (
-        <Tooltip title={formatCurrency(payment.cost)}>
-          <p className="overflow-hidden text-ellipsis">{payment.type}</p>
-        </Tooltip>
-      ),
+      render: (_, { order_detail }) => {
+        const { payment } = order_detail || {};
+        return (
+          <Tooltip title={formatCurrency(payment?.payment_method?.cost || 0)}>
+            <p className="overflow-hidden text-ellipsis">
+              {payment?.payment_method?.type}
+            </p>
+          </Tooltip>
+        );
+      },
     },
     {
       title: "Subtotal",
       dataIndex: "subtotal",
       key: "subtotal",
-      render: (_, { subtotal }) => <span>{formatCurrency(subtotal)}</span>,
+      render: (_, { order_detail }) => {
+        const { subtotal } = order_detail || {};
+        return <span>{formatCurrency(subtotal)}</span>;
+      },
     },
     {
       title: "Total Discount",
       dataIndex: "total_discount",
       key: "total_discount",
-      render: (_, { total_discount, discount, product_discount }) => (
-        <Tooltip
-          title={
-            <div className="flex flex-col gap-1">
-              {discount.map((item) => (
-                <span key={item.id}>
-                  <span className="font-semibold capitalize">
-                    {item.scope} -{" "}
-                  </span>
-                  {item.name} -{" "}
-                  {item.type === DISCOUNT_TYPE.PERCENTAGE
-                    ? formatDiscountPercentage(item.amount)
-                    : formatCurrency(item.amount)}
-                </span>
-              ))}
-              {product_discount.map((item) => (
-                <span key={item.id}>
-                  <span className="font-semibold capitalize">
-                    {item.scope} -{" "}
-                  </span>
-                  {item.name} -{" "}
-                  {item.type === DISCOUNT_TYPE.PERCENTAGE
-                    ? formatDiscountPercentage(item.amount)
-                    : formatCurrency(item.amount)}
-                </span>
-              ))}
-            </div>
-          }
-        >
-          <span>{formatCurrency(total_discount)}</span>
-        </Tooltip>
-      ),
-    },
-    {
-      title: "Other costs",
-      dataIndex: "total_costs",
-      key: "total_costs",
-      render: (_, { total_costs, cost }) => (
-        <Tooltip
-          title={
-            <div className="flex flex-col gap-1">
-              {cost.map((item) => (
-                <span key={item.id}>
-                  {item.name}: {formatCurrency(item.cost)}
-                </span>
-              ))}
-            </div>
-          }
-        >
-          <span>{formatCurrency(total_costs)}</span>
-        </Tooltip>
-      ),
-    },
-    {
-      title: "Total Discount",
-      dataIndex: "total_discount",
-      key: "total_discount",
-      render: (_, { total_discount, discount }) => (
-        <Tooltip
-          title={
-            <div className="flex flex-col gap-1">
-              {discount.map((item) => (
-                <div key={item.id}>
-                  <span className="font-semibold capitalize">
-                    {item.scope} -{" "}
-                  </span>
-                  <span>
+      render: (_, { order_detail }) => {
+        const { total_discount, discount } = order_detail || {};
+        return (
+          <Tooltip
+            title={
+              <div className="flex flex-col gap-1">
+                {discount?.map((item) => (
+                  <span key={item.id}>
+                    <span className="font-semibold capitalize">
+                      {item.scope} -{" "}
+                    </span>
                     {item.name} -{" "}
                     {item.type === DISCOUNT_TYPE.PERCENTAGE
                       ? formatDiscountPercentage(item.amount)
                       : formatCurrency(item.amount)}
                   </span>
-                </div>
-              ))}
-            </div>
-          }
-        >
-          <span>{formatCurrency(total_discount)}</span>
-        </Tooltip>
-      ),
+                ))}
+              </div>
+            }
+          >
+            <span>{formatCurrency(total_discount)}</span>
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: "Other costs",
+      dataIndex: "total_costs",
+      key: "total_costs",
+      render: (_, { order_detail }) => {
+        const { total_costs, cost } = order_detail || {};
+        return (
+          <Tooltip
+            title={
+              <div className="flex flex-col gap-1">
+                {cost?.map((item) => (
+                  <span key={item.id}>
+                    {item.name}: {formatCurrency(item.cost)}
+                  </span>
+                ))}
+              </div>
+            }
+          >
+            <span>{formatCurrency(total_costs)}</span>
+          </Tooltip>
+        );
+      },
+    },
+    {
+      title: "Total Discount",
+      dataIndex: "total_discount",
+      key: "total_discount",
+      render: (_, { order_detail }) => {
+        const { total_discount, discount } = order_detail || {};
+        return (
+          <Tooltip
+            title={
+              <div className="flex flex-col gap-1">
+                {discount?.map((item) => (
+                  <div key={item.id}>
+                    <span className="font-semibold capitalize">
+                      {item.scope} -{" "}
+                    </span>
+                    <span>
+                      {item.name} -{" "}
+                      {item.type === DISCOUNT_TYPE.PERCENTAGE
+                        ? formatDiscountPercentage(item.amount)
+                        : formatCurrency(item.amount)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            }
+          >
+            <span>{formatCurrency(total_discount)}</span>
+          </Tooltip>
+        );
+      },
     },
     {
       title: "Total Shipping Fee",
       dataIndex: "total_shipping_fee",
       key: "total_shipping_fee",
-      render: (_, { total_shipping_fee }) => (
-        <Tooltip title={formatCurrency(total_shipping_fee)}>
-          <span>{formatCurrency(total_shipping_fee)}</span>
-        </Tooltip>
-      ),
+      render: (_, { order_detail }) => {
+        const { total_shipping_fee } = order_detail || {};
+        return (
+          <Tooltip title={formatCurrency(total_shipping_fee)}>
+            <span>{formatCurrency(total_shipping_fee)}</span>
+          </Tooltip>
+        );
+      },
     },
     {
       title: "Total Payment Fee",
       dataIndex: "total_payment_fee",
       key: "total_payment_fee",
-      render: (_, { total_payment_fee }) => (
-        <Tooltip title={formatCurrency(total_payment_fee)}>
-          <span>{formatCurrency(total_payment_fee)}</span>
-        </Tooltip>
-      ),
+      render: (_, { order_detail }) => {
+        const { total_payment_fee } = order_detail || {};
+        return (
+          <Tooltip title={formatCurrency(total_payment_fee)}>
+            <span>{formatCurrency(total_payment_fee)}</span>
+          </Tooltip>
+        );
+      },
     },
     {
       title: "Total",
       dataIndex: "total",
       key: "total",
-      render: (_, { total }) => (
-        <Tooltip title={formatCurrency(total)}>
-          <span>{formatCurrency(total)}</span>
-        </Tooltip>
-      ),
+      render: (_, { order_detail }) => {
+        const { total } = order_detail || {};
+        return (
+          <Tooltip title={formatCurrency(total)}>
+            <span>{formatCurrency(total)}</span>
+          </Tooltip>
+        );
+      },
     },
     {
       title: "Paid Amount",
       dataIndex: "paid_amount",
       key: "paid_amount",
-      render: (_, { payment_info }) => (
-        <Tooltip title={formatCurrency(payment_info.paid_amount)}>
-          <span>{formatCurrency(payment_info.paid_amount)}</span>
-        </Tooltip>
-      ),
+      render: (_, { order_detail }) => {
+        const { payment } = order_detail || {};
+        return (
+          <Tooltip title={formatCurrency(payment?.paid_amount || 0)}>
+            <span>{formatCurrency(payment?.paid_amount || 0)}</span>
+          </Tooltip>
+        );
+      },
     },
     {
       title: "Created At",
@@ -636,119 +555,130 @@ const OrderTable = ({
       ),
     },
   ];
-  const productColumns: TableColumnType<ProductTableDataType>[] = [
-    {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-    },
-    {
-      title: null,
-      dataIndex: "images",
-      key: "images",
-      className: "max-w-[200px] w-[200px]",
-      render: (_, { image }) => {
-        const imagesList =
-          image && image.length > 0
-            ? image.map((item) => item.url)
-            : [defaultImage];
-        return (
-          <Image.PreviewGroup
-            items={imagesList}
-            preview={{
-              movable: false,
-            }}
-          >
-            <Carousel autoplay dotPosition="bottom">
-              {imagesList.map((item) => (
-                <Image
-                  key={item}
-                  src={item}
-                  alt="product"
-                  width={150}
-                  height={150}
-                  fallback={defaultImage}
-                  className="object-contain"
-                />
-              ))}
-            </Carousel>
-          </Image.PreviewGroup>
-        );
-      },
-    },
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      key: "price",
-      render: (_, { product_details }) => (
-        <Tooltip title={formatCurrency(product_details.price)}>
-          <span>{formatCurrency(product_details.price)}</span>
-        </Tooltip>
-      ),
-    },
-    {
-      title: "Quantity",
-      dataIndex: "quantity",
-      key: "quantity",
-      render: (_, { product_details }) => (
-        <Tooltip title={formatNumber(product_details.quantity)}>
-          <span>{formatNumber(product_details.quantity)}</span>
-        </Tooltip>
-      ),
-      minWidth: 100,
-    },
-    {
-      title: "Subtotal",
-      dataIndex: "subtotal",
-      key: "subtotal",
-      render: (_, { product_details }) => (
-        <Tooltip title={formatCurrency(product_details.subtotal)}>
-          <span>{formatCurrency(product_details.subtotal)}</span>
-        </Tooltip>
-      ),
-    },
-    {
-      title: "Discount",
-      dataIndex: "discount",
-      key: "discount",
-      render: (_, { product_details, discount }) => {
-        return (
-          <Tooltip
-            title={() => {
-              return discount.map((item) => (
-                <p key={item.id}>
-                  {item.name} -{" "}
-                  {item.type === DISCOUNT_TYPE.PERCENTAGE
-                    ? formatDiscountPercentage(item.amount)
-                    : formatCurrency(item.amount)}
-                </p>
-              ));
-            }}
-          >
-            <span>{formatCurrency(product_details.discount_amount)}</span>
+  const productColumns: TableColumnType<ProductSellableDetailsInOrderModel>[] =
+    [
+      {
+        title: "ID",
+        dataIndex: "id",
+        key: "id",
+        ellipsis: true,
+        width: 100,
+        render: (_, { id }) => (
+          <Tooltip title={id}>
+            <span>{id.substring(0, 10)}</span>
           </Tooltip>
-        );
+        ),
       },
-    },
-    {
-      title: "Total",
-      dataIndex: "total",
-      key: "total",
-      render: (_, { product_details }) => (
-        <Tooltip title={formatCurrency(product_details.total)}>
-          <span>{formatCurrency(product_details.total)}</span>
-        </Tooltip>
-      ),
-    },
-  ];
-  const orderExpandedRowRender = (dataScource: ProductTableDataType[]) => {
+      {
+        title: null,
+        dataIndex: "images",
+        key: "images",
+        className: "max-w-[100px]",
+        width: 100,
+        render: (_, { image }) => {
+          const imagesList =
+            image && image.length > 0
+              ? image.map((item) => item.url)
+              : [defaultImage];
+          return (
+            <Image.PreviewGroup
+              items={imagesList}
+              preview={{
+                movable: false,
+              }}
+            >
+              <Carousel autoplay dotPosition="bottom">
+                {imagesList.map((item) => (
+                  <Image
+                    key={item}
+                    src={item}
+                    alt="product"
+                    fallback={defaultImage}
+                    className="object-contain"
+                  />
+                ))}
+              </Carousel>
+            </Image.PreviewGroup>
+          );
+        },
+      },
+      {
+        title: "Name",
+        dataIndex: "name",
+        key: "name",
+      },
+      {
+        title: "Price",
+        dataIndex: "price",
+        key: "price",
+        render: (_, { price }) => (
+          <Tooltip title={formatCurrency(price)}>
+            <span>{formatCurrency(price)}</span>
+          </Tooltip>
+        ),
+      },
+      {
+        title: "Quantity",
+        dataIndex: "quantity",
+        key: "quantity",
+        render: (_, { product_details }) => (
+          <Tooltip title={formatNumber(product_details.quantity)}>
+            <span>{formatNumber(product_details.quantity)}</span>
+          </Tooltip>
+        ),
+        minWidth: 100,
+      },
+      {
+        title: "Subtotal",
+        dataIndex: "subtotal",
+        key: "subtotal",
+        render: (_, { product_details }) => (
+          <Tooltip title={formatCurrency(product_details.subtotal)}>
+            <span>{formatCurrency(product_details.subtotal)}</span>
+          </Tooltip>
+        ),
+      },
+      {
+        title: "Discount",
+        dataIndex: "discount",
+        key: "discount",
+        render: (_, { discount, product_details }) => {
+          return (
+            <Tooltip
+              title={() => {
+                return discount?.map((item) => (
+                  <p key={item.id}>
+                    {item.name} -{" "}
+                    {item.type === DISCOUNT_TYPE.PERCENTAGE
+                      ? formatDiscountPercentage(item.amount)
+                      : formatCurrency(item.amount)}
+                  </p>
+                ));
+              }}
+            >
+              <span>
+                {formatCurrency(product_details?.discount_amount || 0)}
+              </span>
+            </Tooltip>
+          );
+        },
+      },
+      {
+        title: "Total",
+        dataIndex: "total",
+        key: "total",
+        render: (_, { product_details }) => (
+          <Tooltip title={formatCurrency(product_details.total)}>
+            <span>{formatCurrency(product_details.total)}</span>
+          </Tooltip>
+        ),
+      },
+    ];
+  const orderExpandedRowRender = (
+    dataScource: ProductSellableDetailsInOrderModel[],
+  ) => {
     return (
-      <Table<ProductTableDataType>
+      <Table<ProductSellableDetailsInOrderModel>
         tableLayout="auto"
         columns={productColumns}
         dataSource={dataScource}
@@ -785,19 +715,19 @@ const OrderTable = ({
         <Table
           tableLayout="auto"
           columns={orderColumns}
-          dataSource={orderDataSource}
+          dataSource={ordersData}
           rowClassName={"max-h-[100px] overflow-hidden"}
           expandable={{
             expandedRowRender: (record) => {
-              const productData = productDataSource?.filter(
-                (item) => item.order_id === record.id,
-              );
+              const productData = (
+                ordersData?.filter((order) => order.id === record.id) || []
+              ).flatMap((item) => item?.order_detail?.product_sellable || []);
               return orderExpandedRowRender(productData);
             },
           }}
           onChange={_onChangeTable}
           scroll={{ x: "100vw" }}
-          rowKey={(record) => record.key}
+          rowKey={(record) => record.id}
           rowSelection={{
             selectedRowKeys: selectedRows.map((item) => item.id),
             onSelect: (record, selected, selectedRows, nativeEvent) =>
@@ -819,17 +749,17 @@ const OrderTable = ({
         />
       </div>
       {/* MODAL */}
-      <OrderDetailModal
+      {/* TODO: Fix order detail modal */}
+      {/* <OrderDetailModal
         isModalOrderDetailOpen={isModalOrderDetailOpen}
         handleCloseModalOrderDetail={_onCloseModalOrderDetail}
         handleUpdateOrderDetail={_onConfirmUpdateOrderDetail}
         isEditMode={isEditMode}
         orderId={orderId}
-        productsData={productDataSource?.filter(
-          (item) => item.order_id === orderId,
-        )}
-        productsColumns={productColumns}
-      />
+        productsData={null}
+        productsColumns={productColumns} */}
+      {/* /> */}
+      {/* TODO: Fix create order modal */}
       <CreateOrderDetailModal
         isOpen={isOpenCreateOrderModal}
         handleCloseCreateOrderModal={_onCloseCreateOrderModal}

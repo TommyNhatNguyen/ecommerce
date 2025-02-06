@@ -226,12 +226,12 @@ const CreateUserModal = ({
         </div>
         <div className="mt-4">
           <InputAdmin
-            label="Category Image"
+            label="User Image"
             required={true}
-            placeholder="Category Image"
+            placeholder="User Image"
             customComponent={() => (
               <Upload
-                accept=".jpg,.jpeg,.png,.gif,.webp"
+                accept=".jpg,.jpeg,.png,.gif,.webp,.svg,.heic,.heif,.avif"
                 listType="picture-card"
                 fileList={file ? [file] : undefined}
                 maxCount={1}

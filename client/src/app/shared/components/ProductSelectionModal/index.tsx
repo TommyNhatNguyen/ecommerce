@@ -1,24 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import GeneralModal from "../GeneralModal";
-import { Button, Carousel, Image, Table, TableProps, Tag, Tooltip } from "antd";
+import { Button, Carousel, Image, Table, TableProps } from "antd";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { productService } from "../../services/products/productService";
-import { ProductModel } from "../../models/products/products.model";
 import { defaultImage } from "../../resources/images/default-image";
 import {
   cn,
   formatCurrency,
-  formatDiscountPercentage,
   formatNumber,
 } from "../../utils/utils";
-import { DISCOUNT_TYPE } from "@/app/constants/enum";
+import { productSellableService } from "@/app/shared/services/products/productSellableService";
+import { ProductSellableModel } from "@/app/shared/models/products/products-sellable.model";
 
-type Props = {
+type ProductSelectionPropsType = {
   open: boolean;
   handleCloseModal: () => void;
-  handleOnConfirmSelect: (data: ProductModel[]) => void;
+  handleOnConfirmSelect: (data: ProductSellableModel[]) => void;
   isDisabledSelectedRows?: boolean;
-  currentSelectedRows?: ProductModel[];
+  currentSelectedRows?: ProductSellableModel[];
 };
 
 const ProductSelectionModal = ({
@@ -27,18 +25,20 @@ const ProductSelectionModal = ({
   handleOnConfirmSelect,
   isDisabledSelectedRows = false,
   currentSelectedRows,
-}: Props) => {
-  const [selectedRows, setSelectedRows] = useState<ProductModel[]>([]);
+}: ProductSelectionPropsType) => {
+  const [selectedRows, setSelectedRows] = useState<ProductSellableModel[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const _onCloseModal = () => {
     handleCloseModal();
   };
-  const { data, isLoading: isProductLoading } = useQuery({
-    queryKey: ["product"],
+  const { data, isLoading: isProductSellableLoading } = useQuery({
+    queryKey: ["product-sellable"],
     queryFn: () =>
-      productService.getProducts({
+      productSellableService.getProductSellable({
+        includeVariant: true,
         includeImage: true,
+        status: "ACTIVE",
         limit: limit,
         page: currentPage,
       }),
@@ -46,16 +46,16 @@ const ProductSelectionModal = ({
   });
   const { total_count } = data?.meta || {};
   const _onSelectRow = (
-    record: ProductModel,
+    record: ProductSellableModel,
     selected: boolean,
-    selectedRows: ProductModel[],
+    selectedRows: ProductSellableModel[],
   ) => {
     setSelectedRows(selectedRows);
   };
   const _onSelectAllRow = (
     selected: boolean,
-    selectedRows: ProductModel[],
-    changeRows: ProductModel[],
+    selectedRows: ProductSellableModel[],
+    changeRows: ProductSellableModel[],
   ) => {
     setSelectedRows(selectedRows);
   };
@@ -64,7 +64,7 @@ const ProductSelectionModal = ({
     _onCloseModal();
     setSelectedRows([]);
   };
-  const columns: TableProps<ProductModel>["columns"] = [
+  const columns: TableProps<ProductSellableModel>["columns"] = [
     {
       title: null,
       dataIndex: "images",
@@ -102,6 +102,9 @@ const ProductSelectionModal = ({
       title: "Name",
       dataIndex: "name",
       key: "name",
+      render: (_, { variant }) => {
+        return <p>{variant?.name}</p>;
+      },
     },
     {
       title: "Inventory",

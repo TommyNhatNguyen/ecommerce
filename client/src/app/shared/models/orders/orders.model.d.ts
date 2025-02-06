@@ -5,6 +5,7 @@ import { ShippingModel } from "@/app/shared/models/shipping/shipping.model";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { CostModel } from "@/app/shared/models/cost/cost.model";
 import { DiscountModel } from "@/app/shared/models/discounts/discounts.model";
+import { ProductSellableModel } from "@/app/shared/models/products/products-sellable.model";
 
 export enum OrderState {
   PENDING = "PENDING",
@@ -18,14 +19,6 @@ export enum OrderState {
   CANCELLED_BY_ADMIN = "CANCELLED_BY_ADMIN",
 }
 
-interface ProductDetailModel extends ProductModel {
-  order_detail: {
-    quantity: number;
-    subtotal: number;
-    status: ModelStatus;
-  };
-}
-
 export interface OrderModel {
   id: string;
   description: string;
@@ -36,6 +29,16 @@ export interface OrderModel {
   updated_at: string;
   order_detail: OrderDetailModel;
 }
+
+export type ProductSellableDetailsInOrderModel = ProductSellableModel & {
+  product_details: {
+    quantity: number;
+    price: number;
+    subtotal: number;
+    discount_amount: number;
+    total: number;
+  };
+};
 
 export interface OrderDetailModel {
   id: string;
@@ -55,22 +58,11 @@ export interface OrderDetailModel {
   customer_phone: string;
   customer_email: string | null;
   customer_address: string;
-  cost?: Pick<CostModel, keyof OrderDetailCostModel>[];
+  cost?: CostModel[];
   discount?: DiscountModel[];
-  product?: (ProductModel & {
-    product_details: {
-      quantity: number;
-      price: number;
-      subtotal: number;
-      discount_amount: number;
-      total: number;
-    };
-  })[];
   shipping?: ShippingModel;
   payment?: PaymentModel;
-}
-export interface OrderDetailCostModel {
-  id: string;
-  name: string;
-  cost: number;
+  product_sellable?: ProductSellableDetailsInOrderModel[];
+  page?: number;
+  limit?: number;
 }

@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react";
 type Props = {};
 
 const EmployeePermission = (props: Props) => {
-  const [selectedRoleId, setSelectedRoleId] = useState("");
+  const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
   const _onSelectRoleId = (roleId: string) => {
     setSelectedRoleId(roleId);
   };
@@ -28,7 +28,7 @@ const EmployeePermission = (props: Props) => {
   } = useQuery({
     queryKey: ["roleInfo", selectedRoleId],
     queryFn: () =>
-      roleService.getRoleById(selectedRoleId, {
+      roleService.getRoleById(selectedRoleId || "", {
         include_permissions: true,
       }),
     enabled: !!selectedRoleId,
@@ -48,6 +48,7 @@ const EmployeePermission = (props: Props) => {
         <div className="mb-4 flex items-center gap-2">
           <h4 className="text-lg font-semibold">Select a role:</h4>
           <Select
+            className="min-w-[200px]"
             options={rolesData?.data.map((role) => ({
               label: role.name,
               value: role.id,
@@ -59,7 +60,7 @@ const EmployeePermission = (props: Props) => {
         </div>
         <PermissionTable
           userPermission={roleInfoData?.permission || []}
-          selectedRoleId={selectedRoleId}
+          selectedRoleId={selectedRoleId || ""}
           refetchPermission={refetchRoleInfo}
         />
       </div>

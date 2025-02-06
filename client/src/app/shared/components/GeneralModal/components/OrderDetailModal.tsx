@@ -1,4 +1,4 @@
-import { ProductTableDataType } from "@/app/(dashboard)/admin/(content)/orders/components/OrderTable";
+
 import { DISCOUNT_SCOPE, DISCOUNT_TYPE } from "@/app/constants/enum";
 import { ORDER_STATE } from "@/app/constants/order-state";
 import { statusOptions } from "@/app/constants/seeds";
@@ -8,7 +8,7 @@ import LoadingComponent from "@/app/shared/components/LoadingComponent";
 import ShowMoreGroup from "@/app/shared/components/ShowMoreGroup";
 import { CostModel } from "@/app/shared/models/cost/cost.model";
 import { DiscountModel } from "@/app/shared/models/discounts/discounts.model";
-import { OrderDetailCostModel } from "@/app/shared/models/orders/orders.model";
+import { ProductSellableModel } from "@/app/shared/models/products/products-sellable.model";
 import { costService } from "@/app/shared/services/cost/costService";
 import { discountsService } from "@/app/shared/services/discounts/discountsService";
 import { orderService } from "@/app/shared/services/orders/orderService";
@@ -41,8 +41,8 @@ type Props = {
   handleUpdateOrderDetail: (data: any) => void;
   isEditMode: boolean;
   orderId: string;
-  productsData: ProductTableDataType[];
-  productsColumns: TableColumnType<ProductTableDataType>[];
+  productsData: ProductSellableModel[];
+  productsColumns: TableColumnType<ProductSellableModel>[];
 };
 
 const OrderDetailModal = ({
@@ -86,7 +86,7 @@ const OrderDetailModal = ({
       shipping_method: "",
       payment_method: "",
       order_discount: [] as DiscountModel[],
-      cost: [] as Pick<CostModel, keyof OrderDetailCostModel>[],
+      cost: [] as CostModel[],
       description: "",
       subtotal: 0,
       total_shipping_fee: 0,
