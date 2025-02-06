@@ -356,11 +356,20 @@ const OrderTable = ({
       },
     },
     {
-      title: "Total Discount",
-      dataIndex: "total_discount",
-      key: "total_discount",
+      title: "Total Product Discount",
+      dataIndex: "total_product_discount",
+      key: "total_product_discount",
+      render: (_, { order_detail, id }) => {
+        const { total_product_discount } = order_detail || {};
+        return <span>{formatCurrency(total_product_discount)}</span>;
+      },
+    },
+    {
+      title: "Total Order Discount",
+      dataIndex: "total_order_discount",
+      key: "total_order_discount",
       render: (_, { order_detail }) => {
-        const { total_discount, discount } = order_detail || {};
+        const { total_order_discount, discount } = order_detail || {};
         return (
           <Tooltip
             title={
@@ -379,9 +388,18 @@ const OrderTable = ({
               </div>
             }
           >
-            <span>{formatCurrency(total_discount)}</span>
+            <span>{formatCurrency(total_order_discount)}</span>
           </Tooltip>
         );
+      },
+    },
+    {
+      title: "Total Discount",
+      dataIndex: "total_discount",
+      key: "total_discount",
+      render: (_, { order_detail }) => {
+        const { total_discount } = order_detail || {};
+        return <span>{formatCurrency(total_discount)}</span>;
       },
     },
     {
@@ -407,37 +425,7 @@ const OrderTable = ({
         );
       },
     },
-    {
-      title: "Total Discount",
-      dataIndex: "total_discount",
-      key: "total_discount",
-      render: (_, { order_detail }) => {
-        const { total_discount, discount } = order_detail || {};
-        return (
-          <Tooltip
-            title={
-              <div className="flex flex-col gap-1">
-                {discount?.map((item) => (
-                  <div key={item.id}>
-                    <span className="font-semibold capitalize">
-                      {item.scope} -{" "}
-                    </span>
-                    <span>
-                      {item.name} -{" "}
-                      {item.type === DISCOUNT_TYPE.PERCENTAGE
-                        ? formatDiscountPercentage(item.amount)
-                        : formatCurrency(item.amount)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            }
-          >
-            <span>{formatCurrency(total_discount)}</span>
-          </Tooltip>
-        );
-      },
-    },
+
     {
       title: "Total Shipping Fee",
       dataIndex: "total_shipping_fee",

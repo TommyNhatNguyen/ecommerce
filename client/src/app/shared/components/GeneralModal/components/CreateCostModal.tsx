@@ -104,6 +104,7 @@ const CreateCostModal = ({
                 required={true}
                 error={errors.type?.message as string}
                 {...field}
+                groupClassName="flex-1"
                 customComponent={(props: any, ref: any) => (
                   <Select
                     placeholder="Select Cost Type"

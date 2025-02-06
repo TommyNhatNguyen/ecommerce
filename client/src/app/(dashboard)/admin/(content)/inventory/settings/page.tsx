@@ -60,8 +60,8 @@ const SettingsPage = (props: Props) => {
   });
   const { handleUpdateLowStockThreshold, updateThresholdLoading } =
     useInventorySetting();
-  const _onUpdateLowStockThreshold = (id: string, threshold: number) => {
-    handleUpdateLowStockThreshold(id, threshold);
+  const _onUpdateLowStockThreshold =  async (id: string, threshold: number) => {
+    await handleUpdateLowStockThreshold(id, threshold);
     refetch();
   };
   const productColumns: TableProps<ProductModel>["columns"] = [

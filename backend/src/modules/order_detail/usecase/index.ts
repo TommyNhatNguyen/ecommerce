@@ -93,15 +93,20 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         },
         { page: 1, limit: products_detail.length }
       );
+      console.log('🚀 ~ OrderDetailUseCase ~ create ~ products:', products);
       if (products.data.length !== products_detail.length)
         throw ORDER_DETAIL_PRODUCT_ERROR;
       payload.subtotal = products.data.reduce((acc, product) => {
-        const productDetail = products_detail.find((p) => p.id === product.id);
+        const productDetail = products_detail.find(
+          (p) => p.id === product.variant_id
+        );
         if (!productDetail) throw ORDER_DETAIL_PRODUCT_ERROR;
         return acc + product.price * (productDetail?.quantity ?? 0);
       }, 0);
       const discountAmountList = products.data.map((product) => {
-        const productDetail = products_detail.find((p) => p.id === product.id);
+        const productDetail = products_detail.find(
+          (p) => p.id === product.variant_id
+        );
         if (!productDetail) throw ORDER_DETAIL_PRODUCT_ERROR;
         const discountFixed = product.discount?.filter(
           (d) => d.type === DiscountType.FIXED
@@ -130,16 +135,18 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
           order_detail_id: '',
           product_sellable_id: product.id,
           quantity:
-            products_detail.find((p) => p.id === product.id)?.quantity ?? 0,
+            products_detail.find((p) => p.id === product.variant_id)
+              ?.quantity ?? 0,
           price: product.price,
           subtotal:
             product.price *
-            (products_detail.find((p) => p.id === product.id)?.quantity ?? 0),
+            (products_detail.find((p) => p.id === product.variant_id)
+              ?.quantity ?? 0),
           discount_amount: discountAmountList[index],
           total:
             product.price *
-              (products_detail.find((p) => p.id === product.id)?.quantity ??
-                0) -
+              (products_detail.find((p) => p.id === product.variant_id)
+                ?.quantity ?? 0) -
             discountAmountList[index],
         }))
       );
@@ -223,11 +230,11 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
     }
 
     payload.total =
-      (payload.subtotal || 0) -
+      (payload.subtotal || 0) +
       ((payload.total_shipping_fee || 0) +
         (payload.total_payment_fee || 0) +
-        (payload.total_costs || 0) +
-        (payload.total_discount || 0));
+        (payload.total_costs || 0)) -
+      (payload.total_discount || 0);
     // --- CREATE ORDER DETAIL ---
     const orderDetail = await this.orderDetailRepository.create(payload);
     await this.orderDetailProductRepository.addProducts(

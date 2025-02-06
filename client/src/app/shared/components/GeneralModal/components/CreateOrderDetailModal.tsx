@@ -12,7 +12,7 @@ import {
   TableProps,
   Tooltip,
 } from "antd";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { ORDER_STATE } from "@/app/constants/order-state";
 import InputAdmin from "../../InputAdmin";
 import { ERROR_MESSAGE } from "@/app/constants/errors";
@@ -57,13 +57,6 @@ const CreateOrderDetailModal = ({
   const [selectedProductList, setSelectedProductList] = useState<
     ProductSellableModel[]
   >([]);
-  const [productDetailInfoList, setProductDetailInfoList] = useState<{
-    [key: string]: {
-      subtotal: number;
-      total_discounts: number;
-      total: number;
-    };
-  }>({});
   const {
     control,
     handleSubmit,
@@ -76,6 +69,30 @@ const CreateOrderDetailModal = ({
     defaultValues: {
       order_state: ORDER_STATE.PENDING as OrderState,
     },
+  });
+  const customerId = useWatch({
+    name: "order_detail_info.customer_id",
+    control: control,
+  });
+  const orderDiscounts = useWatch({
+    name: "order_detail_info.order_discounts",
+    control: control,
+  });
+  const shippingMethodId = useWatch({
+    name: "order_detail_info.shipping_method_id",
+    control: control,
+  });
+  const paymentMethodId = useWatch({
+    name: "order_detail_info.payment_info.payment_method_id",
+    control: control,
+  });
+  const costsDetail = useWatch({
+    name: "order_detail_info.costs_detail",
+    control: control,
+  });
+  const productsDetail = useWatch({
+    name: "order_detail_info.products_detail",
+    control: control,
   });
   const { notificationApi } = useNotification();
   const { data: shippingMethodList, isLoading: isShippingMethodList } =
@@ -126,7 +143,6 @@ const CreateOrderDetailModal = ({
   };
   const _onRemoveAllProducts = () => {
     setSelectedProductList([]);
-    setProductDetailInfoList({});
     reset({
       ...getValues(),
       order_detail_info: {
@@ -147,26 +163,13 @@ const CreateOrderDetailModal = ({
       quantity: index === id ? quantity : item.quantity,
     }));
     setValue("order_detail_info.products_detail", updatedProductDetailList);
-    // Calculate product information
-    const productPrice =
-      selectedProductList.find((item) => item.variant?.id === productId)
-        ?.price || 0;
-    const productTotalDiscounts =
-      selectedProductList.find((item) => item.variant?.id === productId)
-        ?.total_discounts || 0;
-    setProductDetailInfoList((prev) => ({
-      ...prev,
-      [id]: {
-        subtotal: quantity * productPrice,
-        total_discounts: quantity * productTotalDiscounts,
-        total: quantity * (productPrice - productTotalDiscounts),
-      },
-    }));
   };
   useEffect(() => {
     selectedProductList.forEach((item, index) => {
       _onChangeProductQuantity(index, item.variant?.id || "", 1);
     });
+  }, [selectedProductList]);
+  useEffect(() => {
     const subtotal =
       getValues("order_detail_info.products_detail")?.reduce((acc, item) => {
         const product = selectedProductList.find(
@@ -179,8 +182,10 @@ const CreateOrderDetailModal = ({
         const product = selectedProductList.find(
           (p) => p.variant?.id === item.id,
         );
+        console.log("🚀 ~ getValues ~ product:", product);
         return acc + item.quantity * (product?.total_discounts || 0);
       }, 0) || 0;
+    console.log("🚀 ~ getValues ~ productDiscount:", productDiscount);
     const orderDiscount =
       getValues("order_detail_info.order_discounts")?.reduce((acc, curr) => {
         const discount = discountList?.data.find((item) => item.id === curr);
@@ -206,8 +211,9 @@ const CreateOrderDetailModal = ({
       }, 0) || 0;
     const totalDiscount = orderDiscount + productDiscount;
     const total =
-      subtotal -
-      (totalShippingFee + totalPaymentFee + totalCosts + totalDiscount);
+      subtotal +
+      (totalShippingFee + totalPaymentFee + totalCosts) -
+      totalDiscount;
     setValue("order_detail_info.subtotal", subtotal);
     setValue("order_detail_info.total_order_discount", orderDiscount);
     setValue("order_detail_info.total_product_discount", productDiscount);
@@ -216,7 +222,13 @@ const CreateOrderDetailModal = ({
     setValue("order_detail_info.total_payment_fee", totalPaymentFee);
     setValue("order_detail_info.total_costs", totalCosts);
     setValue("order_detail_info.total", total);
-  }, [selectedProductList]);
+  }, [
+    orderDiscounts,
+    shippingMethodId,
+    paymentMethodId,
+    costsDetail,
+    productsDetail,
+  ]);
   useEffect(() => {
     if (watch("order_detail_info.customer_id")) {
       const customer = customerList?.data.find(
@@ -232,8 +244,9 @@ const CreateOrderDetailModal = ({
       );
       setValue("order_detail_info.customer_phone", customer?.phone || "");
       setValue("order_detail_info.customer_email", customer?.email || "");
+      setValue("order_detail_info.customer_address", customer?.address || "");
     }
-  }, [watch("order_detail_info.customer_id")]);
+  }, [customerId]);
   const _onResetData = () => {
     reset();
     _onRemoveAllProducts();
@@ -339,9 +352,16 @@ const CreateOrderDetailModal = ({
       dataIndex: "subtotal",
       key: "subtotal",
       render: (_, {}, index) => {
-        return (
-          <p>{formatCurrency(productDetailInfoList[index]?.subtotal || 0)}</p>
-        );
+        const price =
+          selectedProductList.find(
+            (item) =>
+              item.variant?.id ===
+              watch("order_detail_info.products_detail")[index].id,
+          )?.price || 0;
+        const subtotal =
+          watch("order_detail_info.products_detail")[index]?.quantity * price ||
+          0;
+        return <p>{formatCurrency(subtotal)}</p>;
       },
     },
     {
@@ -349,11 +369,16 @@ const CreateOrderDetailModal = ({
       dataIndex: "total_discounts",
       key: "total_discounts",
       render: (_, {}, index) => {
-        return (
-          <p>
-            {formatCurrency(productDetailInfoList[index]?.total_discounts || 0)}
-          </p>
-        );
+        const discountAmount =
+          selectedProductList.find(
+            (item) =>
+              item.variant?.id ===
+              watch("order_detail_info.products_detail")[index].id,
+          )?.total_discounts || 0;
+        const totalDiscounts =
+          watch("order_detail_info.products_detail")[index]?.quantity *
+            discountAmount || 0;
+        return <p>{formatCurrency(totalDiscounts)}</p>;
       },
     },
     {
@@ -361,9 +386,25 @@ const CreateOrderDetailModal = ({
       dataIndex: "total",
       key: "total",
       render: (_, {}, index) => {
-        return (
-          <p>{formatCurrency(productDetailInfoList[index]?.total || 0)}</p>
-        );
+        const price =
+          selectedProductList.find(
+            (item) =>
+              item.variant?.id ===
+              watch("order_detail_info.products_detail")[index].id,
+          )?.price || 0;
+        const discountAmount =
+          selectedProductList.find(
+            (item) =>
+              item.variant?.id ===
+              watch("order_detail_info.products_detail")[index].id,
+          )?.total_discounts || 0;
+        const totalDiscounts =
+          watch("order_detail_info.products_detail")[index]?.quantity *
+            discountAmount || 0;
+        const total =
+          price * watch("order_detail_info.products_detail")[index]?.quantity -
+            totalDiscounts || 0;
+        return <p>{formatCurrency(total)}</p>;
       },
     },
     {
@@ -734,6 +775,10 @@ const CreateOrderDetailModal = ({
                     (acc, curr) => acc + curr.quantity,
                     0,
                   ) || 0;
+                console.log(
+                  "🚀 ~ summary ~ watch:",
+                  watch("order_detail_info.products_detail"),
+                );
                 const subtotal =
                   getValues("order_detail_info.products_detail")?.reduce(
                     (acc, item) => {

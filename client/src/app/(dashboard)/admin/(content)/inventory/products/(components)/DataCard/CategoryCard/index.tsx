@@ -63,6 +63,7 @@ const CategoryCard = (props: Props) => {
       status: data.status || "ACTIVE",
     };
     await hanldeCreateCategory(payload);
+    refetchCategories();
   };
   return (
     <DataCard
@@ -100,11 +101,6 @@ const CategoryCard = (props: Props) => {
               </div>
             </Tooltip>
           ))}
-          {data.length === 0 && (
-            <div className="flex h-full items-center justify-center">
-              <Empty description="No categories found" />
-            </div>
-          )}
         </div>
       )}
       renderCreateModal={(isModalOpen, handleClose, refetch) => (
@@ -113,7 +109,6 @@ const CategoryCard = (props: Props) => {
           handleCloseModalCreateCategory={handleClose}
           handleSubmitCreateCategoryForm={handleSubmitCreateCategory}
           loading={createCategoryLoading}
-          refetch={refetch}
         />
       )}
       renderUpdateModal={(isModalOpen, handleClose, updateId, refetch) => (

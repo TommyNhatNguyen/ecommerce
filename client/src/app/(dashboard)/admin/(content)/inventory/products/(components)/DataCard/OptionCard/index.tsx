@@ -48,62 +48,56 @@ const OptionsCard = (props: Props) => {
       refetch={refetchOptions}
       renderComponent={(data) => (
         <div className="flex flex-col gap-2">
-          {data.length > 0 ? (
-            <Tree
-              showLine
-              selectable={false}
-              treeData={data.map((item) => ({
+          <Tree
+            showLine
+            selectable={false}
+            treeData={data.map((item) => ({
+              title: () => {
+                return (
+                  <p className="font-semibold">
+                    {item.name} - {item.option_values?.length} values
+                  </p>
+                );
+              },
+              key: item.id,
+              children: item.option_values?.map((option) => ({
                 title: () => {
+                  const isColor = item.is_color || false;
                   return (
-                    <p className="font-semibold">
-                      {item.name} - {item.option_values?.length} values
-                    </p>
+                    <div>
+                      {isColor ? (
+                        <div className="flex items-center gap-2">
+                          <ColorPicker value={option.value} disabled />
+                          {" - "}
+                          <p>{option.name}</p>
+                        </div>
+                      ) : (
+                        <p>
+                          {option.name} - {option.value}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="text"
+                          className="aspect-square rounded-full p-0"
+                        >
+                          <Pencil className="h-4 w-4 stroke-yellow-500" />
+                        </Button>
+                        <ButtonDeleteWithPopover
+                          title={`Delete ${option.name}?`}
+                          trigger={"click"}
+                          handleDelete={() => {
+                            _onDeleteOption(option.id);
+                          }}
+                        />
+                      </div>
+                    </div>
                   );
                 },
-                key: item.id,
-                children: item.option_values?.map((option) => ({
-                  title: () => {
-                    const isColor = item.is_color || false;
-                    return (
-                      <div>
-                        {isColor ? (
-                          <div className="flex items-center gap-2">
-                            <ColorPicker value={option.value} disabled />
-                            {" - "}
-                            <p>{option.name}</p>
-                          </div>
-                        ) : (
-                          <p>
-                            {option.name} - {option.value}
-                          </p>
-                        )}
-                        <div className="flex items-center gap-2">
-                          <Button
-                            type="text"
-                            className="aspect-square rounded-full p-0"
-                          >
-                            <Pencil className="h-4 w-4 stroke-yellow-500" />
-                          </Button>
-                          <ButtonDeleteWithPopover
-                            title={`Delete ${option.name}?`}
-                            trigger={"click"}
-                            handleDelete={() => {
-                              _onDeleteOption(option.id);
-                            }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  },
-                  key: option.id,
-                })),
-              }))}
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center">
-              <Empty description="No options found" />
-            </div>
-          )}
+                key: option.id,
+              })),
+            }))}
+          />
         </div>
       )}
       renderCreateModal={(isModalOpen, handleClose, refetch) => (

@@ -79,6 +79,7 @@ const DiscountCard = (props: Props) => {
     };
     await hanldeCreateDiscount(payload);
     handleCloseModalCreateDiscountCampaign();
+    refetchDiscounts();
   };
   return (
     <DataCard
@@ -123,11 +124,6 @@ const DiscountCard = (props: Props) => {
               </div>
             </Tooltip>
           ))}
-          {data.length === 0 && (
-            <div className="flex h-full items-center justify-center">
-              <Empty description="No discounts found" />
-            </div>
-          )}
         </div>
       )}
       renderCreateModal={(isModalOpen, handleClose, refetch) => (
@@ -138,7 +134,6 @@ const DiscountCard = (props: Props) => {
             handleSubmitCreateDiscountCampaignForm
           }
           loading={createDiscountLoading}
-          refetch={refetch}
         />
       )}
       renderUpdateModal={(isModalOpen, handleClose, updateId, refetch) => (
