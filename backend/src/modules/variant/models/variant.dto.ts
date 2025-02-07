@@ -21,6 +21,11 @@ export const VariantConditionDTOSchema = z.object({
     .refine((value) => value === 'true' || value === 'false')
     .transform((value) => value === 'true')
     .optional(),
+  include_product_sellable: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
 });
 
 export const VariantCreateDTOSchema = z.object({

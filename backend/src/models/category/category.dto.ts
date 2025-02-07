@@ -32,6 +32,11 @@ export const CategoryConditionDTOSchema = z.object({
     .refine((value) => value === 'true' || value === 'false')
     .transform((value) => value === 'true')
     .optional(),
+  include_all: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   order: z.string().optional().default(BaseOrder.DESC),
   sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),

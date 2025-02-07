@@ -14,6 +14,7 @@ export type VariantProductModel = {
 };
 
 export type OptionValueModel = {
+  
   id: string;
   name: string;
   value: string;

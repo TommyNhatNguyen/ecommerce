@@ -1,3 +1,11 @@
+import { ROUTES } from "@/app/constants/routes";
+import { ProductModel } from "@/app/shared/models/products/products.model";
+import { VariantProductModel } from "@/app/shared/models/variant/variant.model";
+import {
+  cn,
+  formatCurrency,
+  formatDiscountPercentage,
+} from "@/app/shared/utils/utils";
 import clsx from "clsx";
 import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
@@ -18,32 +26,34 @@ const Card = ({
 type CardProps = {
   children?: React.ReactNode;
   classes?: string;
-  imgUrl: string | StaticImageData;
-  name: string;
-  price: number;
-  beforeDiscountedPrice?: number;
-  link: string;
   renderAction?: () => React.ReactNode;
-};
+} & ProductModel;
 
 export const CardProduct = ({
   children,
   classes,
-  imgUrl,
-  name,
-  price,
-  beforeDiscountedPrice,
-  link,
   renderAction,
+  ...product
 }: CardProps) => {
+  const { name, id, variant } = product;
+  const link = `${ROUTES.PRODUCTS}/${id}`;
+  const showVariant = variant?.length && variant[0]?.product_sellable;
+  const { price, total_discounts, price_after_discounts, image } =
+    showVariant || {};
+  const imgUrl = image?.[0]?.url || "";
   const percentageDiscount =
-    beforeDiscountedPrice &&
-    Math.round(((beforeDiscountedPrice - price) / beforeDiscountedPrice) * 100);
+    (total_discounts && price && (total_discounts / price) * 100) || 0;
   return (
-    <div className={clsx("card product-card h-full w-full", classes)}>
+    <div
+      className={cn(
+        "card product-card h-full min-h-[360px] w-full rounded-[14px] bg-white/60 p-6 shadow-sm",
+        "flex flex-col justify-between",
+        classes,
+      )}
+    >
       <Link
         href={link}
-        className="product-card__img group relative block aspect-[286/360] h-full w-full overflow-hidden rounded-[14px]"
+        className="product-card__img group relative block h-[80%] min-h-[80%] w-full flex-1 overflow-hidden rounded-[14px] bg-white flex items-center justify-center"
       >
         {typeof imgUrl === "string" ? (
           <img
@@ -51,7 +61,7 @@ export const CardProduct = ({
             alt={name}
             width={286}
             height={360}
-            className="h-full w-full object-cover duration-300 group-hover:scale-110"
+            className="h-full w-full object-contain object-center duration-300 group-hover:scale-110"
           />
         ) : (
           <Image
@@ -59,12 +69,14 @@ export const CardProduct = ({
             alt={name}
             width={286}
             height={360}
-            className="h-full w-full object-cover duration-300 group-hover:scale-110"
+            className="h-full w-full object-contain object-center duration-300 group-hover:scale-110"
           />
         )}
-        {beforeDiscountedPrice && (
+        {price && (
           <div className="discount absolute left-[12px] top-[12px] content-center rounded-[10px] bg-pink-200 px-[12px] py-[6px] text-center text-body-sub text-white">
-            <span className="discount__text">{percentageDiscount}%</span>
+            <span className="discount__text">
+              {formatDiscountPercentage(percentageDiscount)}
+            </span>
           </div>
         )}
       </Link>
@@ -77,12 +89,20 @@ export const CardProduct = ({
             {name}
           </Link>
           <div className="info__price-wrapper">
-            {beforeDiscountedPrice && (
-              <span className="info__discount mr-[6px] text-body-sub text-green-200 line-through">
-                ${beforeDiscountedPrice}
+            {price_after_discounts ? (
+              <>
+                <span className="info__discount mr-[6px] text-body-sub text-green-200 line-through">
+                  {formatCurrency(price || 0)}
+                </span>
+                <span className="info__price text-body-big">
+                  {formatCurrency(price_after_discounts)}
+                </span>
+              </>
+            ) : (
+              <span className="info__price text-body-big">
+                {formatCurrency(price || 0)}
               </span>
             )}
-            <span className="info__price text-body-big">${price}</span>
           </div>
         </div>
         {renderAction && <div className="action">{renderAction()}</div>}

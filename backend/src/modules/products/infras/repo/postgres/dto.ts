@@ -83,3 +83,45 @@ export function initProductCategory(sequelize: Sequelize) {
     }
   );
 }
+
+
+export const productImageModelName = 'product_image';
+
+export class ProductImagePersistence extends Model {
+  declare id: string;
+  declare product_id: string;
+  declare image_id: string;
+  declare status: ModelStatus;
+  declare created_at: Date;
+  declare updated_at: Date;
+}
+
+export function initProductImage(sequelize: Sequelize) {
+  ProductImagePersistence.init(
+    {
+      product_id: { type: DataTypes.UUID, allowNull: false },
+      image_id: { type: DataTypes.UUID, allowNull: false },
+      status: {
+        type: DataTypes.ENUM(...Object.values(ModelStatus)),
+        allowNull: false,
+        defaultValue: ModelStatus.ACTIVE,
+      },
+      created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+    },
+    {
+      sequelize,
+      tableName: 'products_images',
+      timestamps: false,
+      modelName: productImageModelName,
+    }
+  );
+}

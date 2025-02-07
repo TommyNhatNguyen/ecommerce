@@ -7,42 +7,31 @@ import { PlusCircle } from "lucide-react";
 import React from "react";
 import mockProductImage from "@/app/shared/resources/images/homepage/product-1.jpg";
 import { ROUTES } from "@/app/constants/routes";
+import { useQuery } from "@tanstack/react-query";
+import { productService } from "@/app/shared/services/products/productService";
+import { ProductModel } from "@/app/shared/models/products/products.model";
 type Props = {};
 
-const products = [
-  {
-    imgUrl: mockProductImage,
-    name: "Product 1",
-    price: 100,
-    link: ROUTES.PRODUCT_DETAIL,
-    beforeDiscountedPrice: 250,
-  },
-  {
-    imgUrl: mockProductImage,
-    name: "Product 2",
-    price: 150,
-    link: ROUTES.PRODUCT_DETAIL,
-    beforeDiscountedPrice: 250,
-  },
-  {
-    imgUrl: mockProductImage,
-    name: "Product 3",
-    price: 200,
-    link: ROUTES.PRODUCT_DETAIL,
-    beforeDiscountedPrice: 250,
-  },
-  {
-    imgUrl: mockProductImage,
-    name: "Product 4",
-    price: 250,
-    link: ROUTES.PRODUCT_DETAIL,
-    beforeDiscountedPrice: 500,
-  },
-];
-type Product = (typeof products)[number];
-
 const FeatureSection = (props: Props) => {
-  const _onAddToCart = (product: Product) => {
+  const { data } = useQuery({
+    queryKey: ["products"],
+    queryFn: () => {
+      return productService.getProducts({
+        limit: 4,
+        page: 1,
+        sortBy: "created_at",
+        order: "DESC",
+        status: "ACTIVE",
+        includeImage: true,
+        includeVariant: true,
+        includeVariantInfo: true,
+        includeVariantInventory: true,
+        includeVariantImage: true,
+      });
+    },
+  });
+  console.log("🚀 ~ FeatureSection ~ data:", data);
+  const _onAddToCart = (product: ProductModel) => {
     console.log(product);
   };
   return (
@@ -58,18 +47,19 @@ const FeatureSection = (props: Props) => {
             </Titlegroup.Description>
           </Titlegroup.Info>
         </Titlegroup>
-        <div className="feature__products mt-[36px] flex items-center justify-between gap-gutter">
-          {products.map((product) => (
-            <CardProduct
-              key={product.name}
-              {...product}
-              renderAction={() => (
-                <Button onClick={() => _onAddToCart(product)} variant="vanilla">
-                  <PlusCircle width={24} height={24} />
-                </Button>
-              )}
-            />
-          ))}
+        <div className="feature__products mt-[36px] grid grid-cols-3 gap-gutter">
+          {data?.data &&
+            data?.data.map((product) => (
+              <CardProduct
+                key={product.id}
+                {...product}
+                renderAction={() => (
+                  <Button onClick={() => {}} variant="vanilla">
+                    <PlusCircle width={24} height={24} />
+                  </Button>
+                )}
+              />
+            ))}
         </div>
       </Container>
     </section>

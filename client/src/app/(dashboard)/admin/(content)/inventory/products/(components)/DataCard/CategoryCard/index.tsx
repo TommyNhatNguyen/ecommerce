@@ -44,7 +44,7 @@ const CategoryCard = (props: Props) => {
   } = useInfiniteQuery({
     queryKey: ["categories", createCategoryLoading, deleteCategoryLoading],
     queryFn: (p) =>
-      categoriesService.getCategories({}, { page: p.pageParam, limit: 10 }),
+      categoriesService.getCategories({ page: p.pageParam, limit: 10 }),
     getNextPageParam: (lastPage) => {
       if (lastPage.meta.current_page === lastPage.meta.total_page) {
         return undefined;

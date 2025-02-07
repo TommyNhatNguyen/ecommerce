@@ -23,6 +23,15 @@ import {
   optionValueModelName,
 } from 'src/modules/options/infras/repo/postgres/dto';
 import { OptionValuePersistence } from 'src/modules/options/infras/repo/postgres/dto';
+import {
+  productSellableModelName,
+  ProductSellablePersistence,
+} from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import {
+  imageModelName,
+  ImagePersistence,
+} from 'src/infras/repository/image/dto';
+import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
 
 export class PostgresVariantRepository implements IVariantRepository {
   constructor(
@@ -43,6 +52,24 @@ export class PostgresVariantRepository implements IVariantRepository {
   ): Promise<ListResponse<Variant[]>> {
     const include: Includeable[] = [];
     const optionValueInclude: Includeable[] = [];
+    if (condition.include_product_sellable) {
+      include.push({
+        model: ProductSellablePersistence,
+        as: productSellableModelName.toLowerCase(),
+        include: [
+          {
+            model: ImagePersistence,
+            as: imageModelName.toLowerCase(),
+            attributes: {
+              exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'],
+            },
+            through: {
+              attributes: [],
+            },
+          },
+        ],
+      });
+    }
     if (condition.include_options_value) {
       if (condition.include_option) {
         optionValueInclude.push({

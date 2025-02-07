@@ -105,6 +105,26 @@ class PostgresCategoryRepository implements ICategoryRepository {
         },
       });
     }
+
+    if (condition?.include_all) {
+      const categories = await this.sequelize.models[this.modelName].findAll({
+        attributes: {
+          exclude: EXCLUDE_ATTRIBUTES,
+        },
+        where: where,
+        order: [[sortBy, order]],
+        include: include,
+      });
+      return {
+        data: categories.map((category) => category.dataValues),
+        meta: {
+          limit,
+          total_count: categories.length,
+          current_page: 1,
+          total_page: 1,
+        },
+      };
+    }
     const { rows, count } = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({
@@ -114,6 +134,7 @@ class PostgresCategoryRepository implements ICategoryRepository {
       order: [[sortBy, order]],
       include: include,
     });
+
     return {
       data: rows.map((row) => row.dataValues),
       meta: {

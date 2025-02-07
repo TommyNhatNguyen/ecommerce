@@ -74,7 +74,7 @@ const CreateProductModal = ({
   // ===== Queries =====
   const { data: categories, isLoading: isLoadingCategories } = useQuery({
     queryKey: ["categories", isModalCreateProductOpen],
-    queryFn: () => categoriesService.getCategories({}, {}),
+    queryFn: () => categoriesService.getCategories({}),
     enabled: isModalCreateProductOpen,
   });
   const { data: discounts, isLoading: isLoadingDiscounts } = useQuery({

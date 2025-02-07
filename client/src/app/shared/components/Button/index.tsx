@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import clsx from "clsx";
@@ -11,15 +11,17 @@ type ButtonPropsType = {
   children: React.ReactNode;
   classes?: string;
   variant?: "primary" | "secondary" | "vanilla" | "icon" | "accent-1";
+  isDisabled?: boolean;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 const baseClasses =
-  "h-btn px-[24px] text-center text-primary-btn rounded-[64px] duration-300 flex items-center justify-center gap-2";
+  "h-btn px-[24px] text-center text-primary-btn rounded-[64px] duration-300 flex items-center justify-center gap-2 cursor-pointer";
 
 const Button = ({
   children,
   classes,
   variant = "primary",
+  isDisabled = false,
   ...props
 }: ButtonPropsType) => {
   let variantClasses = "";
@@ -48,6 +50,8 @@ const Button = ({
       className={clsx(
         "btn --general",
         twMerge(baseClasses, variantClasses, classes),
+        isDisabled &&
+          "pointer-events-none cursor-not-allowed bg-gray-200 opacity-50",
       )}
       {...props}
     >
@@ -82,6 +86,5 @@ export const ButtonDeleteWithPopover = withDeleteConfirmPopover(
     <Trash2Icon className="h-4 w-4 stroke-red-500" />
   </Button>,
 );
-
 
 export default Button;

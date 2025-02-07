@@ -16,6 +16,7 @@ import {
 
 import {
   productCategoryModelName,
+  productImageModelName,
   productModelName,
 } from 'src/modules/products/infras/repo/postgres/dto';
 import {
@@ -298,6 +299,20 @@ export const initializeAssociation = () => {
     foreignKey: 'image_id',
     otherKey: 'product_sellable_id',
     as: productSellableModelName.toLowerCase(),
+  });
+
+  ProductPersistence.belongsToMany(ImagePersistence, {
+    through: productImageModelName,
+    foreignKey: 'product_id',
+    otherKey: 'image_id',
+    as: imageModelName.toLowerCase(),
+  });
+
+  ImagePersistence.belongsToMany(ProductPersistence, {
+    through: productImageModelName,
+    foreignKey: 'image_id',
+    otherKey: 'product_id',
+    as: productModelName.toLowerCase(),
   });
 
   ProductSellablePersistence.belongsToMany(DiscountPersistence, {

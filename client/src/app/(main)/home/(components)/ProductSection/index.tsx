@@ -8,6 +8,9 @@ import { ChevronRightIcon, PlusCircle } from "lucide-react";
 import React from "react";
 import mockProductImage from "@/app/shared/resources/images/homepage/product-2.jpg";
 import { CardProduct } from "@/app/shared/components/Card";
+import { useQuery } from "@tanstack/react-query";
+import { productService } from "@/app/shared/services/products/productService";
+import { ProductModel } from "@/app/shared/models/products/products.model";
 const products = [
   {
     imgUrl: mockProductImage,
@@ -44,7 +47,23 @@ type Props = {};
 type Product = (typeof products)[number];
 
 const ProductSection = (props: Props) => {
-  const _onAddToCart = (product: Product) => {
+  const { data } = useQuery({
+    queryKey: ["products"],
+    queryFn: () =>
+      productService.getProducts({
+        limit: 12,
+        page: 1,
+        sortBy: "created_at",
+        order: "DESC",
+        status: "ACTIVE",
+        includeImage: true,
+        includeVariant: true,
+        includeVariantInfo: true,
+        includeVariantInventory: true,
+        includeVariantImage: true,
+      }),
+  });
+  const _onAddToCart = (product: ProductModel) => {
     console.log(product);
   };
   return (
@@ -70,27 +89,17 @@ const ProductSection = (props: Props) => {
             />
           </ButtonWithLink>
         </Titlegroup>
-        <div className="product__group`">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div
-              key={index}
-              className="product__group-list mt-[36px] flex items-center justify-between gap-gutter"
-            >
-              {products.map((product) => (
-                <CardProduct
-                  key={product.name}
-                  {...product}
-                  renderAction={() => (
-                    <Button
-                      onClick={() => _onAddToCart(product)}
-                      variant="vanilla"
-                    >
-                      <PlusCircle width={24} height={24} />
-                    </Button>
-                  )}
-                />
-              ))}
-            </div>
+        <div className="product__group mt-[36px] grid grid-cols-4 grid-rows-3 gap-gutter">
+          {data?.data.map((product) => (
+            <CardProduct
+              key={product.id}
+              {...product}
+              renderAction={() => (
+                <Button onClick={() => _onAddToCart(product)} variant="vanilla">
+                  <PlusCircle width={24} height={24} />
+                </Button>
+              )}
+            />
           ))}
         </div>
       </Container>

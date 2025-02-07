@@ -1,40 +1,16 @@
 import Container from "@/app/shared/components/Container";
 import Titlegroup from "@/app/shared/components/Titlegroup";
-import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import mockCategoryImage from "@/app/shared/resources/images/homepage/category-1.jpg";
-import mockCategoryImage2 from "@/app/shared/resources/images/homepage/category-2.jpg";
-import mockCategoryImage3 from "@/app/shared/resources/images/homepage/category-3.jpg";
-import mockCategoryImage4 from "@/app/shared/resources/images/homepage/category-4.jpg";
 import clsx from "clsx";
-
+import { getCategories } from "@/app/shared/services/categories/categoryServicer.server";
+import { ROUTES } from "@/app/constants/routes";
+import defaultImg from "@/app/shared/resources/images/homepage/category-1.jpg";
 type Props = {};
 
-const categories = [
-  {
-    imgUrl: mockCategoryImage,
-    name: "Category 1",
-    link: "/category/category-1",
-  },
-  {
-    imgUrl: mockCategoryImage2,
-    name: "Category 2",
-    link: "/category/category-2",
-  },
-  {
-    imgUrl: mockCategoryImage3,
-    name: "Category 3",
-    link: "/category/category-3",
-  },
-  {
-    imgUrl: mockCategoryImage4,
-    name: "Category 4",
-    link: "/category/category-4",
-  },
-];
+const CategorySection = async (props: Props) => {
+  const categories = await getCategories({ include_image: true });
 
-const CategorySection = (props: Props) => {
   return (
     <section id="category" className="category mt-section">
       <Container>
@@ -51,23 +27,29 @@ const CategorySection = (props: Props) => {
         <div
           className={clsx(
             "category__list mt-[68px] grid grid-flow-row-dense grid-cols-4",
-            "gap-gutter",
+            "h-full gap-gutter",
           )}
         >
-          {categories.map((category, index) => (
-            <Link
-              href={category.link}
-              className="category__list-item relative h-full max-h-[513px] w-full overflow-hidden rounded-[14px]"
+          {categories?.data.map((category, index) => (
+            <div
+              className={clsx(
+                "h-full w-full rounded-[14px] bg-white/60 p-6 shadow-sm",
+              )}
             >
-              <Image
-                src={category.imgUrl}
-                alt={category.name}
-                className="h-full w-full object-cover"
-              />
-              <h3 className="absolute bottom-[20px] left-[20px] font-playright-bold text-h3 text-bg-primary">
-                {category.name}
-              </h3>
-            </Link>
+              <Link
+                href={`${ROUTES.PRODUCTS}`}
+                className="category__list-item relative block h-full w-full overflow-hidden rounded-[14px] bg-white"
+              >
+                <img
+                  src={category.image?.url || defaultImg.src}
+                  alt={category.name}
+                  className="h-full w-full object-cover"
+                />
+                <h3 className="absolute bottom-[20px] left-[20px] font-playright-bold text-h3 text-bg-primary">
+                  {category.name}
+                </h3>
+              </Link>
+            </div>
           ))}
         </div>
       </Container>

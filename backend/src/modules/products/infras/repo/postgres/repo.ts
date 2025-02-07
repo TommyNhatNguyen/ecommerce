@@ -1,5 +1,5 @@
 import { PagingDTO } from 'src/share/models/paging';
-import { Sequelize, Op, Model, Includeable } from 'sequelize';
+import { Sequelize, Op, Model, Includeable, WhereOptions } from 'sequelize';
 import {
   categoryModelName,
   CategoryPersistence,
@@ -96,7 +96,13 @@ export class PostgresProductRepository implements IProductRepository {
         attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
       });
     }
-
+    if (condition?.includeImage) {
+      include.push({
+        model: ImagePersistence,
+        as: imageModelName,
+        attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+      });
+    }
     if (condition?.includeVariant) {
       if (condition?.includeVariantInfo) {
         if (condition?.includeVariantInventory) {
@@ -106,7 +112,7 @@ export class PostgresProductRepository implements IProductRepository {
             attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
           });
         }
-        if (condition?.includeImage) {
+        if (condition?.includeVariantImage) {
           variantInfoInclude.push({
             model: ImagePersistence,
             as: imageModelName,
@@ -160,9 +166,12 @@ export class PostgresProductRepository implements IProductRepository {
     paging: PagingDTO
   ): Promise<ListResponse<Product[]>> {
     const { page, limit } = paging;
-    const where: any = {
+    const where: WhereOptions = {
       status: { [Op.not]: ModelStatus.DELETED },
     };
+    const categoryWhere: WhereOptions = {
+
+    }
     const order = condition?.order || BaseOrder.DESC;
     let sortBy: any = condition?.sortBy || BaseSortBy.CREATED_AT;
     let customOrder: any = '';
@@ -190,6 +199,13 @@ export class PostgresProductRepository implements IProductRepository {
         where.created_at = { [Op.lte]: new Date(condition.toCreatedAt) };
       }
     }
+
+    if (condition?.categoryIds && condition.categoryIds.length > 0) {
+      categoryWhere.id = {
+        [Op.in] : condition.categoryIds
+      } 
+    }
+
     const include: Includeable[] = [];
     const variantInclude: Includeable[] = [];
     const variantInfoInclude: Includeable[] = [];
@@ -200,6 +216,7 @@ export class PostgresProductRepository implements IProductRepository {
         as: categoryModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
+        where: categoryWhere
       });
     }
 
@@ -210,7 +227,14 @@ export class PostgresProductRepository implements IProductRepository {
         attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
       });
     }
-
+    if (condition.includeImage) {
+      include.push({
+        model: ImagePersistence,
+        as: imageModelName,
+        attributes: { exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'] },
+        through: { attributes: [] },
+      });
+    }
     if (condition.includeVariant) {
       if (condition.includeVariantInfo) {
         if (condition.includeVariantInventory) {
@@ -220,11 +244,12 @@ export class PostgresProductRepository implements IProductRepository {
             attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
           });
         }
-        if (condition.includeImage) {
+        if (condition.includeVariantImage) {
           variantInfoInclude.push({
             model: ImagePersistence,
             as: imageModelName,
-            attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+            attributes: { exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'] },
+            through: { attributes: [] },
           });
         }
         if (condition.includeDiscount) {

@@ -51,7 +51,7 @@ export const ProductConditionDTOSchema = z.object({
   name: z.string().optional(),
   categoryIds: z.array(z.string().uuid()).optional(),
   order: z.nativeEnum(BaseOrder).optional(),
-  sortBy: z.nativeEnum(ProductStatsSortBy).optional(),
+  sortBy: z.nativeEnum(BaseSortBy).optional(),
   fromCreatedAt: z.string().date().optional(),
   toCreatedAt: z.string().date().optional(),
   includeVariant: z
@@ -85,6 +85,11 @@ export const ProductConditionDTOSchema = z.object({
     .transform((value) => value === 'true')
     .optional(),
   includeImage: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  includeVariantImage: z
     .string()
     .refine((value) => value === 'true' || value === 'false')
     .transform((value) => value === 'true')

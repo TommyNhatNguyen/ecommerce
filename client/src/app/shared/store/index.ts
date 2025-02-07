@@ -13,6 +13,16 @@ export const store = configureStore({
   },
 });
 
+export const customerStore = configureStore({
+  reducer: {
+    counter: counterReducer,
+  },
+});
+
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 export type AppStore = typeof store;
+
+export type CustomerRootState = ReturnType<typeof customerStore.getState>;
+export type CustomerAppDispatch = typeof customerStore.dispatch;
+export type CustomerAppStore = typeof customerStore;

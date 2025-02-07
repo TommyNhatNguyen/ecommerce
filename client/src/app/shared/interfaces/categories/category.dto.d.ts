@@ -19,6 +19,7 @@ export type GetCategoriesBodyDTO = {
   id?: string;
   include_products?: boolean;
   include_image?: boolean;
+  include_all?: boolean;
   status?: string;
   order?: string;
   sortBy?: string;

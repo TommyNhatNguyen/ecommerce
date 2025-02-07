@@ -17,6 +17,7 @@ export type ProductModel = {
   updated_at: string;
   category?: CategoryModel[];
   variant?: VariantProductModel[];
+  image?: ImageModel[];
 };
 
 export type ProductStatsModel = {

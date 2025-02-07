@@ -1,3 +1,5 @@
+import { productSellableModelName } from "src/modules/product_sellable/infras/repo/postgres/dto";
+import { ProductSellableSchema } from "src/modules/product_sellable/models/product-sellable.model";
 import { ModelStatus } from "src/share/models/base-model";
 import z from "zod";
 
@@ -7,6 +9,7 @@ export const VariantSchema = z.object({
   created_at: z.date(),
   updated_at: z.date(),
   status: z.nativeEnum(ModelStatus),
+  [productSellableModelName]: ProductSellableSchema.optional(),
 });
 
 export const VariantOptionValueSchema = z.object({

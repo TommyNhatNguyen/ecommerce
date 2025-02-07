@@ -23,6 +23,7 @@ export type VariantConditionDTO = {
   sortBy?: BaseSortBy;
   include_options_value?: boolean;
   include_option?: boolean;
+  include_product_sellable?: boolean;
   page?: number;
   limit?: number;
 };

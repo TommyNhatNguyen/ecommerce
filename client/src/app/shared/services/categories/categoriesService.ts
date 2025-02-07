@@ -13,12 +13,10 @@ export const categoriesService = {
     return response.data;
   },
   getCategories: async (
-    query?: any,
-    data?: GetCategoriesBodyDTO,
+    query?: GetCategoriesBodyDTO,
   ): Promise<ListResponseModel<CategoryModel>> => {
     const response = await axiosInstance.get(`/categories`, {
       params: query,
-      data: data,
     });
     return response.data;
   },

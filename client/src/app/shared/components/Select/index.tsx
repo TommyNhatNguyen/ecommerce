@@ -17,10 +17,18 @@ const Select = ({ children, getSelectedOptions }: SelectPropsType) => {
     {},
   );
   const _onHandleSelectChange = (id: string) => {
-    setSelectedOptions({
-      ...selectedOptions,
-      [id]: !selectedOptions[id],
-    });
+    console.log("🚀 ~ _onHandleSelectChange ~ id:", selectedOptions);
+    if (selectedOptions[id]) {
+      setSelectedOptions((prev) => ({
+        ...prev,
+        [id]: false,
+      }));
+    } else {
+      setSelectedOptions((prev) => ({
+        ...prev,
+        [id]: true,
+      }));
+    }
     getSelectedOptions && getSelectedOptions(selectedOptions);
   };
   return (
@@ -62,6 +70,7 @@ Select.Option = ({
           type="checkbox"
           id={id}
           onChange={() => {
+            console.log("🚀 ~ onChange ~ id:", id);
             onChange && onChange(id);
           }}
           className="absolute left-0 top-0 z-50 h-full w-full cursor-pointer opacity-0"

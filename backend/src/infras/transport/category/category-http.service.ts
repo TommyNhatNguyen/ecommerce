@@ -99,7 +99,7 @@ export class CategoryHttpService {
       success: conditionSuccess,
       data: conditionData,
       error: conditionError,
-    } = CategoryConditionDTOSchema.safeParse(req.body);
+    } = CategoryConditionDTOSchema.safeParse(req.query);
 
     if (!pagingSuccess || !conditionSuccess) {
       res.status(400).json({ message: pagingError?.message });

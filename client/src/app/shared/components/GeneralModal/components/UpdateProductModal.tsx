@@ -61,7 +61,7 @@ const UpdateProductModal = ({
   } = useUpdateProductModal();
   const { data: categories, isLoading: isLoadingCategories } = useQuery({
     queryKey: ["categories", isModalUpdateProductOpen],
-    queryFn: () => categoriesService.getCategories({}, {}),
+    queryFn: () => categoriesService.getCategories({}),
     enabled: isModalUpdateProductOpen,
   });
   const { data: discounts, isLoading: isLoadingDiscounts } = useQuery({
