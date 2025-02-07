@@ -14,7 +14,6 @@ export type VariantProductModel = {
 };
 
 export type OptionValueModel = {
-  
   id: string;
   name: string;
   value: string;
@@ -23,6 +22,7 @@ export type OptionValueModel = {
   updated_at: string;
   status: ModelStatus;
   options?: OptionModel;
+  variant?: VariantProductModel[];
 };
 
 export type OptionModel = {

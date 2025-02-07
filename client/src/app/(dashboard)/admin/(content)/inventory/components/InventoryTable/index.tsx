@@ -181,6 +181,7 @@ const InventoryTable = ({
         includeImage: true,
         includeVariantOption: true,
         includeVariantOptionType: true,
+        includeVariantImage: true,
         fromCreatedAt: sortedDate[0] || undefined,
         toCreatedAt: sortedDate[1] || undefined,
       }),

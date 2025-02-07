@@ -164,13 +164,11 @@ const CreateProductModal = ({
               }
             }),
           );
-          return imageReponses;
+          return { [id]: imageReponses.map((item) => item?.id) };
         }),
       );
       if (imagesResponseData.length > 0) {
-        return imagesResponseData.flatMap((item) =>
-          item?.map((image) => image?.id),
-        );
+        return imagesResponseData
       } else {
         throw new Error("Failed to upload image");
       }
@@ -195,11 +193,11 @@ const CreateProductModal = ({
       ...data,
     };
     const imageIds = (await _onSubmitFileList()) || [];
-    payload.variants = payload.variants.map((variant) => ({
+    payload.variants = payload.variants.map((variant, index) => ({
       ...variant,
       product_sellables: {
         ...variant.product_sellables,
-        imageIds: imageIds as string[],
+        imageIds: Object.values(imageIds?.[index] || {}).flat() as string[],
       },
     }));
     await hanldeCreateProduct(payload);

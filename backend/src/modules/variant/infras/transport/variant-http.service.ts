@@ -43,6 +43,7 @@ export class VariantHttpService {
       const variants = await this.useCase.listVariant(paging, condition);
       res.status(200).json({ message: 'Variant found', ...variants });
     } catch (error) {
+      console.log(error);
       res.status(500).json({ message: 'Failed to get variant' });
       return;
     }
@@ -59,6 +60,7 @@ export class VariantHttpService {
         .status(200)
         .json({ message: 'Variant created successfully', data: variant });
     } catch (error) {
+      console.log(error);
       res.status(500).json({ message: 'Failed to create variant' });
       return;
     }

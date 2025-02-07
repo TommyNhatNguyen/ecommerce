@@ -20,6 +20,12 @@ export const variantServices = {
     });
     return response.data;
   },
+  getVariantById: async (id: string, condition?: VariantConditionDTO): Promise<VariantProductModel> => {
+    const response = await axiosInstance.get(`/variants/${id}`, {
+      params: condition,
+    });
+    return response.data;
+  },
   delete: async (id: string): Promise<boolean> => {
     const response = await axiosInstance.delete(`/variants/${id}`);
     return response.data;

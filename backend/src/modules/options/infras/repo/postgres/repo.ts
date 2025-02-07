@@ -11,14 +11,30 @@ import {
   IOptionValueRepository,
 } from 'src/modules/options/models/option.interface';
 import { Option, OptionValue } from 'src/modules/options/models/option.model';
-import { Includeable, Sequelize } from 'sequelize';
+import { Includeable, Sequelize, WhereOptions } from 'sequelize';
 import {
   BaseSortBy,
   BaseOrder,
   ListResponse,
 } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
-import { optionValueModelName, OptionValuePersistence } from 'src/modules/options/infras/repo/postgres/dto';
+import {
+  optionValueModelName,
+  OptionValuePersistence,
+} from 'src/modules/options/infras/repo/postgres/dto';
+import {
+  variantModelName,
+  VariantPersistence,
+} from 'src/modules/variant/infras/repo/postgres/dto';
+import {
+  productSellableModelName,
+  ProductSellablePersistence,
+} from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import {
+  imageModelName,
+  ImagePersistence,
+} from 'src/infras/repository/image/dto';
+import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
 
 export class PostgresOptionRepository implements IOptionRepository {
   constructor(
@@ -34,10 +50,42 @@ export class PostgresOptionRepository implements IOptionRepository {
     condition: OptionConditionDTO
   ): Promise<ListResponse<Option[]>> {
     const include: Includeable[] = [];
+    const optionValueInclude: Includeable[] = [];
+    const variantInclude: Includeable[] = [];
+    const variantWhere: WhereOptions = {};
     if (condition.include_option_values) {
+      if (condition.include_variant) {
+        if (condition.include_variant_info) {
+          variantInclude.push({
+            model: ProductSellablePersistence,
+            as: productSellableModelName.toLowerCase(),
+            include: [
+              {
+                model: ImagePersistence,
+                as: imageModelName.toLowerCase(),
+                attributes: {
+                  exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'],
+                },
+                through: { attributes: [] },
+              },
+            ],
+          });
+        }
+          if (condition.product_id) {
+            variantWhere.product_id = condition.product_id;
+          }
+        optionValueInclude.push({
+          model: VariantPersistence,
+          as: variantModelName.toLowerCase(),
+          through: { attributes: [] },
+          include: variantInclude,
+          // where: variantWhere
+        });
+      }
       include.push({
         model: OptionValuePersistence,
         as: optionValueModelName,
+        include: optionValueInclude,
       });
     }
     const { page, limit } = paging;

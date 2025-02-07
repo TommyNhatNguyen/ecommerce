@@ -35,12 +35,23 @@ export const OptionConditionDTOSchema = z.object({
   updated_at: z.date().optional(),
   order: z.string().optional().default(BaseOrder.DESC),
   sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
+  product_id: z.string().optional(),
   is_color: z
     .string()
     .refine((value) => value === 'true' || value === 'false')
     .transform((value) => value === 'true')
     .optional(),
   include_option_values: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  include_variant: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  include_variant_info: z
     .string()
     .refine((value) => value === 'true' || value === 'false')
     .transform((value) => value === 'true')

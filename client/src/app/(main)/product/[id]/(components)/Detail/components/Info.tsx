@@ -1,13 +1,32 @@
 "use client";
 import Button from "@/app/shared/components/Button";
 import Form from "@/app/shared/components/Form";
+import {
+  OptionModel,
+  VariantProductModel,
+} from "@/app/shared/models/variant/variant.model";
+import { formatCurrency } from "@/app/shared/utils/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import clsx from "clsx";
 import { Car, Heart, Package, ShoppingCart, Star, Truck } from "lucide-react";
 import React, { useState } from "react";
 
-type Props = {};
+type Props = {
+  options: OptionModel[];
+  handleSelectOptionValue: (optionId: string, optionValueId: string) => void;
+  selectedOptionValueId: {
+    [key: string]: string;
+  };
+  variant?: VariantProductModel;
+};
 
-const Info = (props: Props) => {
+const Info = ({
+  options,
+  handleSelectOptionValue,
+  selectedOptionValueId,
+  variant,
+}: Props) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const _onFavorite = () => {
@@ -22,11 +41,17 @@ const Info = (props: Props) => {
   const _onQuantityDecrease = () => {
     setQuantity((prev) => prev - 1);
   };
+  const _onSelectOptionValue = (optionId: string, optionValueId: string) => {
+    handleSelectOptionValue(optionId, optionValueId);
+  };
+  const { name, product_sellable } = variant || {};
+  const { price, total_discounts, price_after_discounts } =
+    product_sellable || {};
   return (
     <div className="content__info">
       <div className="content__info-group">
         <div className="title flex items-center justify-between gap-gutter">
-          <h2 className="font-roboto-bold text-h2">Double Bed & Side Tables</h2>
+          <h2 className="font-roboto-bold text-h2">{name}</h2>
           <Button
             variant="vanilla"
             classes="btn btn-heart"
@@ -43,7 +68,10 @@ const Info = (props: Props) => {
         <div className="pricegroup mt-[20px] flex items-center gap-[20px]">
           <div className="pricegroup__text relative w-fit">
             <p className="pricegroup__text-price h-full font-roboto-medium text-body-big">
-              $54.98
+              {formatCurrency(price || 0)}
+            </p>
+            <p className="pricegroup__text-price h-full font-roboto-medium text-body-big">
+              {formatCurrency(price_after_discounts || 0)}
             </p>
             <div className="absolute bottom-0 right-[-10px] top-0 h-full w-[1px] bg-green-300"></div>
           </div>
@@ -56,8 +84,8 @@ const Info = (props: Props) => {
               <Star />
             </div>
             <div className="pricegroup__starsgroup-reviews">
-              <span className="score mr-[4px]">4.9</span>
-              <span className="reviews text-body-sub">(123 reviews)</span>
+              {/* <span className="score mr-[4px]">{rating}</span>
+              <span className="reviews text-body-sub">({reviews} reviews)</span> */}
             </div>
           </div>
         </div>
@@ -74,6 +102,39 @@ const Info = (props: Props) => {
             <li>Lorem ipsum dolor sit amet, consectetuer adipi scing elit</li>
             <li>Lorem ipsum dolor sit amet, consectetuer adipi scing elit</li>
           </ul>
+        </div>
+        <div className="options">
+          {options &&
+            options?.map((option, index) => {
+              const { option_values } = option || {};
+              return (
+                <div className="option">
+                  <h3>{option?.name}</h3>
+                  <div>
+                    <RadioGroup
+                      value={selectedOptionValueId[option?.id || ""] || ""}
+                      onValueChange={(value) =>
+                        _onSelectOptionValue(option?.id || "", value)
+                      }
+                    >
+                      {option_values?.map((value) => {
+                        return (
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem
+                              value={value?.id || ""}
+                              id={value?.id || ""}
+                            />
+                            <label htmlFor={value?.id || ""}>
+                              {value?.name}
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </RadioGroup>
+                  </div>
+                </div>
+              );
+            })}
         </div>
         <div className="actionsgroup mt-[30px]">
           <div className="actionsgroup__quantity flex items-center gap-gutter">

@@ -11,6 +11,8 @@ export const VariantConditionDTOSchema = z.object({
   updated_at: z.date().optional(),
   order: z.string().optional().default(BaseOrder.DESC),
   sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
+  option_value_ids: z.array(z.string()).optional(),
+  product_id: z.string().uuid().optional(),
   include_options_value: z
     .string()
     .refine((value) => value === 'true' || value === 'false')
