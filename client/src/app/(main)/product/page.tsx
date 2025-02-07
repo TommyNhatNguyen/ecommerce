@@ -8,7 +8,14 @@ import { useCollection } from "@/app/(main)/product/hooks/useCollection";
 type Props = {};
 
 const ProductPage = (props: Props) => {
-  const { selectedOptions, handleGetSelectedOptions } = useCollection();
+  const {
+    selectedOptions,
+    handleGetSelectedOptions,
+    handleApplyPriceRange,
+    handleChangePriceRange,
+    priceRange,
+    applyPriceRange,
+  } = useCollection();
   return (
     <main id="product-page" className="product-page py-section">
       <Container>
@@ -16,8 +23,15 @@ const ProductPage = (props: Props) => {
           <Filter
             selectedOptions={selectedOptions}
             handleGetSelectedOptions={handleGetSelectedOptions}
+            handleApplyPriceRange={handleApplyPriceRange}
+            handleChangePriceRange={handleChangePriceRange}
+            priceRange={priceRange}
           />
-          <Collection selectedOptions={selectedOptions} />
+          <Collection
+            applyPriceRange={applyPriceRange}
+            priceRange={priceRange}
+            selectedOptions={selectedOptions}
+          />
         </div>
       </Container>
     </main>

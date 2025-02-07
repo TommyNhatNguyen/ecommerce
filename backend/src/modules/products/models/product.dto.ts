@@ -50,6 +50,12 @@ export const ProductConditionDTOSchema = z.object({
   status: z.nativeEnum(ModelStatus).optional(),
   name: z.string().optional(),
   categoryIds: z.array(z.string().uuid()).optional(),
+  priceRange: z
+    .object({
+      from: z.union([z.string(), z.number()]).optional(),
+      to: z.union([z.string(), z.number()]).optional(),
+    })
+    .optional(),
   order: z.nativeEnum(BaseOrder).optional(),
   sortBy: z.nativeEnum(BaseSortBy).optional(),
   fromCreatedAt: z.string().date().optional(),

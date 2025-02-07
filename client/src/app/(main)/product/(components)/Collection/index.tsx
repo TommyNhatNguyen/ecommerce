@@ -12,9 +12,21 @@ import { cn } from "@/app/shared/utils/utils";
 import { Empty } from "antd";
 type CollectionPropsType = {
   selectedOptions: string[];
+  applyPriceRange: {
+    from: number | undefined;
+    to: number | undefined;
+  };
+  priceRange: {
+    from: number;
+    to: number;
+  };
 };
 
-const Collection = ({ selectedOptions }: CollectionPropsType) => {
+const Collection = ({
+  selectedOptions,
+  applyPriceRange,
+  priceRange,
+}: CollectionPropsType) => {
   const [limit, setLimit] = useState(12);
   const {
     data: products,
@@ -23,7 +35,7 @@ const Collection = ({ selectedOptions }: CollectionPropsType) => {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["products", selectedOptions],
+    queryKey: ["products", selectedOptions, applyPriceRange],
     queryFn: (p) =>
       productService.getProducts({
         limit,
@@ -34,10 +46,10 @@ const Collection = ({ selectedOptions }: CollectionPropsType) => {
         includeImage: true,
         includeVariant: true,
         includeVariantInfo: true,
-        includeVariantInventory: true,
         includeVariantImage: true,
         includeCategory: true,
         categoryIds: selectedOptions,
+        priceRange: applyPriceRange ? priceRange : undefined,
       }),
     getNextPageParam: (lastPage) => {
       if (lastPage.meta.current_page === lastPage.meta.total_page) {
@@ -90,7 +102,7 @@ const Collection = ({ selectedOptions }: CollectionPropsType) => {
             eiusmod tempor incididunt ut labore et dolore magna aliqua.
           </p>
         </div>
-        <div className="product__group min-h-macbook-screen my-[36px] grid grid-flow-row-dense grid-cols-3 gap-gutter">
+        <div className="product__group min-h-macbook-screen my-[36px] grid grid-flow-dense grid-cols-3 gap-gutter">
           {products?.pages && products?.pages[0]?.data?.length > 0 ? (
             products?.pages
               .flatMap((page) => page.data)
@@ -98,7 +110,6 @@ const Collection = ({ selectedOptions }: CollectionPropsType) => {
                 <CardProduct
                   key={product.id}
                   {...product}
-                  classes="h-fit"
                   renderAction={() => (
                     <Button
                       variant="vanilla"

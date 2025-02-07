@@ -68,3 +68,47 @@ export const variantOptionValueInit = (sequelize: Sequelize) => {
     }
   );
 };
+
+
+
+// export const variantImageModelName = 'variant_image';
+
+// export class VariantImagePersistence extends Model {
+//   declare id: string;
+//   declare variant_id: string;
+//   declare image_id: string;
+//   declare status: ModelStatus;
+//   declare created_at: Date;
+//   declare updated_at: Date;
+// }
+
+// export function initVariantImage(sequelize: Sequelize) {
+//   VariantImagePersistence.init(
+//     {
+//       variant_id: { type: DataTypes.UUID, allowNull: false },
+//       image_id: { type: DataTypes.UUID, allowNull: false },
+//       status: {
+//         type: DataTypes.ENUM(...Object.values(ModelStatus)),
+//         allowNull: false,
+//         defaultValue: ModelStatus.ACTIVE,
+//       },
+//       created_at: {
+//         type: DataTypes.DATE,
+//         allowNull: false,
+//         defaultValue: DataTypes.NOW,
+//       },
+//       updated_at: {
+//         type: DataTypes.DATE,
+//         allowNull: false,
+//         defaultValue: DataTypes.NOW,
+//       },
+//     },
+//     {
+//       sequelize,
+//       tableName: 'variant_images',
+//       timestamps: false,
+//       modelName: variantImageModelName,
+//     }
+//   );
+// }
+

@@ -46,6 +46,7 @@ import {
   CategoryPersistence,
 } from 'src/infras/repository/category/dto';
 import {
+  // variantImageModelName,
   variantModelName,
   variantOptionValueModelName,
 } from 'src/modules/variant/infras/repo/postgres/dto';
@@ -286,6 +287,20 @@ export const initializeAssociation = () => {
     otherKey: 'variant_id',
     as: variantModelName.toLowerCase(),
   });
+
+  // VariantPersistence.belongsToMany(ImagePersistence, {
+  //   through: variantImageModelName,
+  //   foreignKey: 'variant_id',
+  //   otherKey: 'image_id',
+  //   as: imageModelName.toLowerCase(),
+  // });
+
+  // ImagePersistence.belongsToMany(VariantPersistence, {
+  //   through: variantImageModelName,
+  //   foreignKey: 'image_id',
+  //   otherKey: 'variant_id',
+  //   as: variantModelName.toLowerCase(),
+  // });
 
   ProductSellablePersistence.belongsToMany(ImagePersistence, {
     through: productSellableImageModelName,

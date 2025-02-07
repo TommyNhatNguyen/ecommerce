@@ -169,9 +169,8 @@ export class PostgresProductRepository implements IProductRepository {
     const where: WhereOptions = {
       status: { [Op.not]: ModelStatus.DELETED },
     };
-    const categoryWhere: WhereOptions = {
-
-    }
+    const categoryWhere: WhereOptions = {};
+    const productSellableWhere: WhereOptions = {};
     const order = condition?.order || BaseOrder.DESC;
     let sortBy: any = condition?.sortBy || BaseSortBy.CREATED_AT;
     let customOrder: any = '';
@@ -202,8 +201,8 @@ export class PostgresProductRepository implements IProductRepository {
 
     if (condition?.categoryIds && condition.categoryIds.length > 0) {
       categoryWhere.id = {
-        [Op.in] : condition.categoryIds
-      } 
+        [Op.in]: condition.categoryIds,
+      };
     }
 
     const include: Includeable[] = [];
@@ -216,10 +215,9 @@ export class PostgresProductRepository implements IProductRepository {
         as: categoryModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
-        where: categoryWhere
+        where: categoryWhere,
       });
     }
-
     if (condition.includeReview) {
       include.push({
         model: ReviewPersistence,
@@ -236,6 +234,14 @@ export class PostgresProductRepository implements IProductRepository {
       });
     }
     if (condition.includeVariant) {
+      if (condition.priceRange) {
+        productSellableWhere.price = {
+          [Op.between]: [
+            Number(condition.priceRange.from),
+            Number(condition.priceRange.to),
+          ],
+        };
+      }
       if (condition.includeVariantInfo) {
         if (condition.includeVariantInventory) {
           variantInfoInclude.push({
@@ -259,27 +265,30 @@ export class PostgresProductRepository implements IProductRepository {
             attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
           });
         }
+        if (condition.includeVariantOption) {
+          if (condition.includeVariantOptionType) {
+            optionValueInclude.push({
+              model: OptionsPersistence,
+              as: optionsModelName,
+              attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+            });
+          }
+          variantInclude.push({
+            model: OptionValuePersistence,
+            as: optionValueModelName,
+            attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+            through: { attributes: [] },
+            include: optionValueInclude,
+          });
+        }
         variantInclude.push({
           model: ProductSellablePersistence,
           as: productSellableModelName,
           attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
           include: variantInfoInclude,
-        });
-      }
-      if (condition.includeVariantOption) {
-        if (condition.includeVariantOptionType) {
-          optionValueInclude.push({
-            model: OptionsPersistence,
-            as: optionsModelName,
-            attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
-          });
-        }
-        variantInclude.push({
-          model: OptionValuePersistence,
-          as: optionValueModelName,
-          attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
-          through: { attributes: [] },
-          include: optionValueInclude,
+          where: productSellableWhere,
+          required: true,
+          duplicating: true,
         });
       }
       include.push({

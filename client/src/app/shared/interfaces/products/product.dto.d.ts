@@ -66,8 +66,10 @@ export type GetProductsBodyDTO = {
   limit?: number;
   page?: number;
   status?: ModelStatus;
-  minPrice?: number | string;
-  maxPrice?: number | string;
+  priceRange?: {
+    from: number;
+    to: number;
+  };
   name?: string;
   categoryIds?: string[];
   order?: BaseOrder;

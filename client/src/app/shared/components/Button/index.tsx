@@ -1,6 +1,7 @@
 "use client";
 
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
+import { cn } from "@/app/shared/utils/utils";
 import clsx from "clsx";
 import { Trash2Icon } from "lucide-react";
 import Link, { LinkProps } from "next/link";
@@ -47,9 +48,11 @@ const Button = ({
   }
   return (
     <button
-      className={clsx(
+      className={cn(
         "btn --general",
-        twMerge(baseClasses, variantClasses, classes),
+        baseClasses,
+        variantClasses,
+        classes,
         isDisabled &&
           "pointer-events-none cursor-not-allowed bg-gray-200 opacity-50",
       )}
@@ -74,7 +77,7 @@ const withLink = (
   classes?: string,
 ) => {
   return (
-    <Link className={twMerge("link-wrapper text-white", classes)} href={link}>
+    <Link className={cn("link-wrapper text-white", classes)} href={link}>
       {Component}
     </Link>
   );

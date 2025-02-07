@@ -46,14 +46,14 @@ export const CardProduct = ({
   return (
     <div
       className={cn(
-        "card product-card h-full min-h-[360px] w-full rounded-[14px] bg-white/60 p-6 shadow-sm",
+        "card product-card h-full min-h-[360px] max-h-[480px] w-full rounded-[14px] bg-white/60 p-6 shadow-sm",
         "flex flex-col justify-between",
         classes,
       )}
     >
       <Link
         href={link}
-        className="product-card__img group relative block h-[80%] min-h-[80%] w-full flex-1 overflow-hidden rounded-[14px] bg-white flex items-center justify-center"
+        className="product-card__img group relative flex h-[80%] min-h-[80%] w-full flex-1 items-center justify-center overflow-hidden rounded-[14px] bg-white"
       >
         {typeof imgUrl === "string" ? (
           <img
@@ -72,7 +72,7 @@ export const CardProduct = ({
             className="h-full w-full object-contain object-center duration-300 group-hover:scale-110"
           />
         )}
-        {price && (
+        {percentageDiscount !== 0 && (
           <div className="discount absolute left-[12px] top-[12px] content-center rounded-[10px] bg-pink-200 px-[12px] py-[6px] text-center text-body-sub text-white">
             <span className="discount__text">
               {formatDiscountPercentage(percentageDiscount)}
@@ -89,13 +89,13 @@ export const CardProduct = ({
             {name}
           </Link>
           <div className="info__price-wrapper">
-            {price_after_discounts ? (
+            {percentageDiscount !== 0 ? (
               <>
                 <span className="info__discount mr-[6px] text-body-sub text-green-200 line-through">
                   {formatCurrency(price || 0)}
                 </span>
                 <span className="info__price text-body-big">
-                  {formatCurrency(price_after_discounts)}
+                  {formatCurrency(price_after_discounts || 0)}
                 </span>
               </>
             ) : (
