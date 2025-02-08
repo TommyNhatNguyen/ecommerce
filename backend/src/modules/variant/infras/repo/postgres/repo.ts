@@ -48,6 +48,15 @@ export class PostgresVariantRepository implements IVariantRepository {
     const optionValueInclude: Includeable[] = [];
     const optionValueWhere: WhereOptions = {};
     const where: WhereOptions = {};
+    if (condition.include_product) {
+      include.push({
+        model: ProductPersistence,
+        as: productModelName.toLowerCase(),
+        attributes: {
+          exclude: [...EXCLUDE_ATTRIBUTES],
+        },
+      });
+    }
     if (condition.include_product_sellable) {
       include.push({
         model: ProductSellablePersistence,
@@ -103,6 +112,15 @@ export class PostgresVariantRepository implements IVariantRepository {
     const where: WhereOptions = {};
     const optionValueInclude: Includeable[] = [];
     const optionValueWhere: WhereOptions = {};
+    if (condition.include_product) {
+      include.push({
+        model: ProductPersistence,
+        as: productModelName.toLowerCase(),
+        attributes: {
+          exclude: [...EXCLUDE_ATTRIBUTES],
+        },
+      });
+    }
     if (condition.include_product_sellable) {
       include.push({
         model: ProductSellablePersistence,

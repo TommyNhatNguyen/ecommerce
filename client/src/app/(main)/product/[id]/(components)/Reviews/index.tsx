@@ -5,10 +5,13 @@ import Button, { ButtonWithLink } from "@/app/shared/components/Button";
 import Container from "@/app/shared/components/Container";
 import clsx from "clsx";
 import React, { useState } from "react";
+import { ProductModel } from "@/app/shared/models/products/products.model";
 
-type Props = {};
+type ReviewsPropsType = {
+  productInfo: ProductModel | undefined;
+};
 
-const Reviews = (props: Props) => {
+const Reviews = ({ productInfo }: ReviewsPropsType) => {
   const [activeTab, setActiveTab] = useState<"description" | "reviews">(
     "reviews",
   );
@@ -47,7 +50,12 @@ const Reviews = (props: Props) => {
           </li>
         </ul>
         <div className="content mt-[40px]">
-          {activeTab === "description" && <Description />}
+          {activeTab === "description" && (
+            <Description
+              description={productInfo?.description}
+              name={productInfo?.name}
+            />
+          )}
           {activeTab === "reviews" && <ReviewsDetail />}
         </div>
       </Container>

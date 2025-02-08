@@ -1,30 +1,17 @@
-import React from 'react'
+import React from "react";
 
-type Props = {}
+type Props = {
+  description: string;
+  name: string;
+};
 
-const Description = (props: Props) => {
+const Description = ({ description, name }: Props) => {
   return (
     <div className="content__description text-white">
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-        commodo consequat. Lorem ipsum dolor sit amet, consectetur adipisicing
-        elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-        Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi
-        ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet,
-        consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore
-        et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-        exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-      </p>
-      <ul className="mt-[16px] list-disc list-inside">
-        <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit</li>
-        <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit</li>
-        <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit</li>
-        <li>Lorem ipsum dolor sit amet, consectetur adipisicing elit</li>
-      </ul>
+      <h3 className="font-roboto-bold text-h3">{name}</h3>
+      <p className="text-p1 mt-[16px]">{description}</p>
     </div>
   );
-}
+};
 
-export default Description
+export default Description;

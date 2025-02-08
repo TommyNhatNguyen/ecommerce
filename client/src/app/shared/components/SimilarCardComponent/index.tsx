@@ -7,9 +7,12 @@ import React from "react";
 import Button, { ButtonWithLink } from "@/app/shared/components/Button";
 import { CardProduct } from "@/app/shared/components/Card";
 import { twMerge } from "tailwind-merge";
+import { useQuery } from "@tanstack/react-query";
+import { productService } from "@/app/shared/services/products/productService";
+import { ProductModel } from "@/app/shared/models/products/products.model";
 type SimilarCardComponentPropsType = {
   title?: string;
-  productsList: any[];
+  productsList: ProductModel[];
   sectionClasses?: string;
   withButton?: boolean;
 };
@@ -42,27 +45,17 @@ const SimilarCardComponent = ({
             </ButtonWithLink>
           )}
         </Titlegroup>
-        <div className="product__group`">
-          {Array.from({ length: 1 }).map((_, index) => (
-            <div
-              key={index}
-              className="product__group-list mt-[36px] flex items-center justify-between gap-gutter"
-            >
-              {productsList.map((product) => (
-                <CardProduct
-                  key={product.name}
-                  {...product}
-                  renderAction={() => (
-                    <Button
-                      onClick={() => _onAddToCart(product)}
-                      variant="vanilla"
-                    >
-                      <PlusCircle width={24} height={24} />
-                    </Button>
-                  )}
-                />
-              ))}
-            </div>
+        <div className="product__list mt-[36px] grid grid-cols-4 gap-gutter">
+          {productsList.map((product) => (
+            <CardProduct
+              key={product.id}
+              {...product}
+              renderAction={() => (
+                <Button onClick={() => {}} variant="vanilla">
+                  <PlusCircle width={24} height={24} />
+                </Button>
+              )}
+            />
           ))}
         </div>
       </Container>

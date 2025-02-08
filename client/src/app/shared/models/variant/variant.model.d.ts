@@ -1,5 +1,6 @@
 import { ProductSellableModel } from "@/app/shared/models/products/products-sellable.model";
 import { ModelStatus } from "../others/status.model";
+import { ProductModel } from "@/app/shared/models/products/products.model";
 
 
 export type VariantProductModel = {
@@ -11,6 +12,7 @@ export type VariantProductModel = {
   product_id: string;
   product_sellable?: ProductSellableModel;
   option_values?: OptionValueModel[];
+  product?: ProductModel;
 };
 
 export type OptionValueModel = {

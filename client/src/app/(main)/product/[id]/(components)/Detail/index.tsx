@@ -14,13 +14,22 @@ import { Heart, Star } from "lucide-react";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
-type Props = {};
-
-const Detail = (props: Props) => {
-  const { id } = useParams();
-  const [selectedOptionValueId, setSelectedOptionValueId] = useState<{
+type Props = {
+  selectedOptionValueId: {
     [key: string]: string;
-  }>({});
+  };
+  setSelectedOptionValueId: (value: { [key: string]: string }) => void;
+  selectedVariant: VariantProductModel | undefined;
+  handleSelectOptionValue: (optionId: string, optionValueId: string) => void;
+};
+
+const Detail = ({
+  selectedOptionValueId,
+  selectedVariant,
+  handleSelectOptionValue,
+}: Props) => {
+  const { id } = useParams();
+
   const { data: optionList, isLoading } = useQuery({
     queryKey: ["option-list", id],
     queryFn: () =>
@@ -36,31 +45,14 @@ const Detail = (props: Props) => {
     queryFn: () => productService.getProductById(id as string, {}),
     placeholderData: keepPreviousData,
   });
-  const { data: selectedVariant } = useQuery({
-    queryKey: ["selected-variant", selectedOptionValueId],
-    queryFn: () =>
-      variantServices.getList({
-        option_value_ids: Object.values(selectedOptionValueId),
-        include_options_value: true,
-        product_id: id as string,
-        include_product_sellable: true,
-      }),
-    enabled: Object.values(selectedOptionValueId).length > 0,
-    placeholderData: keepPreviousData,
-  });
-  const handleSelectOptionValue = (optionId: string, optionValueId: string) => {
-    setSelectedOptionValueId({
-      ...selectedOptionValueId,
-      [optionId]: optionValueId,
-    });
-  };
+
   useEffect(() => {
     if (optionList?.data) {
       optionList?.data?.forEach((option) => {
-        setSelectedOptionValueId((prev) => ({
-          ...prev,
-          [option?.id || ""]: option?.option_values?.[0]?.id || "",
-        }));
+        handleSelectOptionValue(
+          option?.id || "",
+          option?.option_values?.[0]?.id || "",
+        );
       });
     }
   }, [optionList]);
@@ -75,13 +67,14 @@ const Detail = (props: Props) => {
         </Breadcrumb>
         <div className="content mt-[20px] grid grid-cols-[1.34fr_1fr] items-start justify-between gap-gutter">
           <Thumbnails
-            images={selectedVariant?.data?.[0]?.product_sellable?.image || []}
+            images={selectedVariant?.product_sellable?.image || []}
           />
           <Info
             options={optionList?.data || []}
             handleSelectOptionValue={handleSelectOptionValue}
             selectedOptionValueId={selectedOptionValueId}
-            variant={selectedVariant?.data?.[0]}
+            variant={selectedVariant}
+            productInfo={productDetail}
           />
         </div>
       </Container>

@@ -1,11 +1,12 @@
 "use client";
 import Button from "@/app/shared/components/Button";
 import Form from "@/app/shared/components/Form";
+import { ProductModel } from "@/app/shared/models/products/products.model";
 import {
   OptionModel,
   VariantProductModel,
 } from "@/app/shared/models/variant/variant.model";
-import { formatCurrency } from "@/app/shared/utils/utils";
+import { cn, formatCurrency } from "@/app/shared/utils/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import clsx from "clsx";
@@ -19,6 +20,7 @@ type Props = {
     [key: string]: string;
   };
   variant?: VariantProductModel;
+  productInfo?: ProductModel;
 };
 
 const Info = ({
@@ -26,6 +28,7 @@ const Info = ({
   handleSelectOptionValue,
   selectedOptionValueId,
   variant,
+  productInfo,
 }: Props) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -90,27 +93,15 @@ const Info = ({
           </div>
         </div>
         <div className="my-[30px] h-[1px] w-full bg-gray-100"></div>
-        <div className="description">
-          <p>
-            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Placeat,
-            ratione nam! Nobis iste corporis ipsa unde! Atque fugit et non
-            recusandae eveniet qui quia obcaecati harum. Vitae quod atque
-            reprehenderit.
-          </p>
-          <ul className="ml-[4px] mt-[16px] list-inside list-disc">
-            <li>Lorem ipsum dolor sit amet, consectetuer adipi scing elit</li>
-            <li>Lorem ipsum dolor sit amet, consectetuer adipi scing elit</li>
-            <li>Lorem ipsum dolor sit amet, consectetuer adipi scing elit</li>
-          </ul>
-        </div>
+        <div className="description">{productInfo?.description || ""}</div>
         <div className="options">
           {options &&
             options?.map((option, index) => {
               const { option_values } = option || {};
               return (
-                <div className="option">
+                <div className="option mt-[20px]">
                   <h3>{option?.name}</h3>
-                  <div>
+                  <div className="mt-[10px]">
                     <RadioGroup
                       value={selectedOptionValueId[option?.id || ""] || ""}
                       onValueChange={(value) =>
@@ -124,7 +115,20 @@ const Info = ({
                               value={value?.id || ""}
                               id={value?.id || ""}
                             />
-                            <label htmlFor={value?.id || ""}>
+                            <label
+                              htmlFor={value?.id || ""}
+                              className="flex items-center gap-2"
+                            >
+                              {option?.is_color && (
+                                <div
+                                  style={{
+                                    backgroundColor: value?.value,
+                                  }}
+                                  className={cn(
+                                    "h-[20px] w-[20px] rounded-full",
+                                  )}
+                                ></div>
+                              )}
                               {value?.name}
                             </label>
                           </div>
