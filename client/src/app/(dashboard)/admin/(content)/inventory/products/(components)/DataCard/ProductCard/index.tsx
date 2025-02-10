@@ -87,7 +87,16 @@ const ProductCard = ({}: ProductCardPropsType) => {
           treeData={data.map((item) => ({
             title: () => {
               return (
-                <Tooltip title={item.description} className="font-semibold">
+                <Tooltip
+                  title={() => (
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: item.description as string,
+                      }}
+                    ></div>
+                  )}
+                  className="font-semibold"
+                >
                   <p>
                     {item.name} - {item.variant?.length} variants
                   </p>
@@ -103,7 +112,8 @@ const ProductCard = ({}: ProductCardPropsType) => {
                       <div>
                         <p>
                           <span className="font-semibold">Items in stock:</span>{" "}
-                          {variant.product_sellable?.inventory?.quantity || 0}{" "}
+                          {variant.product_sellable?.inventory?.quantity ||
+                            0}{" "}
                         </p>
                         <p>
                           <span className="font-semibold">Stock status:</span>{" "}

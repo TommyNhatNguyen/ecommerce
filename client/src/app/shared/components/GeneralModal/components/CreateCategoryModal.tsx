@@ -9,6 +9,8 @@ import { Button, Input, Select, Upload, UploadFile } from "antd";
 import { PlusIcon } from "lucide-react";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import CustomEditor from "../../CustomEditor";
+import { Editor } from "ckeditor5";
 type CreateCategoryModalPropsType = {
   isModalCreateCategoryOpen: boolean;
   handleCloseModalCreateCategory: () => void;
@@ -131,11 +133,16 @@ const CreateCategoryModal = ({
               <InputAdmin
                 label="Description"
                 placeholder="Description"
-                customComponent={(props: any, ref: any) => (
-                  <Input.TextArea rows={4} {...props} ref={ref} />
-                )}
-                error={errors.description?.message as string}
                 {...field}
+                customComponent={({ onChange, props }: any, ref: any) => (
+                  <CustomEditor
+                    onChange={(_: any, editor: Editor) => {
+                      field.onChange(editor.getData());
+                    }}
+                    {...props}
+                    ref={ref}
+                  />
+                )}
               />
             )}
           />

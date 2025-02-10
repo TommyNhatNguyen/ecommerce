@@ -98,7 +98,16 @@ const CategoryCard = (props: Props) => {
       renderComponent={(data) => (
         <div className="flex min-h-[100px] flex-col gap-2">
           {data.map((item) => (
-            <Tooltip title={item.description} key={item.id}>
+            <Tooltip
+              title={() => (
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: item.description as string,
+                  }}
+                ></div>
+              )}
+              key={item.id}
+            >
               <div className="flex w-full items-center justify-between">
                 {item.name}
                 <div className="flex items-center gap-1">
