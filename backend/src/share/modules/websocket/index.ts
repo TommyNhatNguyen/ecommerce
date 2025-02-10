@@ -4,6 +4,7 @@ const WEBSOCKET_CORS = {
   methods: ["GET", "POST"],
   origin: [
     "https://admin.socket.io",
+    "http://localhost:3004",
     "http://localhost:3003",
     "http://localhost:3000",
     "http://localhost:3001",

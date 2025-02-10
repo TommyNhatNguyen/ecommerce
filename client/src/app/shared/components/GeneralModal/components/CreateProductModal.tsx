@@ -31,6 +31,9 @@ import { optionService } from "@/app/shared/services/variant/optionService";
 import { generateAllPairs } from "@/app/shared/utils/generateAllPairs";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { filterOption } from "@/lib/antd";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import { ClassicEditor, Editor, Essentials } from "ckeditor5";
+import CustomEditor from "@/app/shared/components/CustomEditor";
 
 type CreateProductModalPropsType = {
   isModalCreateProductOpen: boolean;
@@ -168,7 +171,7 @@ const CreateProductModal = ({
         }),
       );
       if (imagesResponseData.length > 0) {
-        return imagesResponseData
+        return imagesResponseData;
       } else {
         throw new Error("Failed to upload image");
       }
@@ -217,7 +220,6 @@ const CreateProductModal = ({
       return newList;
     });
   };
-
   // ===== Render Methods =====
   const _renderTitleModalCreateProduct = () => (
     <h1 className="text-2xl font-bold">Create Product</h1>
@@ -335,10 +337,16 @@ const CreateProductModal = ({
                   <InputAdmin
                     label="Description"
                     placeholder="Description"
-                    customComponent={(props: any, ref: any) => (
-                      <Input.TextArea rows={4} {...props} ref={ref} />
-                    )}
                     {...field}
+                    customComponent={({ onChange, props }: any, ref: any) => (
+                      <CustomEditor
+                        onChange={(_: any, editor: Editor) => {
+                          field.onChange(editor.getData());
+                        }}
+                        {...props}
+                        ref={ref}
+                      />
+                    )}
                   />
                 )}
               />

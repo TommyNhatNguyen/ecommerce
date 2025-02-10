@@ -10,6 +10,7 @@
   --btn-height: 56px;
   --radius: 16px;
   /* Colors */
+  --blue-link: #0000ee;
   --green-100: rgb(79, 99, 103);
   --green-200: rgb(63, 78, 79);
   --green-300: rgb(44, 54, 57);
@@ -24,7 +25,11 @@
   --bg-primary-color-60: rgb(220, 215, 201, 0.6);
   --bg-secondary-color: rgb(240, 226, 182);
   /* --------- Dashboard --------- */
-  --bg-dashboard-color: rgb(240, 235, 220); /* Lighter color for dashboard background */
+  --bg-dashboard-color: rgb(
+    240,
+    235,
+    220
+  ); /* Lighter color for dashboard background */
   --text-dashboard-color: rgb(0, 0, 0); /* Black color for dashboard text */
   /* New Status Colors */
   --error-color: rgb(179, 57, 57);
@@ -38,6 +43,9 @@
   --fs-h1: 4.8rem;
   --fs-h2: 3.2rem;
   --fs-h3: 2.4rem;
+  --fs-h4: 2rem;
+  --fs-h5: 1.8rem;
+  --fs-h6: 1.6rem;
   --fs-body-big: 1.8rem;
   --fs-body-text: 1.6rem;
   --fs-body-sub: 1.4rem;

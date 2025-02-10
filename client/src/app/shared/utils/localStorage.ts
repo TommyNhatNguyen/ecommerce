@@ -13,3 +13,15 @@ export const cookiesStorage = {
     Cookies.remove(LOCAL_STORAGE.TOKEN);
   },
 };
+
+export const localStorageService = {
+  setData: (key: string, data: any): void => {
+    localStorage.setItem(key, JSON.stringify(data));
+  },
+  getData: (key: string): any => {
+    return JSON.parse(localStorage.getItem(key) || "{}");
+  },
+  deleteData: (key: string): void => {
+    localStorage.removeItem(key);
+  },
+};
