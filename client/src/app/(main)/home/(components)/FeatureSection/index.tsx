@@ -47,7 +47,7 @@ const FeatureSection = (props: Props) => {
             </Titlegroup.Description>
           </Titlegroup.Info>
         </Titlegroup>
-        <div className="feature__products mt-[36px] grid grid-cols-3 gap-gutter">
+        <div className="feature__products mt-[36px] grid grid-cols-4 gap-gutter">
           {data?.data &&
             data?.data.map((product) => (
               <CardProduct

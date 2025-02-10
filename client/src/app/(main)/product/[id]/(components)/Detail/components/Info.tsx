@@ -93,7 +93,12 @@ const Info = ({
           </div>
         </div>
         <div className="my-[30px] h-[1px] w-full bg-gray-100"></div>
-        <div className="description">{productInfo?.description || ""}</div>
+        <div
+          className="description max-h-[300px] overflow-y-auto"
+          dangerouslySetInnerHTML={{
+            __html: productInfo?.description as string,
+          }}
+        ></div>
         <div className="options">
           {options &&
             options?.map((option, index) => {

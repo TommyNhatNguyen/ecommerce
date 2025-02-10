@@ -79,7 +79,7 @@ export class PostgresOptionRepository implements IOptionRepository {
           as: variantModelName.toLowerCase(),
           through: { attributes: [] },
           include: variantInclude,
-          // where: variantWhere
+          where: variantWhere
         });
       }
       include.push({

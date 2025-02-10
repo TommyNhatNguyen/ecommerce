@@ -48,7 +48,7 @@ type Product = (typeof products)[number];
 
 const ProductSection = (props: Props) => {
   const { data } = useQuery({
-    queryKey: ["products"],
+    queryKey: ["products-popular"],
     queryFn: () =>
       productService.getProducts({
         limit: 12,
