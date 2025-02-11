@@ -2,10 +2,11 @@ import Container from "@/app/shared/components/Container";
 import Titlegroup from "@/app/shared/components/Titlegroup";
 import Link from "next/link";
 import React from "react";
-import clsx from "clsx";
+
 import { getCategories } from "@/app/shared/services/categories/categoryServicer.server";
 import { ROUTES } from "@/app/constants/routes";
 import defaultImg from "@/app/shared/resources/images/homepage/category-1.jpg";
+import { cn } from "@/app/shared/utils/utils";
 type Props = {};
 
 const CategorySection = async (props: Props) => {
@@ -25,15 +26,16 @@ const CategorySection = async (props: Props) => {
           </Titlegroup.Info>
         </Titlegroup>
         <div
-          className={clsx(
-            "category__list mt-[68px] grid grid-flow-row-dense grid-cols-4",
+          className={cn(
+            "category__list mt-[68px] grid grid-cols-2 lg:grid-cols-4",
             "h-full gap-gutter",
           )}
         >
           {categories?.data.map((category, index) => (
             <div
-              className={clsx(
-                "h-full w-full rounded-[14px] bg-white/60 p-6 shadow-sm",
+              key={category.id || index}
+              className={cn(
+                "aspect-[360/630] h-full max-h-[360px] w-full rounded-[14px] bg-white/60 p-6 shadow-sm",
               )}
             >
               <Link
@@ -45,9 +47,11 @@ const CategorySection = async (props: Props) => {
                   alt={category.name}
                   className="h-full w-full object-cover"
                 />
-                <h3 className="absolute bottom-[20px] left-[20px] font-playright-bold text-h3 text-bg-primary">
-                  {category.name}
-                </h3>
+                <div className="absolute bottom-[1%] left-[1%] rounded-2xl bg-bg-primary-60 p-4 shadow-md backdrop-blur-md">
+                  <h3 className="font-playright-bold text-h3 text-green-200">
+                    {category.name}
+                  </h3>
+                </div>
               </Link>
             </div>
           ))}

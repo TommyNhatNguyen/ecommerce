@@ -6,7 +6,6 @@ import {
   formatCurrency,
   formatDiscountPercentage,
 } from "@/app/shared/utils/utils";
-import clsx from "clsx";
 import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -20,7 +19,7 @@ const Card = ({
   children: React.ReactNode;
   classes?: string;
 }) => {
-  return <div className={clsx("card", classes)}>{children}</div>;
+  return <div className={cn("card", classes)}>{children}</div>;
 };
 
 type CardProps = {
@@ -46,14 +45,14 @@ export const CardProduct = ({
   return (
     <div
       className={cn(
-        "card product-card h-full min-h-[360px] max-h-[480px] w-full rounded-[14px] bg-white/60 p-6 shadow-sm",
+        "card product-card aspect-[360/630] h-full max-h-[360px] w-full rounded-[14px] bg-white/60 p-6 shadow-sm",
         "flex flex-col justify-between",
         classes,
       )}
     >
       <Link
         href={link}
-        className="product-card__img group relative flex h-[80%] min-h-[80%] w-full flex-1 items-center justify-center overflow-hidden rounded-[14px] bg-white"
+        className="product-card__img group relative flex h-[80%] w-full flex-1 items-center justify-center overflow-hidden rounded-[14px] bg-white"
       >
         {typeof imgUrl === "string" ? (
           <img
@@ -80,15 +79,15 @@ export const CardProduct = ({
           </div>
         )}
       </Link>
-      <div className="info-wrapper mt-[12px] flex items-end justify-between gap-[8px]">
+      <div className="info-wrapper mt-[12px] flex flex-col justify-between gap-[8px] sm:flex-row">
         <div className="info">
           <Link
             href={link}
-            className="info__name font-roboto-medium text-body-big"
+            className="info__name font-roboto-medium text-body-big duration-300 hover:text-green-100"
           >
             {name}
           </Link>
-          <div className="info__price-wrapper">
+          <div className="info__price-wrapper mt-2">
             {percentageDiscount !== 0 ? (
               <>
                 <span className="info__discount mr-[6px] text-body-sub text-green-200 line-through">
@@ -133,10 +132,16 @@ export const CardBlog = ({
   renderAction,
 }: CardBlogProps) => {
   return (
-    <div className={clsx("card blog-card h-full w-full", classes)}>
+    <div
+      className={cn(
+        "card blog-card aspect-[360/630] h-full max-h-[360px] w-full rounded-[14px] bg-white/60 p-6 shadow-sm",
+        "flex flex-col justify-between",
+        classes,
+      )}
+    >
       <Link
         href={link}
-        className="blog-card__img group relative block aspect-[286/360] h-full w-full overflow-hidden rounded-[14px]"
+        className="blog-card__img group relative flex h-[80%] w-full flex-1 items-center justify-center overflow-hidden rounded-[14px] bg-white"
       >
         {typeof imgUrl === "string" ? (
           <img
@@ -144,7 +149,7 @@ export const CardBlog = ({
             alt={blogTitle}
             width={286}
             height={360}
-            className="h-full w-full object-cover duration-300 group-hover:scale-110"
+            className="h-full w-full object-contain object-center duration-300 group-hover:scale-110"
           />
         ) : (
           <Image
@@ -152,11 +157,11 @@ export const CardBlog = ({
             alt={blogTitle}
             width={286}
             height={360}
-            className="h-full w-full object-cover duration-300 group-hover:scale-110"
+            className="h-full w-full object-contain object-center duration-300 group-hover:scale-110"
           />
         )}
       </Link>
-      <div className="info-wrapper mt-[30px]">
+      <div className="info-wrapper mt-[12px] flex flex-col justify-between gap-[8px]">
         <div className="info__author flex items-center gap-[8px]">
           <div className="info__author-avatar aspect-square h-[28px] overflow-hidden rounded-full">
             {typeof userAvatarUrl === "string" ? (

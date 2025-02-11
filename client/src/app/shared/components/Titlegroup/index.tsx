@@ -1,4 +1,4 @@
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 import React from "react";
 
 type TitlegroupPropsType = {
@@ -7,7 +7,7 @@ type TitlegroupPropsType = {
 };
 
 const Titlegroup = ({ children, classes }: TitlegroupPropsType) => {
-  return <div className={clsx("titlegroup", classes)}>{children}</div>;
+  return <div className={cn("titlegroup", classes)}>{children}</div>;
 };
 
 Titlegroup.Title = ({
@@ -19,7 +19,7 @@ Titlegroup.Title = ({
 }) => {
   return (
     <h2
-      className={clsx("titlegroup__title font-playright-bold text-h2", classes)}
+      className={cn("titlegroup__title font-playright-bold text-h2", classes)}
     >
       {children}
     </h2>
@@ -33,7 +33,7 @@ Titlegroup.Info = ({
   children: React.ReactNode;
   classes?: string;
 }) => {
-  return <div className={clsx("titlegroup__info", classes)}>{children}</div>;
+  return <div className={cn("titlegroup__info", classes)}>{children}</div>;
 };
 
 Titlegroup.Description = ({
@@ -43,7 +43,7 @@ Titlegroup.Description = ({
   children: React.ReactNode;
   classes?: string;
 }) => {
-  return <p className={clsx("titlegroup__info-desc", classes)}>{children}</p>;
+  return <p className={cn("titlegroup__info-desc", classes)}>{children}</p>;
 };
 
 export default Titlegroup;

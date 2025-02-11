@@ -47,9 +47,9 @@ const blogs = [
 
 const BlogSection = (props: Props) => {
   return (
-    <section id="blog" className="blog mt-section">
+    <section id="blog" className="blog my-section">
       <Container>
-        <Titlegroup classes="product__title flex items-center justify-between gap-gutter">
+        <Titlegroup classes="product__title flex items-center justify-between gap-gutter flex-col md:flex-row">
           <Titlegroup.Info classes="max-w-[50%]">
             <Titlegroup.Title>Latest Ongoings</Titlegroup.Title>
             <Titlegroup.Description classes="mt-[16px]">
@@ -72,7 +72,7 @@ const BlogSection = (props: Props) => {
             />
           </ButtonWithLink>
         </Titlegroup>
-        <div className="blog__cards mt-[36px] flex items-center justify-between gap-gutter">
+        <div className="blog__cards mt-[36px] grid grid-cols-2 gap-gutter lg:grid-cols-4">
           {blogs.map((blog, index) => {
             return <CardBlog key={index} {...blog} />;
           })}

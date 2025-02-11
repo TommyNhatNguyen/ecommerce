@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@ckeditor/ckeditor5-react": "^9.4.0",
-    "ckeditor5": "^44.1.0",
     "@radix-ui/react-avatar": "^1.1.2",
     "@radix-ui/react-checkbox": "^1.1.4",
     "@radix-ui/react-dialog": "^1.1.4",
@@ -31,6 +30,7 @@
     "antd-img-crop": "^4.24.0",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
+    "ckeditor5": "^44.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.4",

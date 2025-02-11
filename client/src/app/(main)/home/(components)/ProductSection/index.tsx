@@ -5,54 +5,35 @@ import { ButtonWithLink } from "@/app/shared/components/Button";
 import Container from "@/app/shared/components/Container";
 import Titlegroup from "@/app/shared/components/Titlegroup";
 import { ChevronRightIcon, PlusCircle } from "lucide-react";
-import React from "react";
+import React, { useMemo, useState } from "react";
 import mockProductImage from "@/app/shared/resources/images/homepage/product-2.jpg";
 import { CardProduct } from "@/app/shared/components/Card";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { productService } from "@/app/shared/services/products/productService";
 import { ProductModel } from "@/app/shared/models/products/products.model";
-const products = [
-  {
-    imgUrl: mockProductImage,
-    name: "Product 1",
-    price: 100,
-    link: ROUTES.PRODUCT_DETAIL,
-    beforeDiscountedPrice: 250,
-  },
-  {
-    imgUrl: mockProductImage,
-    name: "Product 2",
-    price: 150,
-    link: ROUTES.PRODUCT_DETAIL,
-    beforeDiscountedPrice: 250,
-  },
-  {
-    imgUrl: mockProductImage,
-    name: "Product 3",
-    price: 200,
-    link: ROUTES.PRODUCT_DETAIL,
-    beforeDiscountedPrice: 250,
-  },
-  {
-    imgUrl: mockProductImage,
-    name: "Product 4",
-    price: 250,
-    link: ROUTES.PRODUCT_DETAIL,
-    beforeDiscountedPrice: 500,
-  },
-];
+import { generatePages } from "@/app/shared/utils/common";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { cn } from "@/app/shared/utils/utils";
+import CustomPagination from "@/app/shared/components/CustomPagination";
 
-type Props = {};
+type ProductSectionPropsType = {};
 
-type Product = (typeof products)[number];
-
-const ProductSection = (props: Props) => {
+const ProductSection = ({}: ProductSectionPropsType) => {
+  const [page, setPage] = useState(1);
   const { data } = useQuery({
     queryKey: ["products-popular"],
     queryFn: () =>
       productService.getProducts({
         limit: 12,
-        page: 1,
+        page: page,
         sortBy: "created_at",
         order: "DESC",
         status: "ACTIVE",
@@ -62,9 +43,24 @@ const ProductSection = (props: Props) => {
         includeVariantInventory: true,
         includeVariantImage: true,
       }),
+    placeholderData: keepPreviousData,
   });
+  const { current_page, total_page } = useMemo(() => data?.meta, [data]) || {};
   const _onAddToCart = (product: ProductModel) => {
     console.log(product);
+  };
+  const _onNextPage = () => {
+    if (page < (data?.meta?.total_page || 0)) {
+      setPage((prev) => prev + 1);
+    }
+  };
+  const _onPrevPage = () => {
+    if (page > 1) {
+      setPage((prev) => prev - 1);
+    }
+  };
+  const _onChangePage = (selectedPage: number) => {
+    setPage(selectedPage);
   };
   return (
     <section id="product" className="product mt-section">
@@ -89,18 +85,30 @@ const ProductSection = (props: Props) => {
             />
           </ButtonWithLink>
         </Titlegroup>
-        <div className="product__group mt-[36px] grid grid-cols-4 grid-rows-3 gap-gutter">
-          {data?.data.map((product) => (
-            <CardProduct
-              key={product.id}
-              {...product}
-              renderAction={() => (
-                <Button onClick={() => _onAddToCart(product)} variant="vanilla">
-                  <PlusCircle width={24} height={24} />
-                </Button>
-              )}
-            />
-          ))}
+        <div>
+          <div className="product__group mt-[36px] grid grid-cols-2 grid-rows-3 gap-gutter md:grid-cols-4">
+            {data?.data.map((product) => (
+              <CardProduct
+                key={product.id}
+                {...product}
+                renderAction={() => (
+                  <Button
+                    onClick={() => _onAddToCart(product)}
+                    variant="vanilla"
+                  >
+                    <PlusCircle width={24} height={24} />
+                  </Button>
+                )}
+              />
+            ))}
+          </div>
+          <CustomPagination
+            totalPage={total_page || 0}
+            currentPage={current_page || 0}
+            handlePrevPage={_onPrevPage}
+            handleNextPage={_onNextPage}
+            handleChangePage={_onChangePage}
+          />
         </div>
       </Container>
     </section>

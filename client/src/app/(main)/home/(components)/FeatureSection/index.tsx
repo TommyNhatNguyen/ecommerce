@@ -17,7 +17,7 @@ const FeatureSection = (props: Props) => {
     queryKey: ["products"],
     queryFn: () => {
       return productService.getProducts({
-        limit: 4,
+        limit: 10,
         page: 1,
         sortBy: "created_at",
         order: "DESC",
@@ -37,9 +37,9 @@ const FeatureSection = (props: Props) => {
   return (
     <section id="feature" className="feature mt-[100px]">
       <Container>
-        <Titlegroup classes="flex items-end justify-between">
+        <Titlegroup classes="flex justify-between flex-col md:flex-row">
           <Titlegroup.Title>Featured Products</Titlegroup.Title>
-          <Titlegroup.Info classes="max-w-[40%]">
+          <Titlegroup.Info classes="mt-2 md:mt-0 max-w-[40%]">
             <Titlegroup.Description>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla
               fringilla nunc in molestie feugiat. Nunc auctor consectetur elit,
@@ -47,15 +47,19 @@ const FeatureSection = (props: Props) => {
             </Titlegroup.Description>
           </Titlegroup.Info>
         </Titlegroup>
-        <div className="feature__products mt-[36px] grid grid-cols-4 gap-gutter">
+        <div className="feature__products mt-[36px] grid grid-cols-2 gap-gutter lg:grid-cols-4">
           {data?.data &&
             data?.data.map((product) => (
               <CardProduct
                 key={product.id}
                 {...product}
                 renderAction={() => (
-                  <Button onClick={() => {}} variant="vanilla">
-                    <PlusCircle width={24} height={24} />
+                  <Button
+                    onClick={() => {}}
+                    variant="vanilla"
+                    classes="bg-transparent p-0"
+                  >
+                    <PlusCircle className="h-8 w-8" />
                   </Button>
                 )}
               />

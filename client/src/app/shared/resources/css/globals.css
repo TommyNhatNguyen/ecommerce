@@ -66,7 +66,7 @@ body {
 
 .container {
   height: 100%;
-  width: 100;
+  width: 100%;
   max-width: var(--max-width-container);
   padding-left: var(--pd-container);
   padding-right: var(--pd-container);
