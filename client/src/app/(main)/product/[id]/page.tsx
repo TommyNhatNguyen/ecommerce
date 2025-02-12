@@ -11,23 +11,7 @@ type Props = {};
 
 const ProductDetailPage = (props: Props) => {
   const { id } = useParams();
-  const { data } = useQuery({
-    queryKey: ["products"],
-    queryFn: () => {
-      return productService.getProducts({
-        limit: 4,
-        page: 1,
-        sortBy: "created_at",
-        order: "DESC",
-        status: "ACTIVE",
-        includeImage: true,
-        includeVariant: true,
-        includeVariantInfo: true,
-        includeVariantInventory: true,
-        includeVariantImage: true,
-      });
-    },
-  });
+
   const [selectedOptionValueId, setSelectedOptionValueId] = useState<{
     [key: string]: string;
   }>({});
@@ -59,10 +43,7 @@ const ProductDetailPage = (props: Props) => {
         handleSelectOptionValue={handleSelectOptionValue}
       />
       <Reviews productInfo={selectedVariant?.data?.[0]?.product} />
-      <SimilarCardComponent
-        productsList={data?.data || []}
-        title="Similar product"
-      />
+      <SimilarCardComponent title="Similar product" />
     </main>
   );
 };

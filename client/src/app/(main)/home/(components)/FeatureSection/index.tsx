@@ -56,10 +56,7 @@ const FeatureSection = (props: Props) => {
               slidesToScroll={1}
               slidesToShow={4}
               swipeToSlide={true}
-              centerPadding={"30px"}
-              prevArrow={
-                <ArrowLeftCircle className="h-10 w-10 text-green-300" />
-              }
+              prevArrow={<ArrowLeftCircle />}
               nextArrow={<ArrowRightCircle />}
             >
               {data?.data.map((product) => (
