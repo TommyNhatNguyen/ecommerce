@@ -2,7 +2,7 @@
 import Button from "@/app/shared/components/Button";
 import Form from "@/app/shared/components/Form";
 import { ChevronRightIcon, Search } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { CardProduct } from "@/app/shared/components/Card";
 import { PlusCircle } from "lucide-react";
 import { ProductModel } from "@/app/shared/models/products/products.model";
@@ -10,8 +10,10 @@ import { productService } from "@/app/shared/services/products/productService";
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { cn } from "@/app/shared/utils/utils";
 import { Empty } from "antd";
+import { useSearchParams } from "next/navigation";
 type CollectionPropsType = {
   selectedOptions: string[];
+  handleSetSelectedOptions: (data: any) => void;
   applyPriceRange: {
     from: number | undefined;
     to: number | undefined;
@@ -26,7 +28,9 @@ const Collection = ({
   selectedOptions,
   applyPriceRange,
   priceRange,
+  handleSetSelectedOptions,
 }: CollectionPropsType) => {
+  const categoryIds = useSearchParams().get("categoryIds[]");
   const [limit, setLimit] = useState(12);
   const {
     data: products,
@@ -60,6 +64,11 @@ const Collection = ({
     initialPageParam: 1,
     placeholderData: keepPreviousData,
   });
+  useEffect(() => {
+    if (categoryIds) {
+      handleSetSelectedOptions(categoryIds);
+    }
+  }, [categoryIds]);
   const _onAddToCart = (product: ProductModel) => {
     console.log(product);
   };

@@ -27,7 +27,7 @@ export const useCollection = () => {
       [id]: value,
     }));
   };
-  const handleGetSelectedOptions = (id: string) => {
+  const handleSetSelectedOptions = (id: string) => {
     if (selectedOptions.includes(id)) {
       setSelectedOptions((prev) => prev.filter((item) => item !== id));
     } else {
@@ -41,7 +41,7 @@ export const useCollection = () => {
   };
   return {
     selectedOptions,
-    handleGetSelectedOptions,
+    handleSetSelectedOptions,
     handleApplyPriceRange,
     handleChangePriceRange,
     handleResetOptions,

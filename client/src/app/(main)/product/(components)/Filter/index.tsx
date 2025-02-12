@@ -16,7 +16,7 @@ import { DEFAULT_MAX_PRICE } from "../../hooks/useCollection";
 
 type FilterPropsType = {
   selectedOptions: string[];
-  handleGetSelectedOptions: (data: any) => void;
+  handleSetSelectedOptions: (data: any) => void;
   handleApplyPriceRange: (data: { from: number; to: number }) => void;
   handleChangePriceRange: (id: string, value: number) => void;
   handleResetOptions: () => void;
@@ -27,7 +27,7 @@ type FilterPropsType = {
 };
 
 const Filter = ({
-  handleGetSelectedOptions,
+  handleSetSelectedOptions,
   handleApplyPriceRange,
   handleChangePriceRange,
   handleResetOptions,
@@ -49,7 +49,7 @@ const Filter = ({
     handleChangePriceRange(id, value);
   };
   const _onChangeSelectOption = (id: string) => {
-    handleGetSelectedOptions(id);
+    handleSetSelectedOptions(id);
   };
   const _onResetOptions = () => {
     handleResetOptions();

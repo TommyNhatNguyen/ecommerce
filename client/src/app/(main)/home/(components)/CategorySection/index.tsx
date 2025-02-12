@@ -11,7 +11,6 @@ type Props = {};
 
 const CategorySection = async (props: Props) => {
   const categories = await getCategories({ include_image: true });
-
   return (
     <section id="category" className="category mt-section">
       <Container>
@@ -39,7 +38,7 @@ const CategorySection = async (props: Props) => {
               )}
             >
               <Link
-                href={`${ROUTES.PRODUCTS}`}
+                href={`${ROUTES.PRODUCTS}?categoryIds[]=${category.id}`}
                 className="category__list-item relative block h-full w-full overflow-hidden rounded-[14px] bg-white"
               >
                 <img

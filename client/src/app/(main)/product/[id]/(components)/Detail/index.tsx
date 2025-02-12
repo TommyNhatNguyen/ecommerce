@@ -42,7 +42,10 @@ const Detail = ({
   });
   const { data: productDetail } = useQuery({
     queryKey: ["product-detail", id],
-    queryFn: () => productService.getProductById(id as string, {}),
+    queryFn: () =>
+      productService.getProductById(id as string, {
+        includeCategory: true,
+      }),
     placeholderData: keepPreviousData,
   });
 
@@ -62,13 +65,19 @@ const Detail = ({
         <Breadcrumb>
           <Breadcrumb.Link link={ROUTES.HOME}>Home</Breadcrumb.Link>
           <Breadcrumb.Link link={ROUTES.PRODUCTS}>Product</Breadcrumb.Link>
-          <Breadcrumb.Item>Detail</Breadcrumb.Item>
+          <Breadcrumb.Link
+            link={
+              ROUTES.PRODUCTS +
+              "?categoryIds[]=" +
+              productDetail?.category?.[0].id
+            }
+          >
+            {productDetail?.category?.[0].name}
+          </Breadcrumb.Link>
           <Breadcrumb.Item>{productDetail?.name}</Breadcrumb.Item>
         </Breadcrumb>
         <div className="content mt-[20px] grid grid-cols-[1.34fr_1fr] items-start justify-between gap-gutter">
-          <Thumbnails
-            images={selectedVariant?.product_sellable?.image || []}
-          />
+          <Thumbnails images={selectedVariant?.product_sellable?.image || []} />
           <Info
             options={optionList?.data || []}
             handleSelectOptionValue={handleSelectOptionValue}

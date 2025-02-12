@@ -10,7 +10,7 @@ type Props = {};
 const ProductPage = (props: Props) => {
   const {
     selectedOptions,
-    handleGetSelectedOptions,
+    handleSetSelectedOptions,
     handleApplyPriceRange,
     handleChangePriceRange,
     priceRange,
@@ -23,7 +23,7 @@ const ProductPage = (props: Props) => {
         <div className="product-page-wrapper grid grid-cols-[1fr,3.2fr] gap-gutter">
           <Filter
             selectedOptions={selectedOptions}
-            handleGetSelectedOptions={handleGetSelectedOptions}
+            handleSetSelectedOptions={handleSetSelectedOptions}
             handleApplyPriceRange={handleApplyPriceRange}
             handleChangePriceRange={handleChangePriceRange}
             priceRange={priceRange}
@@ -33,6 +33,7 @@ const ProductPage = (props: Props) => {
             applyPriceRange={applyPriceRange}
             priceRange={priceRange}
             selectedOptions={selectedOptions}
+            handleSetSelectedOptions={handleSetSelectedOptions}
           />
         </div>
       </Container>
