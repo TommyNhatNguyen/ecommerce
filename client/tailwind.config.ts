@@ -89,6 +89,8 @@ export default {
       minHeight: {
         "macbook-screen": "var(--macbook-screen)",
         header: "var(--header-height)",
+        input: "var(--min-input-height)",
+        btn: "var(--min-btn-height)",
       },
       spacing: {
         container: "var(--pd-container)",

@@ -3,13 +3,14 @@ import Button from "@/app/shared/components/Button";
 import { CardProduct } from "@/app/shared/components/Card";
 import Container from "@/app/shared/components/Container";
 import Titlegroup from "@/app/shared/components/Titlegroup";
-import { PlusCircle } from "lucide-react";
+import { ArrowLeftCircle, ArrowRightCircle, PlusCircle } from "lucide-react";
 import React from "react";
 import mockProductImage from "@/app/shared/resources/images/homepage/product-1.jpg";
 import { ROUTES } from "@/app/constants/routes";
 import { useQuery } from "@tanstack/react-query";
 import { productService } from "@/app/shared/services/products/productService";
 import { ProductModel } from "@/app/shared/models/products/products.model";
+import Slider from "react-slick";
 type Props = {};
 
 const FeatureSection = (props: Props) => {
@@ -30,7 +31,6 @@ const FeatureSection = (props: Props) => {
       });
     },
   });
-  console.log("🚀 ~ FeatureSection ~ data:", data);
   const _onAddToCart = (product: ProductModel) => {
     console.log(product);
   };
@@ -47,23 +47,39 @@ const FeatureSection = (props: Props) => {
             </Titlegroup.Description>
           </Titlegroup.Info>
         </Titlegroup>
-        <div className="feature__products mt-[36px] grid grid-cols-2 gap-gutter lg:grid-cols-4">
-          {data?.data &&
-            data?.data.map((product) => (
-              <CardProduct
-                key={product.id}
-                {...product}
-                renderAction={() => (
-                  <Button
-                    onClick={() => {}}
-                    variant="vanilla"
-                    classes="bg-transparent p-0"
-                  >
-                    <PlusCircle className="h-8 w-8" />
-                  </Button>
-                )}
-              />
-            ))}
+        <div className="feature__products mt-[36px]">
+          {data?.data && (
+            // @ts-ignore
+            <Slider
+              dots={true}
+              infinite={false}
+              slidesToScroll={1}
+              slidesToShow={4}
+              swipeToSlide={true}
+              centerPadding={"30px"}
+              prevArrow={
+                <ArrowLeftCircle className="h-10 w-10 text-green-300" />
+              }
+              nextArrow={<ArrowRightCircle />}
+            >
+              {data?.data.map((product) => (
+                <CardProduct
+                  key={product.id}
+                  {...product}
+                  classes="max-w-[90%]"
+                  renderAction={() => (
+                    <Button
+                      onClick={() => {}}
+                      variant="vanilla"
+                      classes="bg-transparent p-0"
+                    >
+                      <PlusCircle className="h-8 w-8" />
+                    </Button>
+                  )}
+                />
+              ))}
+            </Slider>
+          )}
         </div>
       </Container>
     </section>

@@ -45,7 +45,7 @@ Form.Input = ({
   return (
     <div
       className={twMerge(
-        "form__group border border-solid",
+        "form__group min-h-input border border-solid",
         error && "border-error",
         wrapperClasses,
       )}

@@ -15,6 +15,7 @@ const ProductPage = (props: Props) => {
     handleChangePriceRange,
     priceRange,
     applyPriceRange,
+    handleResetOptions
   } = useCollection();
   return (
     <main id="product-page" className="product-page py-section">
@@ -26,6 +27,7 @@ const ProductPage = (props: Props) => {
             handleApplyPriceRange={handleApplyPriceRange}
             handleChangePriceRange={handleChangePriceRange}
             priceRange={priceRange}
+            handleResetOptions={handleResetOptions}
           />
           <Collection
             applyPriceRange={applyPriceRange}

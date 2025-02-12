@@ -93,16 +93,18 @@ const Collection = ({
         </Form>
       </div>
       <div className="product-page__content-list mt-[32px] h-full min-h-[80%]">
-        <div className="total">
-          <p className="font-roboto-medium">
-            Showing 1 - {totalProductsLoaded} of {totalProducts} item(s)
-          </p>
-          <p className="text-body-sub">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
-          </p>
+        <div className="totalgroup">
+          <div className="totalgroup__total">
+            <p className="font-roboto-medium">
+              Showing 1 - {totalProductsLoaded} of {totalProducts} item(s)
+            </p>
+            <p className="text-body-sub">
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
+              eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            </p>
+          </div>
         </div>
-        <div className="product__group min-h-macbook-screen my-[36px] grid grid-flow-dense grid-cols-3 gap-gutter">
+        <div className="product__group my-[36px] grid min-h-macbook-screen grid-flow-dense grid-cols-3 gap-gutter">
           {products?.pages && products?.pages[0]?.data?.length > 0 ? (
             products?.pages
               .flatMap((page) => page.data)
@@ -123,26 +125,15 @@ const Collection = ({
           ) : (
             <Empty
               description="No products found"
-              className="col-span-3 row-auto"
+              className="col-span-3 row-auto h-full place-content-center"
             />
           )}
         </div>
         <div className="pagination mx-auto w-full text-center">
-          <p className="font-roboto-medium">
-            Showing 1 - {totalProductsLoaded} of {totalProducts} item(s)
-          </p>
-          <div className="progress relative mt-[26px] h-[4px] w-full rounded-[2px] bg-gray-100">
-            <span
-              className={cn(
-                "progress-indicator absolute left-0 top-0 h-full rounded-full bg-green-300",
-                `w-[${(totalProductsLoaded / totalProducts) * 100}%]`,
-              )}
-            ></span>
-          </div>
           <Button
             onClick={_onLoadMore}
             variant="primary"
-            classes="mx-auto mt-[26px]"
+            classes="mx-auto"
             disabled={!hasNextPage}
             isDisabled={!hasNextPage}
           >
@@ -153,6 +144,19 @@ const Collection = ({
               className="h-full content-center text-nowrap"
             />
           </Button>
+          <p className="mt-[26px] font-roboto-medium">
+            Showing 1 - {totalProductsLoaded} of {totalProducts} item(s)
+          </p>
+          <div className="progress relative mt-[26px] h-[4px] w-full rounded-[2px] bg-gray-100">
+            <span
+              className={cn(
+                "progress-indicator absolute left-0 top-0 h-full rounded-full bg-green-300",
+              )}
+              style={{
+                width: `${(totalProductsLoaded / totalProducts) * 100}%`,
+              }}
+            ></span>
+          </div>
         </div>
       </div>
     </div>

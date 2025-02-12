@@ -8,6 +8,8 @@
   --header-height: 6rem; /* 96px */
   --input-height: 3.5rem; /* 56px */
   --btn-height: 3.5rem; /* 56px */
+  --min-btn-height: 30px;
+  --min-input-height: calc(var(--min-btn-height) + 10px);
   --radius: 1rem; /* 16px */
 
   /* Colors */
@@ -66,7 +68,8 @@
   --macbook-screen: 49.75rem; /* 796px */
 }
 
-@media (max-width: 90rem) { /* 1440px */
+@media (max-width: 90rem) {
+  /* 1440px */
   :root {
     --max-width-page: 90rem;
     --max-width-container: calc(var(--pd-container) * 2 81.25rem); /* 1300px */
@@ -91,7 +94,8 @@
   }
 }
 
-@media (max-width: 40rem) { /* 640px */
+@media (max-width: 40rem) {
+  /* 640px */
   :root {
     --max-width-page: 40rem;
     --max-width-container: calc(var(--pd-container) * 2 31.25rem); /* 500px */

@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+export const DEFAULT_MAX_PRICE = 10000000000000;
+
 export const useCollection = () => {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<{
@@ -7,7 +9,7 @@ export const useCollection = () => {
     to: number;
   }>({
     from: 0,
-    to: 100000000,
+    to: DEFAULT_MAX_PRICE,
   });
   const [applyPriceRange, setApplyPriceRange] = useState<{
     from: number | undefined;
@@ -32,11 +34,17 @@ export const useCollection = () => {
       setSelectedOptions((prev) => [...prev, id]);
     }
   };
+  const handleResetOptions = () => {
+    setSelectedOptions([]);
+    setPriceRange({ from: 0, to: DEFAULT_MAX_PRICE });
+    setApplyPriceRange({ from: 0, to: DEFAULT_MAX_PRICE });
+  };
   return {
     selectedOptions,
     handleGetSelectedOptions,
     handleApplyPriceRange,
     handleChangePriceRange,
+    handleResetOptions,
     priceRange,
     applyPriceRange,
   };

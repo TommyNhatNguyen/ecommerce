@@ -11,12 +11,12 @@ import { twMerge } from "tailwind-merge";
 type ButtonPropsType = {
   children: React.ReactNode;
   classes?: string;
-  variant?: "primary" | "secondary" | "vanilla" | "icon" | "accent-1";
+  variant?: "primary" | "secondary" | "vanilla" | "icon" | "accent-1" | "white";
   isDisabled?: boolean;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
 const baseClasses =
-  "h-btn px-[24px] text-center text-primary-btn rounded-[64px] duration-300 flex items-center justify-center gap-2 cursor-pointer";
+  "h-btn min-h-btn px-[24px] text-center text-primary-btn rounded-[64px] duration-300 flex items-center justify-center gap-2 cursor-pointer";
 
 const Button = ({
   children,
@@ -39,6 +39,8 @@ const Button = ({
     case "vanilla":
       variantClasses = "";
       break;
+    case "white":
+      variantClasses = "bg-white hover:bg-white/80";
     case "icon":
       variantClasses =
         "flex aspect-square items-center justify-center rounded-full bg-green-300 duration-300 hover:bg-green-200 h-full px-0 text-white";
@@ -56,6 +58,7 @@ const Button = ({
         isDisabled &&
           "pointer-events-none cursor-not-allowed bg-gray-200 opacity-50",
       )}
+      disabled={isDisabled}
       {...props}
     >
       {children}

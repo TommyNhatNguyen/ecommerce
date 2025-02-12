@@ -11,13 +11,15 @@ import { Slider } from "@/components/ui/slider";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import { ChevronDownIcon } from "lucide-react";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import { DEFAULT_MAX_PRICE } from "../../hooks/useCollection";
 
 type FilterPropsType = {
-  selectedOptions: Record<string, any>;
+  selectedOptions: string[];
   handleGetSelectedOptions: (data: any) => void;
   handleApplyPriceRange: (data: { from: number; to: number }) => void;
   handleChangePriceRange: (id: string, value: number) => void;
+  handleResetOptions: () => void;
   priceRange: {
     from: number;
     to: number;
@@ -28,9 +30,18 @@ const Filter = ({
   handleGetSelectedOptions,
   handleApplyPriceRange,
   handleChangePriceRange,
+  handleResetOptions,
   priceRange,
   selectedOptions,
 }: FilterPropsType) => {
+  const isResetDisabled = useMemo(() => {
+    return (
+      selectedOptions.length > 0 ||
+      priceRange.from > 0 ||
+      priceRange.to != DEFAULT_MAX_PRICE
+    );
+  }, [selectedOptions, priceRange]);
+
   const _onApplyPriceRange = () => {
     handleApplyPriceRange(priceRange);
   };
@@ -39,6 +50,9 @@ const Filter = ({
   };
   const _onChangeSelectOption = (id: string) => {
     handleGetSelectedOptions(id);
+  };
+  const _onResetOptions = () => {
+    handleResetOptions();
   };
   const { data: categories, isLoading: isLoadingCategories } = useQuery({
     queryKey: ["categories"],
@@ -99,6 +113,15 @@ const Filter = ({
           onClick={_onApplyPriceRange}
         >
           Apply
+        </Button>
+        {/* Reset button */}
+        <Button
+          isDisabled={!isResetDisabled}
+          onClick={_onResetOptions}
+          variant="white"
+          classes="mt-4 w-full h-[32px]"
+        >
+          Reset All
         </Button>
       </Filter.Item>
     </div>
