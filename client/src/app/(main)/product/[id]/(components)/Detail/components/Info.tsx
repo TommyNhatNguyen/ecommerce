@@ -1,5 +1,6 @@
 "use client";
 import Button from "@/app/shared/components/Button";
+import { RichTextContainer } from "@/app/shared/components/Container";
 import Form from "@/app/shared/components/Form";
 import { ProductModel } from "@/app/shared/models/products/products.model";
 import {
@@ -50,58 +51,77 @@ const Info = ({
   const { name, product_sellable } = variant || {};
   const { price, total_discounts, price_after_discounts } =
     product_sellable || {};
+  const _onBuyNow = () => {
+    console.log("Buy now");
+  };
+  const _onAddToCart = () => {
+    console.log("Add to cart");
+  };
   return (
     <div className="content__info">
-      <div className="title flex items-center justify-between gap-gutter">
-        <h2 className="font-roboto-bold text-h2">{name}</h2>
-        <Button variant="vanilla" classes="btn btn-heart" onClick={_onFavorite}>
-          <Heart
-            className={clsx(
-              "h-16 w-16 transition-all duration-300",
-              isFavorite && "color-pink-200 fill-pink-200",
-            )}
-          />
-        </Button>
+      {/* Title */}
+      <div className="title">
+        <h2 className="hyphens-auto text-wrap break-words font-roboto-bold text-h2">
+          {name}
+        </h2>
       </div>
-      <div className="pricegroup mt-[20px] flex items-center gap-[20px]">
-        <div className="pricegroup__text relative w-fit">
-          <p className="pricegroup__text-price h-full font-roboto-medium text-body-big">
+      {/* Price */}
+      <div className="pricegroup mt-4">
+        <div className="pricegroup__text flex items-center gap-2">
+          <p className="pricegroup__text-price h-full text-body-text line-through">
             {formatCurrency(price || 0)}
           </p>
           <p className="pricegroup__text-price h-full font-roboto-medium text-body-big">
             {formatCurrency(price_after_discounts || 0)}
           </p>
-          <div className="absolute bottom-0 right-[-10px] top-0 h-full w-[1px] bg-green-300"></div>
         </div>
-        <div className="pricegroup__starsgroup flex items-center gap-[10px]">
+      </div>
+      {/* Reviews */}
+      <div className="mt-4 flex items-center gap-4">
+        {/* Love */}
+        <Button variant="vanilla" onClick={_onFavorite}>
+          <Heart
+            className={cn(
+              "h-8 w-8 transition-all duration-300",
+              isFavorite && "color-pink-200 fill-pink-200",
+            )}
+          />
+        </Button>
+        {/* Stars */}
+        <div className="pricegroup__starsgroup flex items-end gap-2">
           <div className="pricegroup__starsgroup-list starslist flex items-center gap-[4px]">
-            <Star />
-            <Star />
-            <Star />
-            <Star />
-            <Star />
+            {Array(5)
+              .fill(0)
+              .map((_, index) => (
+                <Star className="h-8 w-8" key={index} />
+              ))}
           </div>
           <div className="pricegroup__starsgroup-reviews">
-            {/* <span className="score mr-[4px]">{rating}</span>
-              <span className="reviews text-body-sub">({reviews} reviews)</span> */}
+            <span className="score mr-[4px]">{0 || 0}</span>
+            <span className="reviews text-body-sub">({0 || 0} reviews)</span>
           </div>
         </div>
       </div>
-      <div className="my-[30px] h-[1px] w-full bg-gray-100"></div>
-      <div
-        className="description max-h-[300px] max-w-fit overflow-y-auto break-words text-wrap"
-        dangerouslySetInnerHTML={{
-          __html: productInfo?.short_description as string,
-        }}
-      ></div>
+      <div className="my-8 h-[1px] w-full bg-gray-100"></div>
+      {/* Description */}
+      {productInfo?.short_description && (
+        <RichTextContainer
+          classes="description max-h-[300px] max-w-fit overflow-y-auto text-wrap break-words *:text-green-300"
+          dangerouslySetInnerHTML={{
+            __html: productInfo?.short_description as string,
+          }}
+        ></RichTextContainer>
+      )}
       <div className="options">
         {options &&
           options?.map((option, index) => {
             const { option_values } = option || {};
             return (
-              <div className="option mt-[20px]">
-                <h3>{option?.name}</h3>
-                <div className="mt-[10px]">
+              <div className="option mt-8" key={option.id}>
+                <h3 className="font-roboto-medium text-body-big">
+                  {option?.name}
+                </h3>
+                <div className="mt-2">
                   <RadioGroup
                     value={selectedOptionValueId[option?.id || ""] || ""}
                     onValueChange={(value) =>
@@ -110,7 +130,10 @@ const Info = ({
                   >
                     {option_values?.map((value) => {
                       return (
-                        <div className="flex items-center space-x-2">
+                        <div
+                          className="flex items-center space-x-2"
+                          key={value.id}
+                        >
                           <RadioGroupItem
                             value={value?.id || ""}
                             id={value?.id || ""}
@@ -124,7 +147,7 @@ const Info = ({
                                 style={{
                                   backgroundColor: value?.value,
                                 }}
-                                className={cn("h-[20px] w-[20px] rounded-full")}
+                                className={cn("h-8 w-8 rounded-full")}
                               ></div>
                             )}
                             {value?.name}
@@ -138,25 +161,23 @@ const Info = ({
             );
           })}
       </div>
-      <div className="actionsgroup mt-[30px]">
+      <div className="actionsgroup mt-8">
         <div className="actionsgroup__quantity flex items-center gap-gutter">
-          <div className="flex w-full max-w-fit flex-shrink-0 items-center rounded-full bg-white">
+          <div className="flex w-full max-w-[140px] flex-1 flex-shrink-0 items-center rounded-full bg-white px-2">
             <Button
-              variant="vanilla"
+              variant="icon"
               onClick={_onQuantityDecrease}
-              classes="hover:bg-green-300 hover:text-white duration-300"
+              classes="hover:bg-green-300 hover:text-white duration-300 "
             >
               -
             </Button>
             <Form.Input
               type="number"
               value={quantity}
-              inputClasses="text-center w-[50px]"
-              wrapperClasses="border-none"
               onChange={_onQuantityChange}
             />
             <Button
-              variant="vanilla"
+              variant="icon"
               onClick={_onQuantityIncrease}
               classes="hover:bg-green-300 hover:text-white duration-300"
             >
@@ -165,20 +186,22 @@ const Info = ({
           </div>
           <Button
             variant="primary"
-            classes="btn-addcart flex-1 font-roboto-medium"
+            classes="btn-addcart h-full flex-1"
+            onClick={() => _onAddToCart()}
           >
-            <ShoppingCart />
+            <ShoppingCart className="h-4 w-4" />
             Add to Cart
           </Button>
         </div>
         <Button
           variant="accent-1"
-          classes="actionsgroup__buynow btn btn-buynow font-roboto-medium w-full mt-[30px]"
+          classes="actionsgroup__buynow btn btn-buynow w-full mt-4"
+          onClick={() => _onBuyNow()}
         >
           Buy Now
         </Button>
       </div>
-      <div className="shipping mt-[32px]">
+      <div className="shipping mt-8">
         <div className="shipping__item flex items-center gap-[8px]">
           <Truck />
           <span>Free Shipping on orders over $50</span>

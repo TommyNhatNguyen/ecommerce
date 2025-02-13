@@ -2,15 +2,14 @@
 
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import { cn } from "@/app/shared/utils/utils";
-import clsx from "clsx";
 import { Trash2Icon } from "lucide-react";
-import Link, { LinkProps } from "next/link";
+import Link from "next/link";
 import React from "react";
-import { twMerge } from "tailwind-merge";
+import { ClassNameValue } from "tailwind-merge";
 
 type ButtonPropsType = {
   children: React.ReactNode;
-  classes?: string;
+  classes?: ClassNameValue;
   variant?: "primary" | "secondary" | "vanilla" | "icon" | "accent-1" | "white";
   isDisabled?: boolean;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;
@@ -37,7 +36,7 @@ const Button = ({
       variantClasses = "bg-green-300 hover:bg-green-200 text-white";
       break;
     case "vanilla":
-      variantClasses = "";
+      variantClasses = "p-0";
       break;
     case "white":
       variantClasses = "bg-white hover:bg-white/80";

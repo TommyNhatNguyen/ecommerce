@@ -48,19 +48,17 @@ const Thumbnails = ({ images }: Props) => {
             focusOnSelect={true}
             arrows={false}
           >
-            {images &&
-              images.length > 0 &&
-              images.map((img) => {
-                return (
-                  <div className="slick-image h-full overflow-hidden rounded-md bg-white p-4">
-                    <img
-                      src={img?.url || ""}
-                      alt={img?.type || ""}
-                      className="absolute left-0 top-0 h-full w-full rounded-md object-contain object-center"
-                    />
-                  </div>
-                );
-              })}
+            {images.map((img) => {
+              return (
+                <div className="slick-image h-full overflow-hidden rounded-md bg-white p-4">
+                  <img
+                    src={img?.url || ""}
+                    alt={img?.type || ""}
+                    className="absolute left-0 top-0 h-full w-full rounded-md object-contain object-center"
+                  />
+                </div>
+              );
+            })}
           </CustomSlickSlider>
           <div className="absolute bottom-6 right-4 z-10 flex items-center gap-4">
             <Button variant="icon" onClick={_onSlickPrev}>

@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import React, { ReactHTMLElement } from "react";
-import { twMerge } from "tailwind-merge";
+import { cn } from "../../utils/utils";
 
 type FormPropsType = {
   children: React.ReactNode;
@@ -9,7 +9,7 @@ type FormPropsType = {
 
 const Form = ({ children, classes, ...props }: FormPropsType) => {
   return (
-    <form className={twMerge("form", classes)} {...props}>
+    <form className={cn("form", classes)} {...props}>
       {children}
     </form>
   );
@@ -44,15 +44,16 @@ Form.Input = ({
 }: FormGroupPropsType) => {
   return (
     <div
-      className={twMerge(
+      className={cn(
         "form__group min-h-input border border-solid",
         error && "border-error",
         wrapperClasses,
+        props.type == "number" ? "relative w-full min-w-10 border-none" : "",
       )}
     >
       {label && (
         <label
-          className={twMerge(
+          className={cn(
             "form__group-label block w-full text-left",
             error && "text-error",
             labelClasses,
@@ -66,10 +67,13 @@ Form.Input = ({
         renderInput({ ...props })
       ) : (
         <input
-          className={twMerge(
+          className={cn(
             "form__group-input h-full w-full border-none bg-transparent font-roboto-regular text-green-300 outline-none duration-300 placeholder:font-roboto-regular placeholder:text-green-300",
             inputClasses,
             error && "border-error text-error",
+            props.type == "number"
+              ? "absolute bottom-0 left-0 right-0 top-0 h-full w-full justify-items-center align-middle"
+              : "",
           )}
           {...props}
         />
