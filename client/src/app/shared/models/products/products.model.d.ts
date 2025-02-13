@@ -12,6 +12,7 @@ export type ProductModel = {
   id: string;
   name: string;
   description: string;
+  short_description: string;
   status: ModelStatus;
   created_at: string;
   updated_at: string;

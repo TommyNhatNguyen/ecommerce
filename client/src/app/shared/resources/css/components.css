@@ -252,3 +252,15 @@
   opacity: 0.75;
   color: #000;
 } /*# sourceMappingURL=slick-theme.min.css.map */
+
+.slider-container {
+  .slick-image {
+    &::before {
+      content: "";
+      padding-top: 105%;
+      display: block;
+      height: 0;
+      width: 100%;
+    }
+  }
+}

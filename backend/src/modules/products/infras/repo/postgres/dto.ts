@@ -1,6 +1,6 @@
-import { ModelStatus } from 'src/share/models/base-model';
-import { DataTypes, Model, Sequelize } from 'sequelize';
-import { v7 as uuidv7 } from 'uuid';
+import { ModelStatus } from "src/share/models/base-model";
+import { DataTypes, Model, Sequelize } from "sequelize";
+import { v7 as uuidv7 } from "uuid";
 export class ProductPersistence extends Model {
   declare id: string;
   declare name: string;
@@ -9,7 +9,7 @@ export class ProductPersistence extends Model {
   declare status: ModelStatus;
 }
 
-export const productModelName = 'product';
+export const productModelName = "product";
 
 export function init(sequelize: Sequelize) {
   ProductPersistence.init(
@@ -23,6 +23,7 @@ export function init(sequelize: Sequelize) {
       },
       name: { type: DataTypes.STRING, allowNull: false },
       description: { type: DataTypes.TEXT, allowNull: true },
+      short_description: { type: DataTypes.TEXT, allowNull: true },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
         allowNull: false,
@@ -31,10 +32,10 @@ export function init(sequelize: Sequelize) {
     },
     {
       sequelize,
-      tableName: 'products',
+      tableName: "products",
       timestamps: true,
-      createdAt: 'created_at',
-      updatedAt: 'updated_at',
+      createdAt: "created_at",
+      updatedAt: "updated_at",
       modelName: productModelName,
     }
   );
@@ -45,7 +46,7 @@ export function init(sequelize: Sequelize) {
  * JUNCTION TABLES
  * ------------------------------------------------------------
  */
-export const productCategoryModelName = 'productcategory';
+export const productCategoryModelName = "productcategory";
 export class ProductCategoryPersistence extends Model {
   declare product_id: string;
   declare category_id: string;
@@ -77,15 +78,14 @@ export function initProductCategory(sequelize: Sequelize) {
     },
     {
       sequelize,
-      tableName: 'products_categories',
+      tableName: "products_categories",
       timestamps: false,
       modelName: productCategoryModelName,
     }
   );
 }
 
-
-export const productImageModelName = 'product_image';
+export const productImageModelName = "product_image";
 
 export class ProductImagePersistence extends Model {
   declare id: string;
@@ -119,7 +119,7 @@ export function initProductImage(sequelize: Sequelize) {
     },
     {
       sequelize,
-      tableName: 'products_images',
+      tableName: "products_images",
       timestamps: false,
       modelName: productImageModelName,
     }

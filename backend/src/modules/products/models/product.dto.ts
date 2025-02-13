@@ -15,6 +15,7 @@ export const ProductCreateDTOSchema = z.object({
     .default(() => uuidv7()),
   name: z.string(),
   description: z.string().optional(),
+  short_description: z.string().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   categoryIds: z.array(z.string().uuid()).optional(),
   variants: z

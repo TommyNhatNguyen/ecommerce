@@ -69,6 +69,7 @@ const CreateProductModal = ({
     defaultValues: {
       name: "",
       description: "",
+      short_description: "",
       status: "ACTIVE",
       categoryIds: [],
       variants: [],
@@ -337,6 +338,26 @@ const CreateProductModal = ({
                   <InputAdmin
                     label="Description"
                     placeholder="Description"
+                    {...field}
+                    customComponent={({ onChange, props }: any, ref: any) => (
+                      <CustomEditor
+                        onChange={(_: any, editor: Editor) => {
+                          field.onChange(editor.getData());
+                        }}
+                        {...props}
+                        ref={ref}
+                      />
+                    )}
+                  />
+                )}
+              />
+              <Controller
+                control={control}
+                name="short_description"
+                render={({ field }) => (
+                  <InputAdmin
+                    label="Short Description"
+                    placeholder="Short Description"
                     {...field}
                     customComponent={({ onChange, props }: any, ref: any) => (
                       <CustomEditor

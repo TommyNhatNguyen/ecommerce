@@ -51,7 +51,7 @@ const Info = ({
   const { price, total_discounts, price_after_discounts } =
     product_sellable || {};
   return (
-    <div className="content__info">
+    <div className="content__info flex-1">
       <div className="content__info-group">
         <div className="title flex items-center justify-between gap-gutter">
           <h2 className="font-roboto-bold text-h2">{name}</h2>
@@ -96,7 +96,7 @@ const Info = ({
         <div
           className="description max-h-[300px] overflow-y-auto"
           dangerouslySetInnerHTML={{
-            __html: productInfo?.description as string,
+            __html: productInfo?.short_description as string,
           }}
         ></div>
         <div className="options">

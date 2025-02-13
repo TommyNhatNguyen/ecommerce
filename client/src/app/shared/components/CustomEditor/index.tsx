@@ -294,7 +294,7 @@ const CustomEditor = (
     } as EditorConfig;
   }, [isLayoutReady]);
   return (
-    <div className="main-container">
+    <div className="editor-main-container">
       <div
         className="editor-container editor-container_classic-editor editor-container_include-word-count"
         ref={editorContainerRef}
