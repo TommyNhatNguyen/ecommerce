@@ -11,13 +11,12 @@ const NoImageComponent = ({ className, ...props }: Props) => {
   return (
     <div
       className={cn(
-        "bg-custom-white rounded-m relative flex h-full w-full items-center justify-center overflow-hidden",
-        "overflow-hidden rounded-md before:block before:h-full before:w-full before:pt-[100%]",
+        "bg-custom-white relative flex h-full w-full items-center justify-center overflow-hidden rounded-md",
         className,
       )}
       {...props}
     >
-      <ImageOffIcon className="absolute min-h-[20%]" />
+      <ImageOffIcon width={32} height={32} />
     </div>
   );
 };

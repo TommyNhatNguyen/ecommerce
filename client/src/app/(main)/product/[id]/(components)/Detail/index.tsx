@@ -76,7 +76,7 @@ const Detail = ({
           </Breadcrumb.Link>
           <Breadcrumb.Item>{productDetail?.name}</Breadcrumb.Item>
         </Breadcrumb>
-        <div className="content mt-[20px] flex max-w-full items-start justify-between gap-gutter">
+        <div className="content mt-[20px] grid max-h-[796px] grid-cols-2 items-start justify-between gap-gutter">
           <Thumbnails images={selectedVariant?.product_sellable?.image || []} />
           <Info
             options={optionList?.data || []}

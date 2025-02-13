@@ -20,9 +20,9 @@ const Thumbnails = ({ images }: Props) => {
     slickSliderRef.current?.slickPrev();
   };
   return (
-    <div className="slider-container relative h-full w-1/2">
+    <div className="slider-container relative h-full w-full">
       {images && images?.length > 0 ? (
-        <>
+        <div className="relative h-full w-full">
           <CustomSlickSlider
             ref={slickSliderRef as any}
             beforeChange={(_, nextSlide) => {
@@ -40,9 +40,9 @@ const Thumbnails = ({ images }: Props) => {
                 </div>
               );
             }}
-            className="relative w-full"
+            className="relative h-full w-full"
             adaptiveHeight={false}
-            dotsClass="max-w-[10%] absolute top-4 left-4 flex flex-col gap-2 max-h-[50%] overflow-y-auto"
+            dotsClass="max-w-[10%] absolute top-4 left-4 flex flex-col gap-2  overflow-y-auto max-h-[50%]"
             slidesToShow={1}
             fade={true}
             focusOnSelect={true}
@@ -52,7 +52,7 @@ const Thumbnails = ({ images }: Props) => {
               images.length > 0 &&
               images.map((img) => {
                 return (
-                  <div className="slick-image overflow-hidden rounded-md bg-white p-4">
+                  <div className="slick-image h-full overflow-hidden rounded-md bg-white p-4">
                     <img
                       src={img?.url || ""}
                       alt={img?.type || ""}
@@ -70,9 +70,9 @@ const Thumbnails = ({ images }: Props) => {
               <ArrowRight />
             </Button>
           </div>
-        </>
+        </div>
       ) : (
-        <NoImageComponent />
+        <NoImageComponent className={"h-full w-full"} />
       )}
     </div>
   );

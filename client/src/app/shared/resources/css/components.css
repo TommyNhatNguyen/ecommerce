@@ -44,6 +44,7 @@
   overflow: hidden;
   margin: 0;
   padding: 0;
+  height: 100%;
 }
 .slick-list:focus {
   outline: 0;
@@ -63,6 +64,7 @@
 .slick-track {
   top: 0;
   left: 0;
+  height: 100%;
 }
 .slick-track:after,
 .slick-track:before {
@@ -77,6 +79,9 @@
   float: left;
   height: 100%;
   min-height: 1px;
+  > div {
+    height: 100%;
+  }
 }
 [dir="rtl"] .slick-slide {
   float: right;
@@ -253,7 +258,7 @@
   color: #000;
 } /*# sourceMappingURL=slick-theme.min.css.map */
 
-.slider-container {
+/* .slider-container {
   .slick-image {
     &::before {
       content: "";
@@ -263,7 +268,7 @@
       width: 100%;
     }
   }
-}
+} */
 
 .rich-text-container {
   * {
