@@ -13,7 +13,7 @@ type ReviewsPropsType = {
 
 const Reviews = ({ productInfo }: ReviewsPropsType) => {
   const [activeTab, setActiveTab] = useState<"description" | "reviews">(
-    "reviews",
+    "description",
   );
   const _onTabChange = (tab: "description" | "reviews") => {
     setActiveTab(tab);
@@ -52,8 +52,8 @@ const Reviews = ({ productInfo }: ReviewsPropsType) => {
         <div className="content mt-[40px]">
           {activeTab === "description" && (
             <Description
-              description={productInfo?.description}
-              name={productInfo?.name}
+              description={productInfo?.description || ""}
+              name={productInfo?.name || ""}
             />
           )}
           {activeTab === "reviews" && <ReviewsDetail />}

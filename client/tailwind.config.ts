@@ -31,6 +31,7 @@ export default {
         success: "var(--success-color)",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        "custom-white": "var(--white-color)",
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
@@ -102,6 +103,7 @@ export default {
       },
       margin: {
         header: "var(--header-height)",
+        "text-spacing": "var(--text-spacing)",
       },
       fontSize: {
         h1: "var(--fs-h1)",

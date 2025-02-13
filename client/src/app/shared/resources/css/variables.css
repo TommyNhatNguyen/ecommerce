@@ -14,6 +14,7 @@
 
   /* Colors */
   --blue-link: #0000ee;
+  --blue-link-200: #90D5FF;
   --green-100: rgb(79, 99, 103);
   --green-200: rgb(63, 78, 79);
   --green-300: rgb(44, 54, 57);
@@ -27,6 +28,7 @@
   --bg-primary-color-70: rgba(220, 215, 201, 0.7);
   --bg-primary-color-60: rgba(220, 215, 201, 0.6);
   --bg-secondary-color: rgb(240, 226, 182);
+  --white-color: rgb(255,255,255);
 
   /* Dashboard */
   --bg-dashboard-color: rgb(240, 235, 220);
@@ -51,7 +53,7 @@
   --fs-second-btn: 1.4rem;
   --fs-navlink: 1.8rem;
   --fs-footer: 1.4rem;
-
+  --text-spacing: 1.0rem;
   /* Font Families */
   --ff-pl-regular: var(--ff-pl-regular);
   --ff-pl-medium: var(--ff-pl-medium);
