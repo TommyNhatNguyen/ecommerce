@@ -7,5 +7,7 @@ export const ERROR_MESSAGE = {
   INVALID_DATE: "Invalid date",
   INVALID_TIME: "Invalid time",
   PASSWORD_NOT_MATCH: "Passwords do not match",
+  USERNAME_REQUIRE: "Please enter username",
+  PASSWORD_REQUIRE: "Please enter password"
 };
 

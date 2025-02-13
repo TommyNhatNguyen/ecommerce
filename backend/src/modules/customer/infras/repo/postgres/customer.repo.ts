@@ -1,15 +1,33 @@
-import { Sequelize } from 'sequelize';
-import { Customer } from 'src/modules/customer/models/customer.model';
-import { CustomerConditionDTO, CustomerCreateDTO, CustomerUpdateDTO } from 'src/modules/customer/models/customer.dto';
-import { ICustomerRepository } from 'src/modules/customer/models/customer.interface';
-import { ListResponse } from 'src/share/models/base-model';
-import { PagingDTO } from 'src/share/models/paging';
+import { Sequelize } from "sequelize";
+import { Customer } from "src/modules/customer/models/customer.model";
+import {
+  CustomerConditionDTO,
+  CustomerCreateDTO,
+  CustomerUpdateDTO,
+} from "src/modules/customer/models/customer.dto";
+import { ICustomerRepository } from "src/modules/customer/models/customer.interface";
+import { ListResponse, ModelStatus } from "src/share/models/base-model";
+import { PagingDTO } from "src/share/models/paging";
+import { Op } from "sequelize";
 
 export class PostgresCustomerRepository implements ICustomerRepository {
   constructor(
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+  async getCustomerByUsername(
+    username: string,
+    condition?: CustomerConditionDTO
+  ) {
+    const customer = await this.sequelize.models[this.modelName].findOne({
+      where: {
+        username: {
+          [Op.like]: username,
+        },
+      },
+    });
+    return customer?.dataValues;
+  }
   async getCustomerById(
     id: string,
     condition: CustomerConditionDTO

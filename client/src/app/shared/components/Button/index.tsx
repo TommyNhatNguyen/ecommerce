@@ -2,14 +2,14 @@
 
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import { cn } from "@/app/shared/utils/utils";
+import { type ClassValue } from "clsx";
 import { Trash2Icon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
-import { ClassNameValue } from "tailwind-merge";
 
 type ButtonPropsType = {
   children: React.ReactNode;
-  classes?: ClassNameValue;
+  classes?: ClassValue;
   variant?: "primary" | "secondary" | "vanilla" | "icon" | "accent-1" | "white";
   isDisabled?: boolean;
 } & React.ButtonHTMLAttributes<HTMLButtonElement>;

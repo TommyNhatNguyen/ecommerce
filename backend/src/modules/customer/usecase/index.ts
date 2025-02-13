@@ -1,35 +1,70 @@
-import { ICartRepository } from 'src/modules/cart/models/cart.interface';
+import { compare, hash } from "bcrypt";
+import { ICartRepository } from "src/modules/cart/models/cart.interface";
 import {
   CustomerCreateDTO,
   CustomerUpdateDTO,
-} from 'src/modules/customer/models/customer.dto';
-import { CustomerConditionDTO } from 'src/modules/customer/models/customer.dto';
+  ICustomerLoginDTO,
+} from "src/modules/customer/models/customer.dto";
+import { CustomerConditionDTO } from "src/modules/customer/models/customer.dto";
 import {
   ICustomerRepository,
   ICustomerUseCase,
-} from 'src/modules/customer/models/customer.interface';
-import { Customer } from 'src/modules/customer/models/customer.model';
-import { ListResponse } from 'src/share/models/base-model';
-import { PagingDTO } from 'src/share/models/paging';
+} from "src/modules/customer/models/customer.interface";
+import { Customer } from "src/modules/customer/models/customer.model";
+import {
+  USER_NOT_FOUND_ERROR,
+  WRONG_PASSWORD,
+} from "src/modules/user/models/user.error";
+import { ListResponse, ModelStatus } from "src/share/models/base-model";
+import { PagingDTO } from "src/share/models/paging";
 
 export class CustomerUseCase implements ICustomerUseCase {
   constructor(
     private readonly customerRepository: ICustomerRepository,
     private readonly cartRepository?: ICartRepository
   ) {}
+  async getCustomerByUsername(
+    username: string,
+    condition?: CustomerConditionDTO
+  ) {
+    return await this.customerRepository.getCustomerByUsername(
+      username,
+      condition
+    );
+  }
+  async loginCustomer(data: ICustomerLoginDTO): Promise<string | boolean> {
+    const { username, password } = data;
+    console.log("🚀 ~ CustomerUseCase ~ loginCustomer ~ data:", data);
+    // Check if user exist
+    const user = await this.getCustomerByUsername(username);
+    if (!user) throw USER_NOT_FOUND_ERROR;
+    // Check if password is correct
+    console.log("🚀 ~ CustomerUseCase ~ loginCustomer ~ user:", user);
+    const isCorrectPassword = await compare(password, user.hash_password);
+    console.log(
+      "🚀 ~ CustomerUseCase ~ loginCustomer ~ user:",
+      isCorrectPassword
+    );
+    if (!isCorrectPassword) throw WRONG_PASSWORD;
+    return user?.username;
+  }
   async getCustomerById(
     id: string,
     condition: CustomerConditionDTO
-  ): Promise<Customer> {
-    return await this.customerRepository.getCustomerById(id, condition);
+  ): Promise<Omit<Customer, "hash_password">> {
+    const { hash_password, ...rest } =
+      await this.customerRepository.getCustomerById(id, condition);
+    return rest;
   }
   async getCustomerList(
     paging: PagingDTO,
     condition: CustomerConditionDTO
-  ): Promise<ListResponse<Customer[]>> {
+  ): Promise<ListResponse<Omit<Customer, "hash_password">[]>> {
     return await this.customerRepository.getCustomerList(paging, condition);
   }
-  async createCustomer(data: CustomerCreateDTO): Promise<Customer> {
+  async createCustomer(
+    data: CustomerCreateDTO
+  ): Promise<Omit<Customer, "hash_password">> {
     const cart = await this.cartRepository?.create({
       product_quantity: 0,
       product_count: 0,
@@ -37,13 +72,27 @@ export class CustomerUseCase implements ICustomerUseCase {
       total_discount: 0,
       total: 0,
     });
+    if (data.password) {
+      const hash_password_input = await hash(
+        data.password,
+        Number(process.env.BCRYPT_SALT)
+      );
+      data.hash_password = hash_password_input;
+    }
     if (cart) {
       data.cart_id = cart.id;
     }
-    return await this.customerRepository.createCustomer(data);
+    const { hash_password, ...rest } =
+      await this.customerRepository.createCustomer(data);
+    return rest;
   }
-  async updateCustomer(id: string, data: CustomerUpdateDTO): Promise<Customer> {
-    return await this.customerRepository.updateCustomer(id, data);
+  async updateCustomer(
+    id: string,
+    data: CustomerUpdateDTO
+  ): Promise<Omit<Customer, "hash_password">> {
+    const { hash_password, ...rest } =
+      await this.customerRepository.updateCustomer(id, data);
+    return rest;
   }
   async deleteCustomer(id: string): Promise<boolean> {
     return await this.customerRepository.deleteCustomer(id);

@@ -1,12 +1,13 @@
-import { Router } from 'express';
-import { Sequelize } from 'sequelize';
-import { cartModelName } from 'src/modules/cart/infras/repo/postgres/cart.dto';
-import { PostgresCartRepository } from 'src/modules/cart/infras/repo/postgres/cart.repo';
-import { customerModelName } from 'src/modules/customer/infras/repo/postgres/customer.dto';
-import { customerInit } from 'src/modules/customer/infras/repo/postgres/customer.dto';
-import { PostgresCustomerRepository } from 'src/modules/customer/infras/repo/postgres/customer.repo';
-import { CustomerHttpService } from 'src/modules/customer/infras/transport/customer.http-service';
-import { CustomerUseCase } from 'src/modules/customer/usecase';
+import { Router } from "express";
+import { Sequelize } from "sequelize";
+import { jwtSign, jwtVerify } from "src/middlewares/jwt";
+import { cartModelName } from "src/modules/cart/infras/repo/postgres/cart.dto";
+import { PostgresCartRepository } from "src/modules/cart/infras/repo/postgres/cart.repo";
+import { customerModelName } from "src/modules/customer/infras/repo/postgres/customer.dto";
+import { customerInit } from "src/modules/customer/infras/repo/postgres/customer.dto";
+import { PostgresCustomerRepository } from "src/modules/customer/infras/repo/postgres/customer.repo";
+import { CustomerHttpService } from "src/modules/customer/infras/transport/customer.http-service";
+import { CustomerUseCase } from "src/modules/customer/usecase";
 
 export const setupCustomerRouter = (sequelize: Sequelize) => {
   customerInit(sequelize);
@@ -22,23 +23,33 @@ export const setupCustomerRouter = (sequelize: Sequelize) => {
   );
   const customerHttpService = new CustomerHttpService(customerUseCase);
   router.get(
-    '/customer',
+    "/customer",
     customerHttpService.getCustomerList.bind(customerHttpService)
   );
   router.get(
-    '/customer/:id',
+    "/customer/:id",
     customerHttpService.getCustomerById.bind(customerHttpService)
   );
   router.post(
-    '/customer',
+    "/customer",
     customerHttpService.createCustomer.bind(customerHttpService)
   );
+  router.post(
+    "/customer-login",
+    customerHttpService.login.bind(customerHttpService),
+    jwtSign
+  );
+  router.get(
+    "/customer-info",
+    jwtVerify,
+    customerHttpService.getCustomerByUsername.bind(customerHttpService)
+  );
   router.put(
-    '/customer/:id',
+    "/customer/:id",
     customerHttpService.updateCustomer.bind(customerHttpService)
   );
   router.delete(
-    '/customer/:id',
+    "/customer/:id",
     customerHttpService.deleteCustomer.bind(customerHttpService)
   );
   return router;

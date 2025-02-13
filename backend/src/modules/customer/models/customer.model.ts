@@ -1,5 +1,5 @@
-import { ModelStatus } from 'src/share/models/base-model';
-import z from 'zod';
+import { ModelStatus } from "src/share/models/base-model";
+import z from "zod";
 
 export const CustomerSchema = z.object({
   id: z.string().uuid(),
@@ -13,6 +13,8 @@ export const CustomerSchema = z.object({
   status: z.nativeEnum(ModelStatus).default(ModelStatus.ACTIVE),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
+  username: z.string(),
+  hash_password: z.string(),
 });
 
 export type Customer = z.infer<typeof CustomerSchema>;

@@ -27,7 +27,7 @@ axiosInstance.interceptors.response.use(
     error.config._retry = false;
     const prevRequest = error.config;
     if (
-      (error.response.status === 401 || error.response.status === 403) &&
+      (error?.response?.status === 401 || error?.response?.status === 403) &&
       !prevRequest._retry
     ) {
       prevRequest._retry = true;

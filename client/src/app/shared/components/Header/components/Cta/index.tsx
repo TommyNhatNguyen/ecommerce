@@ -1,19 +1,32 @@
+"use client";
 import { ShoppingCart, User } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import clsx from "clsx";
 import Link from "next/link";
 import Button, { ButtonWithLink } from "@/app/shared/components/Button";
 import { ROUTES } from "@/app/constants/routes";
+import AuthModal from "../../../AuthModal";
 
 type Props = {
   classes?: string;
 };
 
+export enum ModalType {
+  LOGIN = "LOGIN",
+  REGISTER = "REGISTER",
+}
+
 const Cta = ({ classes }: Props) => {
+  const [isShowAuthModal, setIsShowAuthModal] = useState<ModalType | null>(
+    ModalType.LOGIN,
+  );
   const _onShowAuthenModal = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log("clicked", e.target);
+    setIsShowAuthModal(ModalType.LOGIN);
   };
+  const _onCloseAuthenModal = () => {
+    setIsShowAuthModal(null)
+  }
   return (
     <div className={clsx("cta flex items-center gap-4", classes)}>
       <ButtonWithLink
@@ -30,6 +43,8 @@ const Cta = ({ classes }: Props) => {
       <Link className="cta__cart" href={ROUTES.CART}>
         <ShoppingCart />
       </Link>
+      {/* Authmodal */}
+      <AuthModal showModal={isShowAuthModal} onCancel={_onCloseAuthenModal}/>
     </div>
   );
 };

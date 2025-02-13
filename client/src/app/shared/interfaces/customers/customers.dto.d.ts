@@ -14,3 +14,8 @@ export interface CustomerConditionDTO {
   limit?: number;
   page?: number;
 }
+
+export interface CustomerLoginDTO {
+  username: string;
+  password: string;
+}

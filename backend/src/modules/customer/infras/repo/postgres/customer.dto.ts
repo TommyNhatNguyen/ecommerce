@@ -1,7 +1,7 @@
-import { Sequelize } from 'sequelize';
-import { DataTypes, Model } from 'sequelize';
-import { ModelStatus } from 'src/share/models/base-model';
-import { v7 as uuidv7 } from 'uuid';
+import { Sequelize } from "sequelize";
+import { DataTypes, Model } from "sequelize";
+import { ModelStatus } from "src/share/models/base-model";
+import { v7 as uuidv7 } from "uuid";
 export class CustomerPersistence extends Model {
   declare id: string;
   declare name: string;
@@ -17,7 +17,7 @@ export class CustomerPersistence extends Model {
   declare country_id: string;
 }
 
-export const customerModelName = 'customer';
+export const customerModelName = "customer";
 
 export const customerInit = (sequelize: Sequelize) => {
   CustomerPersistence.init(
@@ -28,6 +28,15 @@ export const customerInit = (sequelize: Sequelize) => {
         unique: true,
         allowNull: false,
         defaultValue: () => uuidv7(),
+      },
+      username: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: true,
+      },
+      hash_password: {
+        type: DataTypes.TEXT,
+        allowNull: true,
       },
       cart_id: {
         type: DataTypes.UUID,
@@ -50,10 +59,10 @@ export const customerInit = (sequelize: Sequelize) => {
     },
     {
       sequelize,
-      tableName: 'customers',
+      tableName: "customers",
       timestamps: true,
-      createdAt: 'created_at',
-      updatedAt: 'updated_at',
+      createdAt: "created_at",
+      updatedAt: "updated_at",
       modelName: customerModelName,
     }
   );
