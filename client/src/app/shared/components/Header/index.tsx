@@ -5,15 +5,28 @@ import Navbar from "@/app/shared/components/Navbar";
 import React from "react";
 import Cta from "./components/Cta";
 import { ROUTES } from "@/app/constants/routes";
-const dropDownList = [
-  { id: "1", link: "/category/soy", children: "Soy Candles" },
-  { id: "2", link: "/category/scented", children: "Scented Candles" },
-  { id: "3", link: "/category/beeswax", children: "Beeswax Candles" },
-  { id: "4", link: "/category/pillar", children: "Pillar  Candles" },
-  { id: "5", link: "/category/votive", children: "Votive Candles" },
-  { id: "6", link: "/category/", children: "Show all" },
-];
+import { useQuery } from "@tanstack/react-query";
+import { categoriesService } from "../../services/categories/categoriesService";
+
 const Header = () => {
+  const { data: categoriesData } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () =>
+      categoriesService.getCategories({
+        include_all: true,
+        include_image: true,
+      }),
+  });
+  const dropDownList =
+    categoriesData &&
+    categoriesData?.data &&
+    categoriesData.data.map((category) => {
+      return {
+        id: category.id || "",
+        link: `${ROUTES.PRODUCTS}?categoryIds[]=${category.id}`,
+        children: category.name || "",
+      };
+    });
   return (
     <header className="header absolute left-0 top-0 z-10 h-header w-full max-w-full bg-gradient-to-b from-bg-primary to-bg-secondary">
       <Container classes="h-full w-full flex justify-between items-center">

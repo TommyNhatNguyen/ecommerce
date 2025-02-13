@@ -10,7 +10,7 @@ import { cn } from "@/app/shared/utils/utils";
 type Props = {};
 
 const CategorySection = async (props: Props) => {
-  const categories = await getCategories({ include_image: true });
+  const categories = await getCategories({ include_image: true, include_all: true });
   return (
     <section id="category" className="category mt-section">
       <Container>
