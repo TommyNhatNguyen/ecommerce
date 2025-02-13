@@ -20,7 +20,7 @@ const Reviews = ({ productInfo }: ReviewsPropsType) => {
   };
   return (
     <section className="product-detail__reviews my-section bg-green-100">
-      <Container classes="px-[80px] py-[100px]">
+      <Container classes="px-[80px] py-10">
         <ul className="tabs flex items-center">
           <li>
             <Button

@@ -273,8 +273,8 @@
 .rich-text-container {
   * {
     color: var(--white-color);
-    font-family: var(--ff-os-regular);
-    font-size: var(--fs-body-text);
+    font-family: var(--ff-os-regular) !important;
+    font-size: var(--fs-body-text) !important;
     line-height: normal;
     &:has(+ *) {
       margin-bottom: var(--text-spacing);
@@ -354,5 +354,15 @@
   }
   input {
     margin-bottom: initial !important;
+  }
+  p {
+    color: var(--white-color);
+    font-family: var(--ff-os-regular) !important;
+    font-size: var(--fs-body-text) !important;
+  }
+  &.short-description {
+    * {
+      color: var(--green-300);
+    }
   }
 }

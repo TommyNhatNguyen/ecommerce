@@ -32,10 +32,10 @@ const Description = ({ description, name }: Props) => {
   }, [description]);
 
   return (
-    <div className="content__description text-white">
+    <div className="content__description h-full overflow-y-auto px-4 text-white">
       <h3 className="font-roboto-bold text-h3">Product Info: {name}</h3>
       <RichTextContainer
-        classes="text-p1 mt-[16px]"
+        classes="text-p1 mt-[16px] max-h-[50lvh] "
         dangerouslySetInnerHTML={{ __html: description as string }}
         ref={richTextContainerRef}
       ></RichTextContainer>

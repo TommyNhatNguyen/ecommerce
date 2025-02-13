@@ -106,7 +106,7 @@ const Info = ({
       {/* Description */}
       {productInfo?.short_description && (
         <RichTextContainer
-          classes="description max-h-[300px] max-w-fit overflow-y-auto text-wrap break-words *:text-green-300"
+          classes="short-description max-h-[300px] max-w-fit overflow-y-auto text-wrap break-words"
           dangerouslySetInnerHTML={{
             __html: productInfo?.short_description as string,
           }}
