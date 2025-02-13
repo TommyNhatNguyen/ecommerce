@@ -17,16 +17,21 @@ const Header = () => {
         include_image: true,
       }),
   });
-  const dropDownList =
-    categoriesData &&
-    categoriesData?.data &&
-    categoriesData.data.map((category) => {
-      return {
-        id: category.id || "",
-        link: `${ROUTES.PRODUCTS}?categoryIds[]=${category.id}`,
-        children: category.name || "",
-      };
-    });
+  const dropDownList = categoriesData &&
+    categoriesData?.data && [
+      ...categoriesData.data.map((category) => {
+        return {
+          id: category.id || "",
+          link: `${ROUTES.PRODUCTS}?categoryIds[]=${category.id}`,
+          children: category.name || "",
+        };
+      }),
+      {
+        id: "all",
+        link: ROUTES.PRODUCTS,
+        children: "All",
+      },
+    ];
   return (
     <header className="header absolute left-0 top-0 z-10 h-header w-full max-w-full bg-gradient-to-b from-bg-primary to-bg-secondary">
       <Container classes="h-full w-full flex justify-between items-center">

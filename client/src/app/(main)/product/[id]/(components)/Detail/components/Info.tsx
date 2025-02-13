@@ -51,6 +51,7 @@ const Info = ({
   const { name, product_sellable } = variant || {};
   const { price, total_discounts, price_after_discounts } =
     product_sellable || {};
+  const hasDiscount = price == price_after_discounts;
   const _onBuyNow = () => {
     console.log("Buy now");
   };
@@ -68,9 +69,11 @@ const Info = ({
       {/* Price */}
       <div className="pricegroup mt-4">
         <div className="pricegroup__text flex items-center gap-2">
-          <p className="pricegroup__text-price h-full text-body-text line-through">
-            {formatCurrency(price || 0)}
-          </p>
+          {!hasDiscount && (
+            <p className="pricegroup__text-price h-full text-body-text line-through">
+              {formatCurrency(price || 0)}
+            </p>
+          )}
           <p className="pricegroup__text-price h-full font-roboto-medium text-body-big">
             {formatCurrency(price_after_discounts || 0)}
           </p>

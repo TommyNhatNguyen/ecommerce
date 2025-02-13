@@ -1,7 +1,7 @@
-import clsx from "clsx";
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { cn } from "../../utils/utils";
 
 type NavbarPropsType = {
   children: React.ReactNode;
@@ -31,7 +31,7 @@ type NavbarDropdownItemPropsType = {
 const Navbar = ({ children, classes }: NavbarPropsType) => {
   return (
     <div
-      className={clsx(
+      className={cn(
         "navbar flex h-full items-center justify-between gap-gutter",
         classes,
       )}
@@ -50,14 +50,26 @@ Navbar.Item = ({
   const [showDropDown, setShowDropDown] = useState(false);
   const handleShowDropDown = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setShowDropDown(!showDropDown);
+    e.stopPropagation();
+    setShowDropDown((prev) => !prev);
   };
+  const handleHideDropDown = () => {
+    setShowDropDown(false);
+  };
+  useEffect(() => {
+    const dropDownEvent: any = document.body.addEventListener("click", (e) => {
+      handleHideDropDown();
+    });
+    return () => {
+      document.body.removeEventListener("click", dropDownEvent);
+    };
+  }, []);
   if (dropDownList) {
     return (
       <button
-        className={clsx(
+        className={cn(
           "navbar__item flex h-full items-center justify-center font-playright-semibold text-navlink text-green-300",
-          dropDownList && "relative flex items-end gap-1",
+          dropDownList && "relative gap-1",
           classes,
         )}
         onClick={handleShowDropDown}
@@ -73,7 +85,7 @@ Navbar.Item = ({
               ))}
             </Navbar.Dropdown>
             <ChevronDown
-              className={clsx("duration-300", showDropDown && "rotate-180")}
+              className={cn("duration-300", showDropDown && "rotate-180")}
             />
           </>
         )}
@@ -83,7 +95,7 @@ Navbar.Item = ({
   return (
     <Link
       href={link}
-      className={clsx(
+      className={cn(
         "navbar__item flex h-full items-center justify-center font-playright-semibold text-navlink text-green-300",
         dropDownList && "relative flex items-end gap-1",
         classes,
@@ -101,9 +113,10 @@ Navbar.Dropdown = ({
 }: NavbarDropdownPropsType) => {
   return (
     <div
-      className={clsx(
+      className={cn(
         "navbar__dropdown",
         "absolute left-0 top-[var(--header-height)] flex flex-col gap-4 rounded-bl-lg rounded-br-lg bg-pink-200 p-4 duration-300",
+        "max-h-[200px] overflow-y-auto",
         showDropDown
           ? "opacity-1 pointer-events-auto"
           : "pointer-events-none opacity-0",
@@ -123,7 +136,7 @@ Navbar.DropdownItem = ({
   return (
     <Link
       href={link}
-      className={clsx(
+      className={cn(
         "navbar__dropdown-item",
         "whitespace-nowrap text-nowrap text-left font-roboto-medium",
         classes,
