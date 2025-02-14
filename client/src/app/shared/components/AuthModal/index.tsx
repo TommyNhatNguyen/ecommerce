@@ -12,14 +12,16 @@ import { ERROR_MESSAGE } from "@/app/constants/errors";
 import facebookLogo from "@/app/shared/resources/images/facebook-logo.png";
 import { Eye, EyeClosed, Mail, Phone } from "lucide-react";
 import { useLogin } from "./hooks/useLogin";
+import { useToast } from "@/hooks/use-toast";
 
 type Props = {
   showModal: ModalType | null;
   onCancel: () => void;
+  onModalChange: (value: ModalType) => void
 };
 
-const AuthModal = ({ showModal, onCancel, ...props }: Props) => {
-  const [isShowModal, setIsShowModal] = useState<ModalType | null>(showModal);
+const AuthModal = ({ showModal, onCancel,onModalChange, ...props }: Props) => {
+
   const { handleLogin } = useLogin();
   const {
     handleSubmit,
@@ -29,16 +31,17 @@ const AuthModal = ({ showModal, onCancel, ...props }: Props) => {
   const _onCloseModal = () => {
     onCancel();
   };
-  const _onLogin = (data: CustomerLoginDTO) => {
-    handleLogin(data);
+  const _onLogin = async (data: CustomerLoginDTO) => {
+    await handleLogin(data, _onCloseModal);
+    
   };
   const _onModalChange = (value: string) => {
-    setIsShowModal(value as ModalType);
+    onModalChange(value as ModalType);
   };
   const _renderBody = () => {
     return (
       <Tabs
-        value={isShowModal as string}
+        value={showModal as string}
         className="mt-10 w-full"
         onValueChange={(value) => _onModalChange(value)}
       >
@@ -141,7 +144,7 @@ const AuthModal = ({ showModal, onCancel, ...props }: Props) => {
   const _renderFooter = () => {
     return (
       <div className="w-full text-center">
-        {isShowModal === ModalType.LOGIN ? (
+        {showModal === ModalType.LOGIN ? (
           <p>
             Haven't got an account?{" "}
             <a

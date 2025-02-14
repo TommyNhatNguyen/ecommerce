@@ -18,15 +18,18 @@ export enum ModalType {
 
 const Cta = ({ classes }: Props) => {
   const [isShowAuthModal, setIsShowAuthModal] = useState<ModalType | null>(
-    ModalType.LOGIN,
+    null,
   );
   const _onShowAuthenModal = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsShowAuthModal(ModalType.LOGIN);
   };
+  const _onModalChange = (value: string) => {
+    setIsShowAuthModal(value as ModalType);
+  };
   const _onCloseAuthenModal = () => {
-    setIsShowAuthModal(null)
-  }
+    setIsShowAuthModal(null);
+  };
   return (
     <div className={clsx("cta flex items-center gap-4", classes)}>
       <ButtonWithLink
@@ -44,7 +47,7 @@ const Cta = ({ classes }: Props) => {
         <ShoppingCart />
       </Link>
       {/* Authmodal */}
-      <AuthModal showModal={isShowAuthModal} onCancel={_onCloseAuthenModal}/>
+      <AuthModal showModal={isShowAuthModal} onCancel={_onCloseAuthenModal} onModalChange={_onModalChange}/>
     </div>
   );
 };

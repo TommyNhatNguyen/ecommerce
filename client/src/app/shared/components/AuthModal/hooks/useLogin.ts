@@ -2,6 +2,7 @@
 import { useCustomerAppDispatch } from "@/app/shared/hooks/useRedux";
 import { CustomerLoginDTO } from "@/app/shared/interfaces/customers/customers.dto";
 import { login } from "@/app/shared/store/main-reducers/auth/auth";
+import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -10,8 +11,8 @@ export const useLogin = () => {
   const [error, setError] = useState(null);
   const dispatch = useCustomerAppDispatch();
   const router = useRouter();
-  //   const { notificationApi } = useNotification();
-  const handleLogin = async (data: CustomerLoginDTO) => {
+  const { toast } = useToast();
+  const handleLogin = async (data: CustomerLoginDTO, callback: () => void) => {
     try {
       setIsLoading(true);
       dispatch(
@@ -19,17 +20,23 @@ export const useLogin = () => {
           data,
           callback: {
             success: () => {
-              //   notificationApi.success({
-              //     message: "Login successfully",
-              //     description: "You are now logged in",
-              //   });
+              toast({
+                title: "Welcome back",
+                description: "Login successful",
+                variant: "default",
+                className: "bg-bg-primary",
+              });
+              callback();
               router.push("/home");
             },
             error: (error: any) => {
-              //   notificationApi.error({
-              //     message: "Login failed",
-              //     description: error?.response?.data?.message || "Login failed",
-              //   });
+              console.log("🚀 ~ handleLogin ~ error:", error);
+              toast({
+                title: "Login failed",
+                description: error?.response?.data?.message || "Login failed",
+                variant: "destructive",
+                className: "bg-bg-primary",
+              });
             },
           },
         }),

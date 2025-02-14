@@ -4,6 +4,7 @@ import Footer from "@/app/shared/components/Footer";
 import React from "react";
 import BannerSection from "@/app/shared/components/BannerSection";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/toaster";
 
 type MainLayoutPropsType = {
   children: React.ReactNode;
@@ -17,6 +18,7 @@ const MainLayout = ({ children }: MainLayoutPropsType) => {
       {children}
       <BannerSection />
       <Footer />
+      <Toaster />
     </QueryClientProvider>
   );
 };
