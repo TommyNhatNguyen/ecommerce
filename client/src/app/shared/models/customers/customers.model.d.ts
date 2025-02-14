@@ -8,4 +8,5 @@ export interface CustomerModel {
   city_id: string | null;
   province_id: string | null;
   country_id: string | null;
+  username: string
 }

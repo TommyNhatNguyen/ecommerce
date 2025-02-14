@@ -1,6 +1,6 @@
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import { Sequelize } from "sequelize";
-import { jwtSign, jwtVerify } from "src/middlewares/jwt";
+import { JWT_TYPES, jwtSign, jwtVerify } from "src/middlewares/jwt";
 import { cartModelName } from "src/modules/cart/infras/repo/postgres/cart.dto";
 import { PostgresCartRepository } from "src/modules/cart/infras/repo/postgres/cart.repo";
 import { customerModelName } from "src/modules/customer/infras/repo/postgres/customer.dto";
@@ -41,6 +41,10 @@ export const setupCustomerRouter = (sequelize: Sequelize) => {
   );
   router.get(
     "/customer-info",
+    (req: Request, res: Response, next: NextFunction) => {
+      res.locals.type = JWT_TYPES.CUSTOMER;
+      next();
+    },
     jwtVerify,
     customerHttpService.getCustomerByUsername.bind(customerHttpService)
   );

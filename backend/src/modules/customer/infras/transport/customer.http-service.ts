@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { CustomRequest } from "src/middlewares/jwt";
+import { CustomRequest, JWT_TYPES } from "src/middlewares/jwt";
 import {
   CustomerConditionDTOSchema,
   CustomerCreateDTOSchema,
@@ -52,6 +52,7 @@ export class CustomerHttpService {
       const username = await this.customerUseCase.loginCustomer(data);
       if (username) {
         res.locals.username = username;
+        res.locals.type = JWT_TYPES.CUSTOMER;
         next();
       }
     } catch (error) {

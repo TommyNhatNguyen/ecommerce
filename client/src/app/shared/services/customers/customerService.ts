@@ -1,3 +1,4 @@
+import { CustomerRegisterDTO } from "@/app/shared/interfaces/customers/customers.dto";
 import { CustomerLoginDTO } from "./../../interfaces/customers/customers.dto.d";
 import { CustomerConditionDTO } from "../../interfaces/customers/customers.dto";
 import { CustomerModel } from "./../../models/customers/customers.model.d";
@@ -26,6 +27,10 @@ export const customerService = {
     const response = await axiosInstance.get("/customer-info", {
       params: query,
     });
+    return response.data;
+  },
+  async register(payload: CustomerRegisterDTO): Promise<CustomerModel> {
+    const response = await axiosInstance.post("/customer", payload);
     return response.data;
   },
 };
