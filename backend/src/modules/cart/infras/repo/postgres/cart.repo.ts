@@ -1,6 +1,10 @@
 import { Op } from 'sequelize';
 import { Includeable, Sequelize } from 'sequelize';
 import {
+  imageModelName,
+  ImagePersistence,
+} from 'src/infras/repository/image/dto';
+import {
   CartAddProductsSellableDTO,
   CartConditionDTO,
   CartCreateDTO,
@@ -13,6 +17,7 @@ import {
   ProductSellablePersistence,
   productSellableModelName,
 } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import { variantModelName, VariantPersistence } from 'src/modules/variant/infras/repo/postgres/dto';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
@@ -43,6 +48,19 @@ export class PostgresCartRepository implements ICartRepository {
         model: ProductSellablePersistence,
         as: productSellableModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        include: [
+          {
+            model: ImagePersistence,
+            as: imageModelName,
+            attributes: { exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'] },
+            through: { attributes: [] },
+          },
+          {
+            model: VariantPersistence,
+            as: variantModelName,
+            attributes: { exclude: EXCLUDE_ATTRIBUTES },
+          },
+        ],
       });
     }
     const cart = await this.sequelize.models[this.modelName].findByPk(id, {
