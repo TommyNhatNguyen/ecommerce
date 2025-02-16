@@ -1,13 +1,13 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 import {
   CartAddNewProductsDTOSchema,
   CartConditionDTOSchema,
   CartCreateDTOSchema,
   CartUpdateDTOSchema,
   CartUpdateProductDTOSchema,
-} from "src/modules/cart/models/cart.dto";
-import { PagingDTOSchema } from "src/share/models/paging";
-import { CartUseCase } from "src/modules/cart/usecase";
+} from 'src/modules/cart/models/cart.dto';
+import { PagingDTOSchema } from 'src/share/models/paging';
+import { CartUseCase } from 'src/modules/cart/usecase';
 export class CartHttpService {
   constructor(private readonly cartUsecase: CartUseCase) {}
 
@@ -24,17 +24,13 @@ export class CartHttpService {
       return;
     }
     try {
-      const updatedCart = await this.cartUsecase.updateProductOnCart(
-        id,
-        data,
-        {}
-      );
+      const updatedCart = await this.cartUsecase.updateProductOnCart(data, {});
       res.status(200).json({ success: true, ...updatedCart });
     } catch (error) {
       console.log(error);
       res
         .status(500)
-        .json({ success: false, message: "Internal server error" });
+        .json({ success: false, message: 'Internal server error' });
       return;
     }
   }
@@ -51,14 +47,14 @@ export class CartHttpService {
     try {
       const cart = await this.cartUsecase.getById(id, data);
       if (!cart) {
-        res.status(404).json({ success: false, message: "Cart not found" });
+        res.status(404).json({ success: false, message: 'Cart not found' });
         return;
       }
       res.status(200).json({ success: true, ...cart });
     } catch (error) {
       res
         .status(500)
-        .json({ success: false, message: "Internal server error" });
+        .json({ success: false, message: 'Internal server error' });
       return;
     }
   }
@@ -84,7 +80,7 @@ export class CartHttpService {
     try {
       const cart = await this.cartUsecase.getList(dataPaging, dataCondition);
       if (!cart) {
-        res.status(404).json({ success: false, message: "Cart not found" });
+        res.status(404).json({ success: false, message: 'Cart not found' });
         return;
       }
       res.status(200).json({ success: true, ...cart });
@@ -92,7 +88,7 @@ export class CartHttpService {
       console.log(error);
       res
         .status(500)
-        .json({ success: false, message: "Internal server error" });
+        .json({ success: false, message: 'Internal server error' });
       return;
     }
   }
@@ -109,7 +105,7 @@ export class CartHttpService {
     } catch (error) {
       res
         .status(500)
-        .json({ success: false, message: "Internal server error" });
+        .json({ success: false, message: 'Internal server error' });
       return;
     }
   }
@@ -124,7 +120,7 @@ export class CartHttpService {
     try {
       const updatedCart = await this.cartUsecase.getById(id, {});
       if (!updatedCart) {
-        res.status(404).json({ success: false, message: "Cart not found" });
+        res.status(404).json({ success: false, message: 'Cart not found' });
         return;
       }
       const cart = await this.cartUsecase.update(id, data);
@@ -132,7 +128,7 @@ export class CartHttpService {
     } catch (error) {
       res
         .status(500)
-        .json({ success: false, message: "Internal server error" });
+        .json({ success: false, message: 'Internal server error' });
       return;
     }
   }
@@ -142,19 +138,19 @@ export class CartHttpService {
     try {
       const deletedCart = await this.cartUsecase.getById(id, {});
       if (!deletedCart) {
-        res.status(404).json({ success: false, message: "Cart not found" });
+        res.status(404).json({ success: false, message: 'Cart not found' });
         return;
       }
       await this.cartUsecase.delete(id);
       res.status(200).json({
         success: true,
-        message: "Cart deleted successfully",
+        message: 'Cart deleted successfully',
         ...deletedCart,
       });
     } catch (error) {
       res
         .status(500)
-        .json({ success: false, message: "Internal server error" });
+        .json({ success: false, message: 'Internal server error' });
       return;
     }
   }

@@ -1,7 +1,8 @@
-import { ListResponse, ModelStatus } from "src/share/models/base-model";
-import { PagingDTO } from "src/share/models/paging";
-import { ICartUseCase } from "src/modules/cart/models/cart.interface";
-import { ICartRepository } from "src/modules/cart/models/cart.interface";
+import { CartProductSellableSchema } from './../models/cart.model';
+import { ListResponse, ModelStatus } from 'src/share/models/base-model';
+import { PagingDTO } from 'src/share/models/paging';
+import { ICartUseCase } from 'src/modules/cart/models/cart.interface';
+import { ICartRepository } from 'src/modules/cart/models/cart.interface';
 import {
   CartAddNewProductsDTO,
   CartAddProductsSellableDTO,
@@ -10,10 +11,10 @@ import {
   CartUpdateDTO,
   CartUpdateProductDTO,
   CartUpdateProductSellableDTO,
-} from "src/modules/cart/models/cart.dto";
-import { Cart } from "src/modules/cart/models/cart.model";
-import { CART_PRODUCT_ERROR } from "src/modules/cart/models/cart.error";
-import { IProductSellableUseCase } from "src/modules/product_sellable/models/product-sellable.interface";
+} from 'src/modules/cart/models/cart.dto';
+import { Cart } from 'src/modules/cart/models/cart.model';
+import { CART_PRODUCT_ERROR } from 'src/modules/cart/models/cart.error';
+import { IProductSellableUseCase } from 'src/modules/product_sellable/models/product-sellable.interface';
 
 export class CartUseCase implements ICartUseCase {
   constructor(
@@ -22,89 +23,60 @@ export class CartUseCase implements ICartUseCase {
     private readonly productSellableUseCase: IProductSellableUseCase
   ) {}
   async updateProductOnCart(
-    cartId: string,
     products_cart: CartUpdateProductDTO,
     condition: CartConditionDTO
   ): Promise<Cart> {
     // Lấy cart
-    const cart = await this.cartRepository.getById(cartId, {
+    const cart = await this.cartRepository.getById(products_cart.cart_id, {
       ...condition,
       include_products: true,
     });
     const { product_sellable } = cart;
     // Kiểm tra item đã có trong cart chưa
-    const update_products_cart: CartUpdateProductDTO = products_cart.filter(
-      (product) => product_sellable?.map((item) => item.id).includes(product.id)
-    );
-    const create_products_cart: CartUpdateProductDTO = products_cart.filter(
-      (product) =>
-        !product_sellable?.map((item) => item.id).includes(product.id)
-    );
+    const updated_product_cart =
+      product_sellable?.find((product) => product.id == products_cart.id) ||
+      undefined;
     // Chưa có thì tạo mới
-    let newCartAfterCreate: Cart | null = null;
-    if (create_products_cart.length > 0) {
-      newCartAfterCreate = await this.addProductsToCart(
-        cartId,
-        create_products_cart
-      );
-    }
-    if (update_products_cart.length > 0) {
+    if (!updated_product_cart) {
+      await this.addProductsToCart(products_cart);
+    } else {
       // Có rồi thì update
-      const updated_products: CartUpdateProductSellableDTO[] =
-        update_products_cart.map((product) => {
-          const product_data: CartUpdateProductSellableDTO = {
-            cart_id: cartId,
-            product_sellable_id: product.id,
-            quantity: product.quantity,
-            subtotal: 0,
-            discount_amount: 0,
-            total: 0,
-          };
-          let price = 0;
-          let discount = 0;
-          let price_after_discount = 0;
-          if (product_sellable && product_sellable) {
-            price =
-              product_sellable.find((item) => item.id == product.id)?.price ||
-              0;
-            discount =
-              product_sellable.find((item) => item.id == product.id)
-                ?.total_discounts || 0;
-            price_after_discount =
-              product_sellable.find((item) => item.id == product.id)
-                ?.price_after_discounts || 0;
-          }
-          product_data.subtotal = price * product_data.quantity;
-          product_data.discount_amount = discount * product_data.quantity;
-          product_data.total = price_after_discount * product_data.quantity;
-          return product_data;
-        });
-      const updatedResponse = await Promise.all(
-        updated_products.map(async (product) => {
-          return await this.cartProductRepository.updateProducts(product);
-        })
-      );
-      // Update lại cart tổng
-      const data = await this.cartRepository.update(cartId, {
-        product_quantity:
-          updated_products.reduce((prev, curr) => prev + curr.quantity, 0) +
-          (newCartAfterCreate?.product_quantity || 0),
-        product_count:
-          updated_products.length + (newCartAfterCreate?.product_count || 0),
+      const updated_product: CartUpdateProductSellableDTO = {
+        cart_id: products_cart.cart_id,
+        product_sellable_id: products_cart.id,
+        quantity:
+          (updated_product_cart.cart_product_sellable?.quantity || 0) +
+          products_cart.quantity,
         subtotal:
-          updated_products.reduce((prev, curr) => prev + curr.subtotal, 0) +
-          (newCartAfterCreate?.subtotal || 0),
-        total_discount:
-          updated_products.reduce(
-            (prev, curr) => prev + curr.discount_amount,
-            0
-          ) + (newCartAfterCreate?.total_discount || 0),
+          (updated_product_cart.cart_product_sellable?.subtotal || 0) +
+          products_cart.quantity * updated_product_cart.price,
+        discount_amount:
+          (updated_product_cart.cart_product_sellable?.discount_amount || 0) +
+          products_cart.quantity * updated_product_cart.total_discounts,
         total:
-          updated_products.reduce((prev, curr) => prev + curr.total, 0) +
-          (newCartAfterCreate?.total || 0),
+          (updated_product_cart.cart_product_sellable?.total || 0) +
+          products_cart.quantity * updated_product_cart.price_after_discounts,
+      };
+      const updatedResponse = await this.cartProductRepository.updateProducts(
+        updated_product
+      );
+      console.log('🚀 ~ CartUseCase ~ updated_product:', updated_product);
+      // Update lại cart tổng
+      const data = await this.cartRepository.update(products_cart.cart_id, {
+        product_quantity: cart.product_quantity + products_cart.quantity,
+        subtotal:
+          cart.subtotal + products_cart.quantity * updated_product_cart.price,
+        total_discount:
+          cart.total_discount +
+          products_cart.quantity * updated_product_cart.total_discounts,
+        total:
+          cart.total +
+          products_cart.quantity * updated_product_cart.price_after_discounts,
       });
+      console.log('🚀 ~ CartUseCase ~ data:', data);
     }
-    return await this.cartRepository.getById(cartId, {});
+
+    return await this.cartRepository.getById(products_cart.cart_id, {});
   }
   async getById(id: string, condition: CartConditionDTO): Promise<Cart> {
     return await this.cartRepository.getById(id, condition);
@@ -124,62 +96,38 @@ export class CartUseCase implements ICartUseCase {
   async delete(id: string): Promise<boolean> {
     return await this.cartRepository.delete(id);
   }
-  async addProductsToCart(
-    cartId: string,
-    products_cart: CartAddNewProductsDTO
-  ): Promise<Cart> {
-    let productCarts: CartAddProductsSellableDTO[] = [];
+  async addProductsToCart(products_cart: CartAddNewProductsDTO): Promise<Cart> {
+    const cart = await this.cartRepository.getById(products_cart.cart_id, {
+      include_products: true,
+    });
     // --- PRODUCTS ---
-    if (products_cart.length === 0) throw CART_PRODUCT_ERROR;
+    if (!!!products_cart) throw CART_PRODUCT_ERROR;
     const productSellable =
-      await this.productSellableUseCase.getProductSellables(
-        {
-          ids: products_cart.map((product) => product.id),
-        },
-        { page: 1, limit: products_cart.length }
+      await this.productSellableUseCase.getProductSellableById(
+        products_cart.id
       );
-    for (let i = 0; i < products_cart.length; i++) {
-      const cart_product = products_cart[i];
-      const product_data: CartAddProductsSellableDTO = {
-        cart_id: cartId,
-        product_sellable_id: cart_product.id,
-        quantity: cart_product.quantity,
-        subtotal: 0,
-        discount_amount: 0,
-        total: 0,
-      };
-      let price = 0;
-      let discount = 0;
-      let price_after_discount = 0;
-      if (productSellable && productSellable.data) {
-        price =
-          productSellable.data.find((product) => product.id == cart_product.id)
-            ?.price || 0;
-        discount =
-          productSellable.data.find((product) => product.id == cart_product.id)
-            ?.total_discounts || 0;
-        price_after_discount =
-          productSellable.data.find((product) => product.id == cart_product.id)
-            ?.price_after_discounts || 0;
-      }
-      product_data.subtotal = price * product_data.quantity;
-      product_data.discount_amount = discount * product_data.quantity;
-      product_data.total = price_after_discount * product_data.quantity;
-      productCarts.push(product_data);
-    }
-    await this.cartProductRepository.addProducts(productCarts);
-    const data = await this.cartRepository.update(cartId, {
-      product_quantity: products_cart.reduce(
-        (prev, curr) => prev + curr.quantity,
-        0
-      ),
-      product_count: products_cart.length,
-      subtotal: productCarts.reduce((prev, curr) => prev + curr.subtotal, 0),
-      total_discount: productCarts.reduce(
-        (prev, curr) => prev + curr.discount_amount,
-        0
-      ),
-      total: productCarts.reduce((prev, curr) => prev + curr.total, 0),
+    const product_data: CartAddProductsSellableDTO = {
+      cart_id: products_cart.cart_id,
+      product_sellable_id: products_cart.id,
+      quantity: products_cart.quantity,
+      subtotal: 0,
+      discount_amount: 0,
+      total: 0,
+    };
+
+    let price = productSellable?.price || 0;
+    let discount = productSellable?.total_discounts || 0;
+    let price_after_discount = productSellable?.price_after_discounts || 0;
+    product_data.subtotal = price * product_data.quantity;
+    product_data.discount_amount = discount * product_data.quantity;
+    product_data.total = price_after_discount * product_data.quantity;
+    await this.cartProductRepository.addProducts(product_data);
+    const data = await this.cartRepository.update(products_cart.cart_id, {
+      product_quantity: cart.product_quantity + product_data.quantity,
+      product_count: cart.product_count + 1,
+      subtotal: cart.subtotal + product_data.subtotal,
+      total_discount: cart.total_discount + product_data.discount_amount,
+      total: cart.total + product_data.total,
     });
     return data;
   }

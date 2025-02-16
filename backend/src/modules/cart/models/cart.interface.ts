@@ -21,18 +21,16 @@ export interface ICartUseCase {
   update(id: string, data: CartUpdateDTO): Promise<Cart>;
   delete(id: string): Promise<boolean>;
   addProductsToCart(
-    cartId: string,
     products_cart: CartAddNewProductsDTO
   ): Promise<Cart>;
   updateProductOnCart(
-    cartId: string,
     products_cart: CartUpdateProductDTO,
     condition?: CartConditionDTO
   ): Promise<Cart>;
 }
 
 export interface ICartRepository extends IQueryRepository, ICommandRepository {
-  addProducts(data: CartAddProductsSellableDTO[]): Promise<boolean>;
+  addProducts(data: CartAddProductsSellableDTO): Promise<boolean>;
   updateProducts(data: CartUpdateProductSellableDTO): Promise<boolean>;
 }
 

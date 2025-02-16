@@ -1,21 +1,21 @@
-import { Op } from "sequelize";
-import { Includeable, Sequelize } from "sequelize";
+import { Op } from 'sequelize';
+import { Includeable, Sequelize } from 'sequelize';
 import {
   CartAddProductsSellableDTO,
   CartConditionDTO,
   CartCreateDTO,
   CartUpdateDTO,
   CartUpdateProductSellableDTO,
-} from "src/modules/cart/models/cart.dto";
-import { ICartRepository } from "src/modules/cart/models/cart.interface";
-import { Cart } from "src/modules/cart/models/cart.model";
+} from 'src/modules/cart/models/cart.dto';
+import { ICartRepository } from 'src/modules/cart/models/cart.interface';
+import { Cart } from 'src/modules/cart/models/cart.model';
 import {
   ProductSellablePersistence,
   productSellableModelName,
-} from "src/modules/product_sellable/infras/repo/postgres/dto";
-import { EXCLUDE_ATTRIBUTES } from "src/share/constants/exclude-attributes";
-import { ListResponse } from "src/share/models/base-model";
-import { PagingDTO } from "src/share/models/paging";
+} from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
+import { ListResponse } from 'src/share/models/base-model';
+import { PagingDTO } from 'src/share/models/paging';
 
 export class PostgresCartRepository implements ICartRepository {
   constructor(
@@ -27,17 +27,13 @@ export class PostgresCartRepository implements ICartRepository {
       where: {
         cart_id: data.cart_id,
         product_sellable_id: data.product_sellable_id,
-      }
+      },
     });
-    console.log(
-      "🚀 ~ PostgresCartRepository ~ updateProducts ~ response:",
-      response
-    );
     return true;
   }
 
-  async addProducts(data: CartAddProductsSellableDTO[]): Promise<boolean> {
-    await this.sequelize.models[this.modelName].bulkCreate(data);
+  async addProducts(data: CartAddProductsSellableDTO): Promise<boolean> {
+    await this.sequelize.models[this.modelName].create(data);
     return true;
   }
   async getById(id: string, condition: CartConditionDTO): Promise<Cart> {

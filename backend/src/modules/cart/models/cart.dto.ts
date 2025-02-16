@@ -1,6 +1,6 @@
-import { CartSchema } from "src/modules/cart/models/cart.model";
-import { ModelStatus } from "src/share/models/base-model";
-import z from "zod";
+import { CartSchema } from 'src/modules/cart/models/cart.model';
+import { ModelStatus } from 'src/share/models/base-model';
+import z from 'zod';
 
 export const CartCreateDTOSchema = z.object({
   product_quantity: z.number().default(0),
@@ -23,19 +23,17 @@ export const CartAddProductSellableDTOSchema = z.object({
   total: z.number().default(0),
 });
 
-export const CartAddNewProductsDTOSchema = z.array(
-  z.object({
-    id: z.string(),
-    quantity: z.number().min(1).default(0),
-  })
-);
+export const CartAddNewProductsDTOSchema = z.object({
+  cart_id: z.string(),
+  id: z.string(),
+  quantity: z.number().min(1).default(0),
+});
 
-export const CartUpdateProductDTOSchema = z.array(
-  z.object({
-    id: z.string(),
-    quantity: z.number().min(1).default(0),
-  })
-);
+export const CartUpdateProductDTOSchema = z.object({
+  cart_id: z.string(),
+  id: z.string(),
+  quantity: z.number().min(1).default(0),
+});
 
 export const CartUpdateProductSellableDTOSchema = z.object({
   cart_id: z.string(),
@@ -49,8 +47,8 @@ export const CartUpdateProductSellableDTOSchema = z.object({
 export const CartConditionDTOSchema = z.object({
   include_products: z
     .string()
-    .refine((value) => value === "true" || value === "false")
-    .transform((value) => value === "true")
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
     .optional(),
   product_quantity: z.number().default(0).optional(),
   product_count: z.number().default(0).optional(),

@@ -88,7 +88,7 @@ export function setupCartRouter(sequelize: Sequelize) {
   // router.post('/cart', cartHttpService.create.bind(cartHttpService));
   router.put("/cart/:id", cartHttpService.update.bind(cartHttpService));
   router.post(
-    "/cart/:id/add",
+    "/cart/add-to-cart",
     cartHttpService.addProductsToCart.bind(cartHttpService)
   );
   // router.delete('/cart/:id', cartHttpService.delete.bind(cartHttpService));
