@@ -366,3 +366,8 @@
     }
   }
 }
+html {
+  body[data-scroll-locked] {
+    position: unset !important;
+  }
+}

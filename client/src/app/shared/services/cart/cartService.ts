@@ -6,8 +6,8 @@ import { CartModel } from "../../models/cart/cart.model";
 import { axiosInstance } from "../../utils/axiosInstance";
 
 export const cartServices = {
-  addToCart: async (id: string, data: IAddToCartDTO[]): Promise<CartModel> => {
-    return await axiosInstance.post(`/cart/${id}/add`, data);
+  addToCart: async (data: IAddToCartDTO): Promise<CartModel> => {
+    return await axiosInstance.post(`/cart/add-to-cart`, data);
   },
   getCartById: async (
     id: string,

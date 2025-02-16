@@ -30,9 +30,11 @@ const MainLayout = ({ children }: MainLayoutPropsType) => {
   return (
     <QueryClientProvider client={queryClient}>
       <Header />
-      {children}
-      <BannerSection />
-      <Footer />
+      <main id="home">
+        {children}
+        <BannerSection />
+        <Footer />
+      </main>
       <Toaster />
     </QueryClientProvider>
   );

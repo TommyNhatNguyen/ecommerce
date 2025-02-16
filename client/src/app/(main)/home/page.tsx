@@ -11,7 +11,7 @@ type Props = {};
 
 const HomePage = (props: Props) => {
   return (
-    <main id="home" className="main">
+    <>
       <Hero />
       <FeatureSection />
       <CategorySection />
@@ -19,7 +19,7 @@ const HomePage = (props: Props) => {
       <HighlightSection />
       <BlogSection />
       <FAQSection />
-    </main>
+    </>
   );
 };
 

@@ -47,6 +47,7 @@ const Info = ({
     setValue,
     getValues,
     watch,
+    reset,
     formState: { errors },
   } = useForm<IAddToCartDTO>();
   const [isFavorite, setIsFavorite] = useState(false);
@@ -77,14 +78,17 @@ const Info = ({
     console.log("Buy now");
   };
   const _onAddToCart = async (data: IAddToCartDTO) => {
-    console.log("🚀 ~ const_onAddToCart= ~ data:", data);
+    const payload: IAddToCartDTO = {
+      ...data,
+      cart_id: cart_id,
+    };
     try {
-      dispatch(
-        addToCart({
-          cart_id: cart_id,
-          data: [data],
-        }),
-      );
+      dispatch(addToCart(payload));
+      reset({
+        quantity: 1,
+        id: variant?.product_sellable?.id || "",
+        cart_id: cart_id,
+      });
       toast({
         title: "Add to cart successfully",
         description: "Check your cart now!",

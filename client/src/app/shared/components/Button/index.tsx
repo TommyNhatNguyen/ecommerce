@@ -79,7 +79,7 @@ const withLink = (
   classes?: string,
 ) => {
   return (
-    <Link className={cn("link-wrapper text-white", classes)} href={link}>
+    <Link className={cn("link-wrapper text-white w-full h-full", classes)} href={link}>
       {Component}
     </Link>
   );

@@ -45,7 +45,9 @@ export const getCartById = createAsyncThunk(
   "cart/getCartById",
   async (payload: string, thunkAPI) => {
     try {
-      const response = await cartServices.getCartById(payload);
+      const response = await cartServices.getCartById(payload, {
+        include_products: true
+      });
       console.log("🚀 ~ response:", response);
       if (response) {
         return response;
@@ -59,19 +61,16 @@ export const getCartById = createAsyncThunk(
 
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
-  async (payload: {cart_id: string, data: IAddToCartDTO[]}, thunkAPI) => {
-    const {cart_id, data} = payload
+  async (payload: IAddToCartDTO, thunkAPI) => {
     try {
-      console.log("🚀 ~ payload:", payload);
-      const response = await cartServices.addToCart(cart_id, data);
+      const response = await cartServices.addToCart(payload);
       console.log("🚀 ~ response:", response)
       if (response) {
-        thunkAPI.dispatch(getCartById(cart_id));
+        thunkAPI.dispatch(getCartById(payload.cart_id));
         return response;
       }
       return thunkAPI.rejectWithValue("Failed to get customer info");
     } catch (error) {
-      thunkAPI.dispatch(getCartById(cart_id));
       return thunkAPI.rejectWithValue(error);
     }
   },

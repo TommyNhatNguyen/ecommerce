@@ -3,6 +3,7 @@ import { ModelStatus } from "../../models/others/status.model";
 export type IAddToCartDTO = {
   id: string;
   quantity: number;
+  cart_id: string;
 };
 
 export type ICartConditionDTO = {
