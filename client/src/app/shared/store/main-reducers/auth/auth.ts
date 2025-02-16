@@ -50,7 +50,7 @@ export const authSlice = createSlice({
 });
 
 export const { logout } = authSlice.actions;
-export const authReducer = authSlice.reducer;
+export const customerAuthReducer = authSlice.reducer;
 
 export const getCustomerInfo = createAsyncThunk(
   "auth/getCustomerInfo",

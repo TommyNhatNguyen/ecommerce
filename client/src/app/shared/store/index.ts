@@ -3,6 +3,7 @@ import { counterReducer } from "@/app/shared/store/reducers/counter";
 import { notificationReducer } from "@/app/shared/store/reducers/notification";
 import { socketReducer } from "@/app/shared/store/reducers/socket";
 import { configureStore } from "@reduxjs/toolkit";
+import { customerAuthReducer } from "./main-reducers/auth/auth";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
 export const customerStore = configureStore({
   reducer: {
     counter: counterReducer,
+    auth: customerAuthReducer,
   },
 });
 

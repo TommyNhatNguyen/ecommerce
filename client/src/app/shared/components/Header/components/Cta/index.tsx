@@ -6,6 +6,7 @@ import Link from "next/link";
 import Button, { ButtonWithLink } from "@/app/shared/components/Button";
 import { ROUTES } from "@/app/constants/routes";
 import AuthModal from "../../../AuthModal";
+import { useCustomerAppSelector } from "@/app/shared/hooks/useRedux";
 
 type Props = {
   classes?: string;
@@ -20,6 +21,7 @@ const Cta = ({ classes }: Props) => {
   const [isShowAuthModal, setIsShowAuthModal] = useState<ModalType | null>(
     null,
   );
+  const { customerInfo } = useCustomerAppSelector((state) => state.auth);
   const _onShowAuthenModal = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsShowAuthModal(ModalType.LOGIN);
@@ -32,22 +34,30 @@ const Cta = ({ classes }: Props) => {
   };
   return (
     <div className={clsx("cta flex items-center gap-4", classes)}>
-      <ButtonWithLink
-        variant="vanilla"
-        onClick={_onShowAuthenModal}
-        link={ROUTES.AUTHEN}
-        classes="cta__login font-roboto-medium text-body-text text-green-300 hover:text-green-100"
-      >
-        Login/Register
-      </ButtonWithLink>
-      <Link className="cta__profile" href={ROUTES.PROFILE}>
-        <User />
-      </Link>
+      {!!customerInfo ? (
+        <Link className="cta__profile" href={ROUTES.PROFILE}>
+          <User />
+        </Link>
+      ) : (
+        <ButtonWithLink
+          variant="vanilla"
+          onClick={_onShowAuthenModal}
+          link={ROUTES.AUTHEN}
+          classes="cta__login font-roboto-medium text-body-text text-green-300 hover:text-green-100"
+        >
+          Login/Register
+        </ButtonWithLink>
+      )}
+
       <Link className="cta__cart" href={ROUTES.CART}>
         <ShoppingCart />
       </Link>
       {/* Authmodal */}
-      <AuthModal showModal={isShowAuthModal} onCancel={_onCloseAuthenModal} onModalChange={_onModalChange}/>
+      <AuthModal
+        showModal={isShowAuthModal}
+        onCancel={_onCloseAuthenModal}
+        onModalChange={_onModalChange}
+      />
     </div>
   );
 };
