@@ -1,8 +1,15 @@
-import { CartAddNewProductsDTO, CartAddProductsDTO, CartCreateDTO, CartUpdateDTO } from 'src/modules/cart/models/cart.dto';
-import { CartConditionDTO } from 'src/modules/cart/models/cart.dto';
-import { Cart } from 'src/modules/cart/models/cart.model';
-import { ListResponse } from 'src/share/models/base-model';
-import { PagingDTO } from 'src/share/models/paging';
+import {
+  CartAddNewProductsDTO,
+  CartAddProductsSellableDTO,
+  CartCreateDTO,
+  CartUpdateDTO,
+  CartUpdateProductDTO,
+  CartUpdateProductSellableDTO,
+} from "src/modules/cart/models/cart.dto";
+import { CartConditionDTO } from "src/modules/cart/models/cart.dto";
+import { Cart } from "src/modules/cart/models/cart.model";
+import { ListResponse } from "src/share/models/base-model";
+import { PagingDTO } from "src/share/models/paging";
 
 export interface ICartUseCase {
   getById(id: string, condition: CartConditionDTO): Promise<Cart>;
@@ -17,10 +24,16 @@ export interface ICartUseCase {
     cartId: string,
     products_cart: CartAddNewProductsDTO
   ): Promise<Cart>;
+  updateProductOnCart(
+    cartId: string,
+    products_cart: CartUpdateProductDTO,
+    condition?: CartConditionDTO
+  ): Promise<Cart>;
 }
 
 export interface ICartRepository extends IQueryRepository, ICommandRepository {
-  addProducts(data: CartAddProductsDTO[]): Promise<boolean>;
+  addProducts(data: CartAddProductsSellableDTO[]): Promise<boolean>;
+  updateProducts(data: CartUpdateProductSellableDTO): Promise<boolean>;
 }
 
 export interface IQueryRepository {

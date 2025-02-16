@@ -1,13 +1,15 @@
-import { ListResponse } from "src/share/models/base-model";
+import { ListResponse, ModelStatus } from "src/share/models/base-model";
 import { PagingDTO } from "src/share/models/paging";
 import { ICartUseCase } from "src/modules/cart/models/cart.interface";
 import { ICartRepository } from "src/modules/cart/models/cart.interface";
 import {
   CartAddNewProductsDTO,
-  CartAddProductsDTO,
+  CartAddProductsSellableDTO,
   CartConditionDTO,
   CartCreateDTO,
   CartUpdateDTO,
+  CartUpdateProductDTO,
+  CartUpdateProductSellableDTO,
 } from "src/modules/cart/models/cart.dto";
 import { Cart } from "src/modules/cart/models/cart.model";
 import { CART_PRODUCT_ERROR } from "src/modules/cart/models/cart.error";
@@ -19,6 +21,91 @@ export class CartUseCase implements ICartUseCase {
     private readonly cartProductRepository: ICartRepository,
     private readonly productSellableUseCase: IProductSellableUseCase
   ) {}
+  async updateProductOnCart(
+    cartId: string,
+    products_cart: CartUpdateProductDTO,
+    condition: CartConditionDTO
+  ): Promise<Cart> {
+    // Lấy cart
+    const cart = await this.cartRepository.getById(cartId, {
+      ...condition,
+      include_products: true,
+    });
+    const { product_sellable } = cart;
+    // Kiểm tra item đã có trong cart chưa
+    const update_products_cart: CartUpdateProductDTO = products_cart.filter(
+      (product) => product_sellable?.map((item) => item.id).includes(product.id)
+    );
+    const create_products_cart: CartUpdateProductDTO = products_cart.filter(
+      (product) =>
+        !product_sellable?.map((item) => item.id).includes(product.id)
+    );
+    // Chưa có thì tạo mới
+    let newCartAfterCreate: Cart | null = null;
+    if (create_products_cart.length > 0) {
+      newCartAfterCreate = await this.addProductsToCart(
+        cartId,
+        create_products_cart
+      );
+    }
+    if (update_products_cart.length > 0) {
+      // Có rồi thì update
+      const updated_products: CartUpdateProductSellableDTO[] =
+        update_products_cart.map((product) => {
+          const product_data: CartUpdateProductSellableDTO = {
+            cart_id: cartId,
+            product_sellable_id: product.id,
+            quantity: product.quantity,
+            subtotal: 0,
+            discount_amount: 0,
+            total: 0,
+          };
+          let price = 0;
+          let discount = 0;
+          let price_after_discount = 0;
+          if (product_sellable && product_sellable) {
+            price =
+              product_sellable.find((item) => item.id == product.id)?.price ||
+              0;
+            discount =
+              product_sellable.find((item) => item.id == product.id)
+                ?.total_discounts || 0;
+            price_after_discount =
+              product_sellable.find((item) => item.id == product.id)
+                ?.price_after_discounts || 0;
+          }
+          product_data.subtotal = price * product_data.quantity;
+          product_data.discount_amount = discount * product_data.quantity;
+          product_data.total = price_after_discount * product_data.quantity;
+          return product_data;
+        });
+      const updatedResponse = await Promise.all(
+        updated_products.map(async (product) => {
+          return await this.cartProductRepository.updateProducts(product);
+        })
+      );
+      // Update lại cart tổng
+      const data = await this.cartRepository.update(cartId, {
+        product_quantity:
+          updated_products.reduce((prev, curr) => prev + curr.quantity, 0) +
+          (newCartAfterCreate?.product_quantity || 0),
+        product_count:
+          updated_products.length + (newCartAfterCreate?.product_count || 0),
+        subtotal:
+          updated_products.reduce((prev, curr) => prev + curr.subtotal, 0) +
+          (newCartAfterCreate?.subtotal || 0),
+        total_discount:
+          updated_products.reduce(
+            (prev, curr) => prev + curr.discount_amount,
+            0
+          ) + (newCartAfterCreate?.total_discount || 0),
+        total:
+          updated_products.reduce((prev, curr) => prev + curr.total, 0) +
+          (newCartAfterCreate?.total || 0),
+      });
+    }
+    return await this.cartRepository.getById(cartId, {});
+  }
   async getById(id: string, condition: CartConditionDTO): Promise<Cart> {
     return await this.cartRepository.getById(id, condition);
   }
@@ -29,7 +116,6 @@ export class CartUseCase implements ICartUseCase {
     return await this.cartRepository.getList(paging, condition);
   }
   async create(data: CartCreateDTO): Promise<Cart> {
-    console.log("🚀 ~ CartUseCase ~ create ~ data:", data);
     return await this.cartRepository.create(data);
   }
   async update(id: string, data: CartUpdateDTO): Promise<Cart> {
@@ -42,7 +128,7 @@ export class CartUseCase implements ICartUseCase {
     cartId: string,
     products_cart: CartAddNewProductsDTO
   ): Promise<Cart> {
-    let productCarts: CartAddProductsDTO[] = [];
+    let productCarts: CartAddProductsSellableDTO[] = [];
     // --- PRODUCTS ---
     if (products_cart.length === 0) throw CART_PRODUCT_ERROR;
     const productSellable =
@@ -54,7 +140,7 @@ export class CartUseCase implements ICartUseCase {
       );
     for (let i = 0; i < products_cart.length; i++) {
       const cart_product = products_cart[i];
-      const product_data: CartAddProductsDTO = {
+      const product_data: CartAddProductsSellableDTO = {
         cart_id: cartId,
         product_sellable_id: cart_product.id,
         quantity: cart_product.quantity,
@@ -95,6 +181,6 @@ export class CartUseCase implements ICartUseCase {
       ),
       total: productCarts.reduce((prev, curr) => prev + curr.total, 0),
     });
-    return await this.cartRepository.getById(cartId, {});
+    return data;
   }
 }

@@ -1,9 +1,11 @@
-import { Sequelize } from "sequelize";
+import { Op } from "sequelize";
+import { Includeable, Sequelize } from "sequelize";
 import {
-  CartAddProductsDTO,
+  CartAddProductsSellableDTO,
   CartConditionDTO,
   CartCreateDTO,
   CartUpdateDTO,
+  CartUpdateProductSellableDTO,
 } from "src/modules/cart/models/cart.dto";
 import { ICartRepository } from "src/modules/cart/models/cart.interface";
 import { Cart } from "src/modules/cart/models/cart.model";
@@ -20,13 +22,36 @@ export class PostgresCartRepository implements ICartRepository {
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+  async updateProducts(data: CartUpdateProductSellableDTO): Promise<boolean> {
+    const response = await this.sequelize.models[this.modelName].update(data, {
+      where: {
+        cart_id: data.cart_id,
+        product_sellable_id: data.product_sellable_id,
+      }
+    });
+    console.log(
+      "🚀 ~ PostgresCartRepository ~ updateProducts ~ response:",
+      response
+    );
+    return true;
+  }
 
-  async addProducts(data: CartAddProductsDTO[]): Promise<boolean> {
+  async addProducts(data: CartAddProductsSellableDTO[]): Promise<boolean> {
     await this.sequelize.models[this.modelName].bulkCreate(data);
     return true;
   }
   async getById(id: string, condition: CartConditionDTO): Promise<Cart> {
-    const cart = await this.sequelize.models[this.modelName].findByPk(id);
+    const include: Includeable[] = [];
+    if (condition.include_products) {
+      include.push({
+        model: ProductSellablePersistence,
+        as: productSellableModelName,
+        attributes: { exclude: EXCLUDE_ATTRIBUTES },
+      });
+    }
+    const cart = await this.sequelize.models[this.modelName].findByPk(id, {
+      include: include,
+    });
     return cart?.dataValues || null;
   }
   async getList(
