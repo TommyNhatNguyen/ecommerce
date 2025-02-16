@@ -16,7 +16,7 @@ export const CartUpdateDTOSchema = CartSchema.omit({
 
 export const CartAddProductsDTOSchema = z.object({
   cart_id: z.string(),
-  product_id: z.string(),
+  product_sellable_id: z.string(),
   quantity: z.number().default(0),
   subtotal: z.number().default(0),
   discount_amount: z.number().default(0),

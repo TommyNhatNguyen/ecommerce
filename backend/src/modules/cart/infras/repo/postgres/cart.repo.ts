@@ -1,17 +1,19 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize } from "sequelize";
 import {
   CartAddProductsDTO,
   CartConditionDTO,
   CartCreateDTO,
   CartUpdateDTO,
-} from 'src/modules/cart/models/cart.dto';
-import { ICartRepository } from 'src/modules/cart/models/cart.interface';
-import { Cart } from 'src/modules/cart/models/cart.model';
-import { productModelName } from 'src/modules/products/infras/repo/postgres/dto';
-import { ProductPersistence } from 'src/modules/products/infras/repo/postgres/dto';
-import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
-import { ListResponse } from 'src/share/models/base-model';
-import { PagingDTO } from 'src/share/models/paging';
+} from "src/modules/cart/models/cart.dto";
+import { ICartRepository } from "src/modules/cart/models/cart.interface";
+import { Cart } from "src/modules/cart/models/cart.model";
+import {
+  ProductSellablePersistence,
+  productSellableModelName,
+} from "src/modules/product_sellable/infras/repo/postgres/dto";
+import { EXCLUDE_ATTRIBUTES } from "src/share/constants/exclude-attributes";
+import { ListResponse } from "src/share/models/base-model";
+import { PagingDTO } from "src/share/models/paging";
 
 export class PostgresCartRepository implements ICartRepository {
   constructor(
@@ -41,12 +43,9 @@ export class PostgresCartRepository implements ICartRepository {
       distinct: true,
       include: [
         {
-          model: ProductPersistence,
-          as: productModelName,
+          model: ProductSellablePersistence,
+          as: productSellableModelName,
           attributes: { exclude: EXCLUDE_ATTRIBUTES },
-          through: {
-            attributes: ['quantity', 'subtotal', 'discount_amount', 'total'],
-          },
         },
       ],
     });

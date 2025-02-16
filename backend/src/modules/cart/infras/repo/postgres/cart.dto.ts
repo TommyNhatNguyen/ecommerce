@@ -1,7 +1,7 @@
-import { DataTypes, Sequelize } from 'sequelize';
-import { Model } from 'sequelize';
-import { ModelStatus } from 'src/share/models/base-model';
-import { v7 as uuidv7 } from 'uuid';
+import { DataTypes, Sequelize } from "sequelize";
+import { Model } from "sequelize";
+import { ModelStatus } from "src/share/models/base-model";
+import { v7 as uuidv7 } from "uuid";
 export class CartPersistence extends Model {
   declare id: string;
   declare product_quantity: number;
@@ -14,7 +14,7 @@ export class CartPersistence extends Model {
   declare updated_at: string;
 }
 
-export const cartModelName = 'cart';
+export const cartModelName = "cart";
 
 export const cartInit = (sequelize: Sequelize) => {
   CartPersistence.init(
@@ -37,17 +37,17 @@ export const cartInit = (sequelize: Sequelize) => {
         defaultValue: 0,
       },
       subtotal: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DOUBLE,
         allowNull: false,
         defaultValue: 0,
       },
       total_discount: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DOUBLE,
         allowNull: false,
         defaultValue: 0,
       },
       total: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DOUBLE,
         allowNull: false,
         defaultValue: 0,
       },
@@ -61,8 +61,8 @@ export const cartInit = (sequelize: Sequelize) => {
       sequelize,
       tableName: cartModelName,
       timestamps: true,
-      createdAt: 'created_at',
-      updatedAt: 'updated_at',
+      createdAt: "created_at",
+      updatedAt: "updated_at",
       modelName: cartModelName,
     }
   );
@@ -77,7 +77,7 @@ export class CartProductPersistence extends Model {
   declare total: number;
 }
 
-export const cartProductModelName = 'cart_product';
+export const cartProductModelName = "cart_product_sellable";
 
 export const cartProductInit = (sequelize: Sequelize) => {
   CartProductPersistence.init(
@@ -86,7 +86,7 @@ export const cartProductInit = (sequelize: Sequelize) => {
         type: DataTypes.UUID,
         allowNull: false,
       },
-      product_id: {
+      product_sellable_id: {
         type: DataTypes.UUID,
         allowNull: false,
       },
@@ -96,17 +96,17 @@ export const cartProductInit = (sequelize: Sequelize) => {
         defaultValue: 0,
       },
       subtotal: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DOUBLE,
         allowNull: false,
         defaultValue: 0,
       },
       discount_amount: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DOUBLE,
         allowNull: false,
         defaultValue: 0,
       },
       total: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.DOUBLE,
         allowNull: false,
         defaultValue: 0,
       },

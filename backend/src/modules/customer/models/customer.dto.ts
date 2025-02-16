@@ -23,9 +23,16 @@ export const CustomerUpdateDTOSchema = CustomerSchema.omit({
   id: true,
 }).partial();
 
-export const CustomerConditionDTOSchema = CustomerSchema.omit({
-  id: true,
-}).partial();
+export const CustomerConditionDTOSchema = z.object({
+  cart_id: z.string().uuid().optional(),
+  first_name: z.string().optional(),
+  last_name: z.string().optional(),
+  email: z.string().email().optional(),
+  phone: z.string().min(5).max(15).optional(),
+  address: z.string().optional(),
+  city_id: z.string().uuid().optional(),
+  username: z.string().optional(),
+});
 
 export type CustomerCreateDTO = z.infer<typeof CustomerCreateDTOSchema>;
 export type CustomerUpdateDTO = z.infer<typeof CustomerUpdateDTOSchema>;
