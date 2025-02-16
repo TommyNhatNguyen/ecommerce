@@ -2,17 +2,27 @@
 import Button from "@/app/shared/components/Button";
 import { RichTextContainer } from "@/app/shared/components/Container";
 import Form from "@/app/shared/components/Form";
+import {
+  useAppSelector,
+  useCustomerAppDispatch,
+  useCustomerAppSelector,
+} from "@/app/shared/hooks/useRedux";
+import { IAddToCartDTO } from "@/app/shared/interfaces/cart/cart.dto";
 import { ProductModel } from "@/app/shared/models/products/products.model";
 import {
   OptionModel,
   VariantProductModel,
 } from "@/app/shared/models/variant/variant.model";
+import { cartServices } from "@/app/shared/services/cart/cartService";
+import { addToCart } from "@/app/shared/store/main-reducers/cart/cart";
 import { cn, formatCurrency } from "@/app/shared/utils/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { toast } from "@/hooks/use-toast";
 import clsx from "clsx";
 import { Car, Heart, Package, ShoppingCart, Star, Truck } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 
 type Props = {
   options: OptionModel[];
@@ -31,22 +41,33 @@ const Info = ({
   variant,
   productInfo,
 }: Props) => {
+  const {
+    handleSubmit,
+    register,
+    setValue,
+    getValues,
+    watch,
+    formState: { errors },
+  } = useForm<IAddToCartDTO>();
   const [isFavorite, setIsFavorite] = useState(false);
-  const [quantity, setQuantity] = useState(1);
+  const cart_id =
+    useCustomerAppSelector((state) => state.auth).customerInfo?.cart_id || "";
+  const dispatch = useCustomerAppDispatch();
   const _onFavorite = () => {
     setIsFavorite((prev) => !prev);
   };
   const _onQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setQuantity(Number(e.target.value));
+    setValue("quantity", Number(e.target.value));
   };
   const _onQuantityIncrease = () => {
-    setQuantity((prev) => prev + 1);
+    setValue("quantity", getValues("quantity") + 1);
   };
   const _onQuantityDecrease = () => {
-    setQuantity((prev) => prev - 1);
+    setValue("quantity", getValues("quantity") - 1);
   };
   const _onSelectOptionValue = (optionId: string, optionValueId: string) => {
     handleSelectOptionValue(optionId, optionValueId);
+    setValue("id", variant?.product_sellable?.id || "");
   };
   const { name, product_sellable } = variant || {};
   const { price, total_discounts, price_after_discounts } =
@@ -55,9 +76,29 @@ const Info = ({
   const _onBuyNow = () => {
     console.log("Buy now");
   };
-  const _onAddToCart = () => {
-    console.log("Add to cart");
+  const _onAddToCart = async (data: IAddToCartDTO) => {
+    console.log("🚀 ~ const_onAddToCart= ~ data:", data);
+    try {
+      dispatch(
+        addToCart({
+          cart_id: cart_id,
+          data: [data],
+        }),
+      );
+      toast({
+        title: "Add to cart successfully",
+        description: "Check your cart now!",
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
+  useEffect(() => {
+    if (variant) {
+      setValue("id", variant?.product_sellable?.id || "");
+      setValue("quantity", 1);
+    }
+  }, [variant]);
   return (
     <div className="content__info">
       {/* Title */}
@@ -176,7 +217,8 @@ const Info = ({
             </Button>
             <Form.Input
               type="number"
-              value={quantity}
+              value={watch("quantity")}
+              {...register("quantity")}
               onChange={_onQuantityChange}
             />
             <Button
@@ -190,7 +232,7 @@ const Info = ({
           <Button
             variant="primary"
             classes="btn-addcart h-full flex-1"
-            onClick={() => _onAddToCart()}
+            onClick={handleSubmit(_onAddToCart)}
           >
             <ShoppingCart className="h-4 w-4" />
             Add to Cart

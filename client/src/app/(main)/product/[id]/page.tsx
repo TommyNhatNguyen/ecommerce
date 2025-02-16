@@ -11,7 +11,6 @@ type Props = {};
 
 const ProductDetailPage = (props: Props) => {
   const { id } = useParams();
-
   const [selectedOptionValueId, setSelectedOptionValueId] = useState<{
     [key: string]: string;
   }>({});

@@ -29,7 +29,6 @@ const Detail = ({
   handleSelectOptionValue,
 }: Props) => {
   const { id } = useParams();
-
   const { data: optionList, isLoading } = useQuery({
     queryKey: ["option-list", id],
     queryFn: () =>

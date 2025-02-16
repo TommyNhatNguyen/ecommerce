@@ -4,6 +4,7 @@ import { notificationReducer } from "@/app/shared/store/reducers/notification";
 import { socketReducer } from "@/app/shared/store/reducers/socket";
 import { configureStore } from "@reduxjs/toolkit";
 import { customerAuthReducer } from "./main-reducers/auth/auth";
+import { customerCartReducer } from "./main-reducers/cart/cart";
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const customerStore = configureStore({
   reducer: {
     counter: counterReducer,
     auth: customerAuthReducer,
+    cart: customerCartReducer
   },
 });
 

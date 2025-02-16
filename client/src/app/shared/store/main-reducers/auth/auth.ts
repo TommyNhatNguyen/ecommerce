@@ -3,6 +3,7 @@ import { CustomerModel } from "@/app/shared/models/customers/customers.model";
 import { customerService } from "@/app/shared/services/customers/customerService";
 import { cookiesStorage } from "@/app/shared/utils/localStorage";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { getCartById } from "../cart/cart";
 
 interface AuthState {
   isLoginLoading: boolean;
@@ -58,6 +59,7 @@ export const getCustomerInfo = createAsyncThunk(
     try {
       const response = await customerService.getCustomerInfo({});
       if (response) {
+        thunkAPI.dispatch(getCartById(response.data.cart_id));
         return response.data;
       }
       return thunkAPI.rejectWithValue("Failed to get customer info");
