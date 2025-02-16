@@ -2,6 +2,7 @@ import { ChevronDown } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { cn } from "../../utils/utils";
+import { usePathname } from "next/navigation";
 
 type NavbarPropsType = {
   children: React.ReactNode;
@@ -47,6 +48,7 @@ Navbar.Item = ({
   link,
   dropDownList,
 }: NavbarItemPropsType) => {
+  const pathname = usePathname();
   const [showDropDown, setShowDropDown] = useState(false);
   const handleShowDropDown = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -60,6 +62,7 @@ Navbar.Item = ({
     const dropDownEvent: any = document.body.addEventListener("click", (e) => {
       handleHideDropDown();
     });
+    setShowDropDown(false);
     return () => {
       document.body.removeEventListener("click", dropDownEvent);
     };

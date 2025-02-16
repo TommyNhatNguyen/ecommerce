@@ -69,11 +69,11 @@ const SimilarCardComponent = ({
                   key={product.id}
                   {...product}
                   classes="max-w-[90%]"
-                  renderAction={() => (
-                    <Button onClick={() => {}} variant="vanilla">
-                      <PlusCircle width={24} height={24} />
-                    </Button>
-                  )}
+                  // renderAction={() => (
+                  //   <Button onClick={() => {}} variant="vanilla">
+                  //     <PlusCircle width={24} height={24} />
+                  //   </Button>
+                  // )}
                 />
               ))}
             </CustomSlickSlider>

@@ -2,6 +2,7 @@ import { useCustomerAppSelector } from "@/app/shared/hooks/useRedux";
 import { IAddToCartDTO } from "@/app/shared/interfaces/cart/cart.dto";
 import { CartModel } from "@/app/shared/models/cart/cart.model";
 import { cartServices } from "@/app/shared/services/cart/cartService";
+import { toast } from "@/hooks/use-toast";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 interface CartState {
@@ -64,9 +65,12 @@ export const addToCart = createAsyncThunk(
   async (payload: IAddToCartDTO, thunkAPI) => {
     try {
       const response = await cartServices.addToCart(payload);
-      console.log("🚀 ~ response:", response)
       if (response) {
         thunkAPI.dispatch(getCartById(payload.cart_id));
+        toast({
+          title: "Add to cart successfully",
+          description: "Check your cart now!",
+        });
         return response;
       }
       return thunkAPI.rejectWithValue("Failed to get customer info");

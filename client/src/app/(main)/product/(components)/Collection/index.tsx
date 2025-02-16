@@ -121,14 +121,14 @@ const Collection = ({
                 <CardProduct
                   key={product.id}
                   {...product}
-                  renderAction={() => (
-                    <Button
-                      variant="vanilla"
-                      onClick={() => _onAddToCart(product)}
-                    >
-                      <PlusCircle width={24} height={24} />
-                    </Button>
-                  )}
+                  // renderAction={() => (
+                  //   <Button
+                  //     variant="vanilla"
+                  //     onClick={() => _onAddToCart(product)}
+                  //   >
+                  //     <PlusCircle width={24} height={24} />
+                  //   </Button>
+                  // )}
                 />
               ))
           ) : (

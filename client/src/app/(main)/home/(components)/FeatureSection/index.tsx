@@ -64,15 +64,15 @@ const FeatureSection = (props: Props) => {
                   key={product.id}
                   {...product}
                   classes="max-w-[90%]"
-                  renderAction={() => (
-                    <Button
-                      onClick={() => {}}
-                      variant="vanilla"
-                      classes="bg-transparent p-0"
-                    >
-                      <PlusCircle className="h-8 w-8" />
-                    </Button>
-                  )}
+                  // renderAction={() => (
+                  //   <Button
+                  //     onClick={() => {}}
+                  //     variant="vanilla"
+                  //     classes="bg-transparent p-0"
+                  //   >
+                  //     <PlusCircle className="h-8 w-8" />
+                  //   </Button>
+                  // )}
                 />
               ))}
             </Slider>

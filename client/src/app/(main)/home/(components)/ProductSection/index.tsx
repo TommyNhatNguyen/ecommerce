@@ -91,14 +91,14 @@ const ProductSection = ({}: ProductSectionPropsType) => {
               <CardProduct
                 key={product.id}
                 {...product}
-                renderAction={() => (
-                  <Button
-                    onClick={() => _onAddToCart(product)}
-                    variant="vanilla"
-                  >
-                    <PlusCircle width={24} height={24} />
-                  </Button>
-                )}
+                // renderAction={() => (
+                //   <Button
+                //     onClick={() => _onAddToCart(product)}
+                //     variant="vanilla"
+                //   >
+                //     <PlusCircle width={24} height={24} />
+                //   </Button>
+                // )}
               />
             ))}
           </div>
