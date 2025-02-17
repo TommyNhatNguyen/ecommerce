@@ -55,7 +55,6 @@ export const CardProduct = ({
     id: productSellableId,
     inventory,
   } = showVariant || {};
-  console.log("🚀 ~ showVariant:", showVariant);
   const imgUrl = image?.[0]?.url || "";
   const imgUrlHover = image?.[1]?.url || "";
   const percentageDiscount =

@@ -10,6 +10,7 @@ import { useCustomerAppDispatch } from "../shared/hooks/useRedux";
 import { getCustomerInfo } from "../shared/store/main-reducers/auth/auth";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "../constants/routes";
+import { getCartByIdLocal } from "@/app/shared/store/main-reducers/cart/cart";
 
 type MainLayoutPropsType = {
   children: React.ReactNode;
@@ -22,8 +23,10 @@ const MainLayout = ({ children }: MainLayoutPropsType) => {
   useEffect(() => {
     // If login, then get user info
     if (cookiesStorage.getToken()) {
+      dispatch(getCartByIdLocal(""));
       dispatch(getCustomerInfo());
     } else {
+      dispatch(getCartByIdLocal(""));
       router.push(ROUTES.HOME);
     }
   }, []);

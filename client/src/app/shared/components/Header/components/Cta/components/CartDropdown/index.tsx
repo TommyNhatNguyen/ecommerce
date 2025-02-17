@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import { ROUTES } from "@/app/constants/routes";
 import { ButtonWithLink } from "@/app/shared/components/Button";
 import { useCustomerAppSelector } from "@/app/shared/hooks/useRedux";
@@ -36,8 +36,9 @@ const CartDropdown = (props: Props) => {
         <DropdownMenuLabel>Recent added items:</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="flex max-h-[300px] w-full flex-col items-start gap-2 overflow-y-auto">
-          {cartInfo &&
-            cartInfo.product_sellable?.map((item) => {
+          {cartInfo  &&
+            cartInfo?.product_sellable &&
+            cartInfo?.product_sellable?.map((item) => {
               const {
                 price,
                 price_after_discounts,
@@ -98,7 +99,7 @@ const CartDropdown = (props: Props) => {
         <DropdownMenuItem>
           <div className="flex w-full items-center gap-4">
             {/* Total of unique items */}
-            <span className="text-footer text-green-100 flex-shrink-0">
+            <span className="flex-shrink-0 text-footer text-green-100">
               Total items in cart:{" "}
               {formatNumber(cartInfo?.product_quantity || 0)}
             </span>

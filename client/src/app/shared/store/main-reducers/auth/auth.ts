@@ -3,7 +3,7 @@ import { CustomerModel } from "@/app/shared/models/customers/customers.model";
 import { customerService } from "@/app/shared/services/customers/customerService";
 import { cookiesStorage } from "@/app/shared/utils/localStorage";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getCartById } from "../cart/cart";
+import { getCartById, getCartByIdLocal } from "../cart/cart";
 
 interface AuthState {
   isLoginLoading: boolean;
@@ -62,6 +62,7 @@ export const getCustomerInfo = createAsyncThunk(
         thunkAPI.dispatch(getCartById(response.data.cart_id));
         return response.data;
       }
+      thunkAPI.dispatch(getCartByIdLocal(""));
       return thunkAPI.rejectWithValue("Failed to get customer info");
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error);
@@ -85,8 +86,9 @@ export const login = createAsyncThunk(
         payload.callback.success();
         thunkAPI.dispatch(getCustomerInfo());
         return response;
+      } else {
+        return thunkAPI.rejectWithValue("Failed to login");
       }
-      return thunkAPI.rejectWithValue("Failed to login");
     } catch (error: any) {
       payload.callback.error(error);
       return thunkAPI.rejectWithValue(error);

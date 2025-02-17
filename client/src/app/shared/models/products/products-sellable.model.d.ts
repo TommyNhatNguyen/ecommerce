@@ -16,5 +16,6 @@ export type ProductSellableModel = {
   discount?: DiscountModel[];
   image?: ImageModel[];
   variant?: VariantProductModel;
-  cart_product_sellable?: CartProductSellableModel
+  variant_id: string;
+  cart_product_sellable?: CartProductSellableModel;
 };

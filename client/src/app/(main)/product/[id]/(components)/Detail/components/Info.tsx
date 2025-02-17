@@ -7,7 +7,10 @@ import {
   useCustomerAppDispatch,
   useCustomerAppSelector,
 } from "@/app/shared/hooks/useRedux";
-import { IAddToCartDTO } from "@/app/shared/interfaces/cart/cart.dto";
+import {
+  IAddToCartDTO,
+  IAddToCartDTOWithLocal,
+} from "@/app/shared/interfaces/cart/cart.dto";
 import { ProductModel } from "@/app/shared/models/products/products.model";
 import {
   OptionModel,
@@ -78,9 +81,20 @@ const Info = ({
     console.log("Buy now");
   };
   const _onAddToCart = async (data: IAddToCartDTO) => {
-    const payload: IAddToCartDTO = {
+    const payload: IAddToCartDTOWithLocal = {
       ...data,
       cart_id: cart_id,
+      img_url: product_sellable?.image?.[0]?.url || "",
+      name: name || "",
+      price: price || 0,
+      price_after_discounts: price_after_discounts || 0,
+      subtotal: data.quantity * (price || 0),
+      discount_amount: data.quantity * (total_discounts || 0),
+      total: data.quantity * (price_after_discounts || 0),
+      product_sellable: {
+        ...product_sellable,
+        variant: variant,
+      },
     };
     try {
       dispatch(addToCart(payload));
