@@ -36,7 +36,7 @@ const CartDropdown = (props: Props) => {
         <DropdownMenuLabel>Recent added items:</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="flex max-h-[300px] w-full flex-col items-start gap-2 overflow-y-auto">
-          {cartInfo  &&
+          {cartInfo &&
             cartInfo?.product_sellable &&
             cartInfo?.product_sellable?.map((item) => {
               const {
@@ -46,6 +46,7 @@ const CartDropdown = (props: Props) => {
                 variant,
                 cart_product_sellable,
               } = item;
+              console.log("variantvariant", variant);
               return (
                 <Link
                   href={`${ROUTES.PRODUCTS}/${variant?.product_id}`}

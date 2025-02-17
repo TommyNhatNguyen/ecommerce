@@ -5,7 +5,10 @@ import {
   useCustomerAppDispatch,
   useCustomerAppSelector,
 } from "@/app/shared/hooks/useRedux";
-import { IAddToCartDTO } from "@/app/shared/interfaces/cart/cart.dto";
+import {
+  IAddToCartDTO,
+  IAddToCartDTOWithLocal,
+} from "@/app/shared/interfaces/cart/cart.dto";
 import { StockStatus } from "@/app/shared/models/inventories/stock-status";
 import { ProductModel } from "@/app/shared/models/products/products.model";
 import { VariantProductModel } from "@/app/shared/models/variant/variant.model";
@@ -62,10 +65,24 @@ export const CardProduct = ({
   const dispatch = useCustomerAppDispatch();
   const cartId = useCustomerAppSelector((state) => state.cart).cartInfo?.id;
   const _onAddToCart = (productId: string | undefined) => {
-    const payload: IAddToCartDTO = {
+    const payload: IAddToCartDTOWithLocal = {
       id: productId || "",
-      cart_id: cartId || "",
       quantity: 1,
+      cart_id: cartId || "",
+      img_url: imgUrl,
+      name: name || "",
+      price: price || 0,
+      price_after_discounts: price_after_discounts || 0,
+      subtotal: 1 * (price || 0),
+      discount_amount: 1 * (total_discounts || 0),
+      total: 1 * (price_after_discounts || 0),
+      product_sellable: {
+        ...showVariant,
+        variant: {
+          ...variant?.[0],
+          product_id: id,
+        },
+      },
     };
     dispatch(addToCart(payload));
   };
@@ -118,13 +135,13 @@ export const CardProduct = ({
             </>
           ) : inventory?.stock_status === StockStatus.OUT_OF_STOCK ? (
             <div className="flex items-center gap-[8px]">
-              <Smile className="flex-shrink-0"/>
-              <span className="text-left text-wrap">Out of Stock</span>
+              <Smile className="flex-shrink-0" />
+              <span className="text-wrap text-left">Out of Stock</span>
             </div>
           ) : inventory?.stock_status === StockStatus.LOW_STOCK ? (
             <div className="flex items-center gap-[8px]">
-              <ShoppingCart className="flex-shrink-0 animate-bounce"/>
-              <span className="text-left text-wrap">
+              <ShoppingCart className="flex-shrink-0 animate-bounce" />
+              <span className="text-wrap text-left">
                 Order now! Only {inventory.quantity} left
               </span>
             </div>
