@@ -78,10 +78,7 @@ export const CardProduct = ({
       total: 1 * (price_after_discounts || 0),
       product_sellable: {
         ...showVariant,
-        variant: {
-          ...variant?.[0],
-          product_id: id,
-        },
+        variant: variant?.[0],
       },
     };
     dispatch(addToCart(payload));
@@ -97,7 +94,7 @@ export const CardProduct = ({
       <div className="product-card__img-wrapper group relative h-full w-full overflow-hidden rounded-[14px]">
         <Link
           href={link}
-          className="product-card__img group flex h-[80%] h-full w-full flex-1 items-center justify-center overflow-hidden rounded-[14px] bg-white"
+          className="product-card__img group flex h-[80%] w-full flex-1 items-center justify-center overflow-hidden rounded-[14px] bg-white"
         >
           <img
             src={imgUrl}

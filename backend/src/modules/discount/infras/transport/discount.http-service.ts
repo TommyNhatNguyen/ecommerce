@@ -61,9 +61,13 @@ export class DiscountHttpService {
   }
 
   async createDiscount(req: Request, res: Response) {
-    const { success, data, error } = DiscountCreateDTOSchema.safeParse(
-      req.body
-    );
+    const { success, data, error } = DiscountCreateDTOSchema.innerType()
+      .omit({
+        has_max_discount_count: true,
+        is_require_product_count: true,
+        is_require_order_amount: true,
+      })
+      .safeParse(req.body);
     if (!success) {
       res.status(400).json({ message: error?.message });
       return;

@@ -14,8 +14,12 @@ import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { ICustomerUseCase } from 'src/modules/customer/models/customer.interface';
 import {
+  ORDER_DETAIL_DISCOUNT_DATE_ERROR,
   ORDER_DETAIL_DISCOUNT_ERROR,
+  ORDER_DETAIL_DISCOUNT_REQUIRE_ORDER_AMOUNT_ERROR,
+  ORDER_DETAIL_DISCOUNT_REQUIRE_PRODUCT_COUNT_ERROR,
   ORDER_DETAIL_ERROR,
+  ORDER_DETAIL_MAX_DISCOUNT_COUNT_ERROR,
   ORDER_DETAIL_PRODUCT_ERROR,
   ORDER_DETAIL_PRODUCT_OUT_OF_STOCK_ERROR,
 } from 'src/modules/order_detail/models/order_detail.error';
@@ -25,7 +29,11 @@ import { IPaymentMethodUseCase } from 'src/modules/payment_method/models/payment
 import { ICostUseCase } from 'src/modules/cost/models/cost.interface';
 import { IDiscountUseCase } from 'src/modules/discount/models/discount.interface';
 import { IProductUseCase } from 'src/modules/products/models/product.interface';
-import { DiscountType } from 'src/modules/discount/models/discount.model';
+import {
+  Discount,
+  DiscountScope,
+  DiscountType,
+} from 'src/modules/discount/models/discount.model';
 import { IProductSellableUseCase } from 'src/modules/product_sellable/models/product-sellable.interface';
 import { StockStatus } from 'src/modules/inventory/models/inventory.model';
 import { IInventoryUseCase } from 'src/modules/inventory/models/inventory.interface';
@@ -89,12 +97,6 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         const orderQuantity =
           products_detail.find((item) => item.id === product.variant_id)
             ?.quantity ?? 0;
-        console.log(
-          checkSufficientInventory(
-            product.inventory?.quantity ?? 0,
-            orderQuantity
-          )
-        );
         return checkSufficientInventory(
           product.inventory?.quantity ?? 0,
           orderQuantity
@@ -117,8 +119,9 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
           })
         );
       }
-      if (products.data.length !== products_detail.length)
+      if (products.data.length !== products_detail.length) {
         throw ORDER_DETAIL_PRODUCT_ERROR;
+      }
       payload.subtotal = products.data.reduce((acc, product) => {
         const productDetail = products_detail.find(
           (p) => p.id === product.variant_id
@@ -131,11 +134,47 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
           (p) => p.id === product.variant_id
         );
         if (!productDetail) throw ORDER_DETAIL_PRODUCT_ERROR;
-        const discountFixed = product.discount?.filter(
-          (d) => d.type === DiscountType.FIXED
+        const applyDiscountList: Discount[] = product.discount
+          ? product.discount.filter((item) => {
+              const validDiscountList: string[] = [];
+              // Check start date and end date
+              const isDayValid =
+                new Date(item.start_date) <= new Date() &&
+                new Date(item.end_date) >= new Date();
+              if (isDayValid) {
+                // Check max discount count
+                if (item.has_max_discount_count) {
+                  const isBelowMaxDiscountCount =
+                    item.discount_count &&
+                    item.discount_count >=
+                      productDetail.quantity + item.discount_count;
+                  if (!isBelowMaxDiscountCount) {
+                    throw ORDER_DETAIL_MAX_DISCOUNT_COUNT_ERROR;
+                  }
+                }
+                // Check require product count
+                if (item.is_require_product_count) {
+                  const isEqualRequireProductCount =
+                    item.require_product_count &&
+                    item.require_product_count >= productDetail.quantity;
+                  if (!isEqualRequireProductCount) {
+                    throw ORDER_DETAIL_DISCOUNT_REQUIRE_PRODUCT_COUNT_ERROR;
+                  }
+                }
+                validDiscountList.push(item.id);
+              } else {
+                throw ORDER_DETAIL_DISCOUNT_DATE_ERROR;
+              }
+              return validDiscountList.includes(item.id);
+            })
+          : [];
+        console.log(
+          '🚀 ~ OrderDetailUseCase ~ discountAmountList ~ applyDiscountList:',
+          applyDiscountList
         );
-        const discountPercentage = product.discount?.filter(
-          (d) => d.type === DiscountType.PERCENTAGE
+        const discountFixed = applyDiscountList?.filter((d) => d.is_fixed);
+        const discountPercentage = applyDiscountList?.filter(
+          (d) => !d.is_fixed
         );
         const discountByFixedAmount =
           discountFixed?.reduce((acc, discount) => {
@@ -153,6 +192,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
           }, 0) ?? 0;
         return discountByFixedAmount + discountByPercentageAmount;
       });
+
       orderDetailProducts.push(
         ...products.data.map((product, index) => ({
           order_detail_id: '',
@@ -187,7 +227,6 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         payload.customer_id = newCustomer.id;
       }
     }
-
     // ---- SHIPPING ----
     if (payload.shipping_method_id) {
       const shipping = await this.shippingUseCase.getShippingById(
@@ -195,7 +234,6 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
       );
       payload.total_shipping_fee = shipping?.cost ?? 0;
     }
-
     // ---- COSTS ----
     if (costs_detail && costs_detail.length > 0) {
       const costs = await this.costUseCase.getList(
@@ -216,7 +254,6 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         }))
       );
     }
-
     // ---- PAYMENT ----
     if (payment_info?.payment_method_id) {
       const paymentMethod = await this.paymentMethodUseCase.getById(
@@ -232,24 +269,49 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
       });
       payload.payment_id = payment.id;
     }
-
     // ---- DISCOUNTS ----
     if (order_discounts && order_discounts.length > 0) {
       const discounts = await this.discountUseCase.listDiscount(
         { page: 1, limit: order_discounts.length },
-        { ids: order_discounts }
+        { ids: order_discounts, scope: DiscountScope.ORDER }
       );
-      if (discounts.data.length !== order_discounts.length)
+      if (discounts.data.length !== order_discounts.length) {
         throw ORDER_DETAIL_DISCOUNT_ERROR;
-      payload.total_order_discount = discounts.data.reduce((acc, discount) => {
-        let totalDiscount = 0;
-        if (discount.type === DiscountType.FIXED) {
-          totalDiscount += discount.amount;
-        } else {
-          totalDiscount += (payload.subtotal * discount.amount) / 100;
-        }
-        return acc + totalDiscount;
-      }, 0);
+      }
+      const applyOrderDiscountList =
+        discounts.data &&
+        discounts.data.filter((discount) => {
+          const validDiscountList: string[] = [];
+          // Check start date and end date
+          const isDayValid =
+            new Date(discount.start_date) <= new Date() &&
+            new Date(discount.end_date) >= new Date();
+          if (isDayValid) {
+            // Check require order amount
+            if (discount.is_require_order_amount) {
+              const isEqualRequireOrderAmount =
+                discount.require_order_amount &&
+                discount.require_order_amount >= payload.subtotal;
+              if (!isEqualRequireOrderAmount) {
+                throw ORDER_DETAIL_DISCOUNT_REQUIRE_ORDER_AMOUNT_ERROR;
+              }
+            }
+            validDiscountList.push(discount.id);
+          }
+          return validDiscountList.includes(discount.id);
+        });
+      payload.total_order_discount = applyOrderDiscountList.reduce(
+        (acc, discount) => {
+          let totalDiscount = 0;
+          if (discount.is_fixed) {
+            totalDiscount += discount.amount;
+          } else {
+            totalDiscount += (payload.subtotal * discount.amount) / 100;
+          }
+          return acc + totalDiscount;
+        },
+        0
+      );
       payload.total_product_discount = orderDetailProducts.reduce(
         (acc, product) => acc + product.discount_amount,
         0
@@ -264,7 +326,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         }))
       );
     }
-
+    console.log(payload);
     payload.total =
       (payload.subtotal || 0) +
       ((payload.total_shipping_fee || 0) +

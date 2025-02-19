@@ -1,9 +1,9 @@
 import { Op, Sequelize } from 'sequelize';
 import { PagingDTO } from 'src/share/models/paging';
 import {
-  DiscountConditionDTOSchema,
-  DiscountCreateDTOSchema,
-  DiscountUpdateDTOSchema,
+  DiscountConditionDTO,
+  DiscountCreateDTO,
+  DiscountUpdateDTO,
 } from 'src/modules/discount/models/discount.dto';
 import { Discount } from 'src/modules/discount/models/discount.model';
 import {
@@ -21,7 +21,7 @@ export class PostgresDiscountRepository implements IDiscountRepository {
   ) {}
   async list(
     paging: PagingDTO,
-    condition: DiscountConditionDTOSchema
+    condition: DiscountConditionDTO
   ): Promise<ListResponse<Discount[]>> {
     let where: WhereOptions = {};
     if (condition.ids && condition.ids.length > 0) {
@@ -60,14 +60,14 @@ export class PostgresDiscountRepository implements IDiscountRepository {
     const discount = await this.sequelize.models[this.modelName].findByPk(id);
     return discount?.dataValues || null;
   }
-  async insert(data: DiscountCreateDTOSchema): Promise<Discount> {
+  async insert(data: DiscountCreateDTO): Promise<Discount> {
     const discount = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });
     const insertedDiscount = discount.dataValues;
     return insertedDiscount;
   }
-  async update(id: string, data: DiscountUpdateDTOSchema): Promise<Discount> {
+  async update(id: string, data: DiscountUpdateDTO): Promise<Discount> {
     const result = await this.sequelize.models[this.modelName].update(data, {
       where: { id },
       returning: true,

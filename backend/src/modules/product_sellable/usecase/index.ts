@@ -52,11 +52,11 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
       payload.total_discounts =
         data.price *
           ((discountList?.data || [])
-            ?.filter((item) => item.type === 'percentage')
+            ?.filter((item) => !item.is_fixed)
             ?.map((item) => item.amount)
             ?.reduce((arr, curr) => arr + curr, 0) / 100 || 0) +
         ((discountList?.data || [])
-          ?.filter((item) => item.type === 'fixed')
+          ?.filter((item) => item.is_fixed)
           ?.map((item) => item.amount)
           ?.reduce((arr, curr) => arr + curr, 0) || 0);
       payload.price_after_discounts = data.price - payload.total_discounts;

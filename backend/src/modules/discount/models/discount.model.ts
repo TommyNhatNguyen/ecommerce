@@ -16,7 +16,15 @@ export const DiscountSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   amount: z.number().min(0).default(0),
-  type: z.nativeEnum(DiscountType),
+  is_fixed: z.boolean().default(true),
+  max_discount_count: z.number().min(0).optional(),
+  discount_count: z.number().min(0).optional(),
+  require_product_count: z.number().min(0).optional(),
+  require_order_amount: z.number().min(0).optional(),
+  is_free: z.boolean().default(false),
+  has_max_discount_count: z.boolean().default(false),
+  is_require_product_count: z.boolean().default(false),
+  is_require_order_amount: z.boolean().default(false),
   scope: z.nativeEnum(DiscountScope),
   start_date: z
     .string()

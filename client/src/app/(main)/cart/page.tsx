@@ -12,55 +12,59 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import mockProductImage from "@/app/shared/resources/images/homepage/product-2.jpg";
 import { twMerge } from "tailwind-merge";
+import { useCustomerAppSelector } from "@/app/shared/hooks/useRedux";
 type CartPagePropsType = {};
-const products = [
-  {
-    imgUrl: mockProductImage,
-    name: "Product 1",
-    price: 100,
-    link: ROUTES.PRODUCT_DETAIL,
-    beforeDiscountedPrice: 250,
-  },
-  {
-    imgUrl: mockProductImage,
-    name: "Product 2",
-    price: 150,
-    link: ROUTES.PRODUCT_DETAIL,
-    beforeDiscountedPrice: 250,
-  },
-  {
-    imgUrl: mockProductImage,
-    name: "Product 3",
-    price: 200,
-    link: ROUTES.PRODUCT_DETAIL,
-    beforeDiscountedPrice: 250,
-  },
-  {
-    imgUrl: mockProductImage,
-    name: "Product 4",
-    price: 250,
-    link: ROUTES.PRODUCT_DETAIL,
-    beforeDiscountedPrice: 500,
-  },
-];
 const CartPage = (props: CartPagePropsType) => {
   const router = useRouter();
   const handleCheckout = () => {
-    console.log("checkout");
     router.push(ROUTES.CHECKOUT);
   };
+  const { cartInfo } = useCustomerAppSelector((state) => state.cart);
+  console.log("🚀 ~ CartPage ~ cartInfo:", cartInfo);
+
   const totalProps = { handleCheckout };
   return (
     <main id="cart" className="cart pt-section">
       <Container>
         <section className="cart-wrapper grid h-full w-full grid-cols-[1.4fr,1fr] items-start justify-between gap-gutter">
+          <div>
+            {/*
+            PRODUCT TABLE:
+            -------------- 
+            Select all checkbox
+            Select checkbox 
+            Image carousel
+            Product name
+            Variant name
+            Short description
+            Variant options
+            Product discount type
+            Price
+            Quantity with + - button
+            Subtotal 
+            Total discount
+            Total
+            Remove button
+            */}
+          </div>
+          <div>
+            {/*
+            TOTAL TABLE:
+            -------------- 
+            Subtotal
+            Total discount
+            (Total product discount)
+            (Total order discount)
+            Discount code input
+            Total
+            */}
+          </div>
           <Products />
           <Total {...totalProps} />
         </section>
       </Container>
       <SimilarCardComponent
         sectionClasses="py-section"
-        productsList={products}
         title="You may also like"
         withButton={false}
       />

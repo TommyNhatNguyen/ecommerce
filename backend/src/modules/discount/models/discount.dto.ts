@@ -62,7 +62,18 @@ export const DiscountCreateDTOSchema = z
     name: z.string(),
     description: z.string().optional(),
     amount: z.number().min(0).default(0),
-    type: z.nativeEnum(DiscountType),
+    is_fixed: z.boolean().optional(),
+    max_discount_count: z.number().min(1).optional(),
+    discount_count: z.number().min(0).optional(),
+    require_product_count: z.number().min(0).optional(),
+    require_order_amount: z.number().min(0).optional(),
+    is_free: z.boolean().optional(),
+    // Calculate based on max discount count
+    has_max_discount_count: z.boolean().optional(),
+    // Calculate based on require product count
+    is_require_product_count: z.boolean().optional(),
+    // Calculate based on require order amount
+    is_require_order_amount: z.boolean().optional(),
     scope: z.nativeEnum(DiscountScope),
     start_date: z
       .string()
@@ -99,7 +110,15 @@ export const DiscountUpdateDTOSchema = z
     name: z.string().optional(),
     description: z.string().optional(),
     amount: z.number().min(0).optional(),
-    type: z.nativeEnum(DiscountType).optional(),
+    is_fixed: z.boolean().optional(),
+    max_discount_count: z.number().min(0).optional(),
+    discount_count: z.number().min(0).optional(),
+    require_product_count: z.number().min(0).optional(),
+    require_order_amount: z.number().min(0).optional(),
+    is_free: z.boolean().optional(),
+    has_max_discount_count: z.boolean().optional(),
+    is_require_product_count: z.boolean().optional(),
+    is_require_order_amount: z.boolean().optional(),
     scope: z.nativeEnum(DiscountScope).optional(),
     start_date: z
       .string()
@@ -138,8 +157,6 @@ export const DiscountUpdateDTOSchema = z
     }
   );
 
-export type DiscountCreateDTOSchema = z.infer<typeof DiscountCreateDTOSchema>;
-export type DiscountUpdateDTOSchema = z.infer<typeof DiscountUpdateDTOSchema>;
-export type DiscountConditionDTOSchema = z.infer<
-  typeof DiscountConditionDTOSchema
->;
+export type DiscountCreateDTO = z.infer<typeof DiscountCreateDTOSchema>;
+export type DiscountUpdateDTO = z.infer<typeof DiscountUpdateDTOSchema>;
+export type DiscountConditionDTO = z.infer<typeof DiscountConditionDTOSchema>;
