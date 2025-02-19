@@ -15,6 +15,7 @@ import {
 import { Cart } from 'src/modules/cart/models/cart.model';
 import { CART_PRODUCT_ERROR } from 'src/modules/cart/models/cart.error';
 import { IProductSellableUseCase } from 'src/modules/product_sellable/models/product-sellable.interface';
+import { Transaction } from 'sequelize';
 
 export class CartUseCase implements ICartUseCase {
   constructor(
@@ -87,8 +88,8 @@ export class CartUseCase implements ICartUseCase {
   ): Promise<ListResponse<Cart[]>> {
     return await this.cartRepository.getList(paging, condition);
   }
-  async create(data: CartCreateDTO): Promise<Cart> {
-    return await this.cartRepository.create(data);
+  async create(data: CartCreateDTO, t?: Transaction): Promise<Cart> {
+    return await this.cartRepository.create(data, t);
   }
   async update(id: string, data: CartUpdateDTO): Promise<Cart> {
     return await this.cartRepository.update(id, data);

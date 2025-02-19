@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize';
 import {
   OrderDetailAddCostsDTO,
   OrderDetailAddDiscountsDTO,
@@ -37,9 +38,9 @@ export interface IOrderDetailUseCase {
 export interface IOrderDetailRepository
   extends IQueryRepository,
     ICommandRepository {
-  addProducts(data: OrderDetailAddProductsDTO[]): Promise<boolean>;
-  addDiscounts(data: OrderDetailAddDiscountsDTO[]): Promise<boolean>;
-  addCosts(data: OrderDetailAddCostsDTO[]): Promise<boolean>;
+  addProducts(data: OrderDetailAddProductsDTO[], t: Transaction): Promise<boolean>;
+  addDiscounts(data: OrderDetailAddDiscountsDTO[], t: Transaction): Promise<boolean>;
+  addCosts(data: OrderDetailAddCostsDTO[], t: Transaction): Promise<boolean>;
 }
 
 export interface IQueryRepository {
@@ -55,7 +56,8 @@ export interface ICommandRepository {
     data: Omit<
       OrderDetailCreateDTO,
       'products_detail' | 'payment_info' | 'costs_detail' | 'order_discounts'
-    >
+    >,
+    t: Transaction
   ): Promise<OrderDetail>;
   update(id: string, data: OrderDetailUpdateDTO): Promise<OrderDetail>;
   delete(id: string): Promise<boolean>;

@@ -159,8 +159,10 @@ export function setupOrderRouter(sequelize: Sequelize) {
     paymentMethodUseCase,
     costUseCase,
     discountUseCase,
-    inventoryUseCase
+    inventoryUseCase,
+    sequelize
   );
+  
   const orderUseCase = new OrderUseCase(orderRepository, orderDetailUseCase);
   const orderHttpService = new OrderHttpService(orderUseCase);
   router.get('/order/:id', orderHttpService.getById.bind(orderHttpService));

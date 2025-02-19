@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize';
 import { PaymentConditionDTO } from 'src/modules/payment/models/payment.dto';
 import { PaymentUpdateDTO } from 'src/modules/payment/models/payment.dto';
 import { PaymentCreateDTO } from 'src/modules/payment/models/payment.dto';
@@ -11,7 +12,7 @@ export interface IPaymentUseCase {
     paging: PagingDTO,
     condition: PaymentConditionDTO
   ): Promise<ListResponse<Payment[]>>;
-  createPayment(payment: PaymentCreateDTO): Promise<Payment>;
+  createPayment(payment: PaymentCreateDTO, t?: Transaction): Promise<Payment>;
   updatePayment(id: string, payment: PaymentUpdateDTO): Promise<Payment>;
   deletePayment(id: string): Promise<boolean>;
 }
@@ -29,7 +30,7 @@ export interface IQueryRepository {
 }
 
 export interface ICommandRepository {
-  createPayment(payment: PaymentCreateDTO): Promise<Payment>;
+  createPayment(payment: PaymentCreateDTO, t?: Transaction): Promise<Payment>;
   updatePayment(id: string, payment: PaymentUpdateDTO): Promise<Payment>;
   deletePayment(id: string): Promise<boolean>;
 }

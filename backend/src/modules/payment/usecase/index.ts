@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize';
 import { PaymentUpdateDTO } from 'src/modules/payment/models/payment.dto';
 import { PaymentCreateDTO } from 'src/modules/payment/models/payment.dto';
 import { PaymentConditionDTO } from 'src/modules/payment/models/payment.dto';
@@ -18,8 +19,8 @@ export class PaymentUseCase implements IPaymentUseCase {
   ): Promise<ListResponse<Payment[]>> {
     return this.paymentRepository.getPayments(paging, condition);
   }
-  createPayment(payment: PaymentCreateDTO): Promise<Payment> {
-    return this.paymentRepository.createPayment(payment);
+  createPayment(payment: PaymentCreateDTO, t?: Transaction): Promise<Payment> {
+    return this.paymentRepository.createPayment(payment, t);
   }
   updatePayment(id: string, payment: PaymentUpdateDTO): Promise<Payment> {
     return this.paymentRepository.updatePayment(id, payment);

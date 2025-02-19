@@ -1,14 +1,14 @@
-import { Sequelize } from "sequelize";
-import { Customer } from "src/modules/customer/models/customer.model";
+import { Sequelize, Transaction } from 'sequelize';
+import { Customer } from 'src/modules/customer/models/customer.model';
 import {
   CustomerConditionDTO,
   CustomerCreateDTO,
   CustomerUpdateDTO,
-} from "src/modules/customer/models/customer.dto";
-import { ICustomerRepository } from "src/modules/customer/models/customer.interface";
-import { ListResponse, ModelStatus } from "src/share/models/base-model";
-import { PagingDTO } from "src/share/models/paging";
-import { Op } from "sequelize";
+} from 'src/modules/customer/models/customer.dto';
+import { ICustomerRepository } from 'src/modules/customer/models/customer.interface';
+import { ListResponse, ModelStatus } from 'src/share/models/base-model';
+import { PagingDTO } from 'src/share/models/paging';
+import { Op } from 'sequelize';
 
 export class PostgresCustomerRepository implements ICustomerRepository {
   constructor(
@@ -58,7 +58,20 @@ export class PostgresCustomerRepository implements ICustomerRepository {
       },
     };
   }
-  async createCustomer(data: CustomerCreateDTO): Promise<Customer> {
+  async createCustomer(
+    data: CustomerCreateDTO,
+    t?: Transaction
+  ): Promise<Customer> {
+    if (t) {
+      const customer = await this.sequelize.models[this.modelName].create(
+        data,
+        {
+          returning: true,
+          transaction: t,
+        }
+      );
+      return customer.dataValues;
+    }
     const customer = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });

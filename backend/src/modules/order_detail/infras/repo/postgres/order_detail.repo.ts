@@ -34,6 +34,7 @@ import {
   productSellableModelName,
   ProductSellablePersistence,
 } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import { Transaction } from 'sequelize';
 
 export class PostgresOrderDetailRepository implements IOrderDetailRepository {
   constructor(
@@ -107,25 +108,44 @@ export class PostgresOrderDetailRepository implements IOrderDetailRepository {
       },
     };
   }
-  async create(data: OrderDetailCreateDTO): Promise<OrderDetail> {
+  async create(
+    data: OrderDetailCreateDTO,
+    t: Transaction
+  ): Promise<OrderDetail> {
     const order = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
+      transaction: t,
     });
     return order.dataValues;
   }
 
-  async addProducts(data: OrderDetailAddProductsDTO[]): Promise<boolean> {
-    await this.sequelize.models[this.modelName].bulkCreate(data);
+  async addProducts(
+    data: OrderDetailAddProductsDTO[],
+    t: Transaction
+  ): Promise<boolean> {
+    await this.sequelize.models[this.modelName].bulkCreate(data, {
+      transaction: t,
+    });
     return true;
   }
 
-  async addDiscounts(data: OrderDetailAddDiscountsDTO[]): Promise<boolean> {
-    await this.sequelize.models[this.modelName].bulkCreate(data);
+  async addDiscounts(
+    data: OrderDetailAddDiscountsDTO[],
+    t: Transaction
+  ): Promise<boolean> {
+    await this.sequelize.models[this.modelName].bulkCreate(data, {
+      transaction: t,
+    });
     return true;
   }
 
-  async addCosts(data: OrderDetailAddCostsDTO[]): Promise<boolean> {
-    await this.sequelize.models[this.modelName].bulkCreate(data);
+  async addCosts(
+    data: OrderDetailAddCostsDTO[],
+    t: Transaction
+  ): Promise<boolean> {
+    await this.sequelize.models[this.modelName].bulkCreate(data, {
+      transaction: t,
+    });
     return true;
   }
 

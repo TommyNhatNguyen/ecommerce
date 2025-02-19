@@ -12,6 +12,7 @@ import {
   InventoryCreateDTO,
   InventoryUpdateDTO,
 } from 'src/modules/inventory/models/inventory.dto';
+import { Transaction } from 'sequelize';
 
 export class PostgresInventoryRepository implements IInventoryRepository {
   constructor(
@@ -21,8 +22,20 @@ export class PostgresInventoryRepository implements IInventoryRepository {
 
   async updateInventoryQuantity(
     productSellableId: string,
-    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>
+    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>,
+    t?: Transaction
   ): Promise<Inventory> {
+    if (t) {
+      const inventory = await this.sequelize.models[this.modelName].update(
+        data,
+        {
+          where: { product_sellable_id: productSellableId },
+          returning: true,
+          transaction: t,
+        }
+      );
+      return inventory[1][0].dataValues;
+    }
     const inventory = await this.sequelize.models[this.modelName].update(data, {
       where: { product_sellable_id: productSellableId },
       returning: true,
@@ -64,7 +77,22 @@ export class PostgresInventoryRepository implements IInventoryRepository {
     });
     return inventory.dataValues;
   }
-  async update(id: string, data: InventoryUpdateDTO): Promise<Inventory> {
+  async update(
+    id: string,
+    data: InventoryUpdateDTO,
+    t?: Transaction
+  ): Promise<Inventory> {
+    if (t) {
+      const inventory = await this.sequelize.models[this.modelName].update(
+        data,
+        {
+          where: { id },
+          returning: true,
+          transaction: t,
+        }
+      );
+      return inventory[1][0].dataValues;
+    }
     const inventory = await this.sequelize.models[this.modelName].update(data, {
       where: { id },
       returning: true,

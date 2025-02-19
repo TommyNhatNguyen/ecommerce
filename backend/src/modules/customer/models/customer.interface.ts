@@ -1,3 +1,4 @@
+import { Transaction } from "sequelize";
 import {
   CustomerConditionDTO,
   CustomerCreateDTO,
@@ -18,7 +19,8 @@ export interface ICustomerUseCase {
     condition: CustomerConditionDTO
   ): Promise<ListResponse<Omit<Customer, "hash_password">[]>>;
   createCustomer(
-    data: Omit<CustomerCreateDTO, "cart_id" | "hash_password">
+    data: Omit<CustomerCreateDTO, "cart_id" | "hash_password">,
+    t?: Transaction
   ): Promise<Omit<Customer, "hash_password">>;
   updateCustomer(
     id: string,
@@ -53,7 +55,7 @@ export interface IQueryRepository {
 }
 
 export interface ICommandRepository {
-  createCustomer(data: CustomerCreateDTO): Promise<Customer>;
-  updateCustomer(id: string, data: CustomerUpdateDTO): Promise<Customer>;
-  deleteCustomer(id: string): Promise<boolean>;
+  createCustomer(data: CustomerCreateDTO, t?: Transaction): Promise<Customer>;
+  updateCustomer(id: string, data: CustomerUpdateDTO, t?: Transaction): Promise<Customer>;
+  deleteCustomer(id: string, t?: Transaction): Promise<boolean>;
 }

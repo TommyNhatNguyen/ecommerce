@@ -64,6 +64,7 @@ export class PaymentHttpService {
       const newPayment = await this.paymentUseCase.createPayment(payment);
       res.status(201).json({ message: 'Payment created', ...newPayment });
     } catch (error) {
+      console.log("🚀 ~ PaymentHttpService ~ createPayment ~ error:", error)
       res.status(500).json({ message: 'Internal server error' });
       return;
     }

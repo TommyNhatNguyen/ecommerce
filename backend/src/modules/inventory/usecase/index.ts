@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize';
 import {
   InventoryConditionDTO,
   InventoryCreateDTO,
@@ -37,23 +38,26 @@ export class InventoryUseCase implements IInventoryUseCase {
 
   async updateInventoryQuantity(
     productSellableId: string,
-    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>
+    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>,
+    t?: Transaction
   ): Promise<Inventory> {
     const updatedInventory =
       await this.inventoryRepository.updateInventoryQuantity(
         productSellableId,
-        data
+        data,
+        t
       );
     await this.updateInventoryStockStatus(updatedInventory.id, {
       quantity: updatedInventory.quantity,
       low_stock_threshold: updatedInventory.low_stock_threshold,
-    });
+    }, t);
     return updatedInventory;
   }
 
   async updateInventoryStockStatus(
     id: string,
-    data: Pick<InventoryUpdateDTO, 'low_stock_threshold' | 'quantity' | 'cost'>
+    data: Pick<InventoryUpdateDTO, 'low_stock_threshold' | 'quantity' | 'cost'>,
+    t?: Transaction
   ): Promise<Inventory> {
     const payload: InventoryUpdateDTO = { ...data };
     const updatedInventory = await this.inventoryRepository.get(id);
@@ -69,6 +73,9 @@ export class InventoryUseCase implements IInventoryUseCase {
       data.low_stock_threshold ?? updatedInventory.low_stock_threshold;
     const quantity = data.quantity ?? updatedInventory.quantity;
     payload.stock_status = determineStockStatus(quantity, threshold);
+    if (t) {
+      return await this.inventoryRepository.update(id, payload, t);
+    }
     return await this.inventoryRepository.update(id, payload);
   }
 

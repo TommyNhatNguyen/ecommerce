@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize';
 import { InventoryConditionDTO, InventoryUpdateDTO } from 'src/modules/inventory/models/inventory.dto';
 import { InventoryCreateDTO } from 'src/modules/inventory/models/inventory.dto';
 import { Inventory } from 'src/modules/inventory/models/inventory.model';
@@ -15,11 +16,13 @@ export interface IInventoryUseCase {
   deleteInventory(id: string): Promise<boolean>;
   updateInventoryStockStatus(
     id: string,
-    data: Required<Pick<InventoryUpdateDTO, 'low_stock_threshold'>>
+    data: Required<Pick<InventoryUpdateDTO, 'low_stock_threshold'>>,
+    t?: Transaction
   ): Promise<Inventory>;
   updateInventoryQuantity(
     productSellableId: string,
-    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>
+    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>,
+    t?: Transaction
   ): Promise<Inventory>;
 }
 
@@ -28,7 +31,8 @@ export interface IInventoryRepository
     ICommandRepository {
   updateInventoryQuantity(
     productSellableId: string,
-    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>
+    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>,
+    t?: Transaction
   ): Promise<Inventory>;
 }
 
@@ -41,7 +45,7 @@ export interface IQueryRepository {
 }
 
 export interface ICommandRepository {
-  create(data: InventoryCreateDTO): Promise<Inventory>;
-  update(id: string, data: InventoryUpdateDTO): Promise<Inventory>;
-  delete(id: string): Promise<boolean>;
+  create(data: InventoryCreateDTO, t?: Transaction): Promise<Inventory>;
+  update(id: string, data: InventoryUpdateDTO, t?: Transaction): Promise<Inventory>;
+  delete(id: string, t?: Transaction): Promise<boolean>;
 }

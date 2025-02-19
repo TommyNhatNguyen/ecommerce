@@ -1,3 +1,4 @@
+import { Transaction } from "sequelize";
 import {
   CartAddNewProductsDTO,
   CartAddProductsSellableDTO,
@@ -17,7 +18,7 @@ export interface ICartUseCase {
     paging: PagingDTO,
     condition: CartConditionDTO
   ): Promise<ListResponse<Cart[]>>;
-  create(data: CartCreateDTO): Promise<Cart>;
+  create(data: CartCreateDTO, t?: Transaction): Promise<Cart>;
   update(id: string, data: CartUpdateDTO): Promise<Cart>;
   delete(id: string): Promise<boolean>;
   addProductsToCart(
@@ -43,7 +44,7 @@ export interface IQueryRepository {
 }
 
 export interface ICommandRepository {
-  create(data: CartCreateDTO): Promise<Cart>;
+  create(data: CartCreateDTO, t?: Transaction): Promise<Cart>;
   update(id: string, data: CartUpdateDTO): Promise<Cart>;
   delete(id: string): Promise<boolean>;
 }

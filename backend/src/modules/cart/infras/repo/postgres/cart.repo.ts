@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize';
 import { Op } from 'sequelize';
 import { Includeable, Sequelize } from 'sequelize';
 import {
@@ -17,7 +18,10 @@ import {
   ProductSellablePersistence,
   productSellableModelName,
 } from 'src/modules/product_sellable/infras/repo/postgres/dto';
-import { variantModelName, VariantPersistence } from 'src/modules/variant/infras/repo/postgres/dto';
+import {
+  variantModelName,
+  VariantPersistence,
+} from 'src/modules/variant/infras/repo/postgres/dto';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
@@ -98,7 +102,14 @@ export class PostgresCartRepository implements ICartRepository {
       },
     };
   }
-  async create(data: CartCreateDTO): Promise<Cart> {
+  async create(data: CartCreateDTO, t?: Transaction): Promise<Cart> {
+    if (t) {
+      const cart = await this.sequelize.models[this.modelName].create(data, {
+        returning: true,
+        transaction: t,
+      });
+      return cart.dataValues;
+    }
     const cart = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });

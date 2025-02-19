@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Transaction } from 'sequelize';
 import {
   PaymentConditionDTO,
   PaymentCreateDTO,
@@ -40,7 +40,17 @@ export class PostgresPaymentRepository implements IPaymentRepository {
       },
     };
   }
-  async createPayment(payment: PaymentCreateDTO): Promise<Payment> {
+  async createPayment(
+    payment: PaymentCreateDTO,
+    t?: Transaction
+  ): Promise<Payment> {
+    if (t) {
+      const newPayment = await this.sequelize.models[this.modelName].create(
+        payment,
+        { returning: true, transaction: t }
+      );
+      return newPayment.dataValues;
+    }
     const newPayment = await this.sequelize.models[this.modelName].create(
       payment,
       { returning: true }

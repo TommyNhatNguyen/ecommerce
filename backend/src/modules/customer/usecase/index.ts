@@ -1,4 +1,5 @@
 import { compare, hash } from "bcrypt";
+import { Transaction } from "sequelize";
 import { ICartRepository } from "src/modules/cart/models/cart.interface";
 import {
   CustomerCreateDTO,
@@ -63,7 +64,8 @@ export class CustomerUseCase implements ICustomerUseCase {
     return await this.customerRepository.getCustomerList(paging, condition);
   }
   async createCustomer(
-    data: CustomerCreateDTO
+    data: CustomerCreateDTO,
+    t?: Transaction
   ): Promise<Omit<Customer, "hash_password">> {
     const cart = await this.cartRepository?.create({
       product_quantity: 0,
@@ -71,7 +73,7 @@ export class CustomerUseCase implements ICustomerUseCase {
       subtotal: 0,
       total_discount: 0,
       total: 0,
-    });
+    }, t);
     if (data.password) {
       const hash_password_input = await hash(
         data.password,
@@ -83,15 +85,16 @@ export class CustomerUseCase implements ICustomerUseCase {
       data.cart_id = cart.id;
     }
     const { hash_password, ...rest } =
-      await this.customerRepository.createCustomer(data);
+      await this.customerRepository.createCustomer(data, t);
     return rest;
   }
   async updateCustomer(
     id: string,
-    data: CustomerUpdateDTO
+    data: CustomerUpdateDTO,
+    t?: Transaction
   ): Promise<Omit<Customer, "hash_password">> {
     const { hash_password, ...rest } =
-      await this.customerRepository.updateCustomer(id, data);
+      await this.customerRepository.updateCustomer(id, data, t);
     return rest;
   }
   async deleteCustomer(id: string): Promise<boolean> {
