@@ -65,6 +65,7 @@ const DiscountCampaign = (props: Props) => {
   const handleSubmitCreateDiscountCampaign = async (data: any) => {
     await discountsService.createDiscount(data);
     refetch();
+    handleCloseModalCreateDiscountCampaign();
   };
   const _onDeleteDiscountCampaign = async (id: string) => {
     await discountsService.deleteDiscount(id);
@@ -123,10 +124,14 @@ const DiscountCampaign = (props: Props) => {
             ))}
         </div>
       )}
-      renderCreateModal={(isModalCreateOpen, handleClose, refetch) => (
+      renderCreateModal={(
+        isModalCreateOpen,
+        handleCloseModalCreate,
+        refetch,
+      ) => (
         <CreateDiscountModal
           isModalCreateDiscountCampaignOpen={isModalCreateOpen}
-          handleCloseModalCreateDiscountCampaign={handleClose}
+          handleCloseModalCreateDiscountCampaign={handleCloseModalCreate}
           handleSubmitCreateDiscountCampaignForm={
             handleSubmitCreateDiscountCampaign
           }

@@ -49,8 +49,12 @@ const CreateDiscountModal = ({
   };
 
   const _onConfirmCreateDiscountCampaign = (data: CreateDiscountDTO) => {
-    console.log("🚀 ~ const_onConfirmCreateDiscountCampaign= ~ data:", data);
-    handleSubmitCreateDiscountCampaignForm(data);
+    const payload: CreateDiscountDTO = {
+      ...data,
+      is_fixed: !data?.is_fixed ? false : data.is_fixed,
+      is_free: !data?.is_free ? false : data.is_free,
+    };
+    handleSubmitCreateDiscountCampaignForm(payload);
     reset();
     refetch?.();
   };
@@ -127,6 +131,7 @@ const CreateDiscountModal = ({
               disabled={watch("is_free") === true}
               checked={value}
               onChange={(value) => {
+                console.log("🚀 ~ onChange= ~ value:", value.target.checked);
                 onChange(value.target.checked);
               }}
               className="flex-1"
@@ -220,6 +225,10 @@ const CreateDiscountModal = ({
                 <Checkbox
                   checked={value}
                   onChange={(value) => {
+                    console.log(
+                      "🚀 ~ onChange= ~ value:",
+                      value.target.checked,
+                    );
                     onChange(value.target.checked);
                     setValue("amount", 100);
                     setValue("is_fixed", false);

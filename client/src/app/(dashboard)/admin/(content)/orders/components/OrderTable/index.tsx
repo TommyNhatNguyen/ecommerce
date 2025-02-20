@@ -594,6 +594,11 @@ const OrderTable = ({
         title: "Name",
         dataIndex: "name",
         key: "name",
+        render: (_, { variant }) => (
+          <Tooltip title={variant?.name}>
+            <span>{variant?.name}</span>
+          </Tooltip>
+        ),
       },
       {
         title: "Price",
@@ -637,9 +642,9 @@ const OrderTable = ({
                 return discount?.map((item) => (
                   <p key={item.id}>
                     {item.name} -{" "}
-                    {item.type === DISCOUNT_TYPE.PERCENTAGE
-                      ? formatDiscountPercentage(item.amount)
-                      : formatCurrency(item.amount)}
+                    {item.is_fixed
+                      ? formatCurrency(item.amount)
+                      : formatDiscountPercentage(item.amount)}
                   </p>
                 ));
               }}

@@ -39,6 +39,7 @@ import { StockStatus } from 'src/modules/inventory/models/inventory.model';
 import { IInventoryUseCase } from 'src/modules/inventory/models/inventory.interface';
 import { checkSufficientInventory } from 'src/modules/order_detail/usecase/checkSufficientInventory';
 import { Sequelize } from 'sequelize';
+import { DiscountCalculatorUsecaseImpl } from './DiscountCalculatorUsecase';
 
 export class OrderDetailUseCase implements IOrderDetailUseCase {
   constructor(
@@ -115,10 +116,6 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
                 const orderQuantity =
                   products_detail.find((item) => item.id === product.variant_id)
                     ?.quantity ?? 0;
-                console.log(
-                  '🚀 ~ OrderDetailUseCase ~ products.data.map ~ orderQuantity:',
-                  orderQuantity
-                );
                 return await this.inventoryUseCase.updateInventoryQuantity(
                   product.id,
                   {
@@ -128,10 +125,6 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
                   t
                 );
               })
-            );
-            console.log(
-              '🚀 ~ OrderDetailUseCase ~ result ~ response:',
-              response
             );
           }
           if (products.data.length !== products_detail.length) {
@@ -144,116 +137,58 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
             if (!productDetail) throw ORDER_DETAIL_PRODUCT_ERROR;
             return acc + product.price * (productDetail?.quantity ?? 0);
           }, 0);
-          const discountAmountList = products.data.map((product) => {
+          const discountAmountList: { [key: string]: number } = {};
+          products.data.forEach((product) => {
             const productDetail = products_detail.find(
               (p) => p.id === product.variant_id
             );
             if (!productDetail) throw ORDER_DETAIL_PRODUCT_ERROR;
+
+            // Filter valid discounts
             const applyDiscountList: Discount[] = product.discount
               ? product.discount.filter((item) => {
-                  const validDiscountList: string[] = [];
-                  let isApply = true;
-                  // Check start date and end date
                   const isDayValid =
                     new Date(item.start_date) >= new Date() &&
-                    new Date(item.end_date);
-                  if (isDayValid) {
-                    // Check require product count
-                    if (item.is_require_product_count) {
-                      const isMoreThanRequireProductCount: boolean =
-                        productDetail.quantity >=
-                        (item.require_product_count || 0);
-                      if (!isMoreThanRequireProductCount) {
-                        isApply = false;
-                      }
-                    }
-                    // Check max discount count
-                    const discount_count_after_order =
-                      productDetail.quantity + (item.discount_count || 0);
-                    const isBelowMaxDiscountCount: boolean =
-                      discount_count_after_order <=
-                      (item.max_discount_count || 0);
-                    if (item.has_max_discount_count) {
-                      if (!isBelowMaxDiscountCount) {
-                        isApply = false;
-                      }
-                    }
-                    // Apply discount if valid
-                    if (isApply) {
-                      validDiscountList.push(item.id);
-                      if (item.has_max_discount_count) {
-                        this.discountUseCase.updateDiscount(
-                          item.id,
-                          {
-                            discount_count: discount_count_after_order,
-                            has_max_discount_count: isBelowMaxDiscountCount,
-                          },
-                          t
-                        );
-                      }
-                    }
-                  } else {
-                    throw ORDER_DETAIL_DISCOUNT_DATE_ERROR;
-                  }
-                  return validDiscountList.includes(item.id);
+                    new Date(item.end_date) >= new Date(item.start_date);
+
+                  if (!isDayValid) throw ORDER_DETAIL_DISCOUNT_DATE_ERROR;
+                  return true;
                 })
               : [];
-            console.log(
-              '🚀 ~ OrderDetailUseCase ~ discountAmountList ~ applyDiscountList:',
-              applyDiscountList
-            );
-            // Update discount count
-            const discountFixed = applyDiscountList?.filter((d) => d.is_fixed);
-            const discountPercentage = applyDiscountList?.filter(
-              (d) => !d.is_fixed
-            );
-            const discountByFixedAmount =
-              discountFixed?.reduce((acc, discount) => {
-                let applyProductQuantity: number = 1;
-                // Apply discount for require product count
-                if (discount.is_require_product_count) {
-                  applyProductQuantity = Math.floor(
-                    productDetail.quantity /
-                      (discount.require_product_count || 0)
-                  );
-                }
-                // Apply discount for max discount count
-                if (discount.has_max_discount_count) {
-                  applyProductQuantity =
-                    productDetail.quantity >= (discount.max_discount_count || 0)
-                      ? discount.max_discount_count || 0
-                      : productDetail.quantity;
-                }
-                return acc + discount.amount * applyProductQuantity;
-              }, 0) ?? 0;
-            const discountByPercentageAmount =
-              discountPercentage?.reduce((acc, discount) => {
-                let applyProductQuantity: number = 1;
-                // Apply discount for require product count
-                if (discount.is_require_product_count) {
-                  applyProductQuantity = Math.floor(
-                    productDetail.quantity /
-                      (discount.require_product_count || 0)
-                  );
-                }
-                // Apply discount for max discount count
-                if (discount.has_max_discount_count) {
-                  applyProductQuantity =
-                    productDetail.quantity >= (discount.max_discount_count || 0)
-                      ? discount.max_discount_count || 0
-                      : productDetail.quantity;
-                }
-                return (
-                  acc +
-                  (product.price *
-                    (productDetail.quantity ?? 0) *
-                    discount.amount) /
-                    100
-                );
-              }, 0) ?? 0;
-            return discountByFixedAmount + discountByPercentageAmount;
-          });
 
+            // Calculate total discount using DiscountCalculator
+            const discountAmount = applyDiscountList.reduce(
+              (totalDiscount, discount) => {
+                const calculator = new DiscountCalculatorUsecaseImpl(
+                  discount,
+                  this.discountUseCase
+                );
+
+                let discountAmount = 0;
+                if (discount.is_require_product_count) {
+                  discountAmount = calculator.requireProductCountAmount(
+                    productDetail.quantity,
+                    product.price,
+                    discount.has_max_discount_count
+                  );
+                } else if (discount.has_max_discount_count) {
+                  discountAmount = calculator.maxDiscountCountAmount(
+                    productDetail.quantity,
+                    product.price
+                  );
+                } else {
+                  discountAmount = calculator.calculateDiscountAmount(
+                    productDetail.quantity,
+                    product.price
+                  );
+                }
+
+                return totalDiscount + discountAmount;
+              },
+              0
+            );
+            discountAmountList[product.variant_id] = discountAmount;
+          });
           orderDetailProducts.push(
             ...products.data.map((product, index) => ({
               order_detail_id: '',
@@ -266,12 +201,12 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
                 product.price *
                 (products_detail.find((p) => p.id === product.variant_id)
                   ?.quantity ?? 0),
-              discount_amount: discountAmountList[index],
+              discount_amount: discountAmountList[product.variant_id],
               total:
                 product.price *
                   (products_detail.find((p) => p.id === product.variant_id)
                     ?.quantity ?? 0) -
-                discountAmountList[index],
+                discountAmountList[product.variant_id],
             }))
           );
         }
@@ -346,74 +281,26 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
           if (discounts.data.length !== order_discounts.length) {
             throw ORDER_DETAIL_DISCOUNT_ERROR;
           }
-          const applyOrderDiscountList =
-            discounts.data &&
-            discounts.data.filter((discount) => {
-              const validDiscountList: string[] = [];
-              let isApply = true;
-              // Check start date and end date
-              const isDayValid =
-                new Date(discount.start_date) >= new Date() &&
-                new Date(discount.end_date);
-              if (isDayValid) {
-                // Check require product count
-                if (discount.require_product_count) {
-                  const isMoreThanRequireProductCount =
-                    orderDetailProducts.reduce(
-                      (acc, product) => acc + product.quantity,
-                      0
-                    ) >= (discount.require_product_count || 0);
-                  if (!isMoreThanRequireProductCount) {
-                    isApply = false;
-                  }
-                }
-                // Check require order amount
-                if (discount.is_require_order_amount) {
-                  const isMoreThanRequireOrderAmount =
-                    discount.require_order_amount &&
-                    payload.subtotal >= discount.require_order_amount;
-                  if (!isMoreThanRequireOrderAmount) {
-                    isApply = false;
-                  }
-                }
-                // Check max discount count
-                const discount_count_after_order =
-                  (discount.discount_count || 0) + 1;
-                const isBelowMaxDiscountCount: boolean =
-                  discount_count_after_order <=
-                  (discount.max_discount_count || 0);
-                if (discount.has_max_discount_count) {
-                  if (!isBelowMaxDiscountCount) {
-                    isApply = false;
-                  } else {
-                  }
-                }
-                // Apply discount if valid
-                if (isApply) {
-                  validDiscountList.push(discount.id);
-                  if (discount.has_max_discount_count) {
-                    this.discountUseCase.updateDiscount(
-                      discount.id,
-                      {
-                        discount_count: discount_count_after_order,
-                        has_max_discount_count: isBelowMaxDiscountCount,
-                      },
-                      t
-                    );
-                  }
-                }
-              }
-              return validDiscountList.includes(discount.id);
-            });
-          payload.total_order_discount = applyOrderDiscountList.reduce(
-            (acc, discount) => {
-              let totalDiscount = 0;
-              if (discount.is_fixed) {
-                totalDiscount += discount.amount;
-              } else {
-                totalDiscount += (payload.subtotal * discount.amount) / 100;
-              }
-              return acc + totalDiscount;
+          const totalProductQuantity = orderDetailProducts.reduce(
+            (acc, product) => acc + product.quantity,
+            0
+          );
+
+          payload.total_order_discount = discounts.data.reduce(
+            (totalDiscount, discount) => {
+              const calculator = new DiscountCalculatorUsecaseImpl(
+                discount,
+                this.discountUseCase
+              );
+
+              const discountAmount = calculator.requireOrderAmount(
+                payload.subtotal,
+                discount.has_max_discount_count,
+                discount.is_require_order_amount,
+                totalProductQuantity
+              );
+
+              return totalDiscount + discountAmount;
             },
             0
           );
@@ -441,6 +328,12 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         // --- CREATE ORDER DETAIL ---
 
         const orderDetail = await this.orderDetailRepository.create(payload, t);
+        console.log(
+          '🚀 ~ OrderDetailUseCase ~ result ~ orderDetailProducts:',
+          orderDetailProducts,
+          orderDetail
+        );
+
         await this.orderDetailProductRepository.addProducts(
           orderDetailProducts.map((product) => ({
             ...product,
