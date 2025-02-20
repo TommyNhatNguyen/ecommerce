@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize';
 import {
   DiscountConditionDTO,
   DiscountCreateDTO,
@@ -21,7 +22,11 @@ export interface IDiscountUseCase {
       | 'is_require_order_amount'
     >
   ): Promise<Discount>;
-  updateDiscount(id: string, data: DiscountUpdateDTO): Promise<Discount>;
+  updateDiscount(
+    id: string,
+    data: DiscountUpdateDTO,
+    t?: Transaction
+  ): Promise<Discount>;
   deleteDiscount(id: string): Promise<boolean>;
 }
 
@@ -39,6 +44,10 @@ export interface IQueryRepository {
 
 export interface ICommandRepository {
   insert(data: DiscountCreateDTO): Promise<Discount>;
-  update(id: string, data: DiscountUpdateDTO): Promise<Discount>;
+  update(
+    id: string,
+    data: DiscountUpdateDTO,
+    t?: Transaction
+  ): Promise<Discount>;
   delete(id: string): Promise<boolean>;
 }

@@ -58,7 +58,7 @@ export class PostgresVariantRepository implements IVariantRepository {
     const optionValueInclude: Includeable[] = [];
     const optionValueWhere: WhereOptions = {};
     const where: WhereOptions = {};
-    if (condition.include_product) {
+    if (condition?.include_product) {
       include.push({
         model: ProductPersistence,
         as: productModelName.toLowerCase(),
@@ -67,7 +67,7 @@ export class PostgresVariantRepository implements IVariantRepository {
         },
       });
     }
-    if (condition.include_product_sellable) {
+    if (condition?.include_product_sellable) {
       include.push({
         model: ProductSellablePersistence,
         as: productSellableModelName.toLowerCase(),
@@ -85,16 +85,16 @@ export class PostgresVariantRepository implements IVariantRepository {
         ],
       });
     }
-    if (condition.include_options_value) {
-      if (condition.include_option) {
+    if (condition?.include_options_value) {
+      if (condition?.include_option) {
         optionValueInclude.push({
           model: OptionsPersistence,
           as: optionsModelName.toLowerCase(),
         });
       }
-      if (condition.option_value_ids) {
+      if (condition?.option_value_ids) {
         optionValueWhere.id = {
-          [Op.in]: condition.option_value_ids,
+          [Op.in]: condition?.option_value_ids,
         };
       }
       include.push({
@@ -106,8 +106,8 @@ export class PostgresVariantRepository implements IVariantRepository {
         include: optionValueInclude,
       });
     }
-    if (condition.product_id) {
-      where.product_id = condition.product_id;
+    if (condition?.product_id) {
+      where.product_id = condition?.product_id;
     }
     const variant = await this.sequelize.models[this.modelName].findByPk(id, {
       include,
@@ -122,7 +122,7 @@ export class PostgresVariantRepository implements IVariantRepository {
     const where: WhereOptions = {};
     const optionValueInclude: Includeable[] = [];
     const optionValueWhere: WhereOptions = {};
-    if (condition.include_product) {
+    if (condition?.include_product) {
       include.push({
         model: ProductPersistence,
         as: productModelName.toLowerCase(),
@@ -131,7 +131,7 @@ export class PostgresVariantRepository implements IVariantRepository {
         },
       });
     }
-    if (condition.include_product_sellable) {
+    if (condition?.include_product_sellable) {
       include.push({
         model: ProductSellablePersistence,
         as: productSellableModelName.toLowerCase(),
@@ -149,15 +149,15 @@ export class PostgresVariantRepository implements IVariantRepository {
         ],
       });
     }
-    if (condition.include_options_value) {
-      if (condition.include_option) {
+    if (condition?.include_options_value) {
+      if (condition?.include_option) {
         optionValueInclude.push({
           model: OptionsPersistence,
           as: optionsModelName.toLowerCase(),
         });
       }
-      if (condition.option_value_ids) {
-        const optionValueIds = condition.option_value_ids
+      if (condition?.option_value_ids) {
+        const optionValueIds = condition?.option_value_ids
           .map((id) => `'${id}'`)
           .join(', ');
         where.id = {
@@ -167,7 +167,7 @@ export class PostgresVariantRepository implements IVariantRepository {
               FROM variant_option_value 
               WHERE option_value_id IN (${optionValueIds})
               GROUP BY variant_id
-              HAVING COUNT(DISTINCT option_value_id) = ${condition.option_value_ids.length} 
+              HAVING COUNT(DISTINCT option_value_id) = ${condition?.option_value_ids.length} 
             )`
           ),
         };
@@ -182,8 +182,8 @@ export class PostgresVariantRepository implements IVariantRepository {
         where: optionValueWhere,
       });
     }
-    if (condition.product_id) {
-      where.product_id = condition.product_id;
+    if (condition?.product_id) {
+      where.product_id = condition?.product_id;
     }
     const { page, limit } = paging;
     const order = condition?.order || BaseOrder.DESC;

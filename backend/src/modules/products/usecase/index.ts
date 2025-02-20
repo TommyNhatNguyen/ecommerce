@@ -87,6 +87,7 @@ export class ProductUseCase implements IProductUseCase {
                 },
                 t
               );
+              console.log("🚀 ~ ProductUseCase ~ variants.map ~ variantData:", variantData)
               const productSellableData =
                 await this.productSellableUseCase.createNewProductSellable(
                   {

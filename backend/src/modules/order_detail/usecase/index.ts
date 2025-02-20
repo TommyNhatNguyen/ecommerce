@@ -115,6 +115,10 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
                 const orderQuantity =
                   products_detail.find((item) => item.id === product.variant_id)
                     ?.quantity ?? 0;
+                console.log(
+                  '🚀 ~ OrderDetailUseCase ~ products.data.map ~ orderQuantity:',
+                  orderQuantity
+                );
                 return await this.inventoryUseCase.updateInventoryQuantity(
                   product.id,
                   {
@@ -124,6 +128,10 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
                   t
                 );
               })
+            );
+            console.log(
+              '🚀 ~ OrderDetailUseCase ~ result ~ response:',
+              response
             );
           }
           if (products.data.length !== products_detail.length) {
@@ -144,32 +152,46 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
             const applyDiscountList: Discount[] = product.discount
               ? product.discount.filter((item) => {
                   const validDiscountList: string[] = [];
+                  let isApply = true;
                   // Check start date and end date
                   const isDayValid =
                     new Date(item.start_date) >= new Date() &&
                     new Date(item.end_date);
                   if (isDayValid) {
-                    // Check max discount count
-                    if (item.has_max_discount_count) {
-                      const isBelowMaxDiscountCount =
-                        item.discount_count &&
-                        item.max_discount_count &&
-                        item.max_discount_count >=
-                          productDetail.quantity + item.discount_count;
-                      if (!isBelowMaxDiscountCount) {
-                        throw ORDER_DETAIL_MAX_DISCOUNT_COUNT_ERROR;
-                      }
-                    }
                     // Check require product count
                     if (item.is_require_product_count) {
-                      const isEqualRequireProductCount =
-                        item.require_product_count &&
-                        item.require_product_count >= productDetail.quantity;
-                      if (!isEqualRequireProductCount) {
-                        throw ORDER_DETAIL_DISCOUNT_REQUIRE_PRODUCT_COUNT_ERROR;
+                      const isMoreThanRequireProductCount: boolean =
+                        productDetail.quantity >=
+                        (item.require_product_count || 0);
+                      if (!isMoreThanRequireProductCount) {
+                        isApply = false;
                       }
                     }
-                    validDiscountList.push(item.id);
+                    // Check max discount count
+                    const discount_count_after_order =
+                      productDetail.quantity + (item.discount_count || 0);
+                    const isBelowMaxDiscountCount: boolean =
+                      discount_count_after_order <=
+                      (item.max_discount_count || 0);
+                    if (item.has_max_discount_count) {
+                      if (!isBelowMaxDiscountCount) {
+                        isApply = false;
+                      }
+                    }
+                    // Apply discount if valid
+                    if (isApply) {
+                      validDiscountList.push(item.id);
+                      if (item.has_max_discount_count) {
+                        this.discountUseCase.updateDiscount(
+                          item.id,
+                          {
+                            discount_count: discount_count_after_order,
+                            has_max_discount_count: isBelowMaxDiscountCount,
+                          },
+                          t
+                        );
+                      }
+                    }
                   } else {
                     throw ORDER_DETAIL_DISCOUNT_DATE_ERROR;
                   }
@@ -180,16 +202,47 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
               '🚀 ~ OrderDetailUseCase ~ discountAmountList ~ applyDiscountList:',
               applyDiscountList
             );
+            // Update discount count
             const discountFixed = applyDiscountList?.filter((d) => d.is_fixed);
             const discountPercentage = applyDiscountList?.filter(
               (d) => !d.is_fixed
             );
             const discountByFixedAmount =
               discountFixed?.reduce((acc, discount) => {
-                return acc + discount.amount * (productDetail.quantity ?? 0);
+                let applyProductQuantity: number = 1;
+                // Apply discount for require product count
+                if (discount.is_require_product_count) {
+                  applyProductQuantity = Math.floor(
+                    productDetail.quantity /
+                      (discount.require_product_count || 0)
+                  );
+                }
+                // Apply discount for max discount count
+                if (discount.has_max_discount_count) {
+                  applyProductQuantity =
+                    productDetail.quantity >= (discount.max_discount_count || 0)
+                      ? discount.max_discount_count || 0
+                      : productDetail.quantity;
+                }
+                return acc + discount.amount * applyProductQuantity;
               }, 0) ?? 0;
             const discountByPercentageAmount =
               discountPercentage?.reduce((acc, discount) => {
+                let applyProductQuantity: number = 1;
+                // Apply discount for require product count
+                if (discount.is_require_product_count) {
+                  applyProductQuantity = Math.floor(
+                    productDetail.quantity /
+                      (discount.require_product_count || 0)
+                  );
+                }
+                // Apply discount for max discount count
+                if (discount.has_max_discount_count) {
+                  applyProductQuantity =
+                    productDetail.quantity >= (discount.max_discount_count || 0)
+                      ? discount.max_discount_count || 0
+                      : productDetail.quantity;
+                }
                 return (
                   acc +
                   (product.price *
@@ -297,21 +350,58 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
             discounts.data &&
             discounts.data.filter((discount) => {
               const validDiscountList: string[] = [];
+              let isApply = true;
               // Check start date and end date
               const isDayValid =
                 new Date(discount.start_date) >= new Date() &&
                 new Date(discount.end_date);
               if (isDayValid) {
-                // Check require order amount
-                if (discount.is_require_order_amount) {
-                  const isEqualRequireOrderAmount =
-                    discount.require_order_amount &&
-                    discount.require_order_amount >= payload.subtotal;
-                  if (!isEqualRequireOrderAmount) {
-                    throw ORDER_DETAIL_DISCOUNT_REQUIRE_ORDER_AMOUNT_ERROR;
+                // Check require product count
+                if (discount.require_product_count) {
+                  const isMoreThanRequireProductCount =
+                    orderDetailProducts.reduce(
+                      (acc, product) => acc + product.quantity,
+                      0
+                    ) >= (discount.require_product_count || 0);
+                  if (!isMoreThanRequireProductCount) {
+                    isApply = false;
                   }
                 }
-                validDiscountList.push(discount.id);
+                // Check require order amount
+                if (discount.is_require_order_amount) {
+                  const isMoreThanRequireOrderAmount =
+                    discount.require_order_amount &&
+                    payload.subtotal >= discount.require_order_amount;
+                  if (!isMoreThanRequireOrderAmount) {
+                    isApply = false;
+                  }
+                }
+                // Check max discount count
+                const discount_count_after_order =
+                  (discount.discount_count || 0) + 1;
+                const isBelowMaxDiscountCount: boolean =
+                  discount_count_after_order <=
+                  (discount.max_discount_count || 0);
+                if (discount.has_max_discount_count) {
+                  if (!isBelowMaxDiscountCount) {
+                    isApply = false;
+                  } else {
+                  }
+                }
+                // Apply discount if valid
+                if (isApply) {
+                  validDiscountList.push(discount.id);
+                  if (discount.has_max_discount_count) {
+                    this.discountUseCase.updateDiscount(
+                      discount.id,
+                      {
+                        discount_count: discount_count_after_order,
+                        has_max_discount_count: isBelowMaxDiscountCount,
+                      },
+                      t
+                    );
+                  }
+                }
               }
               return validDiscountList.includes(discount.id);
             });

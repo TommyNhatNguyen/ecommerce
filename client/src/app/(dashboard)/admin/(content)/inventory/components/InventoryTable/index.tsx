@@ -73,6 +73,7 @@ import { StockStatus } from "@/app/shared/models/inventories/stock-status";
 import { STOCK_STATUS } from "@/app/constants/stock-status";
 import { DISCOUNT_TYPE } from "@/app/constants/enum";
 import { VariantProductModel } from "@/app/shared/models/variant/variant.model";
+import { DiscountModel } from "@/app/shared/models/discounts/discounts.model";
 
 type InventoryTablePropsType = {
   handleSelectAllRow: (
@@ -453,7 +454,7 @@ const InventoryTable = ({
         );
         return (
           <div className="flex flex-col gap-2">
-            {discounts?.map((discount, index) => (
+            {discounts?.map((discount: DiscountModel, index: number) => (
               <Tooltip
                 title={discount?.description}
                 popupVisible={discount?.description ? true : false}
@@ -462,9 +463,9 @@ const InventoryTable = ({
                 <Tag>
                   <span>
                     {discount?.name} -{" "}
-                    {discount?.type === DISCOUNT_TYPE.PERCENTAGE
-                      ? formatDiscountPercentage(discount?.amount || 0)
-                      : formatCurrency(discount?.amount || 0)}
+                    {discount?.is_fixed
+                      ? formatCurrency(discount?.amount || 0)
+                      : formatDiscountPercentage(discount?.amount || 0)}
                   </span>
                 </Tag>
               </Tooltip>

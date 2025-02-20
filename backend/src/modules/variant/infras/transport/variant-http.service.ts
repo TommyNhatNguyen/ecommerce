@@ -16,6 +16,7 @@ export class VariantHttpService {
       }
       res.status(200).json({ message: 'Variant found', data: checkVariant });
     } catch (error) {
+      console.log("🚀 ~ VariantHttpService ~ getVariantById ~ error:", error)
       res.status(500).json({ message: 'Failed to get variant' });
       return;
     }

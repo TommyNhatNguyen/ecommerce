@@ -32,6 +32,7 @@ export class VariantUseCase implements IVariantUseCase {
     t?: Transaction
   ): Promise<Variant> {
     const variant = await this.variantRepository.insert(data, t);
+    console.log("🚀 ~ VariantUseCase ~ variant:", variant)
     await this.variantOptionValueRepository.addOptionValue(
       data.options_value_ids.map((optionValueId) => ({
         variant_id: variant.id,

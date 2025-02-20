@@ -13,6 +13,7 @@ import {
 } from 'src/share/models/base-model';
 import { IDiscountRepository } from 'src/modules/discount/models/discount.interface';
 import { WhereOptions } from '@sequelize/core';
+import { Transaction } from 'sequelize';
 
 export class PostgresDiscountRepository implements IDiscountRepository {
   constructor(
@@ -67,7 +68,24 @@ export class PostgresDiscountRepository implements IDiscountRepository {
     const insertedDiscount = discount.dataValues;
     return insertedDiscount;
   }
-  async update(id: string, data: DiscountUpdateDTO): Promise<Discount> {
+  async update(
+    id: string,
+    data: DiscountUpdateDTO,
+    t?: Transaction
+  ): Promise<Discount> {
+    if (t) {
+      const result = await this.sequelize.models[this.modelName].update(data, {
+        where: { id },
+        returning: true,
+        transaction: t,
+      });
+      const updatedDiscount = result[1][0].dataValues;
+      console.log(
+        '🚀 ~ PostgresDiscountRepository ~ updatedDiscount:',
+        updatedDiscount
+      );
+      return updatedDiscount;
+    }
     const result = await this.sequelize.models[this.modelName].update(data, {
       where: { id },
       returning: true,

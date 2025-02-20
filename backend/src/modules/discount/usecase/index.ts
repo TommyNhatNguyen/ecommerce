@@ -14,6 +14,7 @@ import {
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { DISCOUNT_AMOUNT_ERROR } from 'src/modules/discount/models/discount.error';
+import { Transaction } from 'sequelize';
 
 export class DiscountUseCase implements IDiscountUseCase {
   constructor(private readonly repository: IDiscountRepository) {}
@@ -55,8 +56,12 @@ export class DiscountUseCase implements IDiscountUseCase {
     }
     return await this.repository.insert(payload);
   }
-  async updateDiscount(id: string, data: DiscountUpdateDTO): Promise<Discount> {
-    return await this.repository.update(id, data);
+  async updateDiscount(
+    id: string,
+    data: DiscountUpdateDTO,
+    t?: Transaction
+  ): Promise<Discount> {
+    return await this.repository.update(id, data, t);
   }
   async deleteDiscount(id: string): Promise<boolean> {
     await this.repository.delete(id);

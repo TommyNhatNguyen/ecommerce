@@ -89,9 +89,9 @@ const DiscountCampaign = (props: Props) => {
             data.map((item) => (
               <Tooltip
                 title={`${
-                  item.type === DISCOUNT_TYPE.PERCENTAGE
-                    ? `${formatDiscountPercentage(item.amount || 0)}`
-                    : `${formatCurrency(item.amount || 0)}`
+                  item.is_fixed
+                    ? `${formatCurrency(item.amount || 0)}`
+                    : `${formatDiscountPercentage(item.amount || 0)}`
                 }`}
                 key={item.id}
               >
@@ -123,14 +123,10 @@ const DiscountCampaign = (props: Props) => {
             ))}
         </div>
       )}
-      renderCreateModal={(
-        isModalCreateOpen,
-        handleCloseModalCreate,
-        refetch,
-      ) => (
+      renderCreateModal={(isModalCreateOpen, handleClose, refetch) => (
         <CreateDiscountModal
           isModalCreateDiscountCampaignOpen={isModalCreateOpen}
-          handleCloseModalCreateDiscountCampaign={handleCloseModalCreate}
+          handleCloseModalCreateDiscountCampaign={handleClose}
           handleSubmitCreateDiscountCampaignForm={
             handleSubmitCreateDiscountCampaign
           }

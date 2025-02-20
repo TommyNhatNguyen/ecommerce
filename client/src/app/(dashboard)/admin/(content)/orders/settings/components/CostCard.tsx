@@ -24,7 +24,7 @@ const CostCard = (props: Props) => {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["cost"],
+    queryKey: ["cost-infinite"],
     queryFn: (p) =>
       costService.getList({
         page: p.pageParam,

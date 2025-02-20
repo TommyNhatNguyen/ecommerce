@@ -81,7 +81,7 @@ export class PostgresOrderDetailRepository implements IOrderDetailRepository {
         {
           model: DiscountPersistence,
           as: discountModelName,
-          attributes: ['id', 'name', 'amount'],
+          attributes: [...EXCLUDE_ATTRIBUTES],
           through: {
             attributes: [],
             as: 'order_discounts',
@@ -97,6 +97,7 @@ export class PostgresOrderDetailRepository implements IOrderDetailRepository {
           },
         },
       ],
+      order: [['created_at', 'DESC']],
     });
     return {
       data: rows.map((row) => row.dataValues),

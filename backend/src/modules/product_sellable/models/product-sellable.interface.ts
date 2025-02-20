@@ -63,7 +63,7 @@ export interface IQueryRepository {
 }
 
 export interface ICommandRepository {
-  insert(data: ProductSellableCreateDTO): Promise<ProductSellable>;
+  insert(data: ProductSellableCreateDTO, t?: Transaction): Promise<ProductSellable>;
   update(id: string, data: ProductSellableUpdateDTO): Promise<ProductSellable>;
   delete(id: string): Promise<boolean>;
 }

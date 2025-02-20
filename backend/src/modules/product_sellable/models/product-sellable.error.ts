@@ -1,0 +1,1 @@
+export const PRODUCT_SELLABLE_DISCOUNT_DATE_ERROR = 'Discount date is not valid';

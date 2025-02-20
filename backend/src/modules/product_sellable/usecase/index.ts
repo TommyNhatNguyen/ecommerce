@@ -18,7 +18,11 @@ import { ProductSellable } from 'src/modules/product_sellable/models/product-sel
 import { PagingDTO } from 'src/share/models/paging';
 import { ListResponse } from 'src/share/models/base-model';
 import { Transaction } from 'sequelize';
-import { DiscountScope } from 'src/modules/discount/models/discount.model';
+import {
+  Discount,
+  DiscountScope,
+} from 'src/modules/discount/models/discount.model';
+import { PRODUCT_SELLABLE_DISCOUNT_DATE_ERROR } from 'src/modules/product_sellable/models/product-sellable.error';
 
 export class ProductSellableUseCase implements IProductSellableUseCase {
   constructor(
@@ -46,25 +50,33 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
       total_discounts,
       price_after_discounts,
     };
+    console.log('🚀 ~ ProductSellableUseCase ~ payload:', payload);
     // --- DISCOUNT ---
     if (data.discountIds && data.discountIds.length > 0) {
       const discountList = await this.discountUseCase?.listDiscount(
         { page: 1, limit: data.discountIds.length },
         { ids: data.discountIds, scope: DiscountScope.PRODUCT }
       );
+      const applyDiscountList: Discount[] = (discountList?.data || []).filter(
+        (item) => !item.is_require_product_count
+      );
       payload.total_discounts =
         data.price *
-          ((discountList?.data || [])
+          ((applyDiscountList || [])
             ?.filter((item) => !item.is_fixed)
             ?.map((item) => item.amount)
             ?.reduce((arr, curr) => arr + curr, 0) / 100 || 0) +
-        ((discountList?.data || [])
+        ((applyDiscountList || [])
           ?.filter((item) => item.is_fixed)
           ?.map((item) => item.amount)
           ?.reduce((arr, curr) => arr + curr, 0) || 0);
-      payload.price_after_discounts = data.price - payload.total_discounts;
+
+      payload.price_after_discounts = Math.max(
+        data.price - payload.total_discounts,
+        0
+      );
     }
-    const productSellable = await this.repository.insert(payload);
+    const productSellable = await this.repository.insert(payload, t);
     if (data.discountIds && data.discountIds.length > 0) {
       await this.productSellableDiscountRepository.addDiscounts(
         data.discountIds.map((id) => ({

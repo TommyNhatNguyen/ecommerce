@@ -189,10 +189,9 @@ const CreateOrderDetailModal = ({
     const orderDiscount =
       getValues("order_detail_info.order_discounts")?.reduce((acc, curr) => {
         const discount = discountList?.data.find((item) => item.id === curr);
-        const finalDiscount =
-          discount?.type === DISCOUNT_TYPE.PERCENTAGE
-            ? ((discount?.amount || 0) * (subtotal || 0)) / 100
-            : discount?.amount || 0;
+        const finalDiscount = discount?.is_fixed
+          ? discount?.amount || 0
+          : ((discount?.amount || 0) * (subtotal || 0)) / 100;
         return acc + finalDiscount;
       }, 0) || 0;
     const totalShippingFee =
