@@ -28,12 +28,19 @@ export class InventoryUseCase implements IInventoryUseCase {
     return await this.inventoryRepository.list(paging, condition);
   }
 
-  async createInventory(data: InventoryCreateDTO): Promise<Inventory> {
-    const createdInventory = await this.inventoryRepository.create(data);
-    return await this.updateInventoryStockStatus(createdInventory.id, {
-      quantity: data.quantity,
-      low_stock_threshold: data.low_stock_threshold,
-    });
+  async createInventory(
+    data: InventoryCreateDTO,
+    t?: Transaction
+  ): Promise<Inventory> {
+    const createdInventory = await this.inventoryRepository.create(data, t);
+    return await this.updateInventoryStockStatus(
+      createdInventory.id,
+      {
+        quantity: data.quantity,
+        low_stock_threshold: data.low_stock_threshold,
+      },
+      t
+    );
   }
 
   async updateInventoryQuantity(
@@ -47,10 +54,14 @@ export class InventoryUseCase implements IInventoryUseCase {
         data,
         t
       );
-    await this.updateInventoryStockStatus(updatedInventory.id, {
-      quantity: updatedInventory.quantity,
-      low_stock_threshold: updatedInventory.low_stock_threshold,
-    }, t);
+    await this.updateInventoryStockStatus(
+      updatedInventory.id,
+      {
+        quantity: updatedInventory.quantity,
+        low_stock_threshold: updatedInventory.low_stock_threshold,
+      },
+      t
+    );
     return updatedInventory;
   }
 

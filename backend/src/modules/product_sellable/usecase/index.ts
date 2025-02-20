@@ -17,6 +17,8 @@ import {
 import { ProductSellable } from 'src/modules/product_sellable/models/product-sellable.model';
 import { PagingDTO } from 'src/share/models/paging';
 import { ListResponse } from 'src/share/models/base-model';
+import { Transaction } from 'sequelize';
+import { DiscountScope } from 'src/modules/discount/models/discount.model';
 
 export class ProductSellableUseCase implements IProductSellableUseCase {
   constructor(
@@ -34,7 +36,8 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
     data: Omit<
       ProductSellableCreateDTO,
       'total_discounts' | 'price_after_discounts'
-    >
+    >,
+    t?: Transaction
   ): Promise<ProductSellable> {
     let total_discounts: number = 0;
     let price_after_discounts = data.price;
@@ -47,7 +50,7 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
     if (data.discountIds && data.discountIds.length > 0) {
       const discountList = await this.discountUseCase?.listDiscount(
         { page: 1, limit: data.discountIds.length },
-        { ids: data.discountIds }
+        { ids: data.discountIds, scope: DiscountScope.PRODUCT }
       );
       payload.total_discounts =
         data.price *
@@ -67,18 +70,22 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
         data.discountIds.map((id) => ({
           product_sellable_id: productSellable.id,
           discount_id: id,
-        }))
+        })),
+        t
       );
     }
 
     // --- INVENTORY ---
-    await this.inventoryUseCase.createInventory({
-      product_sellable_id: productSellable.id,
-      quantity: data.quantity ?? 0,
-      low_stock_threshold: data.low_stock_threshold ?? 0,
-      cost: data.cost ?? 0,
-      total_value: (data.cost ?? 0) * (data.quantity ?? 0),
-    });
+    await this.inventoryUseCase.createInventory(
+      {
+        product_sellable_id: productSellable.id,
+        quantity: data.quantity ?? 0,
+        low_stock_threshold: data.low_stock_threshold ?? 0,
+        cost: data.cost ?? 0,
+        total_value: (data.cost ?? 0) * (data.quantity ?? 0),
+      },
+      t
+    );
 
     // --- IMAGE ---
     if (data.imageIds && data.imageIds.length > 0) {
@@ -86,7 +93,8 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
         data.imageIds.map((id) => ({
           product_sellable_id: productSellable.id,
           image_id: id,
-        }))
+        })),
+        t
       );
     }
     return productSellable;

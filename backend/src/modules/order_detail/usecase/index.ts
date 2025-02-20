@@ -146,14 +146,15 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
                   const validDiscountList: string[] = [];
                   // Check start date and end date
                   const isDayValid =
-                    new Date(item.start_date) <= new Date() &&
-                    new Date(item.end_date) >= new Date();
+                    new Date(item.start_date) >= new Date() &&
+                    new Date(item.end_date);
                   if (isDayValid) {
                     // Check max discount count
                     if (item.has_max_discount_count) {
                       const isBelowMaxDiscountCount =
                         item.discount_count &&
-                        item.discount_count >=
+                        item.max_discount_count &&
+                        item.max_discount_count >=
                           productDetail.quantity + item.discount_count;
                       if (!isBelowMaxDiscountCount) {
                         throw ORDER_DETAIL_MAX_DISCOUNT_COUNT_ERROR;
@@ -298,8 +299,8 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
               const validDiscountList: string[] = [];
               // Check start date and end date
               const isDayValid =
-                new Date(discount.start_date) <= new Date() &&
-                new Date(discount.end_date) >= new Date();
+                new Date(discount.start_date) >= new Date() &&
+                new Date(discount.end_date);
               if (isDayValid) {
                 // Check require order amount
                 if (discount.is_require_order_amount) {

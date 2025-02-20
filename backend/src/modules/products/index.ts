@@ -92,7 +92,8 @@ export const setupProductRouter = (sequelize: Sequelize) => {
     repository,
     productCategoryRepository,
     variantUseCase,
-    productSellableUseCase
+    productSellableUseCase,
+    sequelize
   );
   const httpService = new ProductHttpService(useCase);
   const router = Router();

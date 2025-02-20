@@ -56,14 +56,24 @@ import {
   optionValueModelName,
   OptionValuePersistence,
 } from 'src/modules/options/infras/repo/postgres/dto';
+import { Transaction } from 'sequelize';
 
 export class PostgresProductRepository implements IProductRepository {
   constructor(
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
-  async addCategories(data: ProductCategoryCreateDTO[]): Promise<boolean> {
-    await this.sequelize.models[this.modelName].bulkCreate(data);
+  async addCategories(
+    data: ProductCategoryCreateDTO[],
+    t?: Transaction
+  ): Promise<boolean> {
+    if (t) {
+      await this.sequelize.models[this.modelName].bulkCreate(data, {
+        transaction: t,
+      });
+    } else {
+      await this.sequelize.models[this.modelName].bulkCreate(data);
+    }
     return true;
   }
 

@@ -9,10 +9,15 @@ import {
   ProductSellableVariantCreateDTO,
 } from './product-sellable.dto';
 import { ProductSellable } from './product-sellable.model';
+import { Transaction } from 'sequelize';
 
 export interface IProductSellableUseCase {
   createNewProductSellable(
-    data: Omit<ProductSellableCreateDTO, 'total_discounts' | 'price_after_discounts'>
+    data: Omit<
+      ProductSellableCreateDTO,
+      'total_discounts' | 'price_after_discounts'
+    >,
+    t?: Transaction
   ): Promise<ProductSellable>;
   updateProductSellable(
     id: string,
@@ -32,9 +37,18 @@ export interface IProductSellableUseCase {
 export interface IProductSellableRepository
   extends IQueryRepository,
     ICommandRepository {
-  addDiscounts(data: ProductSellableDiscountCreateDTO[]): Promise<boolean>;
-  addImages(data: ProductSellableImageCreateDTO[]): Promise<boolean>;
-  addVariants(data: ProductSellableVariantCreateDTO[]): Promise<boolean>;
+  addDiscounts(
+    data: ProductSellableDiscountCreateDTO[],
+    t?: Transaction
+  ): Promise<boolean>;
+  addImages(
+    data: ProductSellableImageCreateDTO[],
+    t?: Transaction
+  ): Promise<boolean>;
+  addVariants(
+    data: ProductSellableVariantCreateDTO[],
+    t?: Transaction
+  ): Promise<boolean>;
 }
 
 export interface IQueryRepository {

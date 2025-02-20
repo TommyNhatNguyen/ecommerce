@@ -71,7 +71,17 @@ export class PostgresInventoryRepository implements IInventoryRepository {
       },
     };
   }
-  async create(data: InventoryCreateDTO): Promise<Inventory> {
+  async create(data: InventoryCreateDTO, t?: Transaction): Promise<Inventory> {
+    if (t) {
+      const inventory = await this.sequelize.models[this.modelName].create(
+        data,
+        {
+          returning: true,
+          transaction: t,
+        }
+      );
+      return inventory.dataValues;
+    }
     const inventory = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });

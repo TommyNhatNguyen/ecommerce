@@ -25,13 +25,15 @@ import { DISCOUNT_NOT_FOUND_ERROR } from 'src/modules/products/models/errors';
 import { IInventoryUseCase } from 'src/modules/inventory/models/inventory.interface';
 import { IVariantUseCase } from 'src/modules/variant/models/variant.interface';
 import { IProductSellableUseCase } from 'src/modules/product_sellable/models/product-sellable.interface';
+import { Sequelize } from 'sequelize';
 
 export class ProductUseCase implements IProductUseCase {
   constructor(
     private readonly repository: IProductRepository,
     private readonly productCategoryRepository: IProductRepository,
     private readonly variantUseCase: IVariantUseCase,
-    private readonly productSellableUseCase: IProductSellableUseCase
+    private readonly productSellableUseCase: IProductSellableUseCase,
+    private readonly sequelize: Sequelize
   ) {}
   async countTotalProduct(): Promise<number> {
     return await this.repository.countTotalProduct();
@@ -62,36 +64,51 @@ export class ProductUseCase implements IProductUseCase {
   async createNewProduct(data: ProductCreateDTOSchema): Promise<Product> {
     const { variants, ...rest } = data;
     const product = await this.repository.insert(rest);
-    // --- CATEGORY ---
-    if (data.categoryIds && data.categoryIds.length > 0) {
-      await this.productCategoryRepository.addCategories(
-        data.categoryIds.map((id) => ({
-          product_id: product.id,
-          category_id: id,
-        }))
-      );
+    try {
+      const result = await this.sequelize.transaction(async (t) => {
+        // --- CATEGORY ---
+        if (data.categoryIds && data.categoryIds.length > 0) {
+          await this.productCategoryRepository.addCategories(
+            data.categoryIds.map((id) => ({
+              product_id: product.id,
+              category_id: id,
+            })),
+            t
+          );
+        }
+        // --- VARIANT AND PRODUCT SELLABLE ---
+        if (variants && variants.length > 0) {
+          const variantsData = await Promise.all(
+            variants.map(async (variant) => {
+              const variantData = await this.variantUseCase.createVariant(
+                {
+                  ...variant.variant_data,
+                  product_id: product.id,
+                },
+                t
+              );
+              const productSellableData =
+                await this.productSellableUseCase.createNewProductSellable(
+                  {
+                    ...variant.product_sellables,
+                    variant_id: variantData.id,
+                  },
+                  t
+                );
+              return {
+                variant: variantData,
+                productSellable: productSellableData,
+              };
+            })
+          );
+          console.log(variantsData);
+        }
+        return product;
+      });
+      return result;
+    } catch (error) {
+      console.log("🚀 ~ ProductUseCase ~ createNewProduct ~ error:", error)
+      throw error;
     }
-    // --- VARIANT AND PRODUCT SELLABLE ---
-    if (variants && variants.length > 0) {
-      const variantsData = await Promise.all(
-        variants.map(async (variant) => {
-          const variantData = await this.variantUseCase.createVariant({
-            ...variant.variant_data,
-            product_id: product.id,
-          });
-          const productSellableData =
-            await this.productSellableUseCase.createNewProductSellable({
-              ...variant.product_sellables,
-              variant_id: variantData.id,
-            });
-          return {
-            variant: variantData,
-            productSellable: productSellableData,
-          };
-        })
-      );
-      console.log(variantsData);
-    }
-    return product;
   }
 }

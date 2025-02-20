@@ -1,4 +1,5 @@
 import { BaseOrder, BaseSortBy } from "@/app/shared/models/others/status.model";
+import { Dayjs } from "dayjs";
 
 export enum DiscountType {
   PERCENTAGE = "percentage",
@@ -14,7 +15,12 @@ export type CreateDiscountDTO = {
   name: string;
   description?: string;
   amount: number;
-  type: DiscountType;
+  is_fixed: boolean;
+  max_discount_count?: number;
+  discount_count?: number;
+  require_product_count?: number;
+  require_order_amount?: number;
+  is_free?: boolean;
   scope: DiscountScope;
   start_date: string;
   end_date: string;

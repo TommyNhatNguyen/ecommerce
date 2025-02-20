@@ -1,3 +1,4 @@
+import { Transaction } from "sequelize";
 import {
   ProductCategoryCreateDTO,
   ProductConditionDTOSchema,
@@ -31,7 +32,7 @@ export interface IProductRepository
   extends IQueryRepository,
     ICommandRepository {
   countTotalProduct(): Promise<number>;
-  addCategories(data: ProductCategoryCreateDTO[]): Promise<boolean>;
+  addCategories(data: ProductCategoryCreateDTO[], t?: Transaction): Promise<boolean>;
 }
 
 export interface IQueryRepository {

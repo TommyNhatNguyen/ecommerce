@@ -53,7 +53,8 @@ export const discountInit = (sequelize: Sequelize) => {
       },
       discount_count: {
         type: DataTypes.INTEGER,
-        allowNull: true,
+        allowNull: false,
+        defaultValue: 0,
       },
       require_product_count: {
         type: DataTypes.INTEGER,

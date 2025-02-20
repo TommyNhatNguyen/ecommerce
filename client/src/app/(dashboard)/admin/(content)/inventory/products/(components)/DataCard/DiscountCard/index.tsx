@@ -84,15 +84,21 @@ const DiscountCard = (props: Props) => {
   const handleCloseModalCreateDiscountCampaign = () => {
     setIsModalCreateDiscountCampaignOpen(false);
   };
-  const handleSubmitCreateDiscountCampaignForm = async (data: any) => {
+  const handleSubmitCreateDiscountCampaignForm = async (
+    data: CreateDiscountDTO,
+  ) => {
     const payload: CreateDiscountDTO = {
       name: data.name,
       description: data.description,
       amount: Number(data.amount),
-      type: data.type,
+      is_fixed: data.is_fixed,
+      max_discount_count: data.max_discount_count,
+      require_product_count: data.require_product_count,
+      require_order_amount: data.require_order_amount,
+      is_free: data.is_free,
       scope: data.scope,
-      start_date: data.startDate.format(getDateFormat()),
-      end_date: data.endDate.format(getDateFormat()),
+      start_date: data.start_date,
+      end_date: data.end_date,
     };
     await hanldeCreateDiscount(payload);
     handleCloseModalCreateDiscountCampaign();

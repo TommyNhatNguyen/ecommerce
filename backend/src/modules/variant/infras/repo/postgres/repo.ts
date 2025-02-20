@@ -33,14 +33,24 @@ import {
 } from 'src/infras/repository/image/dto';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
 import { WhereOptions } from '@sequelize/core';
+import { Transaction } from 'sequelize';
 
 export class PostgresVariantRepository implements IVariantRepository {
   constructor(
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
-  async addOptionValue(data: VariantOptionValueCreateDTO[]): Promise<boolean> {
-    await this.sequelize.models[this.modelName].bulkCreate(data);
+  async addOptionValue(
+    data: VariantOptionValueCreateDTO[],
+    t?: Transaction
+  ): Promise<boolean> {
+    if (t) {
+      await this.sequelize.models[this.modelName].bulkCreate(data, {
+        transaction: t,
+      });
+    } else {
+      await this.sequelize.models[this.modelName].bulkCreate(data);
+    }
     return true;
   }
   async get(id: string, condition: VariantConditionDTO): Promise<Variant> {
@@ -198,11 +208,19 @@ export class PostgresVariantRepository implements IVariantRepository {
       },
     };
   }
-  async insert(data: VariantCreateDTO): Promise<Variant> {
-    const result = await this.sequelize.models[this.modelName].create(data, {
-      returning: true,
-    });
-    return result?.dataValues;
+  async insert(data: VariantCreateDTO, t?: Transaction): Promise<Variant> {
+    if (t) {
+      const result = await this.sequelize.models[this.modelName].create(data, {
+        returning: true,
+        transaction: t,
+      });
+      return result?.dataValues;
+    } else {
+      const result = await this.sequelize.models[this.modelName].create(data, {
+        returning: true,
+      });
+      return result?.dataValues;
+    }
   }
   async update(id: string, data: VariantUpdateDTO): Promise<Variant> {
     const result = await this.sequelize.models[this.modelName].update(data, {

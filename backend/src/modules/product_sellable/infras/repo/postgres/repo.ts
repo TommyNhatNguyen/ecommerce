@@ -41,6 +41,7 @@ import {
 import { OptionValuePersistence } from 'src/modules/options/infras/repo/postgres/dto';
 import { productModelName } from 'src/modules/products/infras/repo/postgres/dto';
 import { ProductPersistence } from 'src/modules/products/infras/repo/postgres/dto';
+import { Transaction } from 'sequelize';
 
 export class PostgresProductSellableRepository
   implements IProductSellableRepository
@@ -49,18 +50,43 @@ export class PostgresProductSellableRepository
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
-  async addVariants(data: ProductSellableVariantCreateDTO[]): Promise<boolean> {
-    await this.sequelize.models[this.modelName].bulkCreate(data);
+  async addVariants(
+    data: ProductSellableVariantCreateDTO[],
+    t?: Transaction
+  ): Promise<boolean> {
+    if (t) {
+      await this.sequelize.models[this.modelName].bulkCreate(data, {
+        transaction: t,
+      });
+    } else {
+      await this.sequelize.models[this.modelName].bulkCreate(data);
+    }
     return true;
   }
-  async addImages(data: ProductSellableImageCreateDTO[]): Promise<boolean> {
-    await this.sequelize.models[this.modelName].bulkCreate(data);
+  async addImages(
+    data: ProductSellableImageCreateDTO[],
+    t?: Transaction
+  ): Promise<boolean> {
+    if (t) {
+      await this.sequelize.models[this.modelName].bulkCreate(data, {
+        transaction: t,
+      });
+    } else {
+      await this.sequelize.models[this.modelName].bulkCreate(data);
+    }
     return true;
   }
   async addDiscounts(
-    data: ProductSellableDiscountCreateDTO[]
+    data: ProductSellableDiscountCreateDTO[],
+    t?: Transaction
   ): Promise<boolean> {
-    await this.sequelize.models[this.modelName].bulkCreate(data);
+    if (t) {
+      await this.sequelize.models[this.modelName].bulkCreate(data, {
+        transaction: t,
+      });
+    } else {
+      await this.sequelize.models[this.modelName].bulkCreate(data);
+    }
     return true;
   }
 
@@ -246,13 +272,30 @@ export class PostgresProductSellableRepository
     };
   }
 
-  async insert(data: ProductSellableCreateDTO): Promise<ProductSellable> {
+  async insert(
+    data: ProductSellableCreateDTO,
+    t?: Transaction
+  ): Promise<ProductSellable> {
     const { quantity, ...rest } = data;
     const payload = { ...rest };
-    const result = await this.sequelize.models[this.modelName].create(payload, {
-      returning: true,
-    });
-    return result.dataValues;
+    if (t) {
+      const result = await this.sequelize.models[this.modelName].create(
+        payload,
+        {
+          returning: true,
+          transaction: t,
+        }
+      );
+      return result.dataValues;
+    } else {
+      const result = await this.sequelize.models[this.modelName].create(
+        payload,
+        {
+          returning: true,
+        }
+      );
+      return result.dataValues;
+    }
   }
 
   async update(

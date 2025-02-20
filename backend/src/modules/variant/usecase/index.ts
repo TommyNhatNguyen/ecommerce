@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize';
 import {
   VariantCreateDTO,
   VariantUpdateDTO,
@@ -26,13 +27,17 @@ export class VariantUseCase implements IVariantUseCase {
   ): Promise<Variant> {
     return this.variantRepository.get(id, condition);
   }
-  async createVariant(data: VariantCreateDTO): Promise<Variant> {
-    const variant = await this.variantRepository.insert(data);
+  async createVariant(
+    data: VariantCreateDTO,
+    t?: Transaction
+  ): Promise<Variant> {
+    const variant = await this.variantRepository.insert(data, t);
     await this.variantOptionValueRepository.addOptionValue(
       data.options_value_ids.map((optionValueId) => ({
         variant_id: variant.id,
         option_value_id: optionValueId,
-      }))
+      })),
+      t
     );
     return variant;
   }

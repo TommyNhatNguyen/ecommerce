@@ -63,7 +63,7 @@ export const DiscountCreateDTOSchema = z
     description: z.string().optional(),
     amount: z.number().min(0).default(0),
     is_fixed: z.boolean().optional(),
-    max_discount_count: z.number().min(1).optional(),
+    max_discount_count: z.number().min(0).optional(),
     discount_count: z.number().min(0).optional(),
     require_product_count: z.number().min(0).optional(),
     require_order_amount: z.number().min(0).optional(),

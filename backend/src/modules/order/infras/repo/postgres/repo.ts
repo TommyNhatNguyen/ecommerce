@@ -65,7 +65,7 @@ export class PostgresOrderRepository implements IOrderRepository {
       orderDetailInclude.push({
         model: DiscountPersistence,
         as: discountModelName,
-        attributes: ['id', 'name', 'amount', 'type', 'scope'],
+        attributes: ['id', 'name', 'amount', 'scope'],
         through: {
           attributes: [],
           as: 'order_discounts',
@@ -105,7 +105,7 @@ export class PostgresOrderRepository implements IOrderRepository {
           {
             model: DiscountPersistence,
             as: discountModelName,
-            attributes: ['id', 'name', 'amount', 'type', 'scope'],
+            attributes: ['id', 'name', 'amount', 'scope'],
             through: { attributes: [] },
           },
         ],
@@ -171,7 +171,7 @@ export class PostgresOrderRepository implements IOrderRepository {
       orderDetailInclude.push({
         model: DiscountPersistence,
         as: discountModelName,
-        attributes: ['id', 'name', 'amount', 'type', 'scope'],
+        attributes: ['id', 'name', 'amount', 'scope'],
         through: {
           attributes: [],
           as: 'order_discounts',
@@ -221,7 +221,7 @@ export class PostgresOrderRepository implements IOrderRepository {
           {
             model: DiscountPersistence,
             as: discountModelName,
-            attributes: ['id', 'name', 'amount', 'type', 'scope'],
+            attributes: ['id', 'name', 'amount', 'scope'],
             through: { attributes: [] },
           },
         ],
