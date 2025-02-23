@@ -27,7 +27,7 @@ export interface IProductSellableUseCase {
   deleteProductSellable(id: string): Promise<boolean>;
   getProductSellables(
     condition: ProductSellableConditionDTO,
-    paging: PagingDTO
+    paging?: PagingDTO
   ): Promise<ListResponse<ProductSellable[]>>;
   getProductSellableById(
     id: string,

@@ -15,9 +15,14 @@ import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { DISCOUNT_AMOUNT_ERROR } from 'src/modules/discount/models/discount.error';
 import { Transaction } from 'sequelize';
+import { IProductSellableUseCase } from 'src/modules/product_sellable/models/product-sellable.interface';
+import { DiscountCalculatorUsecaseImpl } from 'src/modules/order_detail/usecase/DiscountCalculatorUsecase';
 
 export class DiscountUseCase implements IDiscountUseCase {
-  constructor(private readonly repository: IDiscountRepository) {}
+  constructor(
+    private readonly repository: IDiscountRepository,
+    private readonly productSellableUseCase?: IProductSellableUseCase
+  ) {}
   async listDiscount(
     paging: PagingDTO,
     condition: DiscountConditionDTO
@@ -64,7 +69,39 @@ export class DiscountUseCase implements IDiscountUseCase {
     return await this.repository.update(id, data, t);
   }
   async deleteDiscount(id: string): Promise<boolean> {
+    // Delete discount
     await this.repository.delete(id);
+    // Update product_sellable discount and price_after_discounts
+    if (this.productSellableUseCase) {
+      const productSellables =
+        await this.productSellableUseCase.getProductSellables({
+          get_all: true,
+          includeDiscount: true,
+        });
+      productSellables.data.forEach((productSellable) => {
+        const applyDiscountList: Discount[] = (
+          productSellable.discount || []
+        ).filter((item) => !item.is_require_product_count);
+        const total_discounts = applyDiscountList.reduce((acc, discount) => {
+          const calculator = new DiscountCalculatorUsecaseImpl(discount, this);
+          return (
+            acc +
+            calculator.calculateDiscountAmountForProduct(
+              1,
+              productSellable.price
+            )
+          );
+        }, 0);
+        const price_after_discounts = Math.max(
+          productSellable.price - total_discounts,
+          0
+        );
+        this.productSellableUseCase!.updateProductSellable(productSellable.id, {
+          total_discounts: total_discounts,
+          price_after_discounts: price_after_discounts,
+        });
+      });
+    }
     return true;
   }
 }

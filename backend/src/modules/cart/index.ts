@@ -72,10 +72,10 @@ export function setupCartRouter(sequelize: Sequelize) {
     cloudinaryRepository,
     productSellableDiscountRepository,
     inventoryUseCase,
+    discountUseCase,
     productSellableVariantRepository,
     discountRepository,
     productSellableImageRepository,
-    discountUseCase
   );
   const cartUseCase = new CartUseCase(
     cartRepository,

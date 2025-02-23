@@ -16,7 +16,7 @@ import {
 } from 'src/modules/product_sellable/models/product-sellable.dto';
 import { ProductSellable } from 'src/modules/product_sellable/models/product-sellable.model';
 import { PagingDTO } from 'src/share/models/paging';
-import { ListResponse } from 'src/share/models/base-model';
+import { ListResponse, ModelStatus } from 'src/share/models/base-model';
 import { Transaction } from 'sequelize';
 import {
   Discount,
@@ -24,6 +24,7 @@ import {
 } from 'src/modules/discount/models/discount.model';
 import { PRODUCT_SELLABLE_DISCOUNT_DATE_ERROR } from 'src/modules/product_sellable/models/product-sellable.error';
 import { CronJob } from 'cron';
+import { DiscountCalculatorUsecaseImpl } from 'src/modules/order_detail/usecase/DiscountCalculatorUsecase';
 
 export class ProductSellableUseCase implements IProductSellableUseCase {
   constructor(
@@ -31,10 +32,10 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
     private readonly cloudinaryImageRepository: IImageCloudinaryRepository,
     private readonly productSellableDiscountRepository: IProductSellableRepository,
     private readonly inventoryUseCase: IInventoryUseCase,
+    private readonly discountUseCase: IDiscountUseCase,
     private readonly productSellableVariantRepository?: IProductSellableRepository,
     private readonly discountRepository?: IDiscountRepository,
-    private readonly imageRepository?: IProductSellableRepository,
-    private readonly discountUseCase?: IDiscountUseCase
+    private readonly imageRepository?: IProductSellableRepository
   ) {}
   async updateProductSellableDiscountsEveryDay(): Promise<boolean> {
     // Get all product sellables
@@ -76,30 +77,30 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
       total_discounts,
       price_after_discounts,
     };
-    console.log('🚀 ~ ProductSellableUseCase ~ payload:', payload);
     // --- DISCOUNT ---
     if (data.discountIds && data.discountIds.length > 0) {
       const discountList = await this.discountUseCase?.listDiscount(
         { page: 1, limit: data.discountIds.length },
-        { ids: data.discountIds, scope: DiscountScope.PRODUCT }
+        {
+          ids: data.discountIds,
+          scope: DiscountScope.PRODUCT,
+          start_date: new Date().toISOString(),
+          end_date: new Date().toISOString(),
+          status: ModelStatus.ACTIVE,
+        }
       );
       const applyDiscountList: Discount[] = (discountList?.data || []).filter(
-        (item) =>
-          !item.is_require_product_count ||
-          (item.has_max_discount_count &&
-            item.discount_count < item.max_discount_count)
+        (item) => !item.is_require_product_count
       );
-      payload.total_discounts =
-        data.price *
-          ((applyDiscountList || [])
-            ?.filter((item) => !item.is_fixed)
-            ?.map((item) => item.amount)
-            ?.reduce((arr, curr) => arr + curr, 0) / 100 || 0) +
-        ((applyDiscountList || [])
-          ?.filter((item) => item.is_fixed)
-          ?.map((item) => item.amount)
-          ?.reduce((arr, curr) => arr + curr, 0) || 0);
-
+      payload.total_discounts = applyDiscountList.reduce((acc, discount) => {
+        const calculator = new DiscountCalculatorUsecaseImpl(
+          discount,
+          this.discountUseCase
+        );
+        return (
+          acc + calculator.calculateDiscountAmountForProduct(1, data.price)
+        );
+      }, 0);
       payload.price_after_discounts = Math.max(
         data.price - payload.total_discounts,
         0

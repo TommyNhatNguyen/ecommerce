@@ -131,10 +131,10 @@ export function setupOrderRouter(sequelize: Sequelize) {
     cloudinaryRepository,
     productSellableDiscountRepository,
     inventoryUseCase,
+    discountUseCase,
     productSellableVariantRepository,
     discountRepository,
-    productSellableImageRepository,
-    discountUseCase
+    productSellableImageRepository
   );
 
   const customerUseCase = new CustomerUseCase(

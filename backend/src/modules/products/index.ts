@@ -83,10 +83,10 @@ export const setupProductRouter = (sequelize: Sequelize) => {
     cloudinaryRepository,
     productSellableDiscountRepository,
     inventoryUseCase,
+    discountUseCase,
     productSellableVariantRepository,
     discountRepository,
-    productSellableImageRepository,
-    discountUseCase
+    productSellableImageRepository
   );
   const useCase = new ProductUseCase(
     repository,

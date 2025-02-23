@@ -1,4 +1,4 @@
-import { Includeable, Op } from 'sequelize';
+import { Includeable, Op, WhereOptions } from 'sequelize';
 import { Sequelize } from 'sequelize';
 import { ImagePersistence } from 'src/infras/repository/image/dto';
 import { imageModelName } from 'src/infras/repository/image/dto';
@@ -167,7 +167,6 @@ export class PostgresProductSellableRepository
     condition: ProductSellableConditionDTO,
     paging: PagingDTO
   ): Promise<ListResponse<ProductSellable[]>> {
-    const { page, limit } = paging;
     const where: any = {
       status: { [Op.not]: ModelStatus.DELETED },
     };
@@ -226,23 +225,30 @@ export class PostgresProductSellableRepository
       },
     ];
     if (condition.includeDiscount) {
+      let discountWhere: WhereOptions = {
+        start_date: {
+          [Op.lte]: new Date(),
+        },
+        end_date: {
+          [Op.gte]: new Date(),
+        },
+        status: {
+          [Op.eq]: ModelStatus.ACTIVE,
+        },
+      };
+      if (condition.discount_ids && condition.discount_ids.length > 0) {
+        discountWhere.id = {
+          [Op.in]: condition.discount_ids,
+        };
+      }
+      console.log('🚀 ~ discount_ids:', condition.discount_ids);
       include.push({
         model: DiscountPersistence,
         as: discountModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
         required: false,
-        where: {
-          start_date: {
-            [Op.lte]: new Date(),
-          },
-          end_date: {
-            [Op.gte]: new Date(),
-          },
-          status: {
-            [Op.eq]: ModelStatus.ACTIVE,
-          },
-        },
+        where: discountWhere,
       });
     }
 
@@ -271,6 +277,27 @@ export class PostgresProductSellableRepository
       });
     }
 
+    if (condition.get_all) {
+      const productSellables = await this.sequelize.models[
+        this.modelName
+      ].findAll({
+        where,
+        include,
+        order: customOrder ? customOrder : [[sortBy, order]],
+      });
+      return {
+        data: productSellables.map(
+          (productSellable) => productSellable.dataValues
+        ),
+        meta: {
+          limit: productSellables.length, 
+          total_count: productSellables.length,
+          current_page: 1,
+          total_page: 1,
+        },
+      };
+    }
+    const { page, limit } = paging;
     const { rows: productRows, count: countRows } = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({
@@ -283,7 +310,6 @@ export class PostgresProductSellableRepository
     });
     const rows = productRows.map((row) => row.dataValues);
     const count = countRows;
-    console.log(where);
     return {
       data: rows,
       meta: {

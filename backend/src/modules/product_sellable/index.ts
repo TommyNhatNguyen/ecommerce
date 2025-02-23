@@ -62,10 +62,10 @@ export const setupProductSellableRouter = (sequelize: Sequelize) => {
     cloudinaryRepository,
     productSellableDiscountRepository,
     inventoryUseCase,
+    discountUseCase,
     productSellableVariantRepository,
     discountRepository,
-    productSellableImageRepository,
-    discountUseCase
+    productSellableImageRepository
   );
   const httpService = new ProductSellableHttpService(productSellableUseCase);
   const router = Router();

@@ -39,6 +39,7 @@ export const ProductSellableUpdateDTOSchema = z.object({
 export const ProductSellableConditionDTOSchema = z.object({
   ids: z.array(z.string().uuid()).optional(),
   variant_ids: z.array(z.string().uuid()).optional(),
+  discount_ids: z.array(z.string().uuid()).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   minPrice: z.union([z.number().nonnegative().min(0), z.string()]).optional(),
   maxPrice: z.union([z.number().nonnegative().min(0), z.string()]).optional(),
@@ -52,6 +53,11 @@ export const ProductSellableConditionDTOSchema = z.object({
   sortBy: z.nativeEnum(ProductStatsSortBy).optional(),
   fromCreatedAt: z.string().date().optional(),
   toCreatedAt: z.string().date().optional(),
+  get_all: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
   includeProduct: z
     .string()
     .refine((value) => value === 'true' || value === 'false')
