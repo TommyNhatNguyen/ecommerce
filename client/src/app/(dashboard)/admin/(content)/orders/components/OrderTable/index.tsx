@@ -380,9 +380,9 @@ const OrderTable = ({
                       {item.scope} -{" "}
                     </span>
                     {item.name} -{" "}
-                    {item.type === DISCOUNT_TYPE.PERCENTAGE
-                      ? formatDiscountPercentage(item.amount)
-                      : formatCurrency(item.amount)}
+                    {item.is_fixed
+                      ? formatCurrency(item.amount)
+                      : formatDiscountPercentage(item.amount)}
                   </span>
                 ))}
               </div>
@@ -551,9 +551,9 @@ const OrderTable = ({
         key: "id",
         ellipsis: true,
         width: 100,
-        render: (_, { id }) => (
-          <Tooltip title={id}>
-            <span>{id.substring(0, 10)}</span>
+        render: (_, { product_sellable }) => (
+          <Tooltip title={product_sellable?.id || "Product not found"}>
+            <span>{product_sellable?.id.substring(0, 10) || "Product not found"}</span>
           </Tooltip>
         ),
       },
@@ -563,7 +563,8 @@ const OrderTable = ({
         key: "images",
         className: "max-w-[100px]",
         width: 100,
-        render: (_, { image }) => {
+        render: (_, { product_sellable }) => {
+          const image = product_sellable?.image || [];
           const imagesList =
             image && image.length > 0
               ? image.map((item) => item.url)
@@ -594,9 +595,9 @@ const OrderTable = ({
         title: "Name",
         dataIndex: "name",
         key: "name",
-        render: (_, { variant }) => (
-          <Tooltip title={variant?.name}>
-            <span>{variant?.name}</span>
+        render: (_, { product_variant_name }) => (
+          <Tooltip title={product_variant_name}>
+            <span>{product_variant_name}</span>
           </Tooltip>
         ),
       },
@@ -605,8 +606,8 @@ const OrderTable = ({
         dataIndex: "price",
         key: "price",
         render: (_, { price }) => (
-          <Tooltip title={formatCurrency(price)}>
-            <span>{formatCurrency(price)}</span>
+          <Tooltip title={formatCurrency(price || 0)}>
+            <span>{formatCurrency(price || 0)}</span>
           </Tooltip>
         ),
       },
@@ -614,9 +615,9 @@ const OrderTable = ({
         title: "Quantity",
         dataIndex: "quantity",
         key: "quantity",
-        render: (_, { product_details }) => (
-          <Tooltip title={formatNumber(product_details.quantity)}>
-            <span>{formatNumber(product_details.quantity)}</span>
+        render: (_, { quantity }) => (
+          <Tooltip title={formatNumber(quantity)}>
+            <span>{formatNumber(quantity)}</span>
           </Tooltip>
         ),
         minWidth: 100,
@@ -625,9 +626,9 @@ const OrderTable = ({
         title: "Subtotal",
         dataIndex: "subtotal",
         key: "subtotal",
-        render: (_, { product_details }) => (
-          <Tooltip title={formatCurrency(product_details.subtotal)}>
-            <span>{formatCurrency(product_details.subtotal)}</span>
+        render: (_, { subtotal }) => (
+          <Tooltip title={formatCurrency(subtotal)}>
+            <span>{formatCurrency(subtotal)}</span>
           </Tooltip>
         ),
       },
@@ -635,7 +636,8 @@ const OrderTable = ({
         title: "Discount",
         dataIndex: "discount",
         key: "discount",
-        render: (_, { discount, product_details }) => {
+        render: (_, { discount_amount, product_sellable }) => {
+          const discount = product_sellable?.discount || [];
           return (
             <Tooltip
               title={() => {
@@ -650,7 +652,7 @@ const OrderTable = ({
               }}
             >
               <span>
-                {formatCurrency(product_details?.discount_amount || 0)}
+                {formatCurrency(discount_amount || 0)}
               </span>
             </Tooltip>
           );
@@ -660,11 +662,11 @@ const OrderTable = ({
         title: "Total",
         dataIndex: "total",
         key: "total",
-        render: (_, { product_details }) => (
-          <Tooltip title={formatCurrency(product_details.total)}>
-            <span>{formatCurrency(product_details.total)}</span>
+        render: (_, { total }) => (
+          <Tooltip title={formatCurrency(total)}>
+            <span>{formatCurrency(total)}</span>
           </Tooltip>
-        ),
+        ),  
       },
     ];
   const orderExpandedRowRender = (
@@ -677,7 +679,9 @@ const OrderTable = ({
         dataSource={dataScource}
         pagination={false}
         size="small"
-        rowKey={(record) => record.id}
+        rowKey={(record) =>
+          `${record?.product_sellable?.id}-${record?.product_variant_name}`
+        }
       />
     );
   };
@@ -712,9 +716,15 @@ const OrderTable = ({
           rowClassName={"max-h-[100px] overflow-hidden"}
           expandable={{
             expandedRowRender: (record) => {
-              const productData = (
-                ordersData?.filter((order) => order.id === record.id) || []
-              ).flatMap((item) => item?.order_detail?.product_sellable || []);
+              const productData = ordersData
+                ? ordersData
+                    .filter((order) => order.id === record.id)
+                    .flatMap(
+                      (item) =>
+                        item.order_detail.order_product_sellable_histories ||
+                        [],
+                    )
+                : [];
               return orderExpandedRowRender(productData);
             },
           }}

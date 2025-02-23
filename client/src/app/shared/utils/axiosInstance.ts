@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "@/app/shared/hooks/useRedux";
 import { cookiesStorage } from "@/app/shared/utils/localStorage";
 import axios from "axios";
 import { authServices } from "@/app/shared/services/auth/authServices";
+import { customerService } from "@/app/shared/services/customers/customerService";
 
 export const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BASE_URL,
@@ -32,11 +33,21 @@ axiosInstance.interceptors.response.use(
     ) {
       prevRequest._retry = true;
       try {
-        const response = await authServices.refreshToken({
-          refreshToken: cookiesStorage.getToken().refreshToken,
-        });
-        cookiesStorage.setToken(response.data);
-        prevRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
+        // get url
+        const url = error.config.url.includes("users");
+        if (url) {
+          const response = await authServices.refreshToken({
+            refreshToken: cookiesStorage.getToken().refreshToken,
+          });
+          cookiesStorage.setToken(response.data);
+          prevRequest.headers.Authorization = `Bearer ${response.data.accessToken}`;
+        } else {
+          const response = await customerService.refreshToken({
+            refreshToken: cookiesStorage.getToken().refreshToken,
+          });
+          cookiesStorage.setToken(response);
+          prevRequest.headers.Authorization = `Bearer ${response.accessToken}`;
+        }
         return axiosInstance(prevRequest);
       } catch (error) {
         console.log(error);

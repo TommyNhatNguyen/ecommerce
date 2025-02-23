@@ -39,7 +39,6 @@ config();
   try {
     await sequelize.authenticate();
     console.log('Connection has been established successfully.');
-    await sequelize.sync({ alter: true });
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
@@ -60,7 +59,7 @@ instrument(io, {
 app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
-setupNotification(io, sequelize);
+// setupNotification(io, sequelize);
 app.use('/v1', setupProductRouter(sequelize));
 app.use('/v1', setupCategoryRouter(sequelize));
 app.use('/v1', setupDiscountRouter(sequelize));
@@ -89,6 +88,15 @@ app.use('/v1', setupProductSellableRouter(sequelize));
 
 initializeAssociation();
 app.use(errorHandler);
+
+(async () => {
+  try {
+    await sequelize.sync({ alter: true });
+    console.log('Database synced successfully.');
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
+})();
 
 io.engine.on('connection_error', (err) => {
   console.log(err.req);

@@ -30,14 +30,21 @@ export interface OrderModel {
   order_detail: OrderDetailModel;
 }
 
-export type ProductSellableDetailsInOrderModel = ProductSellableModel & {
-  product_details: {
-    quantity: number;
-    price: number;
-    subtotal: number;
-    discount_amount: number;
-    total: number;
-  };
+export type ProductSellableDetailsInOrderModel = OrderProductSellableHistoryModel;
+
+export type OrderProductSellableHistoryModel = {
+  created_at: string;
+  discount_amount: number;
+  order_detail_id: string;
+  price: number;
+  product_sellable_id: string;
+  product_variant_name: string;
+  quantity: number;
+  status: string;
+  subtotal: number;
+  total: number;
+  updated_at: string;
+  product_sellable: ProductSellableModel;
 };
 
 export interface OrderDetailModel {
@@ -62,7 +69,7 @@ export interface OrderDetailModel {
   discount?: DiscountModel[];
   shipping?: ShippingModel;
   payment?: PaymentModel;
-  product_sellable?: ProductSellableDetailsInOrderModel[];
   page?: number;
   limit?: number;
+  order_product_sellable_histories?: OrderProductSellableHistoryModel[];
 }

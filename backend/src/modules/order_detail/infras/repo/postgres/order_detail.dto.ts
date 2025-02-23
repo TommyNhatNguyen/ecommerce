@@ -1,6 +1,7 @@
 import { DataTypes, Sequelize } from 'sequelize';
 import { Model } from 'sequelize';
 import { DiscountType } from 'src/modules/discount/models/discount.model';
+import { productSellableModelName } from 'src/modules/product_sellable/infras/repo/postgres/dto';
 import { ModelStatus, NumberType } from 'src/share/models/base-model';
 import { v7 as uuidv7 } from 'uuid';
 export class OrderDetailPersistence extends Model {
@@ -126,29 +127,29 @@ export const orderDetailInit = (sequelize: Sequelize) => {
   );
 };
 
-export class PostgresOrderDetailProductSellablePersistence extends Model {
-  declare order_detail_id: string;
-  declare product_id: string;
-  declare quantity: number;
-  declare price: number;
-  declare subtotal: number;
-  declare discount_amount: number;
-  declare status: ModelStatus;
-  declare created_at: Date;
-  declare updated_at: Date;
-}
+export class PostgresOrderDetailProductSellablePersistence extends Model {}
 
-export const orderDetailProductSellableModelName = 'orderdetailproductsellable';
-
+export const orderDetailProductSellableModelName =
+  'order_detail_product_sellables';
+export const orderDetailProductSellableHistoryModelName =
+  'order_product_sellable_histories';
+export const ProductSellableOrderDetailModelName =
+  'product_sellable_order_details';
 export function orderDetailProductSellableInit(sequelize: Sequelize) {
   PostgresOrderDetailProductSellablePersistence.init(
     {
       order_detail_id: {
         type: DataTypes.UUID,
         allowNull: false,
+        primaryKey: true,
       },
       product_sellable_id: {
         type: DataTypes.UUID,
+        allowNull: true,
+        onDelete: 'SET NULL',
+      },
+      product_variant_name: {
+        type: DataTypes.STRING,
         allowNull: false,
       },
       quantity: {

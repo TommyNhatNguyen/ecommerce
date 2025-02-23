@@ -66,17 +66,7 @@ export class PostgresOrderDetailRepository implements IOrderDetailRepository {
           as: productSellableModelName,
           attributes: {
             exclude: [...EXCLUDE_ATTRIBUTES],
-          },
-          through: {
-            attributes: [
-              'quantity',
-              'price',
-              'subtotal',
-              'discount_amount',
-              'total',
-            ],
-            as: 'order_product_details',
-          },
+          }
         },
         {
           model: DiscountPersistence,

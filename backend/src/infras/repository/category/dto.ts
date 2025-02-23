@@ -10,7 +10,7 @@ export const categoryInit = (sequelize: Sequelize) => {
   CategoryPersistence.init(
     {
       id: {
-        type: DataTypes.STRING,
+        type: DataTypes.UUID,
         primaryKey: true,
         unique: true,
         allowNull: false,

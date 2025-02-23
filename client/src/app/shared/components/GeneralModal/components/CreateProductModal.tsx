@@ -31,7 +31,6 @@ import { optionService } from "@/app/shared/services/variant/optionService";
 import { generateAllPairs } from "@/app/shared/utils/generateAllPairs";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { filterOption } from "@/lib/antd";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
 import { ClassicEditor, Editor, Essentials } from "ckeditor5";
 import CustomEditor from "@/app/shared/components/CustomEditor";
 
@@ -693,6 +692,7 @@ const CreateProductModal = ({
                                   listType="picture-card"
                                   accept=".jpg,.jpeg,.png,.gif,.webp"
                                   multiple={true}
+                                  action={`${window.location.origin}/`}
                                   fileList={variantImageFileList[index] || []}
                                   onChange={(info) => {
                                     _onChangeFileList(index, info.fileList);

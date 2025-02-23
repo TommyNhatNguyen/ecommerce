@@ -355,11 +355,11 @@ const CreateOrderDetailModal = ({
           selectedProductList.find(
             (item) =>
               item.variant?.id ===
-              watch("order_detail_info.products_detail")[index].id,
+              watch("order_detail_info.products_detail")?.[index]?.id || "",
           )?.price || 0;
         const subtotal =
-          watch("order_detail_info.products_detail")[index]?.quantity * price ||
-          0;
+          (watch("order_detail_info.products_detail")?.[index]?.quantity || 0) *
+            price || 0;
         return <p>{formatCurrency(subtotal)}</p>;
       },
     },

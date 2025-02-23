@@ -1,5 +1,4 @@
 "use client";
-import Products from "@/app/(main)/cart/(components)/Products";
 import Total from "@/app/(main)/cart/(components)/Total";
 import { ROUTES } from "@/app/constants/routes";
 import Button from "@/app/shared/components/Button";
@@ -13,6 +12,7 @@ import React from "react";
 import mockProductImage from "@/app/shared/resources/images/homepage/product-2.jpg";
 import { twMerge } from "tailwind-merge";
 import { useCustomerAppSelector } from "@/app/shared/hooks/useRedux";
+import Products from "@/app/(main)/cart/(components)/Products";
 type CartPagePropsType = {};
 const CartPage = (props: CartPagePropsType) => {
   const router = useRouter();

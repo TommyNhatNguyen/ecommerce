@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import CustomEditor from "../../CustomEditor";
 import { Editor } from "ckeditor5";
+import { getBase64 } from "@/app/shared/utils/utils";
 type CreateCategoryModalPropsType = {
   isModalCreateCategoryOpen: boolean;
   handleCloseModalCreateCategory: () => void;
@@ -41,8 +42,8 @@ const CreateCategoryModal = ({
   const [file, setFile] = useState<UploadFile>();
   const [uploadImageLoading, setUploadImageLoading] = useState(false);
   const createCategoryLoading = uploadImageLoading || loading;
-  const _onChangeFile = (file: UploadFile) => {
-    setFile(file);
+  const _onChangeFile = (filechange: UploadFile) => {
+    setFile(filechange);
   };
   const _onRemoveFile = () => {
     setFile(undefined);
@@ -179,6 +180,7 @@ const CreateCategoryModal = ({
                 listType="picture-card"
                 fileList={file ? [file] : undefined}
                 maxCount={1}
+                action={`${window.location.origin}/`}
                 onChange={(info) => {
                   _onChangeFile(info.file);
                 }}

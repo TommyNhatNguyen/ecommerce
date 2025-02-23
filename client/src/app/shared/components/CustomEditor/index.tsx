@@ -92,9 +92,6 @@ const CustomEditor = (
     return () => setIsLayoutReady(false);
   }, []);
   const editorConfig: EditorConfig = useMemo(() => {
-    if (!isLayoutReady) {
-      return {};
-    }
     return {
       toolbar: {
         items: [
@@ -301,7 +298,7 @@ const CustomEditor = (
       >
         <div className="editor-container__editor">
           <div ref={editorRef}>
-            {editorConfig && (
+            {isLayoutReady && (
               <CKEditor
                 editor={ClassicEditor}
                 config={editorConfig}

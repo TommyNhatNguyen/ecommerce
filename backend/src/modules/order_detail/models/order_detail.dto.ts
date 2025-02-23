@@ -35,6 +35,7 @@ export const OrderDetailCreateDTOSchema = z.object({
 });
 
 export const OrderDetailAddProductsDTOSchema = z.object({
+  product_variant_name: z.string(),
   quantity: z.number(),
   price: z.number(),
   subtotal: z.number(),

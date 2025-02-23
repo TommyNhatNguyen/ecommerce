@@ -96,6 +96,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
               {
                 variant_ids: productIds,
                 includeDiscount: true,
+                includeVariant: true,
               },
               { page: 1, limit: products_detail.length }
             );
@@ -163,7 +164,6 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
                   discount,
                   this.discountUseCase
                 );
-
                 let discountAmount = 0;
                 if (discount.is_require_product_count) {
                   discountAmount = calculator.requireProductCountAmount(
@@ -190,8 +190,9 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
             discountAmountList[product.variant_id] = discountAmount;
           });
           orderDetailProducts.push(
-            ...products.data.map((product, index) => ({
+            ...products.data.map((product, index) => ({ 
               order_detail_id: '',
+              product_variant_name: product.variant?.name || '',
               product_sellable_id: product.id,
               quantity:
                 products_detail.find((p) => p.id === product.variant_id)

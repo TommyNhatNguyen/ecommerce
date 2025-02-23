@@ -6,11 +6,14 @@ import {
 } from 'src/modules/order/models/order.dto';
 import { ListResponse, ModelStatus } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
-import { IncludeOptions, Sequelize, WhereOptions } from 'sequelize';
+import { IncludeOptions, Sequelize, WhereOptions, Model } from 'sequelize';
 import { Order } from 'src/modules/order/models/order.model';
 import {
   orderDetailModelName,
   OrderDetailPersistence,
+  orderDetailProductSellableHistoryModelName,
+  orderDetailProductSellableModelName,
+  PostgresOrderDetailProductSellablePersistence,
 } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
 import { productModelName } from 'src/modules/products/infras/repo/postgres/dto';
@@ -182,49 +185,48 @@ export class PostgresOrderRepository implements IOrderRepository {
     }
     if (condition.includeProducts) {
       orderDetailInclude.push({
-        model: ProductSellablePersistence,
-        as: productSellableModelName,
-        attributes: {
-          exclude: [...EXCLUDE_ATTRIBUTES],
-        },
-        through: {
-          attributes: [
-            'quantity',
-            'price',
-            'subtotal',
-            'discount_amount',
-            'total',
-          ],
-          as: 'product_details',
-        },
+        model: PostgresOrderDetailProductSellablePersistence,
+        as: orderDetailProductSellableHistoryModelName.toLowerCase(),
+        required: false,
         include: [
           {
-            model: VariantPersistence,
-            as: variantModelName,
+            model: ProductSellablePersistence,
+            as: productSellableModelName,
+            attributes: {
+              exclude: [...EXCLUDE_ATTRIBUTES],
+            },
             include: [
               {
-                model: OptionValuePersistence,
-                as: optionValueModelName,
+                model: VariantPersistence,
+                as: variantModelName,
                 include: [
                   {
-                    model: OptionsPersistence,
-                    as: optionsModelName,
+                    model: OptionValuePersistence,
+                    as: optionValueModelName,
+                    include: [
+                      {
+                        model: OptionsPersistence,
+                        as: optionsModelName,
+                      },
+                    ],
                   },
                 ],
               },
+              {
+                model: ImagePersistence,
+                as: imageModelName,
+                attributes: {
+                  exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'],
+                },
+                through: { attributes: [] },
+              },
+              {
+                model: DiscountPersistence,
+                as: discountModelName,
+                attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+                through: { attributes: [] },
+              },
             ],
-          },
-          {
-            model: ImagePersistence,
-            as: imageModelName,
-            attributes: { exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'] },
-            through: { attributes: [] },
-          },
-          {
-            model: DiscountPersistence,
-            as: discountModelName,
-            attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
-            through: { attributes: [] },
           },
         ],
       });

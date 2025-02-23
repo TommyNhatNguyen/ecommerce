@@ -1,7 +1,7 @@
-import { productSellableModelName } from "src/modules/product_sellable/infras/repo/postgres/dto";
-import { ProductSellableSchema } from "src/modules/product_sellable/models/product-sellable.model";
-import { ModelStatus } from "src/share/models/base-model";
-import z from "zod";
+import { productSellableModelName } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import { ProductSellableSchema } from 'src/modules/product_sellable/models/product-sellable.model';
+import { ModelStatus } from 'src/share/models/base-model';
+import z from 'zod';
 
 export const VariantSchema = z.object({
   id: z.string().uuid(),

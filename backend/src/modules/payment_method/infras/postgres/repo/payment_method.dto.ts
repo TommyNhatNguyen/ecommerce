@@ -39,7 +39,6 @@ export const paymentMethodInit = (sequelize: Sequelize) => {
     },
     {
       sequelize,
-      tableName: paymentMethodModelName,
       timestamps: true,
       createdAt: 'created_at',
       updatedAt: 'updated_at',

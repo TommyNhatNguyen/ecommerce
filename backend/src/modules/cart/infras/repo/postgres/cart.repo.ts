@@ -15,11 +15,22 @@ import {
 import { ICartRepository } from 'src/modules/cart/models/cart.interface';
 import { Cart } from 'src/modules/cart/models/cart.model';
 import {
+  discountModelName,
+  DiscountPersistence,
+} from 'src/modules/discount/infras/repo/postgres/discount.dto';
+import {
+  optionsModelName,
+  OptionsPersistence,
+  optionValueModelName,
+  OptionValuePersistence,
+} from 'src/modules/options/infras/repo/postgres/dto';
+import {
   ProductSellablePersistence,
   productSellableModelName,
 } from 'src/modules/product_sellable/infras/repo/postgres/dto';
 import {
   variantModelName,
+  variantOptionValueModelName,
   VariantPersistence,
 } from 'src/modules/variant/infras/repo/postgres/dto';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
@@ -63,6 +74,27 @@ export class PostgresCartRepository implements ICartRepository {
             model: VariantPersistence,
             as: variantModelName,
             attributes: { exclude: EXCLUDE_ATTRIBUTES },
+            include: [
+              {
+                model: OptionValuePersistence,
+                as: optionValueModelName.toLowerCase(),
+                through: {
+                  attributes: [],
+                },
+                include: [
+                  {
+                    model: OptionsPersistence,
+                    as: optionsModelName.toLowerCase(),
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            model: DiscountPersistence,
+            as: discountModelName,
+            attributes: { exclude: EXCLUDE_ATTRIBUTES },
+            through: { attributes: [] },
           },
         ],
       });

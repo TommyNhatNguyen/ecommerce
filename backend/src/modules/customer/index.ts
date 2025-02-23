@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { Sequelize } from "sequelize";
-import { JWT_TYPES, jwtSign, jwtVerify } from "src/middlewares/jwt";
+import { JWT_TYPES, jwtRefresh, jwtSign, jwtVerify } from "src/middlewares/jwt";
 import { cartModelName } from "src/modules/cart/infras/repo/postgres/cart.dto";
 import { PostgresCartRepository } from "src/modules/cart/infras/repo/postgres/cart.repo";
 import { customerModelName } from "src/modules/customer/infras/repo/postgres/customer.dto";
@@ -47,6 +47,14 @@ export const setupCustomerRouter = (sequelize: Sequelize) => {
     },
     jwtVerify,
     customerHttpService.getCustomerByUsername.bind(customerHttpService)
+  );
+  router.post(
+    '/customer/refresh-token',
+    (req: Request, res: Response, next: NextFunction) => {
+      res.locals.type = JWT_TYPES.CUSTOMER;
+      next();
+    },
+    jwtRefresh
   );
   router.put(
     "/customer/:id",

@@ -1,96 +1,99 @@
 import {
   orderDetailCostModelName,
   orderDetailDiscountModelName,
+  orderDetailProductSellableHistoryModelName,
   orderDetailProductSellableModelName,
-} from "src/modules/order_detail/infras/repo/postgres/order_detail.dto";
+  PostgresOrderDetailProductSellablePersistence,
+  ProductSellableOrderDetailModelName,
+} from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import {
   orderModelName,
   OrderPersistence,
-} from "src/modules/order/infras/repo/postgres/dto";
-import { orderDetailModelName } from "src/modules/order_detail/infras/repo/postgres/order_detail.dto";
-import { OrderDetailPersistence } from "src/modules/order_detail/infras/repo/postgres/order_detail.dto";
+} from 'src/modules/order/infras/repo/postgres/dto';
+import { orderDetailModelName } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
+import { OrderDetailPersistence } from 'src/modules/order_detail/infras/repo/postgres/order_detail.dto';
 import {
   paymentModelName,
   PaymentPersistence,
-} from "src/modules/payment/infras/repo/postgres/payment.dto";
+} from 'src/modules/payment/infras/repo/postgres/payment.dto';
 
 import {
   productCategoryModelName,
   productImageModelName,
   productModelName,
-} from "src/modules/products/infras/repo/postgres/dto";
+} from 'src/modules/products/infras/repo/postgres/dto';
 import {
   paymentMethodModelName,
   PaymentMethodPersistence,
-} from "src/modules/payment_method/infras/postgres/repo/payment_method.dto";
-import { ProductPersistence } from "src/modules/products/infras/repo/postgres/dto";
+} from 'src/modules/payment_method/infras/postgres/repo/payment_method.dto';
+import { ProductPersistence } from 'src/modules/products/infras/repo/postgres/dto';
 import {
   costModelName,
   CostPersistence,
-} from "src/modules/cost/infras/repo/postgres/cost.dto";
-import { DiscountPersistence } from "src/modules/discount/infras/repo/postgres/discount.dto";
-import { discountModelName } from "src/modules/discount/infras/repo/postgres/discount.dto";
+} from 'src/modules/cost/infras/repo/postgres/cost.dto';
+import { DiscountPersistence } from 'src/modules/discount/infras/repo/postgres/discount.dto';
+import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import {
   shippingModelName,
   ShippingPersistence,
-} from "src/modules/shipping/infras/postgres/repo/shipping.dto";
-import { cartProductModelName } from "src/modules/cart/infras/repo/postgres/cart.dto";
-import { cartModelName } from "src/modules/cart/infras/repo/postgres/cart.dto";
+} from 'src/modules/shipping/infras/postgres/repo/shipping.dto';
+import { cartProductModelName } from 'src/modules/cart/infras/repo/postgres/cart.dto';
+import { cartModelName } from 'src/modules/cart/infras/repo/postgres/cart.dto';
 import {
   customerModelName,
   CustomerPersistence,
-} from "src/modules/customer/infras/repo/postgres/customer.dto";
-import { CartPersistence } from "src/modules/cart/infras/repo/postgres/cart.dto";
+} from 'src/modules/customer/infras/repo/postgres/customer.dto';
+import { CartPersistence } from 'src/modules/cart/infras/repo/postgres/cart.dto';
 import {
   categoryModelName,
   CategoryPersistence,
-} from "src/infras/repository/category/dto";
+} from 'src/infras/repository/category/dto';
 import {
   // variantImageModelName,
   variantModelName,
   variantOptionValueModelName,
-} from "src/modules/variant/infras/repo/postgres/dto";
-import { VariantPersistence } from "src/modules/variant/infras/repo/postgres/dto";
-import { reviewModelName } from "src/infras/repository/review/dto";
-import { ImagePersistence } from "src/infras/repository/image/dto";
-import { imageModelName } from "src/infras/repository/image/dto";
-import { ReviewPersistence } from "src/infras/repository/review/dto";
+} from 'src/modules/variant/infras/repo/postgres/dto';
+import { VariantPersistence } from 'src/modules/variant/infras/repo/postgres/dto';
+import { reviewModelName } from 'src/infras/repository/review/dto';
+import { ImagePersistence } from 'src/infras/repository/image/dto';
+import { imageModelName } from 'src/infras/repository/image/dto';
+import { ReviewPersistence } from 'src/infras/repository/review/dto';
 import {
   inventoryModelName,
   InventoryPersistence,
-} from "src/modules/inventory/infras/repo/postgres/dto";
+} from 'src/modules/inventory/infras/repo/postgres/dto';
 import {
   permissionModelName,
   PermissionPersistence,
-} from "src/modules/permission/infras/repo/dto";
+} from 'src/modules/permission/infras/repo/dto';
 import {
   roleModelName,
   RolePersistence,
-} from "src/modules/role/infras/repo/dto";
-import { permissionRoleModelName } from "src/modules/permission/infras/repo/dto";
+} from 'src/modules/role/infras/repo/dto';
+import { permissionRoleModelName } from 'src/modules/permission/infras/repo/dto';
 import {
   messageModelName,
   MessagePersistence,
-} from "src/modules/messages/infras/repo/postgres/dto";
-import { entityModelName } from "src/modules/messages/entity/infras/postgres/dto";
-import { EntityPersistence } from "src/modules/messages/entity/infras/postgres/dto";
+} from 'src/modules/messages/infras/repo/postgres/dto';
+import { entityModelName } from 'src/modules/messages/entity/infras/postgres/dto';
+import { EntityPersistence } from 'src/modules/messages/entity/infras/postgres/dto';
 import {
   actorModelName,
   ActorPersistence,
-} from "src/modules/messages/actor/infras/postgres/dto";
-import { userModelName } from "src/modules/user/infras/repo/dto";
-import { UserPersistence } from "src/modules/user/infras/repo/dto";
+} from 'src/modules/messages/actor/infras/postgres/dto';
+import { userModelName } from 'src/modules/user/infras/repo/dto';
+import { UserPersistence } from 'src/modules/user/infras/repo/dto';
 import {
   resourcePermissionModelName,
   resourcesModelName,
   ResourcesPersistence,
-} from "src/modules/resources/infras/repo/resources.dto";
+} from 'src/modules/resources/infras/repo/resources.dto';
 import {
   optionsModelName,
   OptionsPersistence,
   optionValueModelName,
-} from "src/modules/options/infras/repo/postgres/dto";
-import { OptionValuePersistence } from "src/modules/options/infras/repo/postgres/dto";
+} from 'src/modules/options/infras/repo/postgres/dto';
+import { OptionValuePersistence } from 'src/modules/options/infras/repo/postgres/dto';
 import {
   productSellableImageModelName,
   productSellableModelName,
@@ -98,193 +101,221 @@ import {
   ProductSellableVariantPersistence,
   productSellableVariantModelName,
   productSellableDiscountModelName,
-} from "src/modules/product_sellable/infras/repo/postgres/dto";
+} from 'src/modules/product_sellable/infras/repo/postgres/dto';
 
 export const initializeAssociation = () => {
   MessagePersistence.belongsTo(ActorPersistence, {
-    foreignKey: "actor_id",
+    foreignKey: 'actor_id',
     as: actorModelName.toLowerCase(),
   });
 
   ActorPersistence.hasOne(MessagePersistence, {
-    foreignKey: "actor_id",
+    foreignKey: 'actor_id',
     as: messageModelName.toLowerCase(),
   });
 
   MessagePersistence.belongsTo(EntityPersistence, {
-    foreignKey: "entity_id",
+    foreignKey: 'entity_id',
     as: entityModelName.toLowerCase(),
   });
 
   EntityPersistence.hasOne(MessagePersistence, {
-    foreignKey: "entity_id",
+    foreignKey: 'entity_id',
     as: messageModelName.toLowerCase(),
   });
 
   PaymentMethodPersistence.hasOne(PaymentPersistence, {
-    foreignKey: "id",
+    foreignKey: 'payment_method_id',
     as: paymentModelName.toLowerCase(),
   });
 
   PaymentPersistence.belongsTo(PaymentMethodPersistence, {
-    foreignKey: "payment_method_id",
+    foreignKey: 'payment_method_id',
     as: paymentMethodModelName.toLowerCase(),
   });
 
   OrderDetailPersistence.hasOne(OrderPersistence, {
-    foreignKey: "order_detail_id",
+    foreignKey: 'order_detail_id',
     as: orderModelName.toLowerCase(),
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   });
 
   OrderPersistence.belongsTo(OrderDetailPersistence, {
-    foreignKey: "order_detail_id",
+    foreignKey: 'order_detail_id',
     as: orderDetailModelName.toLowerCase(),
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   });
 
   OrderDetailPersistence.belongsToMany(CostPersistence, {
     through: orderDetailCostModelName,
-    foreignKey: "order_detail_id",
-    otherKey: "cost_id",
+    foreignKey: 'order_detail_id',
+    otherKey: 'cost_id',
     as: costModelName.toLowerCase(),
   });
 
   CostPersistence.belongsToMany(OrderDetailPersistence, {
     through: orderDetailCostModelName,
-    foreignKey: "cost_id",
-    otherKey: "order_detail_id",
+    foreignKey: 'cost_id',
+    otherKey: 'order_detail_id',
     as: orderDetailModelName.toLowerCase(),
   });
 
   OrderDetailPersistence.belongsToMany(DiscountPersistence, {
     through: orderDetailDiscountModelName,
-    foreignKey: "order_detail_id",
-    otherKey: "discount_id",
+    foreignKey: 'order_detail_id',
+    otherKey: 'discount_id',
     as: discountModelName.toLowerCase(),
-    onDelete: "RESTRICT",
-    onUpdate: "RESTRICT",
   });
 
   DiscountPersistence.belongsToMany(OrderDetailPersistence, {
     through: orderDetailDiscountModelName,
-    foreignKey: "discount_id",
-    otherKey: "order_detail_id",
+    foreignKey: 'discount_id',
+    otherKey: 'order_detail_id',
     as: orderDetailModelName.toLowerCase(),
-    onDelete: "RESTRICT",
-    onUpdate: "RESTRICT",
   });
 
   PaymentPersistence.hasOne(OrderDetailPersistence, {
-    foreignKey: "payment_id",
+    foreignKey: 'payment_id',
     as: orderDetailModelName.toLowerCase(),
   });
 
   OrderDetailPersistence.belongsTo(PaymentPersistence, {
-    foreignKey: "payment_id",
+    foreignKey: 'payment_id',
     as: paymentModelName.toLowerCase(),
   });
 
   OrderDetailPersistence.belongsTo(ShippingPersistence, {
-    foreignKey: "shipping_method_id",
+    foreignKey: 'shipping_method_id',
     as: shippingModelName.toLowerCase(),
   });
 
+  OrderDetailPersistence.hasMany(
+    PostgresOrderDetailProductSellablePersistence,
+    {
+      foreignKey: 'order_detail_id',
+      as: orderDetailProductSellableHistoryModelName.toLowerCase(),
+    }
+  );
+
+  PostgresOrderDetailProductSellablePersistence.belongsTo(
+    OrderDetailPersistence,
+    {
+      foreignKey: 'order_detail_id',
+      as: orderDetailModelName.toLowerCase(),
+    }
+  );
+
+  ProductSellablePersistence.hasMany(
+    PostgresOrderDetailProductSellablePersistence,
+    {
+      foreignKey: 'product_sellable_id',
+      as: ProductSellableOrderDetailModelName.toLowerCase(),
+    }
+  );
+
+  PostgresOrderDetailProductSellablePersistence.belongsTo(
+    ProductSellablePersistence,
+    {
+      foreignKey: 'product_sellable_id',
+      as: productSellableModelName.toLowerCase(),
+    }
+  );
+
   OrderDetailPersistence.belongsToMany(ProductSellablePersistence, {
     through: orderDetailProductSellableModelName,
-    foreignKey: "order_detail_id",
-    otherKey: "product_sellable_id",
+    foreignKey: 'order_detail_id',
+    otherKey: 'product_sellable_id',
     as: productSellableModelName.toLowerCase(),
   });
 
   ProductSellablePersistence.belongsToMany(OrderDetailPersistence, {
     through: orderDetailProductSellableModelName,
-    foreignKey: "product_sellable_id",
-    otherKey: "order_detail_id",
+    foreignKey: 'product_sellable_id',
+    otherKey: 'order_detail_id',
     as: orderDetailModelName.toLowerCase(),
   });
 
   ShippingPersistence.hasOne(OrderDetailPersistence, {
-    foreignKey: "shipping_method_id",
+    foreignKey: 'shipping_method_id',
     as: orderDetailModelName.toLowerCase(),
   });
 
   CartPersistence.hasOne(CustomerPersistence, {
-    foreignKey: "cart_id",
+    foreignKey: 'cart_id',
     as: customerModelName.toLowerCase(),
-    onDelete: "RESTRICT",
+    onDelete: 'RESTRICT',
   });
 
   CustomerPersistence.belongsTo(CartPersistence, {
-    foreignKey: "cart_id",
+    foreignKey: 'cart_id',
     as: cartModelName.toLowerCase(),
-    onDelete: "CASCADE",
-    onUpdate: "CASCADE",
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   });
 
   CartPersistence.belongsToMany(ProductSellablePersistence, {
     through: cartProductModelName,
-    foreignKey: "cart_id",
-    otherKey: "product_sellable_id",
+    foreignKey: 'cart_id',
+    otherKey: 'product_sellable_id',
     as: productSellableModelName.toLowerCase(),
   });
 
   ProductSellablePersistence.belongsToMany(CartPersistence, {
     through: cartProductModelName,
-    foreignKey: "product_sellable_id",
-    otherKey: "cart_id",
+    foreignKey: 'product_sellable_id',
+    otherKey: 'cart_id',
     as: cartModelName.toLowerCase(),
   });
 
   ProductPersistence.belongsToMany(CategoryPersistence, {
     through: productCategoryModelName,
-    foreignKey: "product_id",
-    otherKey: "category_id",
+    foreignKey: 'product_id',
+    otherKey: 'category_id',
     as: categoryModelName.toLowerCase(),
   });
 
   CategoryPersistence.belongsToMany(ProductPersistence, {
     through: productCategoryModelName,
-    foreignKey: "category_id",
-    otherKey: "product_id",
+    foreignKey: 'category_id',
+    otherKey: 'product_id',
     as: productModelName.toLowerCase(),
   });
 
   ProductPersistence.hasMany(VariantPersistence, {
-    foreignKey: "product_id",
+    foreignKey: 'product_id',
     as: variantModelName.toLowerCase(),
-    onDelete: "CASCADE",
+    onDelete: 'CASCADE',
   });
 
   VariantPersistence.belongsTo(ProductPersistence, {
-    foreignKey: "product_id",
+    foreignKey: 'product_id',
     as: productModelName.toLowerCase(),
   });
 
   OptionsPersistence.hasMany(OptionValuePersistence, {
-    foreignKey: "option_id",
+    foreignKey: 'option_id',
     as: optionValueModelName.toLowerCase(),
-    onDelete: "CASCADE",
+    onDelete: 'CASCADE',
   });
 
   OptionValuePersistence.belongsTo(OptionsPersistence, {
-    foreignKey: "option_id",
+    foreignKey: 'option_id',
     as: optionsModelName.toLowerCase(),
   });
 
   VariantPersistence.belongsToMany(OptionValuePersistence, {
     through: variantOptionValueModelName,
-    foreignKey: "variant_id",
-    otherKey: "option_value_id",
+    foreignKey: 'variant_id',
+    otherKey: 'option_value_id',
     as: optionValueModelName.toLowerCase(),
   });
 
   OptionValuePersistence.belongsToMany(VariantPersistence, {
     through: variantOptionValueModelName,
-    foreignKey: "option_value_id",
-    otherKey: "variant_id",
+    foreignKey: 'option_value_id',
+    otherKey: 'variant_id',
     as: variantModelName.toLowerCase(),
   });
 
@@ -304,127 +335,127 @@ export const initializeAssociation = () => {
 
   ProductSellablePersistence.belongsToMany(ImagePersistence, {
     through: productSellableImageModelName,
-    foreignKey: "product_sellable_id",
-    otherKey: "image_id",
+    foreignKey: 'product_sellable_id',
+    otherKey: 'image_id',
     as: imageModelName.toLowerCase(),
   });
 
   ImagePersistence.belongsToMany(ProductSellablePersistence, {
     through: productSellableImageModelName,
-    foreignKey: "image_id",
-    otherKey: "product_sellable_id",
+    foreignKey: 'image_id',
+    otherKey: 'product_sellable_id',
     as: productSellableModelName.toLowerCase(),
   });
 
   ProductPersistence.belongsToMany(ImagePersistence, {
     through: productImageModelName,
-    foreignKey: "product_id",
-    otherKey: "image_id",
+    foreignKey: 'product_id',
+    otherKey: 'image_id',
     as: imageModelName.toLowerCase(),
   });
 
   ImagePersistence.belongsToMany(ProductPersistence, {
     through: productImageModelName,
-    foreignKey: "image_id",
-    otherKey: "product_id",
+    foreignKey: 'image_id',
+    otherKey: 'product_id',
     as: productModelName.toLowerCase(),
   });
 
   ProductSellablePersistence.belongsToMany(DiscountPersistence, {
     through: productSellableDiscountModelName,
-    foreignKey: "product_sellable_id",
-    otherKey: "discount_id",
+    foreignKey: 'product_sellable_id',
+    otherKey: 'discount_id',
     as: discountModelName.toLowerCase(),
   });
 
   DiscountPersistence.belongsToMany(ProductSellablePersistence, {
     through: productSellableDiscountModelName,
-    foreignKey: "discount_id",
-    otherKey: "product_sellable_id",
+    foreignKey: 'discount_id',
+    otherKey: 'product_sellable_id',
     as: productSellableModelName.toLowerCase(),
   });
 
   ProductSellablePersistence.belongsTo(VariantPersistence, {
-    foreignKey: "variant_id",
+    foreignKey: 'variant_id',
     as: variantModelName.toLowerCase(),
-    onDelete: "CASCADE",
+    onDelete: 'CASCADE',
   });
 
   VariantPersistence.hasOne(ProductSellablePersistence, {
-    foreignKey: "variant_id",
+    foreignKey: 'variant_id',
     as: productSellableModelName.toLowerCase(),
-    onDelete: "CASCADE",
+    onDelete: 'CASCADE',
   });
 
   ProductSellablePersistence.hasOne(InventoryPersistence, {
-    foreignKey: "product_sellable_id",
+    foreignKey: 'product_sellable_id',
     as: inventoryModelName.toLowerCase(),
-    onDelete: "CASCADE",
+    onDelete: 'CASCADE',
   });
 
   InventoryPersistence.belongsTo(ProductSellablePersistence, {
-    foreignKey: "product_sellable_id",
+    foreignKey: 'product_sellable_id',
     as: productSellableModelName.toLowerCase(),
-    onDelete: "CASCADE",
+    onDelete: 'CASCADE',
   });
 
   ProductPersistence.hasMany(ReviewPersistence, {
-    foreignKey: "product_id",
+    foreignKey: 'product_id',
     as: reviewModelName.toLowerCase(),
   });
 
   ReviewPersistence.belongsTo(ProductPersistence, {
-    foreignKey: "product_id",
+    foreignKey: 'product_id',
     as: productModelName.toLowerCase(),
   });
 
   ReviewPersistence.belongsTo(CustomerPersistence, {
-    foreignKey: "customer_id",
+    foreignKey: 'customer_id',
     as: customerModelName.toLowerCase(),
   });
 
   CustomerPersistence.hasOne(ReviewPersistence, {
-    foreignKey: "customer_id",
+    foreignKey: 'customer_id',
     as: reviewModelName.toLowerCase(),
   });
 
   CategoryPersistence.belongsTo(ImagePersistence, {
-    foreignKey: "image_id",
+    foreignKey: 'image_id',
   });
 
   ImagePersistence.hasOne(CategoryPersistence, {
-    foreignKey: "image_id",
+    foreignKey: 'image_id',
   });
 
   UserPersistence.belongsTo(ImagePersistence, {
-    foreignKey: "image_id",
+    foreignKey: 'image_id',
   });
 
   ImagePersistence.hasOne(UserPersistence, {
-    foreignKey: "image_id",
+    foreignKey: 'image_id',
   });
 
   UserPersistence.belongsTo(RolePersistence, {
-    foreignKey: "role_id",
+    foreignKey: 'role_id',
     as: roleModelName.toLowerCase(),
   });
 
   RolePersistence.hasMany(UserPersistence, {
-    foreignKey: "role_id",
+    foreignKey: 'role_id',
     as: userModelName.toLowerCase(),
   });
 
   RolePersistence.belongsToMany(PermissionPersistence, {
     through: permissionRoleModelName,
-    foreignKey: "role_id",
-    otherKey: "permission_id",
+    foreignKey: 'role_id',
+    otherKey: 'permission_id',
     as: permissionModelName.toLowerCase(),
   });
 
   PermissionPersistence.belongsToMany(RolePersistence, {
     through: permissionRoleModelName,
-    foreignKey: "permission_id",
-    otherKey: "role_id",
+    foreignKey: 'permission_id',
+    otherKey: 'role_id',
     as: roleModelName.toLowerCase(),
   });
 
