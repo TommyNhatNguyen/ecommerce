@@ -10,6 +10,7 @@ import {
 } from './product-sellable.dto';
 import { ProductSellable } from './product-sellable.model';
 import { Transaction } from 'sequelize';
+import { CronJob } from 'cron';
 
 export interface IProductSellableUseCase {
   createNewProductSellable(
@@ -32,6 +33,7 @@ export interface IProductSellableUseCase {
     id: string,
     condition?: ProductSellableConditionDTO
   ): Promise<ProductSellable | null>;
+  updateProductSellableDiscountsEveryDay(cronJob: CronJob): Promise<boolean>;
 }
 
 export interface IProductSellableRepository

@@ -9,7 +9,7 @@ export const sequelize = new Sequelize({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   minifyAliases: true,
-  logging: console.log,
+  logging: false,
   // pool: {
   //   max: 20,
   //   min: 2,

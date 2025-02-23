@@ -50,6 +50,7 @@ export const discountInit = (sequelize: Sequelize) => {
       max_discount_count: {
         type: DataTypes.INTEGER,
         allowNull: true,
+        defaultValue: 0,
       },
       discount_count: {
         type: DataTypes.INTEGER,
@@ -59,10 +60,12 @@ export const discountInit = (sequelize: Sequelize) => {
       require_product_count: {
         type: DataTypes.INTEGER,
         allowNull: true,
+        defaultValue: 0,
       },
       require_order_amount: {
         type: DataTypes.FLOAT,
         allowNull: true,
+        defaultValue: 0,
       },
       is_free: {
         type: DataTypes.BOOLEAN,

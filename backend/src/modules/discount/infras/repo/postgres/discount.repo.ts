@@ -35,6 +35,21 @@ export class PostgresDiscountRepository implements IDiscountRepository {
         [Op.eq]: condition.scope,
       };
     }
+    if (condition.start_date) {
+      where.start_date = {
+        [Op.lte]: condition.start_date,
+      };
+    }
+    if (condition.end_date) {
+      where.end_date = {
+        [Op.gte]: condition.end_date,
+      };
+    }
+    if (condition.status) {
+      where.status = {
+        [Op.eq]: condition.status,
+      };
+    }
     const { page, limit } = paging;
     const order = condition?.order || BaseOrder.DESC;
     const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;

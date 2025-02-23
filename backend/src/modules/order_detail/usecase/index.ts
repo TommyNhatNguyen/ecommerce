@@ -149,14 +149,13 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
             const applyDiscountList: Discount[] = product.discount
               ? product.discount.filter((item) => {
                   const isDayValid =
-                    new Date(item.start_date) >= new Date() &&
-                    new Date(item.end_date) >= new Date(item.start_date);
+                    new Date(item.start_date) <= new Date() &&
+                    new Date(item.end_date) >= new Date();
 
                   if (!isDayValid) throw ORDER_DETAIL_DISCOUNT_DATE_ERROR;
                   return true;
                 })
               : [];
-
             // Calculate total discount using DiscountCalculator
             const discountAmount = applyDiscountList.reduce(
               (totalDiscount, discount) => {
@@ -164,25 +163,16 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
                   discount,
                   this.discountUseCase
                 );
-                let discountAmount = 0;
-                if (discount.is_require_product_count) {
-                  discountAmount = calculator.requireProductCountAmount(
-                    productDetail.quantity,
-                    product.price,
-                    discount.has_max_discount_count
-                  );
-                } else if (discount.has_max_discount_count) {
-                  discountAmount = calculator.maxDiscountCountAmount(
+                let discountAmount =
+                  calculator.calculateDiscountAmountForProduct(
                     productDetail.quantity,
                     product.price
                   );
-                } else {
-                  discountAmount = calculator.calculateDiscountAmount(
-                    productDetail.quantity,
-                    product.price
-                  );
-                }
-
+                console.log(
+                  '🚀 ~ OrderDetailUseCase ~ products.data.forEach ~ discountAmount:',
+                  discount.name,
+                  discountAmount
+                );
                 return totalDiscount + discountAmount;
               },
               0
@@ -190,7 +180,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
             discountAmountList[product.variant_id] = discountAmount;
           });
           orderDetailProducts.push(
-            ...products.data.map((product, index) => ({ 
+            ...products.data.map((product, index) => ({
               order_detail_id: '',
               product_variant_name: product.variant?.name || '',
               product_sellable_id: product.id,
@@ -211,6 +201,10 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
             }))
           );
         }
+        payload.total_product_discount = orderDetailProducts.reduce(
+          (acc, product) => acc + product.discount_amount,
+          0
+        );
         // ---- CUSTOMER ----
         if (!customer_id) {
           const newCustomer = await this.customerUseCase.createCustomer(
@@ -277,37 +271,52 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
         if (order_discounts && order_discounts.length > 0) {
           const discounts = await this.discountUseCase.listDiscount(
             { page: 1, limit: order_discounts.length },
-            { ids: order_discounts, scope: DiscountScope.ORDER }
+            {
+              ids: order_discounts,
+              scope: DiscountScope.ORDER,
+              start_date: new Date().toISOString(),
+              end_date: new Date().toISOString(),
+            }
           );
           if (discounts.data.length !== order_discounts.length) {
             throw ORDER_DETAIL_DISCOUNT_ERROR;
           }
+
           const totalProductQuantity = orderDetailProducts.reduce(
             (acc, product) => acc + product.quantity,
             0
           );
-
           payload.total_order_discount = discounts.data.reduce(
             (totalDiscount, discount) => {
               const calculator = new DiscountCalculatorUsecaseImpl(
                 discount,
                 this.discountUseCase
               );
-
-              const discountAmount = calculator.requireOrderAmount(
+              let discountAmount = calculator.calculateDiscountAmountForOrder(
+                1,
                 payload.subtotal,
-                discount.has_max_discount_count,
-                discount.is_require_order_amount,
                 totalProductQuantity
               );
-
+              console.log(
+                '🚀 ~ OrderDetailUseCase ~ result ~ totalDiscount:',
+                discount.name,
+                discountAmount
+              );
               return totalDiscount + discountAmount;
             },
             0
           );
-          payload.total_product_discount = orderDetailProducts.reduce(
-            (acc, product) => acc + product.discount_amount,
-            0
+          console.log(
+            '🚀 ~ OrderDetailUseCase ~ result ~ payload before:',
+            payload
+          );
+          console.log(
+            '🚀 ~ OrderDetailUseCase ~ result ~ payload after:',
+            payload
+          );
+          console.log(
+            '🚀 ~ OrderDetailUseCase ~ result ~ orderDetailProducts after:',
+            orderDetailProducts
           );
           payload.total_discount =
             payload.total_order_discount + payload.total_product_discount;

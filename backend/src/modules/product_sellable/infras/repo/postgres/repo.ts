@@ -220,6 +220,14 @@ export class PostgresProductSellableRepository
         as: discountModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
+        where: {
+          start_date: {
+            [Op.lte]: new Date(),
+          },
+          end_date: {
+            [Op.gte]: new Date(),
+          },
+        },
       });
     }
 

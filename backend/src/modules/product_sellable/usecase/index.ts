@@ -23,6 +23,7 @@ import {
   DiscountScope,
 } from 'src/modules/discount/models/discount.model';
 import { PRODUCT_SELLABLE_DISCOUNT_DATE_ERROR } from 'src/modules/product_sellable/models/product-sellable.error';
+import { CronJob } from 'cron';
 
 export class ProductSellableUseCase implements IProductSellableUseCase {
   constructor(
@@ -35,6 +36,31 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
     private readonly imageRepository?: IProductSellableRepository,
     private readonly discountUseCase?: IDiscountUseCase
   ) {}
+  async updateProductSellableDiscountsEveryDay(): Promise<boolean> {
+    // Get all product sellables
+    // Check if the product sellable has a discount
+    // If it does, check if the discount is expired
+    // If it is, update the discount
+    // If it is not, do nothing
+    // Return true if the discount is updated, false otherwise
+    const productSellables = await this.getProductSellables(
+      { includeDiscount: true },
+      { page: 1, limit: 100 }
+    );
+    for (const productSellable of productSellables.data) {
+      const discount = productSellable.discount;
+      discount?.forEach(async (item) => {
+        const newTotalDiscounts = 0;
+        const newPriceAfterDiscount = 0;
+        if (new Date(item.end_date) < new Date()) {
+          await this.updateProductSellable(productSellable.id, {
+            discountIds: [],
+          });
+        }
+      });
+    }
+    return true;
+  }
 
   async createNewProductSellable(
     data: Omit<
@@ -58,7 +84,10 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
         { ids: data.discountIds, scope: DiscountScope.PRODUCT }
       );
       const applyDiscountList: Discount[] = (discountList?.data || []).filter(
-        (item) => !item.is_require_product_count
+        (item) =>
+          !item.is_require_product_count ||
+          (item.has_max_discount_count &&
+            item.discount_count < item.max_discount_count)
       );
       payload.total_discounts =
         data.price *
