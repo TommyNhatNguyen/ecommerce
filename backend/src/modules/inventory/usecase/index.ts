@@ -48,17 +48,20 @@ export class InventoryUseCase implements IInventoryUseCase {
     data: Required<Pick<InventoryUpdateDTO, 'quantity'>>,
     t?: Transaction
   ): Promise<Inventory> {
+    // Update inventory quantity
     const updatedInventory =
       await this.inventoryRepository.updateInventoryQuantity(
         productSellableId,
         data,
         t
       );
+    // Update inventory stock status
     await this.updateInventoryStockStatus(
       updatedInventory.id,
       {
         quantity: updatedInventory.quantity,
         low_stock_threshold: updatedInventory.low_stock_threshold,
+        total_value: updatedInventory.cost * updatedInventory.quantity,
       },
       t
     );
@@ -67,7 +70,10 @@ export class InventoryUseCase implements IInventoryUseCase {
 
   async updateInventoryStockStatus(
     id: string,
-    data: Pick<InventoryUpdateDTO, 'low_stock_threshold' | 'quantity' | 'cost'>,
+    data: Pick<
+      InventoryUpdateDTO,
+      'low_stock_threshold' | 'quantity' | 'cost' | 'total_value'
+    >,
     t?: Transaction
   ): Promise<Inventory> {
     const payload: InventoryUpdateDTO = { ...data };

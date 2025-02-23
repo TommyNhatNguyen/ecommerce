@@ -95,10 +95,6 @@ export class PostgresDiscountRepository implements IDiscountRepository {
         transaction: t,
       });
       const updatedDiscount = result[1][0].dataValues;
-      console.log(
-        '🚀 ~ PostgresDiscountRepository ~ updatedDiscount:',
-        updatedDiscount
-      );
       return updatedDiscount;
     }
     const result = await this.sequelize.models[this.modelName].update(data, {
@@ -108,10 +104,17 @@ export class PostgresDiscountRepository implements IDiscountRepository {
     const updatedDiscount = result[1][0].dataValues;
     return updatedDiscount;
   }
-  async delete(id: string): Promise<boolean> {
-    await this.sequelize.models[this.modelName].destroy({
-      where: { id },
-    });
+  async delete(id: string, t?: Transaction): Promise<boolean> {
+    if (t) {
+      await this.sequelize.models[this.modelName].destroy({
+        where: { id },
+        transaction: t,
+      });
+    } else {
+      await this.sequelize.models[this.modelName].destroy({
+        where: { id },
+      });
+    }
     return true;
   }
 }

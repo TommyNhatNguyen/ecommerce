@@ -37,29 +37,38 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
     private readonly discountRepository?: IDiscountRepository,
     private readonly imageRepository?: IProductSellableRepository
   ) {}
-  async updateProductSellableDiscountsEveryDay(): Promise<boolean> {
-    // Get all product sellables
-    // Check if the product sellable has a discount
-    // If it does, check if the discount is expired
-    // If it is, update the discount
-    // If it is not, do nothing
-    // Return true if the discount is updated, false otherwise
-    const productSellables = await this.getProductSellables(
-      { includeDiscount: true },
-      { page: 1, limit: 100 }
-    );
-    for (const productSellable of productSellables.data) {
-      const discount = productSellable.discount;
-      discount?.forEach(async (item) => {
-        const newTotalDiscounts = 0;
-        const newPriceAfterDiscount = 0;
-        if (new Date(item.end_date) < new Date()) {
-          await this.updateProductSellable(productSellable.id, {
-            discountIds: [],
-          });
-        }
-      });
-    }
+  async updateProductSellableDiscounts(t?: Transaction): Promise<boolean> {
+    const productSellables = await this.getProductSellables({
+      get_all: true,
+      includeDiscount: true,
+    });
+    productSellables.data.forEach((productSellable) => {
+      const applyDiscountList: Discount[] = (
+        productSellable.discount || []
+      ).filter((item) => !item.is_require_product_count);
+      const total_discounts = applyDiscountList.reduce((acc, discount) => {
+        const calculator = new DiscountCalculatorUsecaseImpl(
+          discount,
+          this.discountUseCase
+        );
+        return (
+          acc +
+          calculator.calculateDiscountAmountForProduct(1, productSellable.price)
+        );
+      }, 0);
+      const price_after_discounts = Math.max(
+        productSellable.price - total_discounts,
+        0
+      );
+      this.updateProductSellable(
+        productSellable.id,
+        {
+          total_discounts: total_discounts,
+          price_after_discounts: price_after_discounts,
+        },
+        t
+      );
+    });
     return true;
   }
 
@@ -144,9 +153,13 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
 
   async updateProductSellable(
     id: string,
-    data: ProductSellableUpdateDTO
+    data: ProductSellableUpdateDTO,
+    t?: Transaction
   ): Promise<ProductSellable> {
-    return await this.repository.update(id, data);
+    const updatedProductSellable = await this.repository.update(id, data, t);
+    // Update product_sellable total_discount and price_after_discounts
+    await this.updateProductSellableDiscounts(t);
+    return updatedProductSellable;
   }
   async deleteProductSellable(id: string): Promise<boolean> {
     const product = await this.repository.get(id, { includeImage: true });
@@ -163,7 +176,7 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
 
   async getProductSellables(
     condition: ProductSellableConditionDTO,
-    paging: PagingDTO
+    paging?: PagingDTO
   ): Promise<ListResponse<ProductSellable[]>> {
     const data = await this.repository.list(condition, paging);
     return data;

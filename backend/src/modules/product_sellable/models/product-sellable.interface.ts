@@ -33,7 +33,7 @@ export interface IProductSellableUseCase {
     id: string,
     condition?: ProductSellableConditionDTO
   ): Promise<ProductSellable | null>;
-  updateProductSellableDiscountsEveryDay(cronJob: CronJob): Promise<boolean>;
+  updateProductSellableDiscounts(t?: Transaction): Promise<boolean>;
 }
 
 export interface IProductSellableRepository
@@ -60,12 +60,12 @@ export interface IQueryRepository {
   ): Promise<ProductSellable | null>;
   list(
     condition: ProductSellableConditionDTO,
-    paging: PagingDTO
+    paging?: PagingDTO
   ): Promise<ListResponse<ProductSellable[]>>;
 }
 
 export interface ICommandRepository {
   insert(data: ProductSellableCreateDTO, t?: Transaction): Promise<ProductSellable>;
-  update(id: string, data: ProductSellableUpdateDTO): Promise<ProductSellable>;
+  update(id: string, data: ProductSellableUpdateDTO, t?: Transaction): Promise<ProductSellable>;
   delete(id: string): Promise<boolean>;
 }

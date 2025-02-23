@@ -66,42 +66,17 @@ export class DiscountUseCase implements IDiscountUseCase {
     data: DiscountUpdateDTO,
     t?: Transaction
   ): Promise<Discount> {
-    return await this.repository.update(id, data, t);
+    // Update discount
+    const updatedDiscount = await this.repository.update(id, data, t);
+    // Update product_sellable total_discount and price_after_discounts
+    await this.productSellableUseCase?.updateProductSellableDiscounts(t);
+    return updatedDiscount;
   }
-  async deleteDiscount(id: string): Promise<boolean> {
+  async deleteDiscount(id: string, t?: Transaction): Promise<boolean> {
     // Delete discount
-    await this.repository.delete(id);
-    // Update product_sellable discount and price_after_discounts
-    if (this.productSellableUseCase) {
-      const productSellables =
-        await this.productSellableUseCase.getProductSellables({
-          get_all: true,
-          includeDiscount: true,
-        });
-      productSellables.data.forEach((productSellable) => {
-        const applyDiscountList: Discount[] = (
-          productSellable.discount || []
-        ).filter((item) => !item.is_require_product_count);
-        const total_discounts = applyDiscountList.reduce((acc, discount) => {
-          const calculator = new DiscountCalculatorUsecaseImpl(discount, this);
-          return (
-            acc +
-            calculator.calculateDiscountAmountForProduct(
-              1,
-              productSellable.price
-            )
-          );
-        }, 0);
-        const price_after_discounts = Math.max(
-          productSellable.price - total_discounts,
-          0
-        );
-        this.productSellableUseCase!.updateProductSellable(productSellable.id, {
-          total_discounts: total_discounts,
-          price_after_discounts: price_after_discounts,
-        });
-      });
-    }
+    await this.repository.delete(id, t);
+    // Update product_sellable total_discount and price_after_discounts
+    await this.productSellableUseCase?.updateProductSellableDiscounts(t);
     return true;
   }
 }

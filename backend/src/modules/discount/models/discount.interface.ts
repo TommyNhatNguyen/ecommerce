@@ -27,7 +27,7 @@ export interface IDiscountUseCase {
     data: DiscountUpdateDTO,
     t?: Transaction
   ): Promise<Discount>;
-  deleteDiscount(id: string): Promise<boolean>;
+  deleteDiscount(id: string, t?: Transaction): Promise<boolean>;
 }
 
 export interface IDiscountRepository
@@ -49,5 +49,5 @@ export interface ICommandRepository {
     data: DiscountUpdateDTO,
     t?: Transaction
   ): Promise<Discount>;
-  delete(id: string): Promise<boolean>;
+  delete(id: string, t?: Transaction): Promise<boolean>;
 }

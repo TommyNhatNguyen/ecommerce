@@ -241,7 +241,6 @@ export class PostgresProductSellableRepository
           [Op.in]: condition.discount_ids,
         };
       }
-      console.log('🚀 ~ discount_ids:', condition.discount_ids);
       include.push({
         model: DiscountPersistence,
         as: discountModelName,
@@ -290,7 +289,7 @@ export class PostgresProductSellableRepository
           (productSellable) => productSellable.dataValues
         ),
         meta: {
-          limit: productSellables.length, 
+          limit: productSellables.length,
           total_count: productSellables.length,
           current_page: 1,
           total_page: 1,
@@ -349,12 +348,14 @@ export class PostgresProductSellableRepository
 
   async update(
     id: string,
-    data: ProductSellableUpdateDTO
+    data: ProductSellableUpdateDTO,
+    t?: Transaction
   ): Promise<ProductSellable> {
     const { discountIds, variantIds, imageIds, quantity, ...rest } = data;
     const result = await this.sequelize.models[this.modelName].update(rest, {
       where: { id },
       returning: true,
+      transaction: t,
     });
     const updatedProduct: any = await this.sequelize.models[
       this.modelName
