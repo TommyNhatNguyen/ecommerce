@@ -1,9 +1,10 @@
 import Websocket from 'src/share/modules/websocket';
+import { SOCKET_NAMESPACE } from 'src/socket/connection/socket-endpoint';
 
 let outerIo: Websocket;
 export const setupSocket = (io: Websocket) => {
   outerIo = io;
-  outerIo.of('order').on('connection', (socket) => {
+  outerIo.of(SOCKET_NAMESPACE.ORDER.namespace).on('connection', (socket) => {
     console.log('Admin connected:', socket.id, io.engine.clientsCount);
 
     socket.on('disconnect', () => {
@@ -12,9 +13,19 @@ export const setupSocket = (io: Websocket) => {
   });
 };
 
+/**
+ * -----
+ * ORDER
+ * -----
+ */
 export const emitNewOrder = <T>(orderData: T) => {
   if (outerIo) {
-    console.log("emitNewOrder", orderData);
-    outerIo.of('order').emit('order:created', "New order created"); // Broadcast to all connected admins
+    console.log('emitNewOrder', orderData);
+    outerIo
+      .of(SOCKET_NAMESPACE.ORDER.namespace)
+      .emit(
+        SOCKET_NAMESPACE.ORDER.endpoints.ORDER_CREATED,
+        'New order created'
+      ); // Broadcast to all connected admins
   }
 };
