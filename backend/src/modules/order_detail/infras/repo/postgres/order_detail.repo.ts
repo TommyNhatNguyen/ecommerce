@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import {
   productModelName,
   ProductPersistence,
@@ -20,7 +20,7 @@ import {
 import { IOrderDetailRepository } from 'src/modules/order_detail/models/order_detail.interface';
 import { OrderDetail } from 'src/modules/order_detail/models/order_detail.model';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
-import { ListResponse } from 'src/share/models/base-model';
+import { ListResponse, ModelStatus } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import {
   shippingModelName,
@@ -72,9 +72,21 @@ export class PostgresOrderDetailRepository implements IOrderDetailRepository {
           model: DiscountPersistence,
           as: discountModelName,
           attributes: [...EXCLUDE_ATTRIBUTES],
+          required: false,
           through: {
             attributes: [],
             as: 'order_discounts',
+          },
+          where: {
+            start_date: {
+              [Op.lte]: new Date(),
+            },
+            end_date: {
+              [Op.gte]: new Date(),
+            },
+            status: {
+              [Op.eq]: ModelStatus.ACTIVE,
+            },
           },
         },
         {

@@ -273,6 +273,18 @@ export class PostgresProductRepository implements IProductRepository {
             model: DiscountPersistence,
             as: discountModelName,
             attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+            required: false,
+            where: {
+              start_date: {
+                [Op.lte]: new Date(),
+              },
+              end_date: {
+                [Op.gte]: new Date(),
+              },
+              status: {
+                [Op.eq]: ModelStatus.ACTIVE,
+              },
+            },
           });
         }
         if (condition.includeVariantOption) {

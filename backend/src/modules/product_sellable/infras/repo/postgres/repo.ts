@@ -128,6 +128,17 @@ export class PostgresProductSellableRepository
         as: discountModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
+        where: {
+          start_date: {
+            [Op.lte]: new Date(),
+          },
+          end_date: {
+            [Op.gte]: new Date(),
+          },
+          status: {
+            [Op.eq]: ModelStatus.ACTIVE,
+          },
+        },
       });
     }
     if (condition?.includeVariant) {
@@ -220,12 +231,16 @@ export class PostgresProductSellableRepository
         as: discountModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
+        required: false,
         where: {
           start_date: {
             [Op.lte]: new Date(),
           },
           end_date: {
             [Op.gte]: new Date(),
+          },
+          status: {
+            [Op.eq]: ModelStatus.ACTIVE,
           },
         },
       });

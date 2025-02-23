@@ -69,9 +69,21 @@ export class PostgresOrderRepository implements IOrderRepository {
         model: DiscountPersistence,
         as: discountModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        required: false,
         through: {
           attributes: [],
           as: 'order_discounts',
+        },
+        where: {
+          start_date: {
+            [Op.lte]: new Date(),
+          },
+          end_date: {
+            [Op.gte]: new Date(),
+          },
+          status: {
+            [Op.eq]: ModelStatus.ACTIVE,
+          },
         },
       });
     }
@@ -111,7 +123,19 @@ export class PostgresOrderRepository implements IOrderRepository {
             attributes: {
               exclude: [...EXCLUDE_ATTRIBUTES],
             },
+            required: false,
             through: { attributes: [] },
+            where: {
+              start_date: {
+                [Op.lte]: new Date(),
+              },
+              end_date: {
+                [Op.gte]: new Date(),
+              },
+              status: {
+                [Op.eq]: ModelStatus.ACTIVE,
+              },
+            },
           },
         ],
       });
@@ -177,9 +201,21 @@ export class PostgresOrderRepository implements IOrderRepository {
         model: DiscountPersistence,
         as: discountModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        required: false,
         through: {
           attributes: [],
           as: 'order_discounts',
+        },
+        where: {
+          start_date: {
+            [Op.lte]: new Date(),
+          },
+          end_date: {
+            [Op.gte]: new Date(),
+          },
+          status: {
+            [Op.eq]: ModelStatus.ACTIVE,
+          },
         },
       });
     }
@@ -187,7 +223,6 @@ export class PostgresOrderRepository implements IOrderRepository {
       orderDetailInclude.push({
         model: PostgresOrderDetailProductSellablePersistence,
         as: orderDetailProductSellableHistoryModelName.toLowerCase(),
-        required: false,
         include: [
           {
             model: ProductSellablePersistence,
@@ -224,7 +259,19 @@ export class PostgresOrderRepository implements IOrderRepository {
                 model: DiscountPersistence,
                 as: discountModelName,
                 attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+                required: false,
                 through: { attributes: [] },
+                where: {
+                  start_date: {
+                    [Op.lte]: new Date(),
+                  },
+                  end_date: {
+                    [Op.gte]: new Date(),
+                  },
+                  status: {
+                    [Op.eq]: ModelStatus.ACTIVE,
+                  },
+                },
               },
             ],
           },
