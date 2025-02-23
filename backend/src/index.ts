@@ -24,7 +24,6 @@ import { setupVariantRouter } from 'src/modules/variant';
 import { initializeAssociation } from 'src/share/helpers/initialize-association';
 import { createServer } from 'http';
 import Websocket from 'src/share/modules/websocket';
-import { setupNotification } from 'src/modules/notification';
 import { setupActorRouter } from 'src/modules/messages/actor';
 import { setupEntityRouter } from 'src/modules/messages/entity';
 import { setupMessageRouter } from 'src/modules/messages';
@@ -33,6 +32,7 @@ import { errorHandler } from './share/helpers/error-handler';
 import { setupOptionRouter, setupOptionValueRouter } from 'src/modules/options';
 import { setupProductSellableRouter } from 'src/modules/product_sellable';
 import { productSellableCronJobInit } from 'src/workers';
+import { setupSocket } from 'src/socket/socketManager';
 
 // ENVIRONMENT CONFIGURATION
 config();
@@ -106,6 +106,9 @@ app.use(errorHandler);
     console.error('Unable to connect to the database:', error);
   }
 })();
+
+// SOCKET SETUP
+setupSocket(io);
 
 // SOCKET ERROR HANDLING
 io.engine.on('connection_error', (err) => {

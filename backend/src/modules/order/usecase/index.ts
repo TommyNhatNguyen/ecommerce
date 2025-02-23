@@ -9,6 +9,7 @@ import { Order } from 'src/modules/order/models/order.model';
 import { IOrderDetailUseCase } from 'src/modules/order_detail/models/order_detail.interface';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
+import { emitNewOrder } from 'src/socket/socketManager';
 
 export class OrderUseCase implements IOrderUseCase {
   constructor(
@@ -24,13 +25,16 @@ export class OrderUseCase implements IOrderUseCase {
   ): Promise<ListResponse<Order[]>> {
     return await this.orderRepository.getList(paging, condition);
   }
-  async create(data: Omit<OrderCreateDTO, 'order_detail_id'>): Promise<Order> {
+  async create(data: Omit<OrderCreateDTO, 'order_detail_id'>,): Promise<Order> {
     const { order_detail_info, ...orderData } = data;
     const orderDetail = await this.orderDetailUseCase.create(order_detail_info);
-    return await this.orderRepository.create({
+    const order = await this.orderRepository.create({
       ...orderData,
       order_detail_id: orderDetail.id,
     });
+    console.log("order created", order);
+    emitNewOrder(order);
+    return order;
   }
   async update(id: string, data: OrderUpdateDTO): Promise<Order> {
     /**

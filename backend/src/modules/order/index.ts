@@ -54,6 +54,7 @@ import {
   productSellableModelName,
   productSellableVariantModelName,
 } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import { emitNewOrder } from 'src/socket/socketManager';
 
 export function setupOrderRouter(sequelize: Sequelize) {
   orderInit(sequelize);

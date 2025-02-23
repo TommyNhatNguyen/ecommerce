@@ -155,6 +155,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
     socketServices.orderIo,
     SOCKET_EVENTS_ENDPOINT.ORDER_CREATED,
     (data: any) => {
+      console.log("order created", data);
       dispatch(setOrderCreated(data));
     },
   );
