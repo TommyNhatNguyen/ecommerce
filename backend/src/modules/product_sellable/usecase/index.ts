@@ -42,25 +42,33 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
       get_all: true,
       includeDiscount: true,
     });
-    productSellables.data.forEach((productSellable) => {
+
+    for (const productSellable of productSellables.data) {
       const applyDiscountList: Discount[] = (
         productSellable.discount || []
       ).filter((item) => !item.is_require_product_count);
-      const total_discounts = applyDiscountList.reduce((acc, discount) => {
-        const calculator = new DiscountCalculatorUsecaseImpl(
-          discount,
-          this.discountUseCase
-        );
-        return (
-          acc +
-          calculator.calculateDiscountAmountForProduct(1, productSellable.price)
-        );
-      }, 0);
+
+      const total_discounts = await applyDiscountList.reduce(
+        async (accPromise, discount) => {
+          const acc = await accPromise;
+          const calculator = new DiscountCalculatorUsecaseImpl(
+            discount,
+            this.discountUseCase
+          );
+          const amount = await calculator.calculateDiscountAmountForProduct(
+            1,
+            productSellable.price
+          );
+          return acc + amount;
+        },
+        Promise.resolve(0)
+      );
+
       const price_after_discounts = Math.max(
         productSellable.price - total_discounts,
         0
       );
-      this.updateProductSellable(
+      await this.updateProductSellable(
         productSellable.id,
         {
           total_discounts: total_discounts,
@@ -68,7 +76,14 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
         },
         t
       );
-    });
+      console.log(
+        '🚀 ~ ProductSellableUseCase ~ updateProductSellableDiscounts ~ productSellables:',
+        productSellables,
+        total_discounts,
+        price_after_discounts
+      );
+    }
+
     return true;
   }
 
@@ -99,17 +114,24 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
         }
       );
       const applyDiscountList: Discount[] = (discountList?.data || []).filter(
-        (item) => !item.is_require_product_count
+        (item) => !item.is_require_product_count || item.is_free
       );
-      payload.total_discounts = applyDiscountList.reduce((acc, discount) => {
-        const calculator = new DiscountCalculatorUsecaseImpl(
-          discount,
-          this.discountUseCase
-        );
-        return (
-          acc + calculator.calculateDiscountAmountForProduct(1, data.price)
-        );
-      }, 0);
+      payload.total_discounts = await applyDiscountList.reduce(
+        async (accPromise, discount) => {
+          const acc = await accPromise;
+          const calculator = new DiscountCalculatorUsecaseImpl(
+            discount,
+            this.discountUseCase
+          );
+          const amount = await calculator.calculateDiscountAmountForProduct(
+            1,
+            data.price,
+            true
+          );
+          return acc + amount;
+        },
+        Promise.resolve(0)
+      );
       payload.price_after_discounts = Math.max(
         data.price - payload.total_discounts,
         0
@@ -156,10 +178,7 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
     data: ProductSellableUpdateDTO,
     t?: Transaction
   ): Promise<ProductSellable> {
-    const updatedProductSellable = await this.repository.update(id, data, t);
-    // Update product_sellable total_discount and price_after_discounts
-    await this.updateProductSellableDiscounts(t);
-    return updatedProductSellable;
+    return await this.repository.update(id, data, t);
   }
   async deleteProductSellable(id: string): Promise<boolean> {
     const product = await this.repository.get(id, { includeImage: true });

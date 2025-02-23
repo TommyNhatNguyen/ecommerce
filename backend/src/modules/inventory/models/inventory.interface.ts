@@ -24,27 +24,11 @@ export interface IInventoryUseCase {
     t?: Transaction
   ): Promise<Inventory>;
   deleteInventory(id: string, t?: Transaction): Promise<boolean>;
-  updateInventoryStockStatus(
-    id: string,
-    data: Required<Pick<InventoryUpdateDTO, 'low_stock_threshold'>>,
-    t?: Transaction
-  ): Promise<Inventory>;
-  updateInventoryQuantity(
-    productSellableId: string,
-    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>,
-    t?: Transaction
-  ): Promise<Inventory>;
 }
 
 export interface IInventoryRepository
   extends IQueryRepository,
-    ICommandRepository {
-  updateInventoryQuantity(
-    productSellableId: string,
-    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>,
-    t?: Transaction
-  ): Promise<Inventory>;
-}
+    ICommandRepository {}
 
 export interface IQueryRepository {
   get(id: string): Promise<Inventory>;

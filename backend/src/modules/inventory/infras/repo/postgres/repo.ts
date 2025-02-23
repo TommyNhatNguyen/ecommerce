@@ -20,29 +20,6 @@ export class PostgresInventoryRepository implements IInventoryRepository {
     private readonly modelName: string
   ) {}
 
-  async updateInventoryQuantity(
-    productSellableId: string,
-    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>,
-    t?: Transaction
-  ): Promise<Inventory> {
-    if (t) {
-      const inventory = await this.sequelize.models[this.modelName].update(
-        data,
-        {
-          where: { product_sellable_id: productSellableId },
-          returning: true,
-          transaction: t,
-        }
-      );
-      return inventory[1][0].dataValues;
-    }
-    const inventory = await this.sequelize.models[this.modelName].update(data, {
-      where: { product_sellable_id: productSellableId },
-      returning: true,
-    });
-    return inventory[1][0].dataValues;
-  }
-
   async get(id: string): Promise<Inventory> {
     const inventory = await this.sequelize.models[this.modelName].findByPk(id);
     return inventory?.dataValues;

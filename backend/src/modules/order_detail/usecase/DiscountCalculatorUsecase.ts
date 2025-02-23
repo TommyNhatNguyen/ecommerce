@@ -11,8 +11,9 @@ abstract class DiscountCalculatorUsecase {
   }
   abstract applyMaxDiscountCount(
     hasMaxDiscountCount: boolean,
-    quantity: number
-  ): number;
+    quantity: number,
+    noUpdateDiscountCount?: boolean
+  ): Promise<number>;
   abstract applyMinProductCount(
     hasRequireProductCount: boolean,
     quantity: number
@@ -30,18 +31,20 @@ abstract class DiscountCalculatorUsecase {
 
   abstract calculateDiscountAmountForProduct(
     quantity: number,
-    price: number
-  ): number;
+    price: number,
+    noUpdateDiscountCount?: boolean
+  ): Promise<number>;
   abstract calculateDiscountAmountForOrder(
     quantity: number,
     orderAmount: number,
-    totalProductQuantity: number
-  ): number;
+    totalProductQuantity: number,
+    noUpdateDiscountCount?: boolean
+  ): Promise<number>;
   abstract calculateDiscountAmount(quantity: number, price: number): number;
   abstract updateDiscountCount(
     discountId: string,
     discountCount: number
-  ): boolean;
+  ): Promise<boolean>;
 }
 
 export class DiscountCalculatorUsecaseImpl extends DiscountCalculatorUsecase {
@@ -49,19 +52,22 @@ export class DiscountCalculatorUsecaseImpl extends DiscountCalculatorUsecase {
     super(discount, discountUseCase);
   }
 
-  applyMaxDiscountCount(
+  async applyMaxDiscountCount(
     hasMaxDiscountCount: boolean,
-    quantity: number
-  ): number {
+    quantity: number,
+    noUpdateDiscountCount?: boolean
+  ): Promise<number> {
     if (hasMaxDiscountCount) {
       const remainingDiscountCount =
         this.discount.max_discount_count - this.discount.discount_count;
       let applyQuantity = Math.min(quantity, remainingDiscountCount);
-      if (applyQuantity > 0) {
-        this.updateDiscountCount(
+      console.log("🚀 ~ DiscountCalculatorUsecaseImpl ~ applyQuantity:", applyQuantity)
+      if (applyQuantity > 0 && !noUpdateDiscountCount) {
+        await this.updateDiscountCount(
           this.discount.id,
           this.discount.discount_count + applyQuantity
         );
+        console.log('this.discount.discount_count', applyQuantity);
       }
       return applyQuantity;
     } else {
@@ -110,23 +116,29 @@ export class DiscountCalculatorUsecaseImpl extends DiscountCalculatorUsecase {
     }
   }
 
-  calculateDiscountAmountForProduct(quantity: number, price: number): number {
-    let applyQuantity = this.applyMaxDiscountCount(
+  async calculateDiscountAmountForProduct(
+    quantity: number,
+    price: number,
+    noUpdateDiscountCount?: boolean
+  ): Promise<number> {
+    let applyQuantity = await this.applyMaxDiscountCount(
       this.discount.has_max_discount_count,
       this.applyMinProductCount(
         this.discount.is_require_product_count,
         quantity
-      )
+      ),
+      noUpdateDiscountCount
     );
     return this.calculateDiscountAmount(applyQuantity, price);
   }
 
-  calculateDiscountAmountForOrder(
+  async calculateDiscountAmountForOrder(
     quantity: number,
     orderAmount: number,
-    totalProductQuantity: number
-  ): number {
-    let applyQuantity = this.applyMaxDiscountCount(
+    totalProductQuantity: number,
+    noUpdateDiscountCount?: boolean
+  ): Promise<number> {
+    let applyQuantity = await this.applyMaxDiscountCount(
       this.discount.has_max_discount_count,
       this.applyMinProductCountInOrder(
         this.discount.is_require_product_count,
@@ -136,7 +148,8 @@ export class DiscountCalculatorUsecaseImpl extends DiscountCalculatorUsecase {
           orderAmount,
           quantity
         )
-      )
+      ),
+      noUpdateDiscountCount
     );
     return this.calculateDiscountAmount(applyQuantity, orderAmount);
   }
@@ -147,9 +160,12 @@ export class DiscountCalculatorUsecaseImpl extends DiscountCalculatorUsecase {
       : quantity * price * (this.discount.amount / 100);
   }
 
-  updateDiscountCount(discountId: string, discountCount: number): boolean {
-    return !!this.discountUseCase.updateDiscount(discountId, {
+  async updateDiscountCount(
+    discountId: string,
+    discountCount: number
+  ): Promise<boolean> {
+    return !!(await this.discountUseCase.updateDiscount(discountId, {
       discount_count: discountCount,
-    });
+    }));
   }
 }

@@ -141,7 +141,6 @@ export function orderDetailProductSellableInit(sequelize: Sequelize) {
       order_detail_id: {
         type: DataTypes.UUID,
         allowNull: false,
-        primaryKey: true,
       },
       product_sellable_id: {
         type: DataTypes.UUID,

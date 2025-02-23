@@ -10,7 +10,7 @@ import {
 } from 'src/modules/order_detail/models/order_detail.dto';
 import { IOrderDetailUseCase } from 'src/modules/order_detail/models/order_detail.interface';
 import { OrderDetail } from 'src/modules/order_detail/models/order_detail.model';
-import { ListResponse } from 'src/share/models/base-model';
+import { ListResponse, ModelStatus } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { ICustomerUseCase } from 'src/modules/customer/models/customer.interface';
 import {
@@ -117,8 +117,8 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
                 const orderQuantity =
                   products_detail.find((item) => item.id === product.variant_id)
                     ?.quantity ?? 0;
-                return await this.inventoryUseCase.updateInventoryQuantity(
-                  product.id,
+                return await this.inventoryUseCase.updateInventory(
+                  product.inventory?.id ?? '',
                   {
                     quantity:
                       (product.inventory?.quantity ?? 0) - orderQuantity,
@@ -139,46 +139,51 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
             return acc + product.price * (productDetail?.quantity ?? 0);
           }, 0);
           const discountAmountList: { [key: string]: number } = {};
-          products.data.forEach((product) => {
+          for (const product of products.data) {
+            // Get product details
             const productDetail = products_detail.find(
               (p) => p.id === product.variant_id
             );
-            if (!productDetail) throw ORDER_DETAIL_PRODUCT_ERROR;
+            if (!productDetail) {
+              throw ORDER_DETAIL_PRODUCT_ERROR;
+            }
 
-            // Filter valid discounts
-            const applyDiscountList: Discount[] = product.discount
-              ? product.discount.filter((item) => {
-                  const isDayValid =
-                    new Date(item.start_date) <= new Date() &&
-                    new Date(item.end_date) >= new Date();
-
-                  if (!isDayValid) throw ORDER_DETAIL_DISCOUNT_DATE_ERROR;
-                  return true;
-                })
-              : [];
-            // Calculate total discount using DiscountCalculator
-            const discountAmount = applyDiscountList.reduce(
-              (totalDiscount, discount) => {
-                const calculator = new DiscountCalculatorUsecaseImpl(
-                  discount,
-                  this.discountUseCase
-                );
-                let discountAmount =
-                  calculator.calculateDiscountAmountForProduct(
-                    productDetail.quantity,
-                    product.price
-                  );
-                console.log(
-                  '🚀 ~ OrderDetailUseCase ~ products.data.forEach ~ discountAmount:',
-                  discount.name,
-                  discountAmount
-                );
-                return totalDiscount + discountAmount;
+            // Get valid discounts for the product
+            const applyDiscountList = await this.discountUseCase.listDiscount(
+              {
+                limit: product.discount?.length ?? 0,
+                page: 1,
               },
-              0
+              {
+                ids: product.discount?.map((item) => item.id) ?? [],
+                scope: DiscountScope.PRODUCT,
+                start_date: new Date().toISOString(),
+                end_date: new Date().toISOString(),
+                status: ModelStatus.ACTIVE,
+              }
             );
-            discountAmountList[product.variant_id] = discountAmount;
-          });
+
+            // Calculate total discount for the product
+            let totalDiscount = 0;
+            for (const discount of applyDiscountList.data) {
+              const calculator = new DiscountCalculatorUsecaseImpl(
+                discount,
+                this.discountUseCase
+              );
+              const discountAmount =
+                await calculator.calculateDiscountAmountForProduct(
+                  productDetail.quantity,
+                  product.price
+                );
+              console.log(
+                '🚀 ~ OrderDetailUseCase ~ result ~ discountAmount:',
+                discount.name,
+                discountAmount
+              );
+              totalDiscount += discountAmount;
+            }
+            discountAmountList[product.variant_id] = totalDiscount;
+          }
           orderDetailProducts.push(
             ...products.data.map((product, index) => ({
               order_detail_id: '',
@@ -205,6 +210,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
           (acc, product) => acc + product.discount_amount,
           0
         );
+        await this.productSellableUseCase.updateProductSellableDiscounts(t);
         // ---- CUSTOMER ----
         if (!customer_id) {
           const newCustomer = await this.customerUseCase.createCustomer(
@@ -286,38 +292,24 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
             (acc, product) => acc + product.quantity,
             0
           );
-          payload.total_order_discount = discounts.data.reduce(
-            (totalDiscount, discount) => {
-              const calculator = new DiscountCalculatorUsecaseImpl(
-                discount,
-                this.discountUseCase
-              );
-              let discountAmount = calculator.calculateDiscountAmountForOrder(
+
+          // Calculate total order discount
+          let totalOrderDiscount = 0;
+          for (const discount of discounts.data) {
+            const calculator = new DiscountCalculatorUsecaseImpl(
+              discount,
+              this.discountUseCase
+            );
+            const discountAmount =
+              await calculator.calculateDiscountAmountForOrder(
                 1,
                 payload.subtotal,
                 totalProductQuantity
               );
-              console.log(
-                '🚀 ~ OrderDetailUseCase ~ result ~ totalDiscount:',
-                discount.name,
-                discountAmount
-              );
-              return totalDiscount + discountAmount;
-            },
-            0
-          );
-          console.log(
-            '🚀 ~ OrderDetailUseCase ~ result ~ payload before:',
-            payload
-          );
-          console.log(
-            '🚀 ~ OrderDetailUseCase ~ result ~ payload after:',
-            payload
-          );
-          console.log(
-            '🚀 ~ OrderDetailUseCase ~ result ~ orderDetailProducts after:',
-            orderDetailProducts
-          );
+            totalOrderDiscount += discountAmount;
+          }
+
+          payload.total_order_discount = totalOrderDiscount;
           payload.total_discount =
             payload.total_order_discount + payload.total_product_discount;
 
@@ -335,8 +327,8 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
             (payload.total_payment_fee || 0) +
             (payload.total_costs || 0)) -
           (payload.total_discount || 0);
-        // --- CREATE ORDER DETAIL ---
 
+        // --- CREATE ORDER DETAIL ---
         const orderDetail = await this.orderDetailRepository.create(payload, t);
         console.log(
           '🚀 ~ OrderDetailUseCase ~ result ~ orderDetailProducts:',

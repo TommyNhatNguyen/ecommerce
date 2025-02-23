@@ -32,79 +32,54 @@ export class InventoryUseCase implements IInventoryUseCase {
     data: InventoryCreateDTO,
     t?: Transaction
   ): Promise<Inventory> {
-    const createdInventory = await this.inventoryRepository.create(data, t);
-    return await this.updateInventoryStockStatus(
-      createdInventory.id,
-      {
-        quantity: data.quantity,
-        low_stock_threshold: data.low_stock_threshold,
-      },
-      t
-    );
-  }
-
-  async updateInventoryQuantity(
-    productSellableId: string,
-    data: Required<Pick<InventoryUpdateDTO, 'quantity'>>,
-    t?: Transaction
-  ): Promise<Inventory> {
-    // Update inventory quantity
-    const updatedInventory =
-      await this.inventoryRepository.updateInventoryQuantity(
-        productSellableId,
-        data,
-        t
-      );
-    // Update inventory stock status
-    await this.updateInventoryStockStatus(
-      updatedInventory.id,
-      {
-        quantity: updatedInventory.quantity,
-        low_stock_threshold: updatedInventory.low_stock_threshold,
-        total_value: updatedInventory.cost * updatedInventory.quantity,
-      },
-      t
-    );
-    return updatedInventory;
-  }
-
-  async updateInventoryStockStatus(
-    id: string,
-    data: Pick<
-      InventoryUpdateDTO,
-      'low_stock_threshold' | 'quantity' | 'cost' | 'total_value'
-    >,
-    t?: Transaction
-  ): Promise<Inventory> {
-    const payload: InventoryUpdateDTO = { ...data };
-    const updatedInventory = await this.inventoryRepository.get(id);
-    const determineStockStatus = (
-      quantity: number,
-      low_stock_threshold: number
-    ) => {
-      if (quantity === 0) return StockStatus.OUT_OF_STOCK;
-      if (quantity <= low_stock_threshold) return StockStatus.LOW_STOCK;
-      return StockStatus.IN_STOCK;
+    // Create inventory
+    const processData: InventoryCreateDTO = {
+      ...data,
+      total_value: data.cost * data.quantity,
+      stock_status: this.determineStockStatus(
+        data.quantity ?? 0,
+        data.low_stock_threshold ?? 0
+      ),
     };
-    const threshold =
-      data.low_stock_threshold ?? updatedInventory.low_stock_threshold;
-    const quantity = data.quantity ?? updatedInventory.quantity;
-    payload.stock_status = determineStockStatus(quantity, threshold);
-    if (t) {
-      return await this.inventoryRepository.update(id, payload, t);
-    }
-    return await this.inventoryRepository.update(id, payload);
+    const createdInventory = await this.inventoryRepository.create(
+      processData,
+      t
+    );
+    return createdInventory;
   }
 
   async updateInventory(
     id: string,
-    data: InventoryUpdateDTO
+    data: InventoryUpdateDTO,
+    t?: Transaction
   ): Promise<Inventory> {
-    return await this.updateInventoryStockStatus(id, {
-      low_stock_threshold: data.low_stock_threshold,
-      quantity: data.quantity,
-      cost: data.cost,
-    });
+    // Get current inventory data
+    const currentInventory = await this.inventoryRepository.get(id);
+
+    // Prepare update payload
+    const payload: InventoryUpdateDTO = { ...data };
+
+    // 1. Calculate total value using updated or current cost and quantity
+    const quantity = data.quantity ?? currentInventory.quantity;
+    const cost = data.cost ?? currentInventory.cost;
+    payload.total_value = cost * quantity;
+
+    // 2. Update stock status based on threshold and quantity
+    const threshold =
+      data.low_stock_threshold ?? currentInventory.low_stock_threshold;
+    payload.stock_status = this.determineStockStatus(quantity, threshold);
+
+    // Update inventory with transaction if provided
+    return await this.inventoryRepository.update(id, payload, t);
+  }
+
+  private determineStockStatus(
+    quantity: number,
+    lowStockThreshold: number
+  ): StockStatus {
+    if (quantity === 0) return StockStatus.OUT_OF_STOCK;
+    if (quantity <= lowStockThreshold) return StockStatus.LOW_STOCK;
+    return StockStatus.IN_STOCK;
   }
 
   async deleteInventory(id: string): Promise<boolean> {
