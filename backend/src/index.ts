@@ -32,9 +32,12 @@ import { instrument } from '@socket.io/admin-ui';
 import { errorHandler } from './share/helpers/error-handler';
 import { setupOptionRouter, setupOptionValueRouter } from 'src/modules/options';
 import { setupProductSellableRouter } from 'src/modules/product_sellable';
+import { productSellableCronJobInit } from 'src/workers';
 
+// ENVIRONMENT CONFIGURATION
 config();
 
+// DATABASE CONNECTION CHECK
 (async () => {
   try {
     await sequelize.authenticate();
@@ -44,6 +47,7 @@ config();
   }
 })();
 
+// EXPRESS AND SOCKET.IO SETUP
 const app = express();
 const port = process.env.PORT || 3000;
 const socketApp = express();
@@ -51,14 +55,17 @@ const socketPort = process.env.SOCKET_PORT || 3003;
 const server = createServer(socketApp);
 const io = Websocket.getInstance(server);
 
+// SOCKET.IO ADMIN UI CONFIGURATION
 instrument(io, {
   auth: false,
   mode: 'development',
 });
 
+// MIDDLEWARE SETUP
 app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
+// API ROUTES SETUP
 // setupNotification(io, sequelize);
 app.use('/v1', setupProductRouter(sequelize));
 app.use('/v1', setupCategoryRouter(sequelize));
@@ -86,9 +93,11 @@ app.use('/v1', setupOptionValueRouter(sequelize));
 app.use('/v1', setupProductSellableRouter(sequelize));
 // app.use('/v1', setupResourcesRouter(sequelize));
 
+// DATABASE ASSOCIATIONS AND ERROR HANDLING
 initializeAssociation();
 app.use(errorHandler);
 
+// DATABASE SYNC
 (async () => {
   try {
     await sequelize.sync({ alter: true });
@@ -98,6 +107,7 @@ app.use(errorHandler);
   }
 })();
 
+// SOCKET ERROR HANDLING
 io.engine.on('connection_error', (err) => {
   console.log(err.req);
   console.log(err.code);
@@ -105,6 +115,11 @@ io.engine.on('connection_error', (err) => {
   console.log(err.context);
 });
 
+// CRON JOBS
+const productSellableCronJob = productSellableCronJobInit(sequelize);
+productSellableCronJob.start();
+
+// SERVER STARTUP
 server.listen(socketPort, () => {
   console.log(`Socket server is running on: http://localhost:${socketPort}`);
 });
