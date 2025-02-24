@@ -23,7 +23,7 @@ import { setupPaymentMethodRouter } from 'src/modules/payment_method';
 import { setupVariantRouter } from 'src/modules/variant';
 import { initializeAssociation } from 'src/share/helpers/initialize-association';
 import { createServer } from 'http';
-import Websocket from 'src/share/modules/websocket';
+import Websocket from 'src/socket/repo';
 import { setupActorRouter } from 'src/modules/messages/actor';
 import { setupEntityRouter } from 'src/modules/messages/entity';
 import { setupMessageRouter } from 'src/modules/messages';
@@ -31,7 +31,7 @@ import { instrument } from '@socket.io/admin-ui';
 import { errorHandler } from './share/helpers/error-handler';
 import { setupOptionRouter, setupOptionValueRouter } from 'src/modules/options';
 import { setupProductSellableRouter } from 'src/modules/product_sellable';
-import { productSellableCronJobInit } from 'src/workers';
+import { productSellableCronJobInit } from 'src/schedulers';
 import { setupSocket } from 'src/socket/socketManager';
 
 // ENVIRONMENT CONFIGURATION

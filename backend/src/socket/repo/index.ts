@@ -1,14 +1,14 @@
-import { Server } from "socket.io";
-import { Server as HttpServer } from "http";
+import { Server } from 'socket.io';
+import { Server as HttpServer } from 'http';
 const WEBSOCKET_CORS = {
-  methods: ["GET", "POST"],
+  methods: ['GET', 'POST'],
   origin: [
-    "https://admin.socket.io",
-    "http://localhost:3004",
-    "http://localhost:3003",
-    "http://localhost:3000",
-    "http://localhost:3001",
-    "http://localhost:3002",
+    'https://admin.socket.io',
+    'http://localhost:3004',
+    'http://localhost:3003',
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
   ],
   credentials: true,
 };

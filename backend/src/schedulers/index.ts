@@ -18,8 +18,8 @@ import { IProductSellableUseCase } from 'src/modules/product_sellable/models/pro
 import { ProductSellableUseCase } from 'src/modules/product_sellable/usecase';
 import cloudinary from 'src/share/cloudinary';
 import { timeLogger } from 'src/share/helpers/time-logger';
-import { PRODUCT_SELLABLE_CRONJOB_ERROR } from 'src/workers/models/product-sellable.cronjob.error';
-import { PRODUCT_SELLABLE_CRONJOB_MESSAGE } from 'src/workers/models/product-sellable.cronjob.message';
+import { PRODUCT_SELLABLE_CRONJOB_ERROR } from 'src/schedulers/models/product-sellable.cronjob.error';
+import { PRODUCT_SELLABLE_CRONJOB_MESSAGE } from 'src/schedulers/models/product-sellable.cronjob.message';
 
 export const productSellableCronJobInit = (sequelize: Sequelize): CronJob => {
   const productSellableRepository = new PostgresProductSellableRepository(
@@ -62,7 +62,7 @@ export const productSellableCronJobInit = (sequelize: Sequelize): CronJob => {
     imageRepository
   );
   const productSellableCronJob = new CronJob(
-    '0 0 * * *', // cronTime
+    '5 0 * * *', // cronTime
     async function () {
       try {
         await timeLogger(

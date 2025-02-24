@@ -1,6 +1,6 @@
-import Websocket from 'src/share/modules/websocket';
 import { SOCKET_NAMESPACE } from 'src/socket/connection/socket-endpoint';
 
+import Websocket from 'src/socket/repo';
 let outerIo: Websocket;
 export const setupSocket = (io: Websocket) => {
   outerIo = io;
