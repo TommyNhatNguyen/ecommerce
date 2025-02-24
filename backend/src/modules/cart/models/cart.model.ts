@@ -1,3 +1,5 @@
+import { customerModelName } from "src/modules/customer/infras/repo/postgres/customer.dto";
+import { CustomerSchema } from "src/modules/customer/models/customer.model";
 import { productSellableModelName } from "src/modules/product_sellable/infras/repo/postgres/dto";
 import { ProductSellableSchema } from "src/modules/product_sellable/models/product-sellable.model";
 import { ModelStatus } from "src/share/models/base-model";
@@ -14,6 +16,7 @@ export const CartSchema = z.object({
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
   [productSellableModelName]: z.array(ProductSellableSchema).optional(),
+  [customerModelName]: z.object(CustomerSchema.shape).optional(),
 });
 
 export const CartProductSellableSchema = z.object({

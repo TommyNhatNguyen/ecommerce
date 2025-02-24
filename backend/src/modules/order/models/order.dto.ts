@@ -6,6 +6,7 @@ export const OrderCreateDTOSchema = z.object({
   order_detail_id: z.string().uuid(),
   description: z.string().optional(),
   order_state: z.nativeEnum(OrderState).default(OrderState.PENDING).optional(),
+  cart_id: z.string().uuid().optional(),
   order_detail_info: z.object(OrderDetailCreateDTOSchema.shape),
 });
 

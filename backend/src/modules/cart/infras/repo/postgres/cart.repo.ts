@@ -14,6 +14,8 @@ import {
 } from 'src/modules/cart/models/cart.dto';
 import { ICartRepository } from 'src/modules/cart/models/cart.interface';
 import { Cart } from 'src/modules/cart/models/cart.model';
+import { customerModelName } from 'src/modules/customer/infras/repo/postgres/customer.dto';
+import { CustomerPersistence } from 'src/modules/customer/infras/repo/postgres/customer.dto';
 import {
   discountModelName,
   DiscountPersistence,
@@ -34,7 +36,7 @@ import {
   VariantPersistence,
 } from 'src/modules/variant/infras/repo/postgres/dto';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
-import { ListResponse } from 'src/share/models/base-model';
+import { ListResponse, ModelStatus } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
 export class PostgresCartRepository implements ICartRepository {
@@ -56,7 +58,11 @@ export class PostgresCartRepository implements ICartRepository {
     await this.sequelize.models[this.modelName].create(data);
     return true;
   }
-  async getById(id: string, condition: CartConditionDTO): Promise<Cart> {
+  async getById(
+    id: string,
+    condition: CartConditionDTO,
+    t?: Transaction
+  ): Promise<Cart> {
     const include: Includeable[] = [];
     if (condition.include_products) {
       include.push({
@@ -94,10 +100,39 @@ export class PostgresCartRepository implements ICartRepository {
             model: DiscountPersistence,
             as: discountModelName,
             attributes: { exclude: EXCLUDE_ATTRIBUTES },
-            through: { attributes: [] },
+            required: false,
+            through: {
+              attributes: [],
+              as: 'order_discounts',
+            },
+            where: {
+              start_date: {
+                [Op.lte]: new Date(),
+              },
+              end_date: {
+                [Op.gte]: new Date(),
+              },
+              status: {
+                [Op.eq]: ModelStatus.ACTIVE,
+              },
+            },
           },
         ],
       });
+    }
+    if (condition.include_customer) {
+      include.push({
+        model: CustomerPersistence,
+        as: customerModelName,
+        attributes: { exclude: EXCLUDE_ATTRIBUTES },
+      });
+    }
+    if (t) {
+      const cart = await this.sequelize.models[this.modelName].findByPk(id, {
+        include: include,
+        transaction: t,
+      });
+      return cart?.dataValues || null;
     }
     const cart = await this.sequelize.models[this.modelName].findByPk(id, {
       include: include,

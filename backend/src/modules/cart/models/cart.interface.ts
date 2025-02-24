@@ -13,7 +13,7 @@ import { ListResponse } from "src/share/models/base-model";
 import { PagingDTO } from "src/share/models/paging";
 
 export interface ICartUseCase {
-  getById(id: string, condition: CartConditionDTO): Promise<Cart>;
+  getById(id: string, condition: CartConditionDTO, t?: Transaction): Promise<Cart>;
   getList(
     paging: PagingDTO,
     condition: CartConditionDTO
@@ -36,7 +36,7 @@ export interface ICartRepository extends IQueryRepository, ICommandRepository {
 }
 
 export interface IQueryRepository {
-  getById(id: string, condition: CartConditionDTO): Promise<Cart>;
+  getById(id: string, condition: CartConditionDTO, t?: Transaction): Promise<Cart>;
   getList(
     paging: PagingDTO,
     condition: CartConditionDTO

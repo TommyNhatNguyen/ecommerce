@@ -20,7 +20,10 @@ import { PostgresCustomerRepository } from 'src/modules/customer/infras/repo/pos
 import { PostgresCartRepository } from 'src/modules/cart/infras/repo/postgres/cart.repo';
 import { customerModelName } from 'src/modules/customer/infras/repo/postgres/customer.dto';
 import { PostgresProductRepository } from 'src/modules/products/infras/repo/postgres/repo';
-import { cartModelName } from 'src/modules/cart/infras/repo/postgres/cart.dto';
+import {
+  cartModelName,
+  cartProductModelName,
+} from 'src/modules/cart/infras/repo/postgres/cart.dto';
 import { PostgresShippingRepository } from 'src/modules/shipping/infras/postgres/repo/shipping.repo';
 import {
   productCategoryModelName,
@@ -56,6 +59,7 @@ import {
 } from 'src/modules/product_sellable/infras/repo/postgres/dto';
 import Websocket from 'src/socket/infras/repo';
 import { SocketUseCase } from 'src/socket/usecase';
+import { CartUseCase } from 'src/modules/cart/usecase';
 
 export function setupOrderRouter(
   sequelize: Sequelize,
@@ -89,6 +93,10 @@ export function setupOrderRouter(
     customerModelName
   );
   const cartRepository = new PostgresCartRepository(sequelize, cartModelName);
+  const cartProductRepository = new PostgresCartRepository(
+    sequelize,
+    cartProductModelName
+  );
   const productSellableRepository = new PostgresProductSellableRepository(
     sequelize,
     productSellableModelName
@@ -153,6 +161,11 @@ export function setupOrderRouter(
   const paymentMethodUseCase = new PaymentMethodUseCase(
     paymentMethodRepository
   );
+  const cartUseCase = new CartUseCase(
+    cartRepository,
+    cartProductRepository,
+    productSellableUseCase
+  );
   const orderDetailUseCase = new OrderDetailUseCase(
     orderDetailRepository,
     orderDetailProductSellableRepository,
@@ -172,6 +185,7 @@ export function setupOrderRouter(
   const orderUseCase = new OrderUseCase(
     orderRepository,
     orderDetailUseCase,
+    cartUseCase,
     socketIo
   );
   const orderHttpService = new OrderHttpService(orderUseCase);

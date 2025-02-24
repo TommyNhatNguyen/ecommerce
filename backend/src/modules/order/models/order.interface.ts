@@ -1,4 +1,5 @@
 
+import { Transaction } from 'sequelize';
 import { OrderConditionDTO, OrderUpdateDTO } from 'src/modules/order/models/order.dto';
 import { OrderCreateDTO } from 'src/modules/order/models/order.dto';
 import { Order } from 'src/modules/order/models/order.model';
@@ -6,7 +7,7 @@ import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
 export interface IOrderUseCase {
-  getById(id: string, condition: OrderConditionDTO): Promise<Order>;
+  getById(id: string, condition: OrderConditionDTO, t?: Transaction): Promise<Order>;
   getList(
     paging: PagingDTO,
     condition: OrderConditionDTO
@@ -23,7 +24,7 @@ export interface IOrderRepository
     ICommandRepository {}
 
 export interface IQueryRepository {
-  getById(id: string, condition: OrderConditionDTO): Promise<Order>;
+  getById(id: string, condition: OrderConditionDTO, t?: Transaction): Promise<Order>;
   getList(
     paging: PagingDTO,
     condition: OrderConditionDTO

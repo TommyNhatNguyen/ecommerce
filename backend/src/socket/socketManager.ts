@@ -16,20 +16,3 @@ export const setupSocket = (io: Websocket): SocketUseCase => {
   });
   return socketUseCase;
 };
-
-/**
- * -----
- * ORDER
- * -----
- */
-// export const emitNewOrder = <T>(orderData: T) => {
-//   if (outerIo) {
-//     console.log('emitNewOrder', orderData);
-//     outerIo
-//       .of(SOCKET_NAMESPACE.ORDER.namespace)
-//       .emit(
-//         SOCKET_NAMESPACE.ORDER.endpoints.ORDER_CREATED,
-//         'New order created'
-//       ); // Broadcast to all connected admins
-//   }
-// };

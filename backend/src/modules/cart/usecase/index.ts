@@ -79,7 +79,10 @@ export class CartUseCase implements ICartUseCase {
 
     return await this.cartRepository.getById(products_cart.cart_id, {});
   }
-  async getById(id: string, condition: CartConditionDTO): Promise<Cart> {
+  async getById(id: string, condition: CartConditionDTO, t?: Transaction): Promise<Cart> {
+    if (t) {
+      return await this.cartRepository.getById(id, condition, t);
+    }
     return await this.cartRepository.getById(id, condition);
   }
   async getList(

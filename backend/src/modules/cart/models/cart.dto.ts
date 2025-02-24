@@ -45,6 +45,11 @@ export const CartUpdateProductSellableDTOSchema = z.object({
 });
 
 export const CartConditionDTOSchema = z.object({
+  include_customer: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
   include_products: z
     .string()
     .refine((value) => value === 'true' || value === 'false')
