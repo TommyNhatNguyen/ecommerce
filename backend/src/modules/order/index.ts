@@ -54,9 +54,13 @@ import {
   productSellableModelName,
   productSellableVariantModelName,
 } from 'src/modules/product_sellable/infras/repo/postgres/dto';
-import { emitNewOrder } from 'src/socket/socketManager';
+import Websocket from 'src/socket/infras/repo';
+import { SocketUseCase } from 'src/socket/usecase';
 
-export function setupOrderRouter(sequelize: Sequelize) {
+export function setupOrderRouter(
+  sequelize: Sequelize,
+  socketIo: SocketUseCase
+) {
   orderInit(sequelize);
   const router = Router();
   const orderRepository = new PostgresOrderRepository(
@@ -67,10 +71,11 @@ export function setupOrderRouter(sequelize: Sequelize) {
     sequelize,
     orderDetailModelName
   );
-  const orderDetailProductSellableRepository = new PostgresOrderDetailRepository(
-    sequelize,
-    orderDetailProductSellableModelName
-  );
+  const orderDetailProductSellableRepository =
+    new PostgresOrderDetailRepository(
+      sequelize,
+      orderDetailProductSellableModelName
+    );
   const orderDetailDiscountRepository = new PostgresOrderDetailRepository(
     sequelize,
     orderDetailDiscountModelName
@@ -163,8 +168,12 @@ export function setupOrderRouter(sequelize: Sequelize) {
     inventoryUseCase,
     sequelize
   );
-  
-  const orderUseCase = new OrderUseCase(orderRepository, orderDetailUseCase);
+
+  const orderUseCase = new OrderUseCase(
+    orderRepository,
+    orderDetailUseCase,
+    socketIo
+  );
   const orderHttpService = new OrderHttpService(orderUseCase);
   router.get('/order/:id', orderHttpService.getById.bind(orderHttpService));
   router.get('/order', orderHttpService.getList.bind(orderHttpService));

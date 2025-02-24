@@ -23,7 +23,7 @@ import { setupPaymentMethodRouter } from 'src/modules/payment_method';
 import { setupVariantRouter } from 'src/modules/variant';
 import { initializeAssociation } from 'src/share/helpers/initialize-association';
 import { createServer } from 'http';
-import Websocket from 'src/socket/repo';
+import Websocket from 'src/socket/infras/repo';
 import { setupActorRouter } from 'src/modules/messages/actor';
 import { setupEntityRouter } from 'src/modules/messages/entity';
 import { setupMessageRouter } from 'src/modules/messages';
@@ -33,7 +33,7 @@ import { setupOptionRouter, setupOptionValueRouter } from 'src/modules/options';
 import { setupProductSellableRouter } from 'src/modules/product_sellable';
 import { productSellableCronJobInit } from 'src/schedulers';
 import { setupSocket } from 'src/socket/socketManager';
-
+import amqp from 'amqplib/callback_api';
 // ENVIRONMENT CONFIGURATION
 config();
 
@@ -65,6 +65,9 @@ instrument(io, {
 app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
+// SOCKET SETUP
+const socketIo = setupSocket(io);
+
 // API ROUTES SETUP
 // setupNotification(io, sequelize);
 app.use('/v1', setupProductRouter(sequelize));
@@ -74,7 +77,7 @@ app.use('/v1', setupVariantRouter(sequelize));
 app.use('/v1', setupImageRouter(sequelize));
 app.use('/v1', setupInventoryRouter(sequelize));
 app.use('/v1', setupReviewRouter(sequelize));
-app.use('/v1', setupOrderRouter(sequelize));
+app.use('/v1', setupOrderRouter(sequelize, socketIo));
 app.use('/v1', setupCustomerRouter(sequelize));
 app.use('/v1', setupShippingRouter(sequelize));
 app.use('/v1', setupPaymentRouter(sequelize));
@@ -107,9 +110,6 @@ app.use(errorHandler);
   }
 })();
 
-// SOCKET SETUP
-setupSocket(io);
-
 // SOCKET ERROR HANDLING
 io.engine.on('connection_error', (err) => {
   console.log(err.req);
@@ -121,6 +121,55 @@ io.engine.on('connection_error', (err) => {
 // CRON JOBS
 const productSellableCronJob = productSellableCronJobInit(sequelize);
 productSellableCronJob.start();
+
+// amqp.connect('amqp://localhost', (err, connection) => {
+//   if (err) {
+//     console.log(err);
+//   }
+//   console.log('Connected to RabbitMQ');
+//   connection.createChannel(function (error1, channel) {
+//     if (error1) {
+//       throw error1;
+//     }
+//     var queue = 'task_queue';
+//     var msg = 'Hello world';
+
+//     channel.assertQueue(queue, {
+//       durable: true,
+//     });
+
+//     // const newLocal = setInterval(() => {
+//     //   channel.sendToQueue(queue, Buffer.from(msg), {
+//     //   });
+//     // }, 1000);
+//   });
+// });
+
+// amqp.connect('amqp://localhost', function (error0, connection) {
+//   if (error0) {
+//     throw error0;
+//   }
+//   connection.createChannel(function (error1, channel) {
+//     if (error1) {
+//       throw error1;
+//     }
+//     var queue = 'task_queue';
+
+//     channel.assertQueue(queue, {
+//       durable: true,
+//     });
+//     console.log(' [*] Waiting for messages in %s. To exit press CTRL+C', queue);
+//     channel.consume(
+//       queue,
+//       function (msg) {
+//         console.log(' [x] Received %s', msg?.content.toString());
+//       },
+//       {
+//         noAck: false,
+//       }
+//     );
+//   });
+// });
 
 // SERVER STARTUP
 server.listen(socketPort, () => {

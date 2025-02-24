@@ -4,17 +4,22 @@ import {
   OrderCreateDTO,
   OrderUpdateDTO,
 } from 'src/modules/order/models/order.dto';
-import { IOrderRepository, IOrderUseCase } from 'src/modules/order/models/order.interface';
+import {
+  IOrderRepository,
+  IOrderUseCase,
+} from 'src/modules/order/models/order.interface';
 import { Order } from 'src/modules/order/models/order.model';
 import { IOrderDetailUseCase } from 'src/modules/order_detail/models/order_detail.interface';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
-import { emitNewOrder } from 'src/socket/socketManager';
+import { SOCKET_NAMESPACE } from 'src/socket/models/socket-endpoint';
+import { SocketUseCase } from 'src/socket/usecase';
 
 export class OrderUseCase implements IOrderUseCase {
   constructor(
     private readonly orderRepository: IOrderRepository,
     private readonly orderDetailUseCase: IOrderDetailUseCase,
+    private readonly socketIo: SocketUseCase
   ) {}
   async getById(id: string, condition: OrderConditionDTO): Promise<Order> {
     return await this.orderRepository.getById(id, condition);
@@ -25,15 +30,21 @@ export class OrderUseCase implements IOrderUseCase {
   ): Promise<ListResponse<Order[]>> {
     return await this.orderRepository.getList(paging, condition);
   }
-  async create(data: Omit<OrderCreateDTO, 'order_detail_id'>,): Promise<Order> {
+  async create(data: Omit<OrderCreateDTO, 'order_detail_id'>): Promise<Order> {
     const { order_detail_info, ...orderData } = data;
     const orderDetail = await this.orderDetailUseCase.create(order_detail_info);
     const order = await this.orderRepository.create({
       ...orderData,
       order_detail_id: orderDetail.id,
     });
-    console.log("order created", order);
-    emitNewOrder(order);
+    // Nofify to admin dashboard
+    console.log('order created', order);
+    this.socketIo.emit(
+      SOCKET_NAMESPACE.ORDER.endpoints.ORDER_CREATED,
+      JSON.stringify(order)
+    );
+    // TODO: Save order notification to database
+
     return order;
   }
   async update(id: string, data: OrderUpdateDTO): Promise<Order> {
@@ -72,7 +83,7 @@ export class OrderUseCase implements IOrderUseCase {
      *  customer_address
      */
     const { order_detail_info, ...orderData } = data;
-    console.log(order_detail_info)
+    console.log(order_detail_info);
     // const orderDetail = await this.orderDetailUseCase.update(id, order_detail_info);
     return await this.orderRepository.update(id, {
       ...orderData,
