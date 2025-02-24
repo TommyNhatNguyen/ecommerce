@@ -76,12 +76,6 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
         },
         t
       );
-      console.log(
-        '🚀 ~ ProductSellableUseCase ~ updateProductSellableDiscounts ~ productSellables:',
-        productSellables,
-        total_discounts,
-        price_after_discounts
-      );
     }
 
     return true;

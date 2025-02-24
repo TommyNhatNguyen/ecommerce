@@ -61,13 +61,11 @@ export class DiscountCalculatorUsecaseImpl extends DiscountCalculatorUsecase {
       const remainingDiscountCount =
         this.discount.max_discount_count - this.discount.discount_count;
       let applyQuantity = Math.min(quantity, remainingDiscountCount);
-      console.log("🚀 ~ DiscountCalculatorUsecaseImpl ~ applyQuantity:", applyQuantity)
       if (applyQuantity > 0 && !noUpdateDiscountCount) {
         await this.updateDiscountCount(
           this.discount.id,
           this.discount.discount_count + applyQuantity
         );
-        console.log('this.discount.discount_count', applyQuantity);
       }
       return applyQuantity;
     } else {

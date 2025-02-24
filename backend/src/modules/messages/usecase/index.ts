@@ -1,5 +1,7 @@
+import { Transaction } from 'sequelize';
 import { ICustomerUseCase } from 'src/modules/customer/models/customer.interface';
 import { IActorUseCase } from 'src/modules/messages/actor/models/actor.interface';
+import { Actor } from 'src/modules/messages/actor/models/actor.model';
 import { IEntityUseCase } from 'src/modules/messages/entity/models/entity.interface';
 import {
   IMessageConditionDTO,
@@ -34,7 +36,10 @@ export class MessageUsecase implements IMessageUseCase {
   ): Promise<ListResponse<MessageModel[]> & { count_unread: number }> {
     return await this.messageRepo.getMessageList(paging, condition);
   }
-  async createMessage(data: IMessageCreateDTO): Promise<MessageModel | null> {
+  async createMessage(
+    data: IMessageCreateDTO,
+    t?: Transaction
+  ): Promise<MessageModel | null> {
     const { actor_type, actor_info_id, entity_info, ...rest } = data;
     const payload: Omit<
       IMessageCreateDTO,
@@ -42,17 +47,23 @@ export class MessageUsecase implements IMessageUseCase {
     > = {
       ...rest,
     };
-    let actor = await this.actorUsecase.getActorByActorInfoId(
-      actor_info_id,
-      {}
-    );
-    if (!actor) {
+    let actor: Actor | null = null;
+    if (actor_info_id) {
+      actor = await this.actorUsecase.getActorByActorInfoId(actor_info_id, {});
+      if (!actor) {
+        actor = await this.actorUsecase.createActor({
+          type: actor_type,
+          actor_info_id: actor_info_id,
+        });
+        payload.actor_id = actor.id;
+      } else {
+        payload.actor_id = actor.id;
+      }
+    } else {
       actor = await this.actorUsecase.createActor({
         type: actor_type,
         actor_info_id: actor_info_id,
       });
-      payload.actor_id = actor.id;
-    } else {
       payload.actor_id = actor.id;
     }
     const entity = await this.entityUsecase.getEntityByTypeAndKind(
@@ -72,7 +83,6 @@ export class MessageUsecase implements IMessageUseCase {
         actor.actor_info_id,
         {}
       );
-      console.log("🚀 ~ MessageUsecase ~ createMessage ~ customer:", customer)
       const template = entity.template;
       payload.message = `${template
         .replace('{{kind}}', entity.kind.toLowerCase())
@@ -80,6 +90,18 @@ export class MessageUsecase implements IMessageUseCase {
           '{{actor_id}}',
           `${customer?.first_name || ''} ${customer?.last_name || ''}`
         )} at ${new Date().toLocaleString()}`;
+    } else if (
+      actor.type === 'admin' &&
+      entity.type === 'order' &&
+      entity.kind === 'create'
+    ) {
+      const template = entity.template;
+      payload.message = `${template
+        .replace('{{kind}}', entity.kind.toLowerCase())
+        .replace('{{actor_id}}', `admin`)} at ${new Date().toLocaleString()}`;
+    }
+    if (t) {
+      return await this.messageRepo.createMessage(payload, t);
     }
     return await this.messageRepo.createMessage(payload);
   }

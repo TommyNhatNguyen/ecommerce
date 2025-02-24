@@ -1,0 +1,1 @@
+export const VALID_ADMIN_ROLES = ['admin', 'super_admin', 'superadmin'];

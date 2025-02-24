@@ -56,6 +56,11 @@ import { getNotificationThunk } from "@/app/shared/store/reducers/notification";
 import { cookiesStorage } from "@/app/shared/utils/localStorage";
 import { getUserInfo, logout } from "@/app/shared/store/reducers/auth";
 import { defaultImage } from "@/app/shared/resources/images/default-image";
+import { OrderModel } from "@/app/shared/models/orders/orders.model";
+import Link from "next/link";
+import { formatCurrency } from "@/app/shared/utils/utils";
+import { formatDate } from "date-fns";
+import OrderNotification from "@/app/layouts/components/OrderNotification";
 const { Header, Footer, Sider, Content } = Layout;
 type DashboardLayoutPropsType = {
   children: React.ReactNode;
@@ -154,16 +159,21 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   useSocket(
     socketServices.orderIo,
     SOCKET_EVENTS_ENDPOINT.ORDER_CREATED,
-    (data: any) => {
-      console.log("order created", data);
+    (data: string) => {
+      console.log("order created", JSON.parse(data));
       dispatch(setOrderCreated(data));
     },
   );
   useEffect(() => {
-    if (orderCreated) {
+    if (orderCreated?.created_at) {
       notificationApi.success({
-        message: "Order created",
-        description: orderCreated,
+        message: <OrderNotification.Title href={ADMIN_ROUTES.orders.index} />,
+        description: (
+          <OrderNotification
+            orderCreated={orderCreated}
+            href={ADMIN_ROUTES.orders.index}
+          />
+        ),
       });
       dispatch(getNotificationThunk({}));
     }
@@ -180,7 +190,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
     }
   }, []);
   return (
-    <Layout  className="h-screen" >
+    <Layout className="h-screen">
       <Sider className="bg-white" collapsed={collapsed}>
         <div className="flex items-center justify-between gap-2 p-2">
           <Logo />
@@ -197,7 +207,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
           mode="inline"
         />
       </Sider>
-      <Layout >
+      <Layout>
         <Header className="flex items-center justify-between bg-white px-4">
           <Input.Search
             placeholder="Search..."
@@ -248,7 +258,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
         >
           Create Order
         </Button> */}
-        <Content  className="mb-4 overflow-y-auto overflow-x-hidden p-2">
+        <Content className="mb-4 overflow-y-auto overflow-x-hidden p-2">
           <div className="mb-4 rounded-lg bg-white px-4 py-2">
             <h1 className="text-xl font-bold capitalize">
               {currentPath.map((path) => path.toUpperCase()).join(" - ")}

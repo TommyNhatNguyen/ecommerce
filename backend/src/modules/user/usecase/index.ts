@@ -22,6 +22,7 @@ import {
   IUserUseCase,
 } from "src/modules/user/models/user.interface";
 import { IImageCloudinaryRepository } from "@models/image/image.interface";
+import { Transaction } from "sequelize";
 
 export class UserUseCase implements IUserUseCase {
   constructor(
@@ -31,8 +32,16 @@ export class UserUseCase implements IUserUseCase {
 
   async getUserByUsername(
     username: string,
-    condition?: IUserConditionDTO
+    condition?: IUserConditionDTO,
+    t?: Transaction
   ): Promise<User> {
+    if (t) {
+      return await this.userRepository.getUserByUsername(
+        username,
+        condition,
+        t
+      );
+    }
     return await this.userRepository.getUserByUsername(username, condition);
   }
 

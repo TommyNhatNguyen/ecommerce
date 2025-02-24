@@ -1,3 +1,4 @@
+import { Transaction } from 'sequelize';
 import { Sequelize } from 'sequelize';
 import { actorModelName } from 'src/modules/messages/actor/infras/postgres/dto';
 import { ActorPersistence } from 'src/modules/messages/actor/infras/postgres/dto';
@@ -24,8 +25,16 @@ export class PostgresMessageRepository implements IMessageRepository {
     data: Omit<
       IMessageCreateDTO,
       'actor_type' | 'actor_info_id' | 'entity_info'
-    >
+    >,
+    t?: Transaction
   ): Promise<MessageModel> {
+    if (t) {
+      const message = await this.sequelize.models[this.modelName].create(data, {
+        returning: true,
+        transaction: t,
+      });
+      return message.dataValues;
+    }
     const message = await this.sequelize.models[this.modelName].create(data, {
       returning: true,
     });

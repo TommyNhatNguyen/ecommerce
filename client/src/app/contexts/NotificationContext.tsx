@@ -5,7 +5,14 @@ type Props = {
   children: React.ReactNode;
 };
 
-export const NotificationContext = React.createContext<any>(null);
+// Add NotificationInstance type from antd
+type NotificationContextType = {
+  notificationApi: ReturnType<typeof notification.useNotification>[0];
+};
+
+// Update context with proper type
+export const NotificationContext =
+  React.createContext<NotificationContextType | null>(null);
 
 const NotificationContextProvider = ({ children }: Props) => {
   const [api, contextHolder] = notification.useNotification({
@@ -21,8 +28,14 @@ const NotificationContextProvider = ({ children }: Props) => {
   );
 };
 
-export const useNotification = () => {
-  return React.useContext(NotificationContext);
+export const useNotification = (): NotificationContextType => {
+  const context = React.useContext(NotificationContext);
+  if (!context) {
+    throw new Error(
+      "useNotification must be used within a NotificationContextProvider",
+    );
+  }
+  return context;
 };
 
 export default NotificationContextProvider;

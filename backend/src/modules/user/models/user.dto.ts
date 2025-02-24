@@ -41,8 +41,8 @@ export const IUserConditionSchema = z.object({
   phone: z.string().optional(),
   email: z.string().email().optional(),
   role_id: z.string().uuid().optional(),
-  order: z.string().optional().default(BaseOrder.DESC),
-  sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
+  order: z.string().default(BaseOrder.DESC).optional(),
+  sortBy: z.string().default(BaseSortBy.CREATED_AT).optional(),
   image_id: z.string().uuid().optional(),
   include_image: z
     .string()

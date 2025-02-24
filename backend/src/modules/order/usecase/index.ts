@@ -1,6 +1,9 @@
 import { Transaction } from 'sequelize';
 import { Namespace } from 'socket.io';
 import { ICartUseCase } from 'src/modules/cart/models/cart.interface';
+import { ActorType } from 'src/modules/messages/actor/models/actor.model';
+import { EntityKind } from 'src/modules/messages/entity/models/entity.model';
+import { IMessageUseCase } from 'src/modules/messages/models/message.interface';
 import {
   OrderConditionDTO,
   OrderCreateDTO,
@@ -13,7 +16,9 @@ import {
 import { Order } from 'src/modules/order/models/order.model';
 import { OrderDetailCreateDTO } from 'src/modules/order_detail/models/order_detail.dto';
 import { IOrderDetailUseCase } from 'src/modules/order_detail/models/order_detail.interface';
+import { OrderDetail } from 'src/modules/order_detail/models/order_detail.model';
 import { productSellableModelName } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import { IUserUseCase } from 'src/modules/user/models/user.interface';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { SOCKET_NAMESPACE } from 'src/socket/models/socket-endpoint';
@@ -24,6 +29,8 @@ export class OrderUseCase implements IOrderUseCase {
     private readonly orderRepository: IOrderRepository,
     private readonly orderDetailUseCase: IOrderDetailUseCase,
     private readonly cartUseCase: ICartUseCase,
+    private readonly messageUsecase: IMessageUseCase,
+    private readonly userUseCase: IUserUseCase,
     private readonly socketIo: SocketUseCase
   ) {}
   async getById(
@@ -47,17 +54,20 @@ export class OrderUseCase implements IOrderUseCase {
     t?: Transaction
   ): Promise<Order> {
     let orderDetailId: string = '';
-    const { order_detail_info, cart_id, ...orderData } = data;
-    console.log('🚀 ~ OrderUseCase ~ create ~ data:', data);
+    let orderDetailCreated: OrderDetail;
+    const { order_detail_info, cart_id, actor, ...orderData } = data;
     // TODO: create order if has cart_id
     if (cart_id) {
       // 1. Get cart by id
-      const cart = await this.cartUseCase.getById(cart_id, {
-        include_customer: true,
-        include_products: true,
-      }, t);
+      const cart = await this.cartUseCase.getById(
+        cart_id,
+        {
+          include_customer: true,
+          include_products: true,
+        },
+        t
+      );
       // 2. Prepare payload
-      console.log('🚀 ~ OrderUseCase ~ create ~ cart:', cart);
       const payload: Omit<
         OrderDetailCreateDTO,
         | 'subtotal'
@@ -94,19 +104,23 @@ export class OrderUseCase implements IOrderUseCase {
       };
       // 3. Create order
       const orderDetail = await this.orderDetailUseCase.create(payload, t);
+      orderDetailCreated = orderDetail;
       // // 4. Create order id
       orderDetailId = orderDetail.id;
-      console.log('🚀 ~ OrderUseCase ~ create ~ payload:', payload);
       // 5 Reset cart
-      await this.cartUseCase.update(cart_id, {
-        product_quantity: 0,
-        product_count: 0,
-        subtotal: 0,
-        total_discount: 0,
-        total: 0,
-        updated_at: new Date().toISOString(),
-        [productSellableModelName]: [],
-      }, t);
+      await this.cartUseCase.update(
+        cart_id,
+        {
+          product_quantity: 0,
+          product_count: 0,
+          subtotal: 0,
+          total_discount: 0,
+          total: 0,
+          updated_at: new Date().toISOString(),
+          [productSellableModelName]: [],
+        },
+        t
+      );
     } else {
       // Create order without cart_id
       const orderDetail = await this.orderDetailUseCase.create(
@@ -114,6 +128,7 @@ export class OrderUseCase implements IOrderUseCase {
         t
       );
       orderDetailId = orderDetail.id;
+      orderDetailCreated = orderDetail;
     }
     const order = await this.orderRepository.create(
       {
@@ -123,12 +138,35 @@ export class OrderUseCase implements IOrderUseCase {
       t
     );
     // Nofify to admin dashboard
-    console.log('order created', order);
+    const notificationPayload = {
+      ...order,
+      order_detail: orderDetailCreated,
+    };
     this.socketIo.emit(
       SOCKET_NAMESPACE.ORDER.endpoints.ORDER_CREATED,
-      JSON.stringify(order)
+      JSON.stringify(notificationPayload)
     );
-    // TODO: Save order notification to database
+    // Save order notification to database
+    let actor_info_id = orderDetailCreated.customer_id || '';
+    let actor_type = ActorType.CUSTOMER;
+    if (actor !== 'customer') {
+      const user = await this.userUseCase.getUserByUsername(actor || '', {}, t);
+      if (user) {
+        actor_info_id = user.id;
+        actor_type = ActorType.ADMIN;
+      }
+    }
+    const message = await this.messageUsecase.createMessage(
+      {
+        entity_info: {
+          type: 'order',
+          kind: EntityKind.CREATE,
+        },
+        actor_info_id,
+        actor_type,
+      },
+      t
+    );
     return order;
   }
   async update(id: string, data: OrderUpdateDTO): Promise<Order> {
@@ -167,7 +205,6 @@ export class OrderUseCase implements IOrderUseCase {
      *  customer_address
      */
     const { order_detail_info, ...orderData } = data;
-    console.log(order_detail_info);
     // const orderDetail = await this.orderDetailUseCase.update(id, order_detail_info);
     return await this.orderRepository.update(id, {
       ...orderData,

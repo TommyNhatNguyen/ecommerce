@@ -6,7 +6,12 @@ import {
   IUserCreateDTO,
   IUserUpdateDTO,
 } from 'src/modules/user/models/user.dto';
-import { ListResponse, ModelStatus } from 'src/share/models/base-model';
+import {
+  BaseOrder,
+  BaseSortBy,
+  ListResponse,
+  ModelStatus,
+} from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { User } from 'src/modules/user/models/user.model';
 import {
@@ -20,6 +25,7 @@ import {
 } from 'src/modules/permission/infras/repo/dto';
 import { ImagePersistence } from 'src/infras/repository/image/dto';
 import { imageModelName } from 'src/infras/repository/image/dto';
+import { Transaction } from 'sequelize';
 
 export class PostgresUserRepository implements IUserRepository {
   constructor(
@@ -28,7 +34,8 @@ export class PostgresUserRepository implements IUserRepository {
   ) {}
   async getUserByUsername(
     username: string,
-    condition?: IUserConditionDTO
+    condition?: IUserConditionDTO,
+    t?: Transaction
   ): Promise<User> {
     const include: Includeable[] = [];
     const roleInclude: Includeable[] = [];
@@ -66,6 +73,19 @@ export class PostgresUserRepository implements IUserRepository {
         },
       });
     }
+
+    if (t) {
+      const user = await this.sequelize.models[this.modelName].findOne({
+        where: {
+          username: {
+            [Op.like]: username,
+          },
+        },
+        include,
+        transaction: t,
+      });
+      return user?.dataValues;
+    }
     const user = await this.sequelize.models[this.modelName].findOne({
       where: {
         username: {
@@ -102,7 +122,8 @@ export class PostgresUserRepository implements IUserRepository {
     condition: IUserConditionDTO
   ): Promise<ListResponse<User[]>> {
     const { page, limit } = paging;
-    const { order, sortBy } = condition;
+    const { order = BaseOrder.DESC, sortBy = BaseSortBy.CREATED_AT } =
+      condition;
     const include: Includeable[] = [];
     if (condition.include_image) {
       include.push({
@@ -168,7 +189,7 @@ export class PostgresUserRepository implements IUserRepository {
       {
         where: { id },
         returning: true,
-      },
+      }
     );
     const { hash_password, ...rest } = updatedUser[1][0].dataValues;
     return rest;

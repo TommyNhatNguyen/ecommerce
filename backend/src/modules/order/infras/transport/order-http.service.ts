@@ -1,11 +1,13 @@
 import {
   OrderConditionDTOSchema,
+  OrderCreateDTO,
   OrderCreateDTOSchema,
   OrderUpdateDTOSchema,
 } from 'src/modules/order/models/order.dto';
 import { IOrderUseCase } from 'src/modules/order/models/order.interface';
 import { Request, Response } from 'express';
 import { PagingDTOSchema } from 'src/share/models/paging';
+import { verify } from 'jsonwebtoken';
 
 export class OrderHttpService {
   constructor(private readonly orderUseCase: IOrderUseCase) {}
@@ -74,13 +76,19 @@ export class OrderHttpService {
   }
 
   async create(req: Request, res: Response) {
-    const { success, data, error } = OrderCreateDTOSchema.omit({order_detail_id: true}).safeParse(req.body);
+    const { success, data, error } = OrderCreateDTOSchema.omit({
+      order_detail_id: true,
+      actor: true,
+    }).safeParse(req.body);
     if (!success) {
       res.status(400).json({ success: false, message: error.message });
       return;
     }
     try {
-      const order = await this.orderUseCase.create(data);
+      const order = await this.orderUseCase.create({
+        ...data,
+        actor: req.actor,
+      });
       if (!order) {
         res
           .status(400)

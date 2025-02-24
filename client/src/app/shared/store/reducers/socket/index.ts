@@ -1,13 +1,14 @@
+import { OrderModel } from "@/app/shared/models/orders/orders.model";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface SocketState {
   isConnected: boolean;
-  orderCreated: string;
+  orderCreated: OrderModel;
 }
 
 const initialState: SocketState = {
   isConnected: false,
-  orderCreated: "",
+  orderCreated: {} as OrderModel,
 };
 
 export const socketSlice = createSlice({
@@ -18,7 +19,14 @@ export const socketSlice = createSlice({
       state.isConnected = action.payload;
     },
     setOrderCreated: (state, action: PayloadAction<string>) => {
-      state.orderCreated = action.payload;
+      console.log("🚀 ~ setOrderCreated ~ action:", action.payload);
+      let order;
+      try {
+        order = JSON.parse(action.payload);
+      } catch {
+        order = action.payload;
+      }
+      state.orderCreated = order;
     },
   },
 });

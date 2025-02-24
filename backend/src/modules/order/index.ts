@@ -60,6 +60,19 @@ import {
 import Websocket from 'src/socket/infras/repo';
 import { SocketUseCase } from 'src/socket/usecase';
 import { CartUseCase } from 'src/modules/cart/usecase';
+import { checkJwtActor } from 'src/middlewares/check-jwt-actor';
+import { MessageUsecase } from 'src/modules/messages/usecase';
+import { messageModelName } from 'src/modules/messages/infras/repo/postgres/dto';
+import { PostgresMessageRepository } from 'src/modules/messages/infras/repo/postgres/repo';
+import { actorModelName } from 'src/modules/messages/actor/infras/postgres/dto';
+import { PostgresActorRepository } from 'src/modules/messages/actor/infras/postgres/repo';
+import { ActorUsecase } from 'src/modules/messages/actor/usecase';
+import { EntityUsecase } from 'src/modules/messages/entity/usecase';
+import { entityModelName } from 'src/modules/messages/entity/infras/postgres/dto';
+import { PostgresEntityRepository } from 'src/modules/messages/entity/infras/postgres/repo';
+import { userModelName } from 'src/modules/user/infras/repo/dto';
+import { PostgresUserRepository } from 'src/modules/user/infras/repo/repo';
+import { UserUseCase } from 'src/modules/user/usecase';
 
 export function setupOrderRouter(
   sequelize: Sequelize,
@@ -182,16 +195,48 @@ export function setupOrderRouter(
     sequelize
   );
 
+  const actorRepository = new PostgresActorRepository(
+    sequelize,
+    actorModelName
+  );
+  const actorUsecase = new ActorUsecase(actorRepository);
+  const entityRepository = new PostgresEntityRepository(
+    sequelize,
+    entityModelName
+  );
+  const entityUsecase = new EntityUsecase(entityRepository);
+
+  const messageRepository = new PostgresMessageRepository(
+    sequelize,
+    messageModelName
+  );
+
+  const messageUsecase = new MessageUsecase(
+    messageRepository,
+    actorUsecase,
+    entityUsecase,
+    customerUseCase
+  );
+
+  const userRepository = new PostgresUserRepository(sequelize, userModelName);
+  const userUsecase = new UserUseCase(userRepository, cloudinaryRepository);
+
   const orderUseCase = new OrderUseCase(
     orderRepository,
     orderDetailUseCase,
     cartUseCase,
+    messageUsecase,
+    userUsecase,
     socketIo
   );
   const orderHttpService = new OrderHttpService(orderUseCase);
   router.get('/order/:id', orderHttpService.getById.bind(orderHttpService));
   router.get('/order', orderHttpService.getList.bind(orderHttpService));
-  router.post('/order', orderHttpService.create.bind(orderHttpService));
+  router.post(
+    '/order',
+    checkJwtActor,
+    orderHttpService.create.bind(orderHttpService)
+  );
   router.put('/order/:id', orderHttpService.update.bind(orderHttpService));
   router.delete('/order/:id', orderHttpService.delete.bind(orderHttpService));
   return router;
