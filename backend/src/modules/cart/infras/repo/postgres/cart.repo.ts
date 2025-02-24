@@ -182,7 +182,19 @@ export class PostgresCartRepository implements ICartRepository {
     });
     return cart.dataValues;
   }
-  async update(id: string, data: CartUpdateDTO): Promise<Cart> {
+  async update(
+    id: string,
+    data: CartUpdateDTO,
+    t?: Transaction
+  ): Promise<Cart> {
+    if (t) {
+      const cart = await this.sequelize.models[this.modelName].update(data, {
+        where: { id },
+        returning: true,
+        transaction: t,
+      });
+      return cart[1][0].dataValues;
+    }
     const cart = await this.sequelize.models[this.modelName].update(data, {
       where: { id },
       returning: true,

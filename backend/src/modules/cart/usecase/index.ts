@@ -94,8 +94,8 @@ export class CartUseCase implements ICartUseCase {
   async create(data: CartCreateDTO, t?: Transaction): Promise<Cart> {
     return await this.cartRepository.create(data, t);
   }
-  async update(id: string, data: CartUpdateDTO): Promise<Cart> {
-    return await this.cartRepository.update(id, data);
+  async update(id: string, data: CartUpdateDTO, t?: Transaction): Promise<Cart> {
+    return await this.cartRepository.update(id, data, t);
   }
   async delete(id: string): Promise<boolean> {
     return await this.cartRepository.delete(id);

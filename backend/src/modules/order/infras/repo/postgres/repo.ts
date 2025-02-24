@@ -45,6 +45,7 @@ import {
   optionValueModelName,
   OptionValuePersistence,
 } from 'src/modules/options/infras/repo/postgres/dto';
+import { Transaction } from 'sequelize';
 export class PostgresOrderRepository implements IOrderRepository {
   constructor(
     private readonly sequelize: Sequelize,
@@ -338,7 +339,17 @@ export class PostgresOrderRepository implements IOrderRepository {
       },
     };
   }
-  async create(data: OrderCreateDTO): Promise<Order> {
+  async create(data: OrderCreateDTO, t?: Transaction): Promise<Order> {
+    if (t) {
+      const order: any = await this.sequelize.models[this.modelName].create(
+        data,
+        {
+          returning: true,
+          transaction: t,
+        }
+      );
+      return order.dataValues;
+    }
     const order: any = await this.sequelize.models[this.modelName].create(
       data,
       {

@@ -13,7 +13,7 @@ export interface IOrderUseCase {
     condition: OrderConditionDTO
   ): Promise<ListResponse<Order[]>>;
   create(
-    data: Omit<OrderCreateDTO, 'total_price' | 'customer_id' | 'order_detail_id'>
+    data: Omit<OrderCreateDTO, 'total_price' | 'customer_id' | 'order_detail_id'>, t?:Transaction
   ): Promise<Order>;
   update(id: string, data: OrderUpdateDTO): Promise<Order>;
   delete(id: string): Promise<boolean>;
@@ -32,7 +32,7 @@ export interface IQueryRepository {
 }
 
 export interface ICommandRepository {
-  create(data:Omit<OrderCreateDTO, 'order_detail_info'>): Promise<Order>;
+  create(data:Omit<OrderCreateDTO, 'order_detail_info'>, t?:Transaction): Promise<Order>;
   update(id: string, data: OrderUpdateDTO): Promise<Order>;
   delete(id: string): Promise<boolean>;
 }

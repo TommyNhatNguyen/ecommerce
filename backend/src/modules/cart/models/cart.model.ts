@@ -1,9 +1,9 @@
-import { customerModelName } from "src/modules/customer/infras/repo/postgres/customer.dto";
-import { CustomerSchema } from "src/modules/customer/models/customer.model";
-import { productSellableModelName } from "src/modules/product_sellable/infras/repo/postgres/dto";
-import { ProductSellableSchema } from "src/modules/product_sellable/models/product-sellable.model";
-import { ModelStatus } from "src/share/models/base-model";
-import z from "zod";
+import { customerModelName } from 'src/modules/customer/infras/repo/postgres/customer.dto';
+import { CustomerSchema } from 'src/modules/customer/models/customer.model';
+import { productSellableModelName } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import { ProductSellableSchema } from 'src/modules/product_sellable/models/product-sellable.model';
+import { ModelStatus } from 'src/share/models/base-model';
+import z from 'zod';
 
 export const CartSchema = z.object({
   id: z.string().uuid(),

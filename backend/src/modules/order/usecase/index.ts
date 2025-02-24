@@ -13,6 +13,7 @@ import {
 import { Order } from 'src/modules/order/models/order.model';
 import { OrderDetailCreateDTO } from 'src/modules/order_detail/models/order_detail.dto';
 import { IOrderDetailUseCase } from 'src/modules/order_detail/models/order_detail.interface';
+import { productSellableModelName } from 'src/modules/product_sellable/infras/repo/postgres/dto';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { SOCKET_NAMESPACE } from 'src/socket/models/socket-endpoint';
@@ -41,7 +42,10 @@ export class OrderUseCase implements IOrderUseCase {
   ): Promise<ListResponse<Order[]>> {
     return await this.orderRepository.getList(paging, condition);
   }
-  async create(data: Omit<OrderCreateDTO, 'order_detail_id'>): Promise<Order> {
+  async create(
+    data: Omit<OrderCreateDTO, 'order_detail_id'>,
+    t?: Transaction
+  ): Promise<Order> {
     let orderDetailId: string = '';
     const { order_detail_info, cart_id, ...orderData } = data;
     console.log('🚀 ~ OrderUseCase ~ create ~ data:', data);
@@ -51,7 +55,7 @@ export class OrderUseCase implements IOrderUseCase {
       const cart = await this.cartUseCase.getById(cart_id, {
         include_customer: true,
         include_products: true,
-      });
+      }, t);
       // 2. Prepare payload
       console.log('🚀 ~ OrderUseCase ~ create ~ cart:', cart);
       const payload: Omit<
@@ -89,21 +93,35 @@ export class OrderUseCase implements IOrderUseCase {
         order_discounts: order_detail_info.order_discounts,
       };
       // 3. Create order
-      const orderDetail = await this.orderDetailUseCase.create(payload);
+      const orderDetail = await this.orderDetailUseCase.create(payload, t);
       // // 4. Create order id
       orderDetailId = orderDetail.id;
       console.log('🚀 ~ OrderUseCase ~ create ~ payload:', payload);
+      // 5 Reset cart
+      await this.cartUseCase.update(cart_id, {
+        product_quantity: 0,
+        product_count: 0,
+        subtotal: 0,
+        total_discount: 0,
+        total: 0,
+        updated_at: new Date().toISOString(),
+        [productSellableModelName]: [],
+      }, t);
     } else {
       // Create order without cart_id
       const orderDetail = await this.orderDetailUseCase.create(
-        order_detail_info
+        order_detail_info,
+        t
       );
       orderDetailId = orderDetail.id;
     }
-    const order = await this.orderRepository.create({
-      ...orderData,
-      order_detail_id: orderDetailId,
-    });
+    const order = await this.orderRepository.create(
+      {
+        ...orderData,
+        order_detail_id: orderDetailId,
+      },
+      t
+    );
     // Nofify to admin dashboard
     console.log('order created', order);
     this.socketIo.emit(

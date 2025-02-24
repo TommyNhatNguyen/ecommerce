@@ -29,7 +29,8 @@ export interface IOrderDetailUseCase {
       | 'total_discount'
       | 'total_order_discount'
       | 'total_product_discount'
-    >
+    >,
+    t?: Transaction
   ): Promise<OrderDetail>;
   update(id: string, data: OrderDetailUpdateDTO): Promise<OrderDetail>;
   delete(id: string): Promise<boolean>;
@@ -38,8 +39,14 @@ export interface IOrderDetailUseCase {
 export interface IOrderDetailRepository
   extends IQueryRepository,
     ICommandRepository {
-  addProducts(data: OrderDetailAddProductsDTO[], t: Transaction): Promise<boolean>;
-  addDiscounts(data: OrderDetailAddDiscountsDTO[], t: Transaction): Promise<boolean>;
+  addProducts(
+    data: OrderDetailAddProductsDTO[],
+    t: Transaction
+  ): Promise<boolean>;
+  addDiscounts(
+    data: OrderDetailAddDiscountsDTO[],
+    t: Transaction
+  ): Promise<boolean>;
   addCosts(data: OrderDetailAddCostsDTO[], t: Transaction): Promise<boolean>;
 }
 
@@ -57,7 +64,7 @@ export interface ICommandRepository {
       OrderDetailCreateDTO,
       'products_detail' | 'payment_info' | 'costs_detail' | 'order_discounts'
     >,
-    t: Transaction
+    t?: Transaction
   ): Promise<OrderDetail>;
   update(id: string, data: OrderDetailUpdateDTO): Promise<OrderDetail>;
   delete(id: string): Promise<boolean>;

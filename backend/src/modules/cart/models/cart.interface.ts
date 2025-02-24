@@ -19,7 +19,7 @@ export interface ICartUseCase {
     condition: CartConditionDTO
   ): Promise<ListResponse<Cart[]>>;
   create(data: CartCreateDTO, t?: Transaction): Promise<Cart>;
-  update(id: string, data: CartUpdateDTO): Promise<Cart>;
+  update(id: string, data: CartUpdateDTO, t?: Transaction): Promise<Cart>;
   delete(id: string): Promise<boolean>;
   addProductsToCart(
     products_cart: CartAddNewProductsDTO
@@ -45,6 +45,6 @@ export interface IQueryRepository {
 
 export interface ICommandRepository {
   create(data: CartCreateDTO, t?: Transaction): Promise<Cart>;
-  update(id: string, data: CartUpdateDTO): Promise<Cart>;
+  update(id: string, data: CartUpdateDTO, t?: Transaction): Promise<Cart>;
   delete(id: string): Promise<boolean>;
 }
