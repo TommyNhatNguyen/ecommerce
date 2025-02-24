@@ -129,7 +129,18 @@ const DiscountCard = (props: Props) => {
               key={item.id}
             >
               <div className="flex w-full items-center justify-between">
-                {item.name}
+                <div className="flex items-center gap-1">
+                  <span className="font-medium">{item.name}</span>
+                  {item.has_max_discount_count ? (
+                    <span className="text-sm text-gray-500">
+                      - Used: {item.discount_count} / {item.max_discount_count}
+                    </span>
+                  ) : (
+                    <span className="text-sm text-gray-500">
+                      - Used: {item.discount_count}
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center gap-1">
                   <Button
                     type="text"
