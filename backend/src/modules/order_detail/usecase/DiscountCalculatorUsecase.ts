@@ -58,13 +58,23 @@ export class DiscountCalculatorUsecaseImpl extends DiscountCalculatorUsecase {
     noUpdateDiscountCount?: boolean
   ): Promise<number> {
     if (hasMaxDiscountCount) {
-      const remainingDiscountCount =
-        this.discount.max_discount_count - this.discount.discount_count;
+      const remainingDiscountCount = Math.max(
+        this.discount.max_discount_count - this.discount.discount_count,
+        0
+      );
       let applyQuantity = Math.min(quantity, remainingDiscountCount);
       if (applyQuantity > 0 && !noUpdateDiscountCount) {
         await this.updateDiscountCount(
           this.discount.id,
           this.discount.discount_count + applyQuantity
+        );
+      } else if (
+        this.discount.max_discount_count - this.discount.discount_count <
+        0
+      ) {
+        await this.updateDiscountCount(
+          this.discount.id,
+          this.discount.max_discount_count
         );
       }
       return applyQuantity;

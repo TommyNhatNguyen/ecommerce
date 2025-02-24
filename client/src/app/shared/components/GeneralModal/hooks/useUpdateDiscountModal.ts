@@ -14,14 +14,14 @@ export const useUpdateDiscountModal = () => {
       if (response) {
         notificationApi.success({
           message: "Discount updated successfully",
-          title: "Success",
+          description: "Discount updated successfully",
         });
         return response;
       }
     } catch (error: any) {
       notificationApi.error({
         message: error?.message || "Failed to update discount",
-        title: "Error",
+        description: error?.message || "Failed to update discount",
       });
       setUpdateDiscountError(error?.message || "Failed to update discount");
     } finally {

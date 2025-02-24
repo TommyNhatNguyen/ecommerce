@@ -33,7 +33,10 @@ export interface IProductSellableUseCase {
     id: string,
     condition?: ProductSellableConditionDTO
   ): Promise<ProductSellable | null>;
-  updateProductSellableDiscounts(t?: Transaction): Promise<boolean>;
+  updateProductSellableDiscounts(
+    t?: Transaction,
+    noUpdateDiscountCount?: boolean
+  ): Promise<boolean>;
 }
 
 export interface IProductSellableRepository

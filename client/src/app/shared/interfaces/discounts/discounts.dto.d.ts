@@ -27,14 +27,18 @@ export type CreateDiscountDTO = {
 };
 
 export type UpdateDiscountDTO = {
-  name?: string;
+  name: string;
   description?: string;
-  amount?: number;
-  type?: DiscountType;
-  scope?: DiscountScope;
-  start_date?: Date;
-  end_date?: Date;
-  status?: ModelStatus;
+  amount: number;
+  is_fixed: boolean;
+  max_discount_count?: number;
+  discount_count?: number;
+  require_product_count?: number;
+  require_order_amount?: number;
+  is_free?: boolean;
+  scope: DiscountScope;
+  start_date: string;
+  end_date: string;
 };
 
 export type DiscountConditionDTO = {

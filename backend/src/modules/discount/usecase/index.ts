@@ -69,7 +69,7 @@ export class DiscountUseCase implements IDiscountUseCase {
     // Update discount
     const updatedDiscount = await this.repository.update(id, data, t);
     // Update product_sellable total_discount and price_after_discounts
-    await this.productSellableUseCase?.updateProductSellableDiscounts(t);
+    await this.productSellableUseCase?.updateProductSellableDiscounts(t, true);
     return updatedDiscount;
   }
   async deleteDiscount(id: string, t?: Transaction): Promise<boolean> {
