@@ -1,6 +1,7 @@
 import DataCard from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/DataCard";
 import { useOptions } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useOptions";
 import CreateOptionsModal from "@/app/shared/components/GeneralModal/components/CreateOptionsModal";
+import UpdateOptionsModal from "@/app/shared/components/GeneralModal/components/UpdateOptionsModal";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import { optionService } from "@/app/shared/services/variant/optionService";
 import {
@@ -20,6 +21,8 @@ const ButtonDeleteWithPopover = withDeleteConfirmPopover(
 );
 const OptionsCard = (props: Props) => {
   const [isModalCreateOptionOpen, setIsModalCreateOptionOpen] = useState(false);
+  const [isModalUpdateOptionOpen, setIsModalUpdateOptionOpen] = useState(false);
+  const [updateOptionId, setUpdateOptionId] = useState<string>("");
   const { handleDeleteOption, loadingDelete: deleteOptionLoading } =
     useOptions();
   const {
@@ -53,16 +56,23 @@ const OptionsCard = (props: Props) => {
   const _onCloseModalCreateOption = () => {
     setIsModalCreateOptionOpen(false);
   };
+  const _onOpenModalUpdateOption = (id: string) => {
+    setUpdateOptionId(id);
+    setIsModalUpdateOptionOpen(true);
+  };
+  const _onCloseModalUpdateOption = () => {
+    setIsModalUpdateOptionOpen(false);
+  };
   return (
     <DataCard
       title="Options"
       data={options?.pages.flatMap((page) => page.data) || []}
       isModalCreateOpen={isModalCreateOptionOpen}
-      isModalUpdateOpen={false}
-      updateId=""
+      isModalUpdateOpen={isModalUpdateOptionOpen}
+      updateId={updateOptionId}
       handleOpenCreateModal={_onOpenModalCreateOption}
       handleCloseModalCreate={_onCloseModalCreateOption}
-      handleCloseModalUpdate={() => {}}
+      handleCloseModalUpdate={_onCloseModalUpdateOption}
       refetch={refetchOptions}
       fetchNextPage={fetchNextPage}
       hasNextPage={hasNextPage}
@@ -75,9 +85,27 @@ const OptionsCard = (props: Props) => {
             treeData={data.map((item) => ({
               title: () => {
                 return (
-                  <p className="font-semibold">
-                    {item.name} - {item.option_values?.length} values
-                  </p>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-semibold">
+                      {item.name} - {item.option_values?.length} values
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="text"
+                        className="aspect-square rounded-full p-0"
+                        onClick={() => _onOpenModalUpdateOption(item.id)}
+                      >
+                        <Pencil className="h-4 w-4 stroke-yellow-500" />
+                      </Button>
+                      <ButtonDeleteWithPopover
+                        title={`Delete ${item.name}?`}
+                        trigger={"click"}
+                        handleDelete={() => {
+                          _onDeleteOption(item.id);
+                        }}
+                      />
+                    </div>
+                  </div>
                 );
               },
               key: item.id,
@@ -97,21 +125,6 @@ const OptionsCard = (props: Props) => {
                           {option.name} - {option.value}
                         </p>
                       )}
-                      <div className="flex items-center gap-2">
-                        <Button
-                          type="text"
-                          className="aspect-square rounded-full p-0"
-                        >
-                          <Pencil className="h-4 w-4 stroke-yellow-500" />
-                        </Button>
-                        <ButtonDeleteWithPopover
-                          title={`Delete ${option.name}?`}
-                          trigger={"click"}
-                          handleDelete={() => {
-                            _onDeleteOption(option.id);
-                          }}
-                        />
-                      </div>
                     </div>
                   );
                 },
@@ -128,7 +141,19 @@ const OptionsCard = (props: Props) => {
           refetch={refetch}
         />
       )}
-      renderUpdateModal={() => null}
+      renderUpdateModal={(
+        isModalUpdateOpen,
+        handleCloseModalUpdate,
+        updateId,
+        refetch,
+      ) => (
+        <UpdateOptionsModal
+          isOpen={isModalUpdateOpen}
+          handleCloseModal={handleCloseModalUpdate}
+          refetch={refetch}
+          optionId={updateId}
+        />
+      )}
     />
   );
 };

@@ -18,14 +18,22 @@ export class OptionHttpService {
 
   async getOptionById(req: Request, res: Response) {
     const { id } = req.params;
+    const { success, data, error } = OptionConditionDTOSchema.safeParse(
+      req.query
+    );
+    if (!success) {
+      res.status(400).json({ message: error?.message });
+      return;
+    }
     try {
-      const checkOption = await this.useCase.getOptionById(id);
+      const checkOption = await this.useCase.getOptionById(id, data);
       if (!checkOption) {
         res.status(400).json({ message: 'Option not found' });
         return;
       }
-      res.status(200).json({ message: 'Option found', data: checkOption });
+      res.status(200).json({ message: 'Option found', ...checkOption });
     } catch (error) {
+      console.log('🚀 ~ OptionHttpService ~ getOptionById ~ error:', error);
       res.status(500).json({ message: 'Failed to get option' });
       return;
     }
@@ -84,16 +92,12 @@ export class OptionHttpService {
       return;
     }
     try {
-      const checkOption = await this.useCase.getOptionById(id);
-      if (!checkOption) {
-        res.status(400).json({ message: 'Option not found' });
-        return;
-      }
       const option = await this.useCase.updateOption(id, data);
       res
         .status(200)
         .json({ message: 'Option updated successfully', data: option });
     } catch (error) {
+      console.log('🚀 ~ OptionHttpService ~ updateOption ~ error:', error);
       res.status(500).json({ message: 'Failed to update option' });
       return;
     }
@@ -177,12 +181,10 @@ export class OptionValueHttpService {
     }
     try {
       const optionValue = await this.useCase.createOptionValue(data);
-      res
-        .status(200)
-        .json({
-          message: 'Option value created successfully',
-          data: optionValue,
-        });
+      res.status(200).json({
+        message: 'Option value created successfully',
+        data: optionValue,
+      });
     } catch (error) {
       res.status(500).json({ message: 'Failed to create option value' });
       return;
@@ -205,12 +207,10 @@ export class OptionValueHttpService {
         return;
       }
       const optionValue = await this.useCase.updateOptionValue(id, data);
-      res
-        .status(200)
-        .json({
-          message: 'Option value updated successfully',
-          data: optionValue,
-        });
+      res.status(200).json({
+        message: 'Option value updated successfully',
+        data: optionValue,
+      });
     } catch (error) {
       res.status(500).json({ message: 'Failed to update option value' });
       return;

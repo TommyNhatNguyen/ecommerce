@@ -42,7 +42,48 @@ export class PostgresOptionRepository implements IOptionRepository {
     private readonly modelName: string
   ) {}
   async get(id: string, condition: OptionConditionDTO): Promise<Option> {
-    const option = await this.sequelize.models[this.modelName].findByPk(id);
+    const include: Includeable[] = [];
+    const optionValueInclude: Includeable[] = [];
+    const variantInclude: Includeable[] = [];
+    const variantWhere: WhereOptions = {};
+    if (condition.include_option_values) {
+      if (condition.include_variant) {
+        if (condition.include_variant_info) {
+          variantInclude.push({
+            model: ProductSellablePersistence,
+            as: productSellableModelName.toLowerCase(),
+            include: [
+              {
+                model: ImagePersistence,
+                as: imageModelName.toLowerCase(),
+                attributes: {
+                  exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'],
+                },
+                through: { attributes: [] },
+              },
+            ],
+          });
+        }
+        if (condition.product_id) {
+          variantWhere.product_id = condition.product_id;
+        }
+        optionValueInclude.push({
+          model: VariantPersistence,
+          as: variantModelName.toLowerCase(),
+          through: { attributes: [] },
+          include: variantInclude,
+          where: variantWhere,
+        });
+      }
+      include.push({
+        model: OptionValuePersistence,
+        as: optionValueModelName,
+        include: optionValueInclude,
+      });
+    }
+    const option = await this.sequelize.models[this.modelName].findByPk(id, {
+      include,
+    });
     return option?.dataValues;
   }
   async list(
@@ -71,15 +112,15 @@ export class PostgresOptionRepository implements IOptionRepository {
             ],
           });
         }
-          if (condition.product_id) {
-            variantWhere.product_id = condition.product_id;
-          }
+        if (condition.product_id) {
+          variantWhere.product_id = condition.product_id;
+        }
         optionValueInclude.push({
           model: VariantPersistence,
           as: variantModelName.toLowerCase(),
           through: { attributes: [] },
           include: variantInclude,
-          where: variantWhere
+          where: variantWhere,
         });
       }
       include.push({
@@ -115,7 +156,10 @@ export class PostgresOptionRepository implements IOptionRepository {
     });
     return result?.dataValues;
   }
-  async update(id: string, data: OptionUpdateDTO): Promise<Option> {
+  async update(
+    id: string,
+    data: Omit<OptionUpdateDTO, 'option_values'>
+  ): Promise<Option> {
     const result = await this.sequelize.models[this.modelName].update(data, {
       where: { id },
       returning: true,

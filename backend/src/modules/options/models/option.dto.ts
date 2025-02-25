@@ -33,8 +33,8 @@ export const OptionConditionDTOSchema = z.object({
   status: z.nativeEnum(ModelStatus).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
-  order: z.string().optional().default(BaseOrder.DESC),
-  sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
+  order: z.string().default(BaseOrder.DESC).optional(),
+  sortBy: z.string().default(BaseSortBy.CREATED_AT).optional(),
   product_id: z.string().optional(),
   is_color: z
     .string()
@@ -72,6 +72,11 @@ export const OptionUpdateDTOSchema = z.object({
   name: z.string().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   is_color: z.boolean().optional(),
+  option_values: z.array(
+    OptionValueUpdateDTOSchema.partial({
+      option_id: true,
+    })
+  ),
 });
 
 export type OptionConditionDTO = z.infer<typeof OptionConditionDTOSchema>;

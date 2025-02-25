@@ -43,8 +43,27 @@ export class OptionUseCase implements IOptionUseCase {
     }
     return option;
   }
-  updateOption(id: string, data: OptionUpdateDTO): Promise<Option> {
-    return this.optionRepository.update(id, data);
+  async updateOption(id: string, data: OptionUpdateDTO): Promise<Option> {
+    const { option_values, ...optionData } = data;
+    const selectedOption = await this.getOptionById(id, {
+      include_option_values: true,
+    });
+    if (selectedOption) {
+      const optionValuesUpdated = await Promise.all(
+        option_values.map((optionValue) =>
+          this.optionValueUseCase.updateOptionValue(
+            selectedOption.option_values.find(
+              (optionValue) => optionValue.name === optionValue.name
+            )?.id || '',
+            {
+              name: optionValue.name,
+              value: optionValue.value,
+            }
+          )
+        )
+      );
+    }
+    return this.optionRepository.update(id, optionData);
   }
   deleteOption(id: string): Promise<boolean> {
     return this.optionRepository.delete(id);

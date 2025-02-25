@@ -50,6 +50,17 @@ export type OptionCreateDTO = {
   option_values: OptionValueCreateDTO[];
 };
 
+export type OptionUpdateDTO = {
+  name?: string;
+  is_color?: boolean;
+  option_values: OptionValueUpdateDTO[];
+};
+
+export type OptionValueUpdateDTO = {
+  name?: string;
+  value?: string;
+};
+
 export type OptionValueCreateDTO = {
   name: string;
   value: string;
