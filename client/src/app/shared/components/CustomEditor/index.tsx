@@ -75,11 +75,13 @@ import { cookiesStorage } from "@/app/shared/utils/localStorage";
  */
 const LICENSE_KEY = "GPL"; // or <YOUR_LICENSE_KEY>.
 
-type CustomEditorPropsType = {};
+type CustomEditorPropsType = {
+  initialLoading?: boolean;
+};
 
 // @ts-nocheck
 const CustomEditor = (
-  { ...props }: CustomEditorPropsType,
+  { initialLoading = false, ...props }: CustomEditorPropsType,
   ref: Ref<LegacyRef<CKEditor<ClassicEditor>>>,
 ) => {
   const editorContainerRef = useRef(null);
@@ -90,7 +92,8 @@ const CustomEditor = (
     setIsLayoutReady(true);
 
     return () => setIsLayoutReady(false);
-  }, []);
+  }, [initialLoading]);
+
   const editorConfig: EditorConfig = useMemo(() => {
     return {
       toolbar: {

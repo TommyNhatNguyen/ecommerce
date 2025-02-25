@@ -12,7 +12,7 @@ export type CreateCategoryFormDTO = {
   description?: string;
   imageId?: string;
   status?: ModelStatus;
-};
+}
 
 export type GetCategoriesBodyDTO = {
   name?: string;

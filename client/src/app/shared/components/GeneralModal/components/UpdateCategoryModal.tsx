@@ -19,6 +19,8 @@ import { defaultImage } from "@/app/shared/resources/images/default-image";
 import LoadingComponent from "@/app/shared/components/LoadingComponent";
 import { UpdateCategoryDTO } from "@/app/shared/interfaces/categories/category.dto";
 import { useUpdateCategories } from "@/app/shared/components/GeneralModal/hooks/useUpdateCategories";
+import CustomEditor from "@/app/shared/components/CustomEditor";
+import { Editor } from "ckeditor5";
 
 const ButtonDeleteImageWithPopover = withDeleteConfirmPopover(
   <Button type="text" className="aspect-square rounded-full p-0">
@@ -112,30 +114,36 @@ const UpdateCategoryModal = ({
           <Controller
             control={control}
             name="description"
-            render={({ field: { value, ...field }, formState: { errors } }) => (
+            render={({ field }) => (
               <InputAdmin
                 label="Description"
                 placeholder="Description"
-                value={value as string}
-                error={errors.description?.message as string}
                 {...field}
-                customComponent={(props: any, ref: any) => (
-                  <Input.TextArea rows={4} {...props} ref={ref} />
+                value={field.value || ""}
+                customComponent={({ onChange, props }: any, ref: any) => (
+                  <CustomEditor
+                    onChange={(_: any, editor: Editor) => {
+                      field.onChange(editor.getData());
+                    }}
+                    initialData={field.value || ""}
+                    initialLoading={isLoadingCategory}
+                    data={field.value || ""}
+                    {...props}
+                    ref={ref}
+                  />
                 )}
               />
             )}
           />
-          <Controller
-            control={control}
-            name="status"
-            render={({ field, formState: { errors } }) => (
-              <InputAdmin
-                label="Status"
-                placeholder="Status"
-                required={true}
-                error={errors.status?.message as string}
-                {...field}
-                customComponent={(props: any, ref: any) => (
+          <InputAdmin
+            label="Status"
+            placeholder="Status"
+            required={true}
+            customComponent={(props: any, ref: any) => (
+              <Controller
+                control={control}
+                name="status"
+                render={({ field }) => (
                   <Select
                     options={statusOptions}
                     placeholder="Select Status"
@@ -179,8 +187,6 @@ const UpdateCategoryModal = ({
                           : []
                       }
                       onChange={(info) => {
-                        console.log("info", info);
-                        console.log(value);
                         onChange(info.fileList);
                       }}
                       {...props}
@@ -193,6 +199,7 @@ const UpdateCategoryModal = ({
               );
             }}
           />
+          ;
         </div>
       </>
     );
@@ -213,6 +220,7 @@ const UpdateCategoryModal = ({
       </div>
     );
   };
+
   return (
     <GeneralModal
       open={isModalUpdateCategoryOpen}
