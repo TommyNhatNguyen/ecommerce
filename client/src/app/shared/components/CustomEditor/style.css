@@ -7,7 +7,7 @@
 }
 
 .editor-main-container {
-  width: fit-content;
+  width: 100%;
   max-width: 100%;
   margin-left: auto;
   margin-right: auto;
@@ -89,6 +89,7 @@
   .ck-editor
   .ck-editor__editable {
   border-radius: 8px;
-  min-height: 200px;
+  min-height: 400px;
+  height: 100% !important;
   overflow-y: auto;
 }

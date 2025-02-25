@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Includeable, Sequelize } from 'sequelize';
 import { IInventoryRepository } from 'src/modules/inventory/models/inventory.interface';
 import {
   BaseOrder,
@@ -13,6 +13,12 @@ import {
   InventoryUpdateDTO,
 } from 'src/modules/inventory/models/inventory.dto';
 import { Transaction } from 'sequelize';
+import { productSellableModelName } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import { ProductSellablePersistence } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import {
+  variantModelName,
+  VariantPersistence,
+} from 'src/modules/variant/infras/repo/postgres/dto';
 
 export class PostgresInventoryRepository implements IInventoryRepository {
   constructor(
@@ -31,12 +37,41 @@ export class PostgresInventoryRepository implements IInventoryRepository {
     const { page, limit } = paging;
     const order = condition?.order || BaseOrder.DESC;
     const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
+    const include: Includeable[] = [];
+    if (condition.include_product_sellable) {
+      include.push({
+        model: ProductSellablePersistence,
+        as: productSellableModelName.toLowerCase(),
+        include: [
+          {
+            model: VariantPersistence,
+            as: variantModelName.toLowerCase(),
+          },
+        ],
+      });
+    }
+    if (condition.include_all) {
+      const inventory = await this.sequelize.models[this.modelName].findAll({
+        order: [[sortBy, order]],
+        include,
+      });
+      return {
+        data: inventory.map((row) => row.dataValues),
+        meta: {
+          limit,
+          total_count: inventory.length,
+          current_page: page,
+          total_page: Math.ceil(inventory.length / limit),
+        },
+      };
+    }
     const inventory = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({
       limit,
       offset: (page - 1) * limit,
       order: [[sortBy, order]],
+      include,
     });
     return {
       data: inventory.rows.map((row) => row.dataValues),

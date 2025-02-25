@@ -16,6 +16,7 @@ export enum ImageType {
   USER = "USER",
   VARIANT = "VARIANT",
   OTHER = "OTHER",
+  BLOG = "BLOG",
 }
 
 export type ImageCreateDTO = {

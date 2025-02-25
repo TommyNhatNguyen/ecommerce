@@ -80,6 +80,7 @@ export enum ResourcesType {
   SHIPPING = 'SHIPPING',
   USER = 'USER',
   VARIANT = 'VARIANT',
+  BLOG = 'BLOG',
 }
 
 export enum PermissionType {

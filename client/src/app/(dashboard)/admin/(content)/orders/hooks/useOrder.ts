@@ -124,8 +124,8 @@ export default function useOrder(orderState: OrderState | null = null) {
       if (response) {
         console.log(response);
         notificationApi.success({
-          message: "Order deleted successfully",
-          description: "Order deleted successfully",
+          message: "Order created successfully",
+          description: "Order created successfully",
         });
       }
     } catch (error: any) {

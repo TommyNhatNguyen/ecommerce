@@ -4,8 +4,8 @@ import { MessageModelSchema } from 'src/modules/messages/models/message.model';
 import z from 'zod';
 
 export const IMessageCreateDTOSchema = z.object({
-  entity_id: z.string().uuid(),
-  actor_id: z.string().uuid(),
+  entity_id: z.string().uuid().optional(),
+  actor_id: z.string().uuid().optional(),
   entity_info: z.object({
     kind: z.nativeEnum(EntityKind),
     type: z.string(),

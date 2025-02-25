@@ -45,7 +45,7 @@ const Notification = (props: Props) => {
       </Badge>
       {isShowNotification && (
         <List
-          className="absolute right-0 top-[100%] z-50 min-w-[300px] overflow-hidden rounded-lg bg-white shadow-xl"
+          className="absolute right-0 top-[100%] z-50 min-w-[300px] max-h-[300px] overflow-y-auto rounded-lg bg-white shadow-xl"
           dataSource={data}
           renderItem={(item) => {
             const {

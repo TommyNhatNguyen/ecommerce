@@ -1,14 +1,17 @@
+import { InventoryModel } from "@/app/shared/models/inventories/inventories.model";
 import { OrderModel } from "@/app/shared/models/orders/orders.model";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface SocketState {
   isConnected: boolean;
   orderCreated: OrderModel;
+  inventoryLowInventory: InventoryModel;
 }
 
 const initialState: SocketState = {
   isConnected: false,
   orderCreated: {} as OrderModel,
+  inventoryLowInventory: {} as InventoryModel,
 };
 
 export const socketSlice = createSlice({
@@ -28,8 +31,19 @@ export const socketSlice = createSlice({
       }
       state.orderCreated = order;
     },
+    setInventoryLowInventory: (state, action: PayloadAction<string>) => {
+      console.log("🚀 ~ setInventoryLowInventory ~ action:", action.payload);
+      let inventory;
+      try {
+        inventory = JSON.parse(action.payload);
+      } catch {
+        inventory = action.payload;
+      }
+      state.inventoryLowInventory = inventory;
+    },
   },
 });
 
-export const { setIsConnected, setOrderCreated } = socketSlice.actions;
+export const { setIsConnected, setOrderCreated, setInventoryLowInventory } =
+  socketSlice.actions;
 export const socketReducer = socketSlice.reducer;

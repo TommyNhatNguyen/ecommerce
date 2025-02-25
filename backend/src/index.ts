@@ -31,7 +31,7 @@ import { instrument } from '@socket.io/admin-ui';
 import { errorHandler } from './share/helpers/error-handler';
 import { setupOptionRouter, setupOptionValueRouter } from 'src/modules/options';
 import { setupProductSellableRouter } from 'src/modules/product_sellable';
-import { productSellableCronJobInit } from 'src/schedulers';
+import { notificationCronJobInit, productSellableCronJobInit } from 'src/schedulers';
 import { setupSocket } from 'src/socket/socketManager';
 import amqp from 'amqplib/callback_api';
 import { setupBlogsRouter } from 'src/modules/blogs';
@@ -67,7 +67,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
 // SOCKET SETUP
-const socketIo = setupSocket(io);
+const { orderSocketUseCase, inventorySocketUseCase } = setupSocket(io);
 
 // API ROUTES SETUP
 // setupNotification(io, sequelize);
@@ -78,7 +78,7 @@ app.use('/v1', setupVariantRouter(sequelize));
 app.use('/v1', setupImageRouter(sequelize));
 app.use('/v1', setupInventoryRouter(sequelize));
 app.use('/v1', setupReviewRouter(sequelize));
-app.use('/v1', setupOrderRouter(sequelize, socketIo));
+app.use('/v1', setupOrderRouter(sequelize, orderSocketUseCase));
 app.use('/v1', setupCustomerRouter(sequelize));
 app.use('/v1', setupShippingRouter(sequelize));
 app.use('/v1', setupPaymentRouter(sequelize));
@@ -121,7 +121,9 @@ io.engine.on('connection_error', (err) => {
 
 // CRON JOBS
 const productSellableCronJob = productSellableCronJobInit(sequelize);
+const notificationCronJob = notificationCronJobInit(sequelize, inventorySocketUseCase);
 productSellableCronJob.start();
+notificationCronJob.start();
 
 // SERVER STARTUP
 server.listen(socketPort, () => {

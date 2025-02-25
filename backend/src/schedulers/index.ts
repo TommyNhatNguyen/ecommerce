@@ -18,8 +18,27 @@ import { IProductSellableUseCase } from 'src/modules/product_sellable/models/pro
 import { ProductSellableUseCase } from 'src/modules/product_sellable/usecase';
 import cloudinary from 'src/share/cloudinary';
 import { timeLogger } from 'src/share/helpers/time-logger';
-import { PRODUCT_SELLABLE_CRONJOB_ERROR } from 'src/schedulers/models/product-sellable.cronjob.error';
+import {
+  INVENTORY_CRONJOB_ERROR,
+  PRODUCT_SELLABLE_CRONJOB_ERROR,
+} from 'src/schedulers/models/product-sellable.cronjob.error';
 import { PRODUCT_SELLABLE_CRONJOB_MESSAGE } from 'src/schedulers/models/product-sellable.cronjob.message';
+import { MessageUsecase } from 'src/modules/messages/usecase';
+import { PostgresMessageRepository } from 'src/modules/messages/infras/repo/postgres/repo';
+import { messageModelName } from 'src/modules/messages/infras/repo/postgres/dto';
+import { actorModelName } from 'src/modules/messages/actor/infras/postgres/dto';
+import { PostgresEntityRepository } from 'src/modules/messages/entity/infras/postgres/repo';
+import { PostgresCustomerRepository } from 'src/modules/customer/infras/repo/postgres/customer.repo';
+import { entityModelName } from 'src/modules/messages/entity/infras/postgres/dto';
+import { customerModelName } from 'src/modules/customer/infras/repo/postgres/customer.dto';
+import { PostgresActorRepository } from 'src/modules/messages/actor/infras/postgres/repo';
+import { CustomerUseCase } from 'src/modules/customer/usecase';
+import { SocketIoAdapter } from 'src/socket/infras/transport';
+import { SocketUseCase } from 'src/socket/usecase';
+import { SOCKET_NAMESPACE } from 'src/socket/models/socket-endpoint';
+import { ActorType } from 'src/modules/messages/actor/models/actor.model';
+import { EntityKind } from 'src/modules/messages/entity/models/entity.model';
+import { StockStatus } from 'src/modules/inventory/models/inventory.model';
 
 export const productSellableCronJobInit = (sequelize: Sequelize): CronJob => {
   const productSellableRepository = new PostgresProductSellableRepository(
@@ -83,4 +102,89 @@ export const productSellableCronJobInit = (sequelize: Sequelize): CronJob => {
     'Asia/Ho_Chi_Minh' // timeZone
   );
   return productSellableCronJob;
+};
+
+export const notificationCronJobInit = (
+  sequelize: Sequelize,
+  inventorySocketUseCase: SocketUseCase
+): CronJob => {
+  const messageRepository = new PostgresMessageRepository(
+    sequelize,
+    messageModelName
+  );
+  const actorRepository = new PostgresActorRepository(
+    sequelize,
+    actorModelName
+  );
+  const entityRepository = new PostgresEntityRepository(
+    sequelize,
+    entityModelName
+  );
+  const customerRepository = new PostgresCustomerRepository(
+    sequelize,
+    customerModelName
+  );
+  const customerUseCase = new CustomerUseCase(customerRepository);
+  const messageUseCase = new MessageUsecase(
+    messageRepository,
+    actorRepository,
+    entityRepository,
+    customerUseCase
+  );
+  const inventoryRepository = new PostgresInventoryRepository(
+    sequelize,
+    inventoryModelName
+  );
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository);
+
+  const inventoryLowStockCronJob = new CronJob(
+    '0 9 * * *', // cronTime
+    async function () {
+      try {
+        await timeLogger(
+          INVENTORY_CRONJOB_ERROR.GET_INVENTORY_LIST,
+          async () => {
+            const inventories = await inventoryUseCase.getInventoryList(
+              {
+                page: 1,
+                limit: 1000,
+              },
+              {
+                include_all: true,
+                include_product_sellable: true,
+              }
+            );
+            console.log('🚀 ~ inventories:', inventories);
+            for (const inventory of inventories.data) {
+              if (inventory.stock_status !== StockStatus.IN_STOCK) {
+                const message = await messageUseCase.createMessage({
+                  entity_info: {
+                    type: 'inventory',
+                    kind: EntityKind.NOTIFICATION,
+                  },
+                  actor_info_id: '01953dd6-65f9-73d8-8497-048605665a83',
+                  actor_type: ActorType.SYSTEM,
+                  message: `Updated at ${new Date().toLocaleString()}: ${
+                    inventory.product_sellable.variant.name
+                  } is running out of stock: ${inventory.quantity} left`,
+                });
+                console.log('🚀 ~ message:', message);
+                inventorySocketUseCase.emit(
+                  SOCKET_NAMESPACE.INVENTORY.endpoints.LOW_INVENTORY,
+                  JSON.stringify({
+                    from: 'inventory',
+                    message: inventory,
+                  })
+                );
+              }
+            }
+          }
+        );
+      } catch (error) {
+        console.log('🚀 ~ error:', error);
+        console.error(INVENTORY_CRONJOB_ERROR.GET_INVENTORY_LIST, error);
+      }
+    }
+  );
+  return inventoryLowStockCronJob;
 };

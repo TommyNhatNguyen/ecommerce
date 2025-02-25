@@ -32,11 +32,13 @@ export enum InventorySortBy {
 }
 
 export const InventoryConditionDTOSchema = z.object({
-  product_sellable_id: z.string().uuid(),
+  product_sellable_id: z.string().uuid().optional(),
   quantity: z.number().min(0).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
   low_stock_threshold: z.number().min(0).optional(),
+  include_all: z.boolean().optional(),
+  include_product_sellable: z.boolean().optional(),
   total_value: z.number().min(0).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),

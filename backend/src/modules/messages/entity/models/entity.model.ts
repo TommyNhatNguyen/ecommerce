@@ -5,6 +5,7 @@ export enum EntityKind {
   CREATE = 'create',
   UPDATE = 'update',
   DELETE = 'delete',
+  NOTIFICATION = 'notification',
 }
     
 export const EntitySchema = z.object({

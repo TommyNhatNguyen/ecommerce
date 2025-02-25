@@ -9,7 +9,10 @@ import { CartProductSellableSchema } from 'src/modules/cart/models/cart.model';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { DiscountSchema } from 'src/modules/discount/models/discount.model';
 import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
-import { InventorySchema } from 'src/modules/inventory/models/inventory.model';
+import {
+  InventorySchema,
+  StockStatus,
+} from 'src/modules/inventory/models/inventory.model';
 import { variantModelName } from 'src/modules/variant/infras/repo/postgres/dto';
 import { VariantSchema } from 'src/modules/variant/models/variant.model';
 import { ModelStatus } from 'src/share/models/base-model';
@@ -26,7 +29,19 @@ export const ProductSellableSchema = z.object({
   updated_at: z.date(),
   [discountModelName]: z.array(DiscountSchema).optional(),
   [imageModelName]: z.array(ImageSchema).optional(),
-  [inventoryModelName]: z.object({ ...InventorySchema.shape }).optional(),
+  [inventoryModelName]: z
+    .object({
+      id: z.string().uuid(),
+      quantity: z.number().min(0),
+      cost: z.number().min(0),
+      total_value: z.number().min(0),
+      status: z.nativeEnum(ModelStatus),
+      created_at: z.date(),
+      updated_at: z.date(),
+      stock_status: z.nativeEnum(StockStatus),
+      low_stock_threshold: z.number().min(0),
+    })
+    .optional(),
   [cartProductModelName]: z
     .object({ ...CartProductSellableSchema.shape })
     .optional(),

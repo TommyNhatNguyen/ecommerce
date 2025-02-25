@@ -6,7 +6,7 @@ import { setIsConnected } from "@/app/shared/store/reducers/socket";
 
 export const useSocket = (
   socket: Socket,
-  connectionEvent: string,
+  connectionEvent: string[],
   callback: (data: any) => void,
 ) => {
   const dispatch = useAppDispatch();
@@ -24,9 +24,13 @@ export const useSocket = (
   }, []);
 
   useEffect(() => {
-    socket.on(connectionEvent, callback);
+    connectionEvent.forEach((event) => {
+      socket.on(event, callback);
+    });
     return () => {
-      socket.off(connectionEvent);
+      connectionEvent.forEach((event) => {
+        socket.off(event);
+      });
     };
   }, []);
 };

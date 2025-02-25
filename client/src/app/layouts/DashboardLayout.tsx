@@ -32,6 +32,8 @@ import {
   ChevronDown,
   User,
   LogOut,
+  Book,
+  Globe,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -46,6 +48,7 @@ import { increment } from "@/app/shared/store/reducers/counter";
 import { useSocket, useSocketPush } from "@/app/shared/hooks/useSocket";
 import { SOCKET_EVENTS_ENDPOINT } from "@/app/constants/socket-endpoint";
 import {
+  setInventoryLowInventory,
   setIsConnected,
   setOrderCreated,
 } from "@/app/shared/store/reducers/socket";
@@ -96,6 +99,11 @@ const items: MenuItem[] = [
     disabled: true,
   },
   {
+    key: ADMIN_ROUTES.blogs.index,
+    label: "Blogs",
+    icon: <Book size={16} />,
+  },
+  {
     key: ADMIN_ROUTES.resources,
     label: "Resources",
     icon: <FolderOpen size={16} />,
@@ -104,6 +112,11 @@ const items: MenuItem[] = [
     key: ADMIN_ROUTES.permissions.index,
     label: "Permissions",
     icon: <Lock size={16} />,
+  },
+  {
+    key: ADMIN_ROUTES.website,
+    label: "Website setting",
+    icon: <Globe size={16} />,
   },
 ];
 
@@ -125,7 +138,9 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   const router = useRouter();
   const { notificationApi } = useNotification();
   const currentPath = pathname.split("/").slice(1);
-  const { orderCreated } = useAppSelector((state) => state.socket);
+  const { orderCreated, inventoryLowInventory } = useAppSelector(
+    (state) => state.socket,
+  );
   const { userInfo } = useAppSelector((state) => state.auth);
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
@@ -158,10 +173,28 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   // --- ORDER NOTIFICATION ---
   useSocket(
     socketServices.orderIo,
-    SOCKET_EVENTS_ENDPOINT.ORDER_CREATED,
+    [
+      SOCKET_EVENTS_ENDPOINT.ORDER_CREATED,
+      SOCKET_EVENTS_ENDPOINT.INVENTORY_LOW_INVENTORY,
+    ],
     (data: string) => {
-      console.log("order created", JSON.parse(data));
-      dispatch(setOrderCreated(data));
+      const parsedData: { from: string; message: string } = JSON.parse(data);
+      console.log("🚀 ~ DashboardLayout ~ parsedData:", parsedData);
+      if (parsedData.from === "order") {
+        dispatch(setOrderCreated(parsedData.message));
+      }
+    },
+  );
+  useSocket(
+    socketServices.inventoryIo,
+    [SOCKET_EVENTS_ENDPOINT.INVENTORY_LOW_INVENTORY],
+    (data: string) => {
+      console.log("🚀 ~ DashboardLayout ~ data:", data);
+      const parsedData: { from: string; message: string } = JSON.parse(data);
+      console.log("inventory low inventory", parsedData);
+      if (parsedData.from === "inventory") {
+        dispatch(setInventoryLowInventory(parsedData.message));
+      }
     },
   );
   useEffect(() => {
@@ -175,9 +208,15 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
           />
         ),
       });
-      dispatch(getNotificationThunk({}));
     }
-  }, [orderCreated]);
+    if (inventoryLowInventory?.created_at) {
+      notificationApi.success({
+        message: `Inventory Is Low`,
+        description: `${inventoryLowInventory.product_sellable.variant?.name} is running out of stock: ${inventoryLowInventory.quantity} left`,
+      });
+    }
+    dispatch(getNotificationThunk({}));
+  }, [orderCreated, inventoryLowInventory]);
   useEffect(() => {
     dispatch(getNotificationThunk({}));
   }, []);

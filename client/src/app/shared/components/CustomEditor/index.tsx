@@ -70,6 +70,7 @@ import {
 import "ckeditor5/ckeditor5.css";
 import "./style.css";
 import { cookiesStorage } from "@/app/shared/utils/localStorage";
+import { ValueType } from "tailwindcss/types/config";
 /**
  * Create a free account with a trial: https://portal.ckeditor.com/checkout?plan=free
  */
@@ -77,11 +78,16 @@ const LICENSE_KEY = "GPL"; // or <YOUR_LICENSE_KEY>.
 
 type CustomEditorPropsType = {
   initialLoading?: boolean;
+  editorContainerClassName?: ValueType;
 };
 
 // @ts-nocheck
 const CustomEditor = (
-  { initialLoading = false, ...props }: CustomEditorPropsType,
+  {
+    initialLoading = false,
+    editorContainerClassName,
+    ...props
+  }: CustomEditorPropsType,
   ref: Ref<LegacyRef<CKEditor<ClassicEditor>>>,
 ) => {
   const editorContainerRef = useRef(null);
@@ -300,7 +306,7 @@ const CustomEditor = (
         ref={editorContainerRef}
       >
         <div className="editor-container__editor">
-          <div ref={editorRef}>
+          <div ref={editorRef} className={editorContainerClassName}>
             {isLayoutReady && (
               <CKEditor
                 editor={ClassicEditor}

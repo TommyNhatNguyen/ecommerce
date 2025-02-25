@@ -18,6 +18,11 @@ export const ADMIN_ROUTES = {
   dashboard: "/admin/dashboard",
   register: "/admin/register",
   login: "/admin/login",
+  blogs: {
+    index: "/admin/blogs",
+    create: "/admin/blogs/create",
+    settings: "/admin/blogs/settings",
+  },
   orders: {
     index: "/admin/orders",
     pending: "/admin/orders/pending",
@@ -44,4 +49,5 @@ export const ADMIN_ROUTES = {
     role: "/admin/permissions/role",
     user: "/admin/permissions/user",
   },
+  website: "/admin/website",
 };

@@ -16,6 +16,7 @@ import {
   ChartLineIcon,
   FileBoxIcon,
   FileTextIcon,
+  GlobeIcon,
   Home,
   LockKeyholeIcon,
   LogOutIcon,
@@ -111,7 +112,7 @@ const CustomSidebar = ({ children }: CustomSidebarPropsType) => {
               {setting.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link href={item?.url as string || ""} prefetch={true}>
+                    <Link href={(item?.url as string) || ""} prefetch={true}>
                       <item.icon />
                       <span>{item.title}</span>
                     </Link>

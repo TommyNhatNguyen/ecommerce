@@ -144,7 +144,10 @@ export class OrderUseCase implements IOrderUseCase {
     };
     this.socketIo.emit(
       SOCKET_NAMESPACE.ORDER.endpoints.ORDER_CREATED,
-      JSON.stringify(notificationPayload)
+      JSON.stringify({
+        from: 'order',
+        message: notificationPayload,
+      })
     );
     // Save order notification to database
     let actor_info_id = orderDetailCreated.customer_id || '';
