@@ -100,6 +100,23 @@ const ProductCard = ({}: ProductCardPropsType) => {
                   <p>
                     {item.name} - {item.variant?.length} variants
                   </p>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      type="text"
+                      className="aspect-square rounded-full p-0"
+                      onClick={() => _onOpenModalUpdateProduct(item.id)}
+                    >
+                      <Pencil className="h-4 w-4 stroke-yellow-500" />
+                    </Button>
+                    <ButtonDeleteWithPopover
+                      title={`Delete ${item.name}?`}
+                      trigger={"click"}
+                      handleDelete={() => {
+                        _onSoftDeleteProduct(item.id);
+                      }}
+                      isWithDeleteConfirmPopover={false}
+                    />
+                  </div>
                 </Tooltip>
               );
             },
@@ -126,23 +143,6 @@ const ProductCard = ({}: ProductCardPropsType) => {
                   className="flex items-center justify-between gap-2"
                 >
                   <span>{variant.name}</span>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      type="text"
-                      className="aspect-square rounded-full p-0"
-                      onClick={() => _onOpenModalUpdateProduct(item.id)}
-                    >
-                      <Pencil className="h-4 w-4 stroke-yellow-500" />
-                    </Button>
-                    <ButtonDeleteWithPopover
-                      title={`Delete ${item.name}?`}
-                      trigger={"click"}
-                      handleDelete={() => {
-                        _onSoftDeleteProduct(item.id);
-                      }}
-                      isWithDeleteConfirmPopover={false}
-                    />
-                  </div>
                 </Tooltip>
               ),
               key: variant.id,

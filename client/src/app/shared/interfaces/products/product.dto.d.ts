@@ -1,7 +1,11 @@
 import { PRODUCT_STATS_GROUP_BY } from "@/app/constants/product-stats";
 import { CreateProductSellableDTO } from "@/app/shared/interfaces/products/product-sellable.dto";
 import { CreateVariantDTOV2 } from "@/app/shared/interfaces/variant/variant.interface";
-import { BaseOrder, BaseSortBy, ModelStatus } from "@/app/shared/models/others/status.model";
+import {
+  BaseOrder,
+  BaseSortBy,
+  ModelStatus,
+} from "@/app/shared/models/others/status.model";
 import { DateString } from "@/app/shared/types/datestring.model";
 import { UploadFile } from "antd";
 
@@ -44,16 +48,15 @@ export type CreateProductDTOV2 = {
 };
 
 export type UpdateProductDTO = {
-  name?: string;
+  name: string;
   description?: string;
-  price?: number | string;
-  status?: ModelStatus;
-  categoryIds?: string[];
-  discountIds?: string[];
-  variantIds?: string[];
-  imageIds?: string[];
-  quantity?: number | string;
-  cost?: number | string;
+  short_description?: string;
+  status: "ACTIVE" | "INACTIVE" | "DELETED";
+  categoryIds: string[];
+  variants: {
+    variant_data: CreateVariantDTOV2;
+    product_sellables: CreateProductSellableDTO;
+  }[];
 };
 
 export enum ProductStatsSortBy {
