@@ -108,7 +108,6 @@ const UpdateProductModal = ({
       }),
     enabled: !!updateProductId,
   });
-  console.log("🚀 ~ updateProductData:", updateProductData);
   const {
     control,
     handleSubmit,
@@ -161,9 +160,15 @@ const UpdateProductModal = ({
   };
   const _onCloseModalUpdateProduct = () => {
     handleCloseModalUpdateProduct();
+    _onClearAllFormData();
   };
+  // TODO: Update product
   const _onChangeFileList = (id: number, fileList: UploadFile[]) => {
-    setVariantImageFileList({ ...variantImageFileList, [id]: fileList });
+    setVariantImageFileList((prev) => ({ ...prev, [id]: fileList }));
+    setValue(
+      `variants.${id}.product_sellables.imageIds`,
+      fileList.map((item) => item.uid),
+    );
   };
 
   const _onRemoveFileList = (id: number) => {
@@ -174,6 +179,11 @@ const UpdateProductModal = ({
     });
   };
   const _onConfirmUpdateProduct = async (data: any) => {
+    console.log("🚀 ~ const_onConfirmUpdateProduct= ~ data:", data);
+    console.log(
+      "🚀 ~ const_onConfirmUpdateProduct= ~ data:",
+      variantImageFileList,
+    );
     // const currentImageIds = currentImageFileList?.map((item) => item.id) || [];
     // const payload: UpdateProductDTO = {
     //   name: data.name,
@@ -194,6 +204,8 @@ const UpdateProductModal = ({
     // _onClearAllFormData();
     // _onCloseModalUpdateProduct();
   };
+
+
   useEffect(() => {
     if (updateProductData) {
       // Update form data
@@ -430,6 +442,28 @@ const UpdateProductModal = ({
                   />
                 )}
               />
+              <Controller
+                control={control}
+                name="status"
+                render={({ field }) => (
+                  <InputAdmin
+                    label="Status"
+                    placeholder="Status"
+                    required={true}
+                    className="w-full"
+                    customComponent={(props: any, ref: any) => (
+                      <Select
+                        options={statusOptions}
+                        placeholder="Select Status"
+                        value={field.value}
+                        onChange={field.onChange}
+                        {...props}
+                        ref={ref}
+                      />
+                    )}
+                  />
+                )}
+              />
             </div>
           </div>
           {/* Product variants */}
@@ -457,7 +491,7 @@ const UpdateProductModal = ({
                     allowClear={true}
                     mode="multiple"
                     value={selectedOptions}
-                    // onChange={_onChangeOption}
+                    disabled={true}
                   />
                 )}
               />
@@ -471,10 +505,8 @@ const UpdateProductModal = ({
                         label: item.name,
                         value: item.id,
                       }))}
+                      disabled={true}
                       value={selectedOptionValues[option.id]}
-                      // onChange={(value) =>
-                      //   _onChangeOptionValue(option.id, value)
-                      // }
                     />
                   </div>
                 ))}
@@ -743,27 +775,55 @@ const UpdateProductModal = ({
                           />
                           {/* Images */}
                           <div className="mt-4">
-                            <InputAdmin
-                              label="Product Image"
-                              required={true}
-                              placeholder="Product Image"
-                              customComponent={() => (
-                                <Upload
-                                  listType="picture-card"
-                                  accept=".jpg,.jpeg,.png,.gif,.webp"
-                                  multiple={true}
-                                  action={`${window.location.origin}/`}
-                                  fileList={variantImageFileList[index] || []}
-                                  onChange={(info) => {
-                                    _onChangeFileList(index, info.fileList);
-                                  }}
-                                  onRemove={(file) => {
-                                    _onRemoveFileList(index);
-                                  }}
-                                >
-                                  <PlusIcon className="h-4 w-4" />
-                                </Upload>
-                              )}
+                            <Controller
+                              control={control}
+                              name={`variants.${index}.product_sellables.imageIds`}
+                              render={({ field, formState: { errors } }) => {
+                                return (
+                                  // @ts-ignore
+                                  <InputAdmin
+                                    label="Product Image"
+                                    required={true}
+                                    placeholder="Product Image"
+                                    {...field}
+                                    error={
+                                      errors?.variants?.[index]
+                                        ?.product_sellables?.imageIds
+                                        ?.message || ""
+                                    }
+                                    customComponent={(
+                                      { value, onChange, ...props },
+                                      ref,
+                                    ) => {
+                                      return (
+                                        <Upload
+                                          accept=".jpg,.jpeg,.png,.gif,.webp"
+                                          listType="picture-card"
+                                          maxCount={1}
+                                          multiple={true}
+                                          action={`${window.location.origin}/`}
+                                          fileList={
+                                            variantImageFileList[index] || []
+                                          }
+                                          onChange={(info) => {
+                                            _onChangeFileList(
+                                              index,
+                                              info.fileList,
+                                            );
+                                          }}
+                                          onRemove={(file) => {
+                                            _onRemoveFileList(index);
+                                          }}
+                                          {...props}
+                                          ref={ref}
+                                        >
+                                          <PlusIcon className="h-4 w-4" />
+                                        </Upload>
+                                      );
+                                    }}
+                                  />
+                                );
+                              }}
                             />
                           </div>
                         </div>
@@ -774,28 +834,6 @@ const UpdateProductModal = ({
                 ))}
             </div>
           </div>
-          <Controller
-            control={control}
-            name="status"
-            render={({ field }) => (
-              <InputAdmin
-                label="Status"
-                placeholder="Status"
-                required={true}
-                className="w-full"
-                customComponent={(props: any, ref: any) => (
-                  <Select
-                    options={statusOptions}
-                    placeholder="Select Status"
-                    value={field.value}
-                    onChange={field.onChange}
-                    {...props}
-                    ref={ref}
-                  />
-                )}
-              />
-            )}
-          />
         </div>
       </>
     );

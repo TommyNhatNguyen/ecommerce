@@ -34,6 +34,7 @@ import { setupProductSellableRouter } from 'src/modules/product_sellable';
 import { productSellableCronJobInit } from 'src/schedulers';
 import { setupSocket } from 'src/socket/socketManager';
 import amqp from 'amqplib/callback_api';
+import { setupBlogsRouter } from 'src/modules/blogs';
 // ENVIRONMENT CONFIGURATION
 config();
 
@@ -94,7 +95,7 @@ app.use('/v1', setupPaymentMethodRouter(sequelize));
 app.use('/v1', setupOptionRouter(sequelize));
 app.use('/v1', setupOptionValueRouter(sequelize));
 app.use('/v1', setupProductSellableRouter(sequelize));
-// app.use('/v1', setupResourcesRouter(sequelize));
+app.use('/v1', setupBlogsRouter(sequelize));
 
 // DATABASE ASSOCIATIONS AND ERROR HANDLING
 initializeAssociation();
@@ -121,55 +122,6 @@ io.engine.on('connection_error', (err) => {
 // CRON JOBS
 const productSellableCronJob = productSellableCronJobInit(sequelize);
 productSellableCronJob.start();
-
-// amqp.connect('amqp://localhost', (err, connection) => {
-//   if (err) {
-//     console.log(err);
-//   }
-//   console.log('Connected to RabbitMQ');
-//   connection.createChannel(function (error1, channel) {
-//     if (error1) {
-//       throw error1;
-//     }
-//     var queue = 'task_queue';
-//     var msg = 'Hello world';
-
-//     channel.assertQueue(queue, {
-//       durable: true,
-//     });
-
-//     // const newLocal = setInterval(() => {
-//     //   channel.sendToQueue(queue, Buffer.from(msg), {
-//     //   });
-//     // }, 1000);
-//   });
-// });
-
-// amqp.connect('amqp://localhost', function (error0, connection) {
-//   if (error0) {
-//     throw error0;
-//   }
-//   connection.createChannel(function (error1, channel) {
-//     if (error1) {
-//       throw error1;
-//     }
-//     var queue = 'task_queue';
-
-//     channel.assertQueue(queue, {
-//       durable: true,
-//     });
-//     console.log(' [*] Waiting for messages in %s. To exit press CTRL+C', queue);
-//     channel.consume(
-//       queue,
-//       function (msg) {
-//         console.log(' [x] Received %s', msg?.content.toString());
-//       },
-//       {
-//         noAck: false,
-//       }
-//     );
-//   });
-// });
 
 // SERVER STARTUP
 server.listen(socketPort, () => {

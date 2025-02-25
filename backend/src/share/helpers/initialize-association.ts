@@ -102,6 +102,10 @@ import {
   productSellableVariantModelName,
   productSellableDiscountModelName,
 } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import {
+  blogsModelName,
+  BlogsPersistence,
+} from 'src/modules/blogs/infras/dto/blogs.dto';
 
 export const initializeAssociation = () => {
   MessagePersistence.belongsTo(ActorPersistence, {
@@ -459,17 +463,14 @@ export const initializeAssociation = () => {
     as: roleModelName.toLowerCase(),
   });
 
-  // ResourcesPersistence.belongsToMany(PermissionPersistence, {
-  //   through: resourcePermissionModelName,
-  //   foreignKey: 'resource_id',
-  //   otherKey: 'permission_id',
-  //   as: permissionModelName.toLowerCase(),
-  // });
+  UserPersistence.hasMany(BlogsPersistence, {
+    foreignKey: 'user_id',
+    as: blogsModelName.toLocaleLowerCase(),
+  });
 
-  // PermissionPersistence.belongsToMany(ResourcesPersistence, {
-  //   through: resourcePermissionModelName,
-  //   foreignKey: 'permission_id',
-  //   otherKey: 'resource_id',
-  //   as: resourcesModelName.toLowerCase(),
-  // });
+  BlogsPersistence.belongsTo(UserPersistence, {
+    foreignKey: 'user_id',
+    as: userModelName.toLowerCase(),
+  });
+
 };

@@ -1,5 +1,6 @@
 import { ProductStatsSortBy } from "@/app/shared/interfaces/products/product.dto";
 import { StockStatus } from "@/app/shared/models/inventories/stock-status";
+import { ImageModel } from "@/app/shared/models/images/images.model";
 import { BaseOrder, ModelStatus } from "@/app/shared/models/others/status.model";
 
 export type CreateProductSellableDTO = {
@@ -10,6 +11,7 @@ export type CreateProductSellableDTO = {
   status?: ModelStatus;
   discountIds?: string[];
   imageIds?: string[];
+  image?: ImageModel[];
 };
 
 export type ProductSellableCondition = {
