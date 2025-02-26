@@ -82,7 +82,6 @@ const orderAlertPublisher = new Publisher(rabbitMQ);
 const orderAlertConsumer = new Consumer(rabbitMQ);
 const inventoryAlertPublisher = new Publisher(rabbitMQ);
 const inventoryAlertConsumer = new Consumer(rabbitMQ);
-
 // SOCKET SETUP
 const orderSocketUseCase = orderNameSpaceSocketSetup(io);
 const inventorySocketUseCase = inventoryNameSpaceSocketSetup(io);
@@ -101,6 +100,7 @@ orderAlertConsumer.consumeMessages(QueueTypes.ORDER_NOTIFICATION, (message) => {
     JSON.stringify(message)
   );
 });
+console.log('rabbitMQ.getChannels()', rabbitMQ.getChannels());
 // API ROUTES SETUP
 // setupNotification(io, sequelize);
 app.use('/v1', setupProductRouter(sequelize));
@@ -150,8 +150,6 @@ io.engine.on('connection_error', (err) => {
   console.log(err.message);
   console.log(err.context);
 });
-
-// RabbitMQ Connection
 
 // CRON JOBS
 const productSellableCronJob = productSellableCronJobInit(sequelize);

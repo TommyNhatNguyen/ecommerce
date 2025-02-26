@@ -142,6 +142,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
     (state) => state.socket,
   );
   const { userInfo } = useAppSelector((state) => state.auth);
+  const { notificationList } = useAppSelector((state) => state.notification);
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   };
@@ -208,18 +209,17 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
           />
         ),
       });
+      dispatch(getNotificationThunk({}));
     }
     if (inventoryLowInventory?.created_at) {
       notificationApi.success({
         message: `Inventory Is Low`,
         description: `${inventoryLowInventory.product_sellable.variant?.name} is running out of stock: ${inventoryLowInventory.quantity} left`,
       });
+      dispatch(getNotificationThunk({}));
     }
-    dispatch(getNotificationThunk({}));
   }, [orderCreated, inventoryLowInventory]);
-  useEffect(() => {
-    dispatch(getNotificationThunk({}));
-  }, []);
+
   useEffect(() => {
     // If login, then get user info
     if (cookiesStorage.getToken()) {
@@ -278,25 +278,6 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
             </Dropdown>
           </div>
         </Header>
-        {/* <Button
-          onClick={() =>
-            useSocketPush(
-              socketServices.orderIo,
-              SOCKET_EVENTS_ENDPOINT.ORDER_CREATED,
-              JSON.stringify({
-                entity_info: {
-                  kind: "create",
-                  type: "order",
-                },
-                actor_info_id: "0194b65d-b3de-71bc-9e42-8becb989a0f3",
-                actor_type: "customer",
-                message: "Order created",
-              }),
-            )
-          }
-        >
-          Create Order
-        </Button> */}
         <Content className="mb-4 overflow-y-auto overflow-x-hidden p-2">
           <div className="mb-4 rounded-lg bg-white px-4 py-2">
             <h1 className="text-xl font-bold capitalize">

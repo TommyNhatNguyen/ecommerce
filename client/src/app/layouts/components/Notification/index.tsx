@@ -28,11 +28,21 @@ const Notification = (props: Props) => {
     dispatch(deleteNotificationThunk(id));
   };
   const _onToggleNotification = () => {
+    setIsShowNotification((prev) => !prev);
+  };
+  useEffect(() => {
     if (!isShowNotification) {
       dispatch(getNotificationThunk({}));
     }
-    setIsShowNotification((prev) => !prev);
-  };
+  }, []);
+  useEffect(() => {
+    if (!isShowNotification && notificationList.count_unread > 0) {
+      notificationApi.info({
+        message: "You have new notifications",
+        description: `${notificationList.count_unread} new notifications`,
+      });
+    }
+  }, [notificationList]);
   return (
     <div className="relative z-50">
       <Badge count={count_unread}>
@@ -45,7 +55,7 @@ const Notification = (props: Props) => {
       </Badge>
       {isShowNotification && (
         <List
-          className="absolute right-0 top-[100%] z-50 min-w-[300px] max-h-[300px] overflow-y-auto rounded-lg bg-white shadow-xl"
+          className="absolute right-0 top-[100%] z-50 max-h-[300px] min-w-[300px] overflow-y-auto rounded-lg bg-white shadow-xl"
           dataSource={data}
           renderItem={(item) => {
             const {

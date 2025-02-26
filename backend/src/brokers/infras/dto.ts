@@ -1,26 +1,33 @@
 import amqp, { Connection, Channel } from 'amqplib';
 
 class RabbitMQ {
-  private static connection: Connection | null = null;
-  private static channels: { [queue: string]: Channel } = {};
+  private connection: Connection | null = null;
+  private channels: { [queue: string]: Channel } = {};
+
+  constructor() {}
+
+  getChannels() {
+    console.log('🚀 ~ RabbitMQ ~ this.channels:', this.channels);
+    return this.channels;
+  }
 
   private async getConnection(): Promise<Connection> {
-    if (!RabbitMQ.connection) {
-      RabbitMQ.connection = await amqp.connect('amqp://localhost');
+    if (!this.connection) {
+      this.connection = await amqp.connect('amqp://localhost');
       console.log('✅ RabbitMQ Connected.');
     }
-    return RabbitMQ.connection;
+    return this.connection;
   }
 
   async getChannel(queueName: string): Promise<Channel> {
-    if (!RabbitMQ.channels[queueName]) {
+    if (!this.channels[queueName]) {
       const connection = await this.getConnection();
       const channel = await connection.createChannel();
       await channel.assertQueue(queueName, { durable: true });
-      RabbitMQ.channels[queueName] = channel;
+      this.channels[queueName] = channel;
       console.log(`✅ Channel created for queue: ${queueName}`);
     }
-    return RabbitMQ.channels[queueName];
+    return this.channels[queueName];
   }
 }
 
