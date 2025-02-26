@@ -73,10 +73,11 @@ import { PostgresEntityRepository } from 'src/modules/messages/entity/infras/pos
 import { userModelName } from 'src/modules/user/infras/repo/dto';
 import { PostgresUserRepository } from 'src/modules/user/infras/repo/repo';
 import { UserUseCase } from 'src/modules/user/usecase';
+import Publisher from 'src/brokers/infras/publisher';
 
 export function setupOrderRouter(
   sequelize: Sequelize,
-  socketIo: SocketUseCase
+  orderAlertPublisher: Publisher
 ) {
   orderInit(sequelize);
   const router = Router();
@@ -227,7 +228,7 @@ export function setupOrderRouter(
     cartUseCase,
     messageUsecase,
     userUsecase,
-    socketIo
+    orderAlertPublisher
   );
   const orderHttpService = new OrderHttpService(orderUseCase);
   router.get('/order/:id', orderHttpService.getById.bind(orderHttpService));

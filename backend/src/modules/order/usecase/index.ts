@@ -1,5 +1,7 @@
 import { Transaction } from 'sequelize';
 import { Namespace } from 'socket.io';
+import Publisher from 'src/brokers/infras/publisher';
+import { QueueTypes } from 'src/brokers/transport/queueTypes';
 import { ICartUseCase } from 'src/modules/cart/models/cart.interface';
 import { ActorType } from 'src/modules/messages/actor/models/actor.model';
 import { EntityKind } from 'src/modules/messages/entity/models/entity.model';
@@ -31,7 +33,7 @@ export class OrderUseCase implements IOrderUseCase {
     private readonly cartUseCase: ICartUseCase,
     private readonly messageUsecase: IMessageUseCase,
     private readonly userUseCase: IUserUseCase,
-    private readonly socketIo: SocketUseCase
+    private readonly orderAlertPublisher: Publisher
   ) {}
   async getById(
     id: string,
@@ -142,16 +144,18 @@ export class OrderUseCase implements IOrderUseCase {
       ...order,
       order_detail: orderDetailCreated,
     };
-    this.socketIo.emit(
-      SOCKET_NAMESPACE.ORDER.endpoints.ORDER_CREATED,
-      JSON.stringify({
-        from: 'order',
-        message: notificationPayload,
-      })
-    );
+    this.orderAlertPublisher.publishMessage(QueueTypes.ORDER_NOTIFICATION, {
+      from: 'order',
+      message: notificationPayload,
+    });
     // Save order notification to database
     let actor_info_id = orderDetailCreated.customer_id || '';
     let actor_type = ActorType.CUSTOMER;
+    console.log(
+      '🚀 ~ OrderUseCase ~ actor_info_id:',
+      actor_info_id,
+      actor_type
+    );
     if (actor !== 'customer') {
       const user = await this.userUseCase.getUserByUsername(actor || '', {}, t);
       if (user) {
@@ -170,6 +174,7 @@ export class OrderUseCase implements IOrderUseCase {
       },
       t
     );
+    console.log('🚀 ~ OrderUseCase ~ message:', message);
     return order;
   }
   async update(id: string, data: OrderUpdateDTO): Promise<Order> {

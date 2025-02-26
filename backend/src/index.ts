@@ -31,10 +31,20 @@ import { instrument } from '@socket.io/admin-ui';
 import { errorHandler } from './share/helpers/error-handler';
 import { setupOptionRouter, setupOptionValueRouter } from 'src/modules/options';
 import { setupProductSellableRouter } from 'src/modules/product_sellable';
-import { notificationCronJobInit, productSellableCronJobInit } from 'src/schedulers';
-import { setupSocket } from 'src/socket/socketManager';
+import {
+  inventoryLowStockCronJobInit,
+  productSellableCronJobInit,
+} from 'src/schedulers';
 import amqp from 'amqplib/callback_api';
 import { setupBlogsRouter } from 'src/modules/blogs';
+import { Connection } from 'amqplib';
+import { QueueTypes } from 'src/brokers/transport/queueTypes';
+import Publisher from 'src/brokers/infras/publisher';
+import Consumer from 'src/brokers/infras/consumer';
+import RabbitMQ from 'src/brokers/infras/dto';
+import { SOCKET_NAMESPACE } from 'src/socket/models/socket-endpoint';
+import { inventoryNameSpaceSocketSetup } from 'src/socket/socketManager';
+import { orderNameSpaceSocketSetup } from 'src/socket/socketManager';
 // ENVIRONMENT CONFIGURATION
 config();
 
@@ -66,9 +76,31 @@ instrument(io, {
 app.use(express.json({ limit: '50mb' }));
 app.use(cors());
 
-// SOCKET SETUP
-const { orderSocketUseCase, inventorySocketUseCase } = setupSocket(io);
+// RABBITMQ SETUP
+const rabbitMQ = new RabbitMQ();
+const orderAlertPublisher = new Publisher(rabbitMQ);
+const orderAlertConsumer = new Consumer(rabbitMQ);
+const inventoryAlertPublisher = new Publisher(rabbitMQ);
+const inventoryAlertConsumer = new Consumer(rabbitMQ);
 
+// SOCKET SETUP
+const orderSocketUseCase = orderNameSpaceSocketSetup(io);
+const inventorySocketUseCase = inventoryNameSpaceSocketSetup(io);
+inventoryAlertConsumer.consumeMessages(
+  QueueTypes.INVENTORY_ALERT,
+  (message) => {
+    inventorySocketUseCase.emit(
+      SOCKET_NAMESPACE.INVENTORY.endpoints.LOW_INVENTORY,
+      JSON.stringify(message)
+    );
+  }
+);
+orderAlertConsumer.consumeMessages(QueueTypes.ORDER_NOTIFICATION, (message) => {
+  orderSocketUseCase.emit(
+    SOCKET_NAMESPACE.ORDER.endpoints.ORDER_CREATED,
+    JSON.stringify(message)
+  );
+});
 // API ROUTES SETUP
 // setupNotification(io, sequelize);
 app.use('/v1', setupProductRouter(sequelize));
@@ -78,7 +110,7 @@ app.use('/v1', setupVariantRouter(sequelize));
 app.use('/v1', setupImageRouter(sequelize));
 app.use('/v1', setupInventoryRouter(sequelize));
 app.use('/v1', setupReviewRouter(sequelize));
-app.use('/v1', setupOrderRouter(sequelize, orderSocketUseCase));
+app.use('/v1', setupOrderRouter(sequelize, orderAlertPublisher));
 app.use('/v1', setupCustomerRouter(sequelize));
 app.use('/v1', setupShippingRouter(sequelize));
 app.use('/v1', setupPaymentRouter(sequelize));
@@ -119,11 +151,16 @@ io.engine.on('connection_error', (err) => {
   console.log(err.context);
 });
 
+// RabbitMQ Connection
+
 // CRON JOBS
 const productSellableCronJob = productSellableCronJobInit(sequelize);
-const notificationCronJob = notificationCronJobInit(sequelize, inventorySocketUseCase);
+const inventoryLowStockCronJob = inventoryLowStockCronJobInit(
+  sequelize,
+  inventoryAlertPublisher
+);
 productSellableCronJob.start();
-notificationCronJob.start();
+inventoryLowStockCronJob.start();
 
 // SERVER STARTUP
 server.listen(socketPort, () => {

@@ -39,6 +39,8 @@ import { SOCKET_NAMESPACE } from 'src/socket/models/socket-endpoint';
 import { ActorType } from 'src/modules/messages/actor/models/actor.model';
 import { EntityKind } from 'src/modules/messages/entity/models/entity.model';
 import { StockStatus } from 'src/modules/inventory/models/inventory.model';
+import Publisher from 'src/brokers/infras/publisher';
+import { QueueTypes } from 'src/brokers/transport/queueTypes';
 
 export const productSellableCronJobInit = (sequelize: Sequelize): CronJob => {
   const productSellableRepository = new PostgresProductSellableRepository(
@@ -104,9 +106,9 @@ export const productSellableCronJobInit = (sequelize: Sequelize): CronJob => {
   return productSellableCronJob;
 };
 
-export const notificationCronJobInit = (
+export const inventoryLowStockCronJobInit = (
   sequelize: Sequelize,
-  inventorySocketUseCase: SocketUseCase
+  inventoryAlertPublisher: Publisher
 ): CronJob => {
   const messageRepository = new PostgresMessageRepository(
     sequelize,
@@ -169,12 +171,12 @@ export const notificationCronJobInit = (
                   } is running out of stock: ${inventory.quantity} left`,
                 });
                 console.log('🚀 ~ message:', message);
-                inventorySocketUseCase.emit(
-                  SOCKET_NAMESPACE.INVENTORY.endpoints.LOW_INVENTORY,
-                  JSON.stringify({
+                inventoryAlertPublisher.publishMessage(
+                  QueueTypes.INVENTORY_ALERT,
+                  {
                     from: 'inventory',
                     message: inventory,
-                  })
+                  }
                 );
               }
             }
