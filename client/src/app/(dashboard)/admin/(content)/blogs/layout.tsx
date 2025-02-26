@@ -33,14 +33,14 @@ const BlogsLayout = ({ children }: BlogsLayoutPropsType) => {
   };
   const tabs: TabsProps["items"] = [
     {
-      label: "New Blogs",
-      key: ADMIN_ROUTES.blogs.create,
-      icon: <Plus className="h-4 w-4" />,
-    },
-    {
       label: "Blogs",
       key: ADMIN_ROUTES.blogs.index,
       icon: <Book className="h-4 w-4" />,
+    },
+    {
+      label: "New Blogs",
+      key: ADMIN_ROUTES.blogs.create,
+      icon: <Plus className="h-4 w-4" />,
     },
   ];
 
