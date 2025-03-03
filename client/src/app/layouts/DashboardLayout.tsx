@@ -195,6 +195,17 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
       }
     },
   );
+  useSocket(
+    socketServices.chatIo,
+    [SOCKET_EVENTS_ENDPOINT.CHAT_ADMIN_NOTIFY],
+    (data: string) => {
+      const parsedData: { from: string; message: string } = JSON.parse(data);
+      notificationApi.info({
+        message: "New message from customer",
+        description: parsedData.message,
+      });
+    },
+  );
   useEffect(() => {
     if (orderCreated?.created_at) {
       notificationApi.success({

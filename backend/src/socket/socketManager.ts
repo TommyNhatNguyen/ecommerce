@@ -102,10 +102,10 @@ export const chatNameSpaceSocketSetup = (io: Websocket): SocketUseCase => {
             user_id: data.user_id,
           });
         // Notify to admin to refetch conversation list
-        socket.emit(SOCKET_NAMESPACE.CHAT.endpoints.CHAT_ADMIN_NOTIFY, {
+        chatIo.emit(SOCKET_NAMESPACE.CHAT.endpoints.CHAT_ADMIN_NOTIFY, JSON.stringify({
           message: newMessage.content,
           user_id: data.user_id,
-        });
+        }));
       }
     );
     // Add admin to all conversation
