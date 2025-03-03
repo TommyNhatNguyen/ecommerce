@@ -73,7 +73,7 @@ Form.Input = forwardRef(
         {renderInput ? (
           renderInput({ ...props }, ref)
         ) : (
-          <div>
+          <div className="h-full w-full">
             <input
               className={cn(
                 "form__group-input h-full w-full border-none bg-transparent font-roboto-regular text-green-300 outline-none duration-300 placeholder:font-roboto-regular placeholder:text-green-300",

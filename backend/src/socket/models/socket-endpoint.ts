@@ -11,4 +11,11 @@ export const SOCKET_NAMESPACE = {
       LOW_INVENTORY: 'inventory:low_inventory',
     },
   },
+  CHAT: {
+    namespace: 'chat',
+    endpoints: {
+      CHAT_MESSAGE: 'chat:message',
+      CHAT_ADMIN_NOTIFY: 'chat:admin_notify',
+    },
+  },
 };

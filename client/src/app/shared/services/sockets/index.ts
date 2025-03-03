@@ -4,14 +4,15 @@ const URL = process.env.NEXT_PUBLIC_SOCKET_URL || "";
 
 export const socketServices = {
   socketIo: io(`${URL}`, {
-    autoConnect: true,
+    autoConnect: false,
   }),
   orderIo: io(`${URL}/order`, {
-    autoConnect: true,
+    autoConnect: false,
   }),
   inventoryIo: io(`${URL}/inventory`, {
-    autoConnect: true,
+    autoConnect: false,
+  }),
+  chatIo: io(`${URL}/chat`, {
+    autoConnect: false,
   }),
 };
-
-console.log(socketServices.orderIo);

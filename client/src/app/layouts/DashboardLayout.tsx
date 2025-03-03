@@ -174,10 +174,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   // --- ORDER NOTIFICATION ---
   useSocket(
     socketServices.orderIo,
-    [
-      SOCKET_EVENTS_ENDPOINT.ORDER_CREATED,
-      SOCKET_EVENTS_ENDPOINT.INVENTORY_LOW_INVENTORY,
-    ],
+    [SOCKET_EVENTS_ENDPOINT.ORDER_CREATED],
     (data: string) => {
       const parsedData: { from: string; message: string } = JSON.parse(data);
       console.log("🚀 ~ DashboardLayout ~ parsedData:", parsedData);

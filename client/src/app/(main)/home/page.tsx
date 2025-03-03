@@ -1,5 +1,6 @@
 import BlogSection from "@/app/(main)/home/(components)/BlogSection";
 import CategorySection from "@/app/(main)/home/(components)/CategorySection";
+import ChatBox from "@/app/(main)/home/(components)/Chatbox";
 import FAQSection from "@/app/(main)/home/(components)/FAQSection";
 import FeatureSection from "@/app/(main)/home/(components)/FeatureSection";
 import Hero from "@/app/(main)/home/(components)/Hero";
@@ -19,6 +20,7 @@ const HomePage = (props: Props) => {
       <HighlightSection />
       <BlogSection />
       <FAQSection />
+      <ChatBox />
     </>
   );
 };

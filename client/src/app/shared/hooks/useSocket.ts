@@ -14,7 +14,7 @@ export const useSocket = (
     if (!socket.connected) {
       socket.connect();
       dispatch(setIsConnected(true));
-      console.group("socket", socket.connected);
+      console.group("socket", socket);
     }
     return () => {
       socket.disconnect();

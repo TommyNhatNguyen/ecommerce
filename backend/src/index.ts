@@ -43,8 +43,14 @@ import Publisher from 'src/brokers/infras/publisher';
 import Consumer from 'src/brokers/infras/consumer';
 import RabbitMQ from 'src/brokers/infras/dto';
 import { SOCKET_NAMESPACE } from 'src/socket/models/socket-endpoint';
-import { inventoryNameSpaceSocketSetup } from 'src/socket/socketManager';
+import {
+  chatNameSpaceSocketSetup,
+  inventoryNameSpaceSocketSetup,
+} from 'src/socket/socketManager';
 import { orderNameSpaceSocketSetup } from 'src/socket/socketManager';
+import mongoose from 'mongoose';
+import { connectMongoDB } from 'src/share/mongoose';
+import { setupChat } from 'src/modules/chat';
 // ENVIRONMENT CONFIGURATION
 config();
 
@@ -57,6 +63,9 @@ config();
     console.error('Unable to connect to the database:', error);
   }
 })();
+
+// MONGO DATABASE CONNECTION CHECK
+connectMongoDB();
 
 // EXPRESS AND SOCKET.IO SETUP
 const app = express();
@@ -85,6 +94,7 @@ const inventoryAlertConsumer = new Consumer(rabbitMQ);
 // SOCKET SETUP
 const orderSocketUseCase = orderNameSpaceSocketSetup(io);
 const inventorySocketUseCase = inventoryNameSpaceSocketSetup(io);
+const chatSocketUseCase = chatNameSpaceSocketSetup(io);
 inventoryAlertConsumer.consumeMessages(
   QueueTypes.INVENTORY_ALERT,
   (message) => {
@@ -128,7 +138,7 @@ app.use('/v1', setupOptionRouter(sequelize));
 app.use('/v1', setupOptionValueRouter(sequelize));
 app.use('/v1', setupProductSellableRouter(sequelize));
 app.use('/v1', setupBlogsRouter(sequelize));
-
+app.use('/v1', setupChat());
 // DATABASE ASSOCIATIONS AND ERROR HANDLING
 initializeAssociation();
 app.use(errorHandler);

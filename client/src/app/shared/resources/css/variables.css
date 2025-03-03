@@ -8,7 +8,7 @@
   --header-height: 6rem; /* 96px */
   --input-height: 3.5rem; /* 56px */
   --btn-height: 3.5rem; /* 56px */
-  --min-btn-height: 30px;
+  --min-btn-height: 3.0rem;
   --min-input-height: calc(var(--min-btn-height) + 10px);
   --radius: 1rem; /* 16px */
 
@@ -18,6 +18,7 @@
   --green-100: rgb(79, 99, 103);
   --green-200: rgb(63, 78, 79);
   --green-300: rgb(44, 54, 57);
+  --green-300-80: rgba(44, 54, 57, 0.8);
   --pink-100: rgb(243, 209, 193);
   --pink-200: rgb(212, 165, 165);
   --gray-100: rgb(178, 162, 154);

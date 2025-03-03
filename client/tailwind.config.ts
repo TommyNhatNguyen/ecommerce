@@ -13,6 +13,7 @@ export default {
         "green-100": "var(--green-100)",
         "green-200": "var(--green-200)",
         "green-300": "var(--green-300)",
+        "green-300/80": "var(--green-300-80)",
         "pink-100": "var(--pink-100)",
         "pink-200": "var(--pink-200)",
         "gray-100": "var(--gray-100)",
