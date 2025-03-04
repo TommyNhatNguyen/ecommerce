@@ -1,27 +1,31 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Avatar, Input, Button } from "antd";
 import { SendOutlined } from "@ant-design/icons";
-
-interface Message {
-  id: number;
-  content: string;
-  timestamp: string;
-  isCustomer: boolean;
-}
-
-interface Conversation {
-  id: number;
-  customerName: string;
-  avatar: string;
-  isOnline: boolean;
-  messages: Message[];
-}
+import { IConversation, IMessage } from "@/app/shared/models/chat/chat.model";
+import { defaultImage } from "@/app/shared/resources/images/default-image";
+import InputAdmin from "@/app/shared/components/InputAdmin";
 
 interface ChatMessagesProps {
-  conversation: Conversation | null;
+  messageList: IMessage[];
+  isMessageListLoading: boolean;
+  conversation: IConversation;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ conversation }) => {
+const ChatMessages = ({
+  conversation,
+  messageList,
+  isMessageListLoading,
+}: ChatMessagesProps) => {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [conversation]);
+
   if (!conversation) {
     return (
       <div className="flex h-full items-center justify-center bg-bg-dashboard text-gray-200">
@@ -34,13 +38,15 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ conversation }) => {
     <div className="flex h-full flex-col bg-bg-dashboard">
       {/* Chat Header */}
       <div className="flex items-center gap-3 border-b border-gray-200 px-4 py-3">
-        <Avatar src={conversation.avatar} size={36} />
+        <Avatar src={conversation.sender || defaultImage} size={36} />
         <div className="flex flex-col">
           <span className="font-open-sans-medium text-sm text-text-dashboard">
-            {conversation.customerName}
+            {conversation.sender}
           </span>
           <span className="text-xs text-gray-200">
-            {conversation.isOnline ? "Active Now" : "Offline"}
+            {new Date(
+              conversation.latestMessageCreatedAt || conversation.createdAt,
+            ).toLocaleString()}
           </span>
         </div>
       </div>
@@ -48,47 +54,49 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ conversation }) => {
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4">
         <div className="flex flex-col gap-3">
-          {conversation.messages.map((message) => (
+          {messageList.map((message) => (
             <div
-              key={message.id}
-              className={`flex ${message.isCustomer ? "justify-start" : "justify-end"}`}
+              key={message._id}
+              className={`flex w-full max-w-full ${message.sender === conversation.sender ? "justify-start" : "justify-end"}`}
             >
-              <div className="flex max-w-[70%] gap-2">
-                {message.isCustomer && (
+              <div className="flex max-w-[40%] gap-2">
+                {message.sender !== conversation.sender && (
                   <Avatar
-                    src={conversation.avatar}
+                    src={conversation.sender || defaultImage}
                     size={24}
                     className="mt-1"
                   />
                 )}
-                <div className="flex flex-col gap-1">
+                <div className="flex max-w-full flex-col gap-1">
                   <div
-                    className={`rounded-2xl px-4 py-2 ${
-                      message.isCustomer
+                    className={`max-w-full whitespace-pre-wrap text-wrap break-words rounded-2xl px-4 py-2 ${
+                      message.sender === conversation.sender
                         ? "bg-bg-primary text-text-dashboard"
                         : "bg-green-200 text-custom-white"
                     }`}
                   >
-                    <p className="text-sm">{message.content}</p>
+                    <p className="max-w-full whitespace-pre-wrap text-wrap break-words text-sm">
+                      {message.content}
+                    </p>
                   </div>
                   <span className="text-xs text-gray-200">
-                    {message.timestamp}
+                    {new Date(message.createdAt).toLocaleString()}
                   </span>
                 </div>
               </div>
             </div>
           ))}
+          <div ref={messagesEndRef} />
         </div>
       </div>
 
       {/* Message Input */}
       <div className="border-t border-gray-200 p-4">
         <div className="flex gap-2">
-          <Input
+          <InputAdmin
             placeholder="Write a message..."
             className="font-open-sans-regular text-sm"
             size="large"
-            bordered={false}
             style={{ backgroundColor: "var(--bg-primary-color)" }}
           />
           <Button

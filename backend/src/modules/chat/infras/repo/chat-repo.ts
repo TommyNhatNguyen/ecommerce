@@ -46,6 +46,7 @@ export class ConversationRepo implements ConversationRepository {
       .find({
         ...condition,
       })
+      .populate('messages')
       .populate('latestMessage');
     const total = await this.conversationModel.countDocuments(condition);
     const data = await query
@@ -140,6 +141,41 @@ export class ConversationRepo implements ConversationRepository {
     conversation.latestMessage = message;
     await conversation.save();
     return conversation;
+  }
+
+  async getMessageListByConversationId(
+    conversationId: string,
+    paging: PagingDTO,
+    condition?: MessageConditionDTO
+  ): Promise<ListResponse<IMessage[]>> {
+    const page = Number(paging.page) || 1;
+    const limit = Number(paging.limit) || 10;
+    const skip = (page - 1) * limit;
+    const data = await this.conversationModel
+      .findById(conversationId)
+      .populate({
+        path: 'messages',
+        match: condition,
+        options: {
+          skip,
+          limit,
+          sort: {
+            createdAt: -1,
+          },
+        },
+      }).lean()
+      .exec();
+    const total = await this.conversationModel.countDocuments(condition);
+    const messages = data?.messages || [];
+    return {
+      data: messages as unknown as IMessage[],
+      meta: {
+        total_count: total,
+        current_page: paging.page,
+        limit: paging.limit,
+        total_page: Math.ceil(total / paging.limit),
+      },
+    };
   }
 }
 

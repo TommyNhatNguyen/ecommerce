@@ -30,6 +30,11 @@ export interface IConversationUseCase {
     data: UpdateConversationDTO
   ) => Promise<IConversation>;
   getConversationByUserId: (userId: string) => Promise<IConversation | null>;
+  getMessageListByConversationId: (
+    conversationId: string,
+    paging: PagingDTO,
+    condition?: MessageConditionDTO
+  ) => Promise<ListResponse<IMessage[]>>;
   deleteConversation: (id: string) => Promise<IConversation>;
   createMessageWithConversationId: (
     conversationId: string,
@@ -64,6 +69,11 @@ export interface ConversationRepository {
     condition?: ConversationConditionDTO
   ) => Promise<ListResponse<IConversation[]>>;
   getConversationByUserId: (userId: string) => Promise<IConversation | null>;
+  getMessageListByConversationId: (
+    conversationId: string,
+    paging: PagingDTO,
+    condition?: MessageConditionDTO
+  ) => Promise<ListResponse<IMessage[]>>;
   getConversation: (
     id: string,
     condition?: ConversationConditionDTO

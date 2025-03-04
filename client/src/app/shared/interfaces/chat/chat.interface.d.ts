@@ -36,4 +36,6 @@ export interface IMessageConditionDTO {
   content?: string;
   participants?: string[];
   createdAt?: Date;
+  limit?: number;
+  page?: number;
 }

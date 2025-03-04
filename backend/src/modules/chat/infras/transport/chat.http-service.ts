@@ -27,6 +27,40 @@ export class ChatHttpService {
     private readonly messageUseCase: IMessageUseCase
   ) {}
 
+  async getMessageListByConversationId(req: Request, res: Response) {
+    const { id } = req.params;
+    const { success, data, error } = MessageConditionDTOSchema.safeParse(
+      req.query
+    );
+    const {
+      success: pagingSuccess,
+      data: pagingData,
+      error: pagingError,
+    } = PagingDTOSchema.safeParse(req.query);
+    if (!success || !pagingSuccess) {
+      res.status(400).json({ success: false, message: error?.message });
+      return;
+    }
+    try {
+      const messageList =
+        await this.conversationUseCase.getMessageListByConversationId(
+          id,
+          pagingData,
+          data
+        );
+      res.status(200).json({
+        message: 'Get message list successfully',
+        success: true,
+        ...messageList,
+      });
+    } catch (error) {
+      console.log(error);
+      res
+        .status(500)
+        .json({ success: false, message: 'Internal server error' });
+    }
+  }
+
   async createMessageWithConversationId(req: Request, res: Response) {
     const { id } = req.params;
     const { success, data, error } = CreateMessageDTOSchema.safeParse(req.body);
@@ -35,7 +69,11 @@ export class ChatHttpService {
       return;
     }
     try {
-      const messageResponseData = await this.conversationUseCase.createMessageWithConversationId(id, data);
+      const messageResponseData =
+        await this.conversationUseCase.createMessageWithConversationId(
+          id,
+          data
+        );
       res.status(200).json({
         message: 'Create message successfully',
         success: true,

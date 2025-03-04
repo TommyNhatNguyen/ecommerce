@@ -81,6 +81,19 @@ export class ConversationUseCase implements IConversationUseCase {
       message
     );
   }
+
+  async getMessageListByConversationId(
+    conversationId: string,
+    paging: PagingDTO,
+    condition?: MessageConditionDTO
+  ): Promise<ListResponse<IMessage[]>> {
+    return this.conversationRepository.getMessageListByConversationId(
+      conversationId,
+      paging,
+      condition
+    );
+  }
+
   async createMessageWithConversationId(
     conversationId: string,
     data: CreateMessageDTO
