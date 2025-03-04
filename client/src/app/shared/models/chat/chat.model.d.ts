@@ -4,7 +4,8 @@ export interface IConversation {
   room: string;
   messages: IMessage[];
   latestMessage: IMessage;
-  createdAt: Date;
+  latestMessageCreatedAt: string;
+  createdAt: string;
 }
 
 export interface IMessage {
@@ -12,5 +13,5 @@ export interface IMessage {
   sender: string;
   participants: string[];
   content: string;
-  createdAt: Date;
+  createdAt: string;
 }

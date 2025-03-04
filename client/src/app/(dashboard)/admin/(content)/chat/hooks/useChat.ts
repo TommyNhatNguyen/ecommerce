@@ -1,14 +1,16 @@
+import { IConversation } from "@/app/shared/models/chat/chat.model";
 import { useState } from "react";
 
 export const useChat = () => {
   const [collapsed, setCollapsed] = useState<boolean>(false);
-  const [selectedConversation, setSelectedConversation] = useState<any>("");
+  const [selectedConversation, setSelectedConversation] =
+    useState<IConversation>();
 
   const handleCollapse = () => {
     setCollapsed(!collapsed);
   };
 
-  const handleSelectConversation = (conversation: any) => {
+  const handleSelectConversation = (conversation: IConversation) => {
     setSelectedConversation(conversation);
   };
 

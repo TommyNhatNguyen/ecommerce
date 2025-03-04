@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Input, Button, Avatar } from "antd";
+import { Input, Button, Avatar, Tooltip } from "antd";
 import {
   SearchOutlined,
   MenuFoldOutlined,
@@ -11,58 +11,16 @@ import { useForm } from "react-hook-form";
 import { cn } from "@/app/shared/utils/utils";
 import { useQuery } from "@tanstack/react-query";
 import { chatServices } from "@/app/shared/services/chat/chatServices";
+import { IConversation } from "@/app/shared/models/chat/chat.model";
+import { defaultImage } from "@/app/shared/resources/images/default-image";
 
 interface ChatSidebarProps {
   collapsed: boolean;
   onCollapse?: (collapsed: boolean) => void;
-  selectedConversation: string;
-  handleSelectConversation: (conversation: any) => void;
+  selectedConversation: IConversation | undefined;
+  handleSelectConversation: (conversation: IConversation) => void;
 }
 // This would typically come from your data source
-const conversations = [
-  {
-    id: 1,
-    customerName: "John Doe",
-    lastMessage: "Hello, I need help with my order",
-    timestamp: "10:30 AM",
-    avatar: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=1",
-  },
-  {
-    id: 2,
-    customerName: "Sarah Wilson",
-    lastMessage: "Thanks for your quick response!",
-    timestamp: "9:45 AM",
-    avatar: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=2",
-  },
-  {
-    id: 3,
-    customerName: "Michael Brown",
-    lastMessage: "When will my package arrive?",
-    timestamp: "Yesterday",
-    avatar: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=3",
-  },
-  {
-    id: 4,
-    customerName: "Emma Thompson",
-    lastMessage: "I'd like to request a refund for my recent purchase",
-    timestamp: "Yesterday",
-    avatar: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=4",
-  },
-  {
-    id: 5,
-    customerName: "David Garcia",
-    lastMessage: "Is this item still available in blue?",
-    timestamp: "2 days ago",
-    avatar: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=5",
-  },
-  {
-    id: 6,
-    customerName: "Lisa Anderson",
-    lastMessage: "Perfect, thank you for the information",
-    timestamp: "2 days ago",
-    avatar: "https://xsgames.co/randomusers/avatar.php?g=pixel&key=6",
-  },
-];
 const ChatSidebar = ({
   collapsed,
   onCollapse,
@@ -74,7 +32,7 @@ const ChatSidebar = ({
   const _onCollapse = () => {
     onCollapse?.(!collapsed);
   };
-  const _onSelectConversation = (conversation: any) => {
+  const _onSelectConversation = (conversation: IConversation) => {
     handleSelectConversation(conversation);
   };
 
@@ -113,51 +71,83 @@ const ChatSidebar = ({
       {/* Conversation List */}
       <div className="flex-1 overflow-y-auto">
         <div className="flex flex-col gap-2 pr-2">
-          {conversations.map((item) => (
-            <Button
-              type="text"
-              key={item.id}
-              className={cn(
-                "h-btn cursor-pointer transition-colors hover:bg-bg-primary-60",
-                selectedConversation.id === item.id && "bg-bg-primary-60",
-                collapsed
-                  ? "flex w-full items-center justify-center py-4"
-                  : "px-4 py-3",
-              )}
-              onClick={() => _onSelectConversation(item)}
-            >
-              {collapsed ? (
-                <div className="flex w-full items-center justify-center">
-                  <Avatar
-                    src={item.avatar}
-                    size={28}
-                    className="flex-shrink-0"
-                  />
-                </div>
-              ) : (
-                <div className="flex w-full items-center justify-between gap-3">
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
+          {conversationList?.data &&
+            conversationList.data.map((item) => (
+              <Button
+                type="text"
+                key={item._id}
+                className={cn(
+                  "h-btn cursor-pointer transition-colors hover:bg-bg-primary-60",
+                  selectedConversation?._id === item._id && "bg-bg-primary-60",
+                  collapsed
+                    ? "flex w-full items-center justify-center py-4"
+                    : "px-4 py-3",
+                )}
+                onClick={() => _onSelectConversation(item)}
+              >
+                {collapsed ? (
+                  <Tooltip
+                    title={
+                      <div className="flex flex-col gap-1">
+                        <p className="max-w-full text-sm text-white">
+                          <span className="font-bold">Customer name: </span>
+                          {item.sender}
+                        </p>
+                        <p className="max-w-full text-xs text-white">
+                          <span className="font-bold">Last message: </span>
+                          {new Date(
+                            item?.latestMessageCreatedAt || item.createdAt,
+                          ).toLocaleString()}
+                        </p>
+                      </div>
+                    }
+                  >
                     <Avatar
-                      src={item.avatar}
+                      src={item.sender || defaultImage}
                       size={28}
                       className="flex-shrink-0"
                     />
-                    <div className="flex min-w-0 flex-1 flex-col">
-                      <span className="truncate text-sm text-text-dashboard">
-                        {item.customerName}
+                  </Tooltip>
+                ) : (
+                  <Tooltip
+                    title={
+                      <div className="flex flex-col gap-1">
+                        <p className="max-w-full text-sm text-white">
+                          <span className="font-bold">Customer name: </span>
+                          {item.sender}
+                        </p>
+                        <p className="max-w-full text-xs text-white">
+                          <span className="font-bold">Last message: </span>
+                          {new Date(
+                            item?.latestMessageCreatedAt || item.createdAt,
+                          ).toLocaleString()}
+                        </p>
+                      </div>
+                    }
+                    className="flex max-w-full items-center gap-3"
+                  >
+                    <Avatar
+                      src={item.sender || defaultImage}
+                      size={28}
+                      className="flex-shrink-0"
+                    />
+                    <div className="flex max-w-[50%] flex-col items-start gap-1">
+                      <span className="max-w-full truncate text-sm text-text-dashboard">
+                        {item.sender}
                       </span>
-                      <span className="truncate text-xs text-gray-200">
-                        {item.lastMessage}
+                      <span className="max-w-full truncate text-xs text-gray-200">
+                        {item.latestMessage?.content || "Say hi to customer"}
                       </span>
                     </div>
-                  </div>
-                  <span className="whitespace-nowrap text-xs text-gray-200">
-                    {item.timestamp}
-                  </span>
-                </div>
-              )}
-            </Button>
-          ))}
+                    <span className="max-w-full flex-1 flex-shrink-0 truncate text-xs text-gray-200">
+                      {new Date(
+                        item?.latestMessageCreatedAt || item.createdAt,
+                      ).toLocaleString()}
+                    </span>
+                  </Tooltip>
+                )}
+              </Button>
+            ))}
         </div>
       </div>
     </div>

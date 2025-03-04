@@ -42,9 +42,11 @@ export class ConversationRepo implements ConversationRepository {
     paging: PagingDTO,
     condition?: ConversationConditionDTO
   ): Promise<ListResponse<IConversation[]>> {
-    const query = this.conversationModel.find({
-      ...condition,
-    }).populate('messages').populate('latestMessage');
+    const query = this.conversationModel
+      .find({
+        ...condition,
+      })
+      .populate('latestMessage');
     const total = await this.conversationModel.countDocuments(condition);
     const data = await query
       .skip((paging.page - 1) * paging.limit)
@@ -64,9 +66,11 @@ export class ConversationRepo implements ConversationRepository {
     id: string,
     condition?: ConversationConditionDTO
   ): Promise<IConversation | null> {
-    const query = this.conversationModel.findById(id, {
-      ...condition,
-    }).populate(`${messageModelName}s`.toLowerCase());
+    const query = this.conversationModel
+      .findById(id, {
+        ...condition,
+      })
+      .populate(`${messageModelName}s`.toLowerCase());
     console.log('🚀 ~ ConversationRepo ~ query:', query);
     const data = await query.exec();
     console.log('🚀 ~ ConversationRepo ~ data:', data);
@@ -75,9 +79,11 @@ export class ConversationRepo implements ConversationRepository {
   async getAllConversation(
     condition?: ConversationConditionDTO
   ): Promise<ListResponse<IConversation[]>> {
-    const query = this.conversationModel.find({
-      ...condition,
-    }).populate(`${messageModelName}s`.toLowerCase());
+    const query = this.conversationModel
+      .find({
+        ...condition,
+      })
+      .populate(`${messageModelName}s`.toLowerCase());
     const total = await this.conversationModel.countDocuments(condition);
     const data = await query.exec();
     return {
