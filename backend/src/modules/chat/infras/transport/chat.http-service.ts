@@ -97,7 +97,7 @@ export class ChatHttpService {
       res.status(200).json({
         message: 'Get conversation list successfully',
         success: true,
-        conversationList,
+        ...conversationList,
       });
     } catch (error) {
       console.log(error);

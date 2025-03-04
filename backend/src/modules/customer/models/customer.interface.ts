@@ -13,7 +13,7 @@ export interface ICustomerUseCase {
   getCustomerById(
     id: string,
     condition: CustomerConditionDTO
-  ): Promise<Omit<Customer, "hash_password">>;
+  ): Promise<Omit<Customer, "hash_password"> | null>;
   getCustomerList(
     paging: PagingDTO,
     condition: CustomerConditionDTO

@@ -94,7 +94,7 @@ const inventoryAlertConsumer = new Consumer(rabbitMQ);
 // SOCKET SETUP
 const orderSocketUseCase = orderNameSpaceSocketSetup(io);
 const inventorySocketUseCase = inventoryNameSpaceSocketSetup(io);
-const chatSocketUseCase = chatNameSpaceSocketSetup(io);
+const chatSocketUseCase = chatNameSpaceSocketSetup(io, sequelize);
 inventoryAlertConsumer.consumeMessages(
   QueueTypes.INVENTORY_ALERT,
   (message) => {

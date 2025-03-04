@@ -1,23 +1,23 @@
-import { compare, hash } from "bcrypt";
-import { Transaction } from "sequelize";
-import { ICartRepository } from "src/modules/cart/models/cart.interface";
+import { compare, hash } from 'bcrypt';
+import { Transaction } from 'sequelize';
+import { ICartRepository } from 'src/modules/cart/models/cart.interface';
 import {
   CustomerCreateDTO,
   CustomerUpdateDTO,
   ICustomerLoginDTO,
-} from "src/modules/customer/models/customer.dto";
-import { CustomerConditionDTO } from "src/modules/customer/models/customer.dto";
+} from 'src/modules/customer/models/customer.dto';
+import { CustomerConditionDTO } from 'src/modules/customer/models/customer.dto';
 import {
   ICustomerRepository,
   ICustomerUseCase,
-} from "src/modules/customer/models/customer.interface";
-import { Customer } from "src/modules/customer/models/customer.model";
+} from 'src/modules/customer/models/customer.interface';
+import { Customer } from 'src/modules/customer/models/customer.model';
 import {
   USER_NOT_FOUND_ERROR,
   WRONG_PASSWORD,
-} from "src/modules/user/models/user.error";
-import { ListResponse, ModelStatus } from "src/share/models/base-model";
-import { PagingDTO } from "src/share/models/paging";
+} from 'src/modules/user/models/user.error';
+import { ListResponse, ModelStatus } from 'src/share/models/base-model';
+import { PagingDTO } from 'src/share/models/paging';
 
 export class CustomerUseCase implements ICustomerUseCase {
   constructor(
@@ -35,15 +35,15 @@ export class CustomerUseCase implements ICustomerUseCase {
   }
   async loginCustomer(data: ICustomerLoginDTO): Promise<string | boolean> {
     const { username, password } = data;
-    console.log("🚀 ~ CustomerUseCase ~ loginCustomer ~ data:", data);
+    console.log('🚀 ~ CustomerUseCase ~ loginCustomer ~ data:', data);
     // Check if user exist
     const user = await this.getCustomerByUsername(username);
     if (!user) throw USER_NOT_FOUND_ERROR;
     // Check if password is correct
-    console.log("🚀 ~ CustomerUseCase ~ loginCustomer ~ user:", user);
+    console.log('🚀 ~ CustomerUseCase ~ loginCustomer ~ user:', user);
     const isCorrectPassword = await compare(password, user.hash_password);
     console.log(
-      "🚀 ~ CustomerUseCase ~ loginCustomer ~ user:",
+      '🚀 ~ CustomerUseCase ~ loginCustomer ~ user:',
       isCorrectPassword
     );
     if (!isCorrectPassword) throw WRONG_PASSWORD;
@@ -52,28 +52,37 @@ export class CustomerUseCase implements ICustomerUseCase {
   async getCustomerById(
     id: string,
     condition: CustomerConditionDTO
-  ): Promise<Omit<Customer, "hash_password">> {
-    const { hash_password, ...rest } =
-      await this.customerRepository.getCustomerById(id, condition);
-    return rest;
+  ): Promise<Omit<Customer, 'hash_password'> | null> {
+    const customerInfo = await this.customerRepository.getCustomerById(
+      id,
+      condition
+    );
+    if (customerInfo) {
+      const { hash_password, ...rest } = customerInfo;
+      return rest;
+    }
+    return null;
   }
   async getCustomerList(
     paging: PagingDTO,
     condition: CustomerConditionDTO
-  ): Promise<ListResponse<Omit<Customer, "hash_password">[]>> {
+  ): Promise<ListResponse<Omit<Customer, 'hash_password'>[]>> {
     return await this.customerRepository.getCustomerList(paging, condition);
   }
   async createCustomer(
     data: CustomerCreateDTO,
     t?: Transaction
-  ): Promise<Omit<Customer, "hash_password">> {
-    const cart = await this.cartRepository?.create({
-      product_quantity: 0,
-      product_count: 0,
-      subtotal: 0,
-      total_discount: 0,
-      total: 0,
-    }, t);
+  ): Promise<Omit<Customer, 'hash_password'>> {
+    const cart = await this.cartRepository?.create(
+      {
+        product_quantity: 0,
+        product_count: 0,
+        subtotal: 0,
+        total_discount: 0,
+        total: 0,
+      },
+      t
+    );
     if (data.password) {
       const hash_password_input = await hash(
         data.password,
@@ -92,7 +101,7 @@ export class CustomerUseCase implements ICustomerUseCase {
     id: string,
     data: CustomerUpdateDTO,
     t?: Transaction
-  ): Promise<Omit<Customer, "hash_password">> {
+  ): Promise<Omit<Customer, 'hash_password'>> {
     const { hash_password, ...rest } =
       await this.customerRepository.updateCustomer(id, data, t);
     return rest;

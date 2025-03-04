@@ -37,12 +37,14 @@ const InputAdmin = forwardRef(
   ) => {
     return (
       <div className={cn(groupClassName, "w-full")}>
-        <div className="mb-2">
-          <label className={cn("font-medium", labelClassName)}>
-            {required && <span className="text-red-500">*</span>}
-            {typeof label === "function" ? label(labelClassName) : label}
-          </label>
-        </div>
+        {label && (
+          <div className="mb-2">
+            <label className={cn("font-medium", labelClassName)}>
+              {required && <span className="text-red-500">*</span>}
+              {typeof label === "function" ? label(labelClassName) : label}
+            </label>
+          </div>
+        )}
         {customComponent ? (
           customComponent(
             {

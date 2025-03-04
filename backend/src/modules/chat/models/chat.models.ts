@@ -5,6 +5,7 @@ export interface IConversation extends Document {
   room: string;
   messages: ObjectId[];
   latestMessage: ObjectId;
+  latestMessageCreatedAt: Date;
   createdAt: Date;
 }
 
@@ -55,6 +56,11 @@ export const ConversationSchema = new Schema<IConversation>({
   latestMessage: {
     type: Schema.Types.ObjectId,
     ref: 'Message',
+  },
+  latestMessageCreatedAt: {
+    type: Date,
+    required: true,
+    default: Date.now,
   },
   createdAt: {
     type: Date,

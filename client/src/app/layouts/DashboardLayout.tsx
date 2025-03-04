@@ -34,6 +34,7 @@ import {
   LogOut,
   Book,
   Globe,
+  MessageCircle,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -75,6 +76,11 @@ const items: MenuItem[] = [
     label: "Dashboard (Coming soon)",
     icon: <LayoutDashboard size={16} />,
     disabled: true,
+  },
+  {
+    key: ADMIN_ROUTES.chat,
+    label: "Chat",
+    icon: <MessageCircle size={16} />,
   },
   {
     key: ADMIN_ROUTES.orders.index,
@@ -142,7 +148,6 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
     (state) => state.socket,
   );
   const { userInfo } = useAppSelector((state) => state.auth);
-  const { notificationList } = useAppSelector((state) => state.notification);
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   };
@@ -180,6 +185,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
       console.log("🚀 ~ DashboardLayout ~ parsedData:", parsedData);
       if (parsedData.from === "order") {
         dispatch(setOrderCreated(parsedData.message));
+        dispatch(getNotificationThunk({}));
       }
     },
   );
@@ -192,6 +198,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
       console.log("inventory low inventory", parsedData);
       if (parsedData.from === "inventory") {
         dispatch(setInventoryLowInventory(parsedData.message));
+        dispatch(getNotificationThunk({}));
       }
     },
   );
@@ -204,6 +211,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
         message: "New message from customer",
         description: parsedData.message,
       });
+      dispatch(getNotificationThunk({}));
     },
   );
   useEffect(() => {
@@ -217,14 +225,12 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
           />
         ),
       });
-      dispatch(getNotificationThunk({}));
     }
     if (inventoryLowInventory?.created_at) {
       notificationApi.success({
         message: `Inventory Is Low`,
         description: `${inventoryLowInventory.product_sellable.variant?.name} is running out of stock: ${inventoryLowInventory.quantity} left`,
       });
-      dispatch(getNotificationThunk({}));
     }
   }, [orderCreated, inventoryLowInventory]);
 

@@ -44,7 +44,7 @@ export class ConversationRepo implements ConversationRepository {
   ): Promise<ListResponse<IConversation[]>> {
     const query = this.conversationModel.find({
       ...condition,
-    }).populate(`${messageModelName}s`.toLowerCase());
+    }).populate('messages').populate('latestMessage');
     const total = await this.conversationModel.countDocuments(condition);
     const data = await query
       .skip((paging.page - 1) * paging.limit)

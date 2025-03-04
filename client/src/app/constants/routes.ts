@@ -18,6 +18,7 @@ export const ADMIN_ROUTES = {
   dashboard: "/admin/dashboard",
   register: "/admin/register",
   login: "/admin/login",
+  chat: "/admin/chat",
   blogs: {
     index: "/admin/blogs",
     create: "/admin/blogs/create",

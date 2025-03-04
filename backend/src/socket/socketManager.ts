@@ -11,6 +11,20 @@ import { MessageModel } from 'src/modules/chat/infras/repo/chat-dto';
 import { ConversationRepo } from 'src/modules/chat/infras/repo/chat-repo';
 import { ConversationModel } from 'src/modules/chat/infras/repo/chat-dto';
 import { MessageUseCase } from 'src/modules/chat/usecase/chat-usecase';
+import { Sequelize } from 'sequelize';
+import { PostgresActorRepository } from 'src/modules/messages/actor/infras/postgres/repo';
+import { PostgresMessageRepository } from 'src/modules/messages/infras/repo/postgres/repo';
+import { PostgresEntityRepository } from 'src/modules/messages/entity/infras/postgres/repo';
+import { PostgresCustomerRepository } from 'src/modules/customer/infras/repo/postgres/customer.repo';
+import { customerModelName } from 'src/modules/customer/infras/repo/postgres/customer.dto';
+import { actorModelName } from 'src/modules/messages/actor/infras/postgres/dto';
+import { entityModelName } from 'src/modules/messages/entity/infras/postgres/dto';
+import { CustomerUseCase } from 'src/modules/customer/usecase';
+import { MessageUsecase } from 'src/modules/messages/usecase';
+import { ActorType } from 'src/modules/messages/actor/models/actor.model';
+import { EntityKind } from 'src/modules/messages/entity/models/entity.model';
+import { messageModelName } from 'src/modules/messages/infras/repo/postgres/dto';
+import { v7 } from 'uuid';
 
 export const orderNameSpaceSocketSetup = (io: Websocket): SocketUseCase => {
   // Order namespace
@@ -49,7 +63,10 @@ type ChatSocketData = {
   message: string;
   user_id: string;
 };
-export const chatNameSpaceSocketSetup = (io: Websocket): SocketUseCase => {
+export const chatNameSpaceSocketSetup = (
+  io: Websocket,
+  sequelize: Sequelize
+): SocketUseCase => {
   const conversationRepo = new ConversationRepo(ConversationModel);
   const messageRepo = new MessageRepo(MessageModel);
   const messageUseCase = new MessageUseCase(messageRepo);
@@ -57,9 +74,33 @@ export const chatNameSpaceSocketSetup = (io: Websocket): SocketUseCase => {
     conversationRepo,
     messageUseCase
   );
+  const messageRepository = new PostgresMessageRepository(
+    sequelize,
+    messageModelName
+  );
+  const actorRepository = new PostgresActorRepository(
+    sequelize,
+    actorModelName
+  );
+  const entityRepository = new PostgresEntityRepository(
+    sequelize,
+    entityModelName
+  );
+  const customerRepository = new PostgresCustomerRepository(
+    sequelize,
+    customerModelName
+  );
+  const customerUseCase = new CustomerUseCase(customerRepository);
+  const messageNotificationUseCase = new MessageUsecase(
+    messageRepository,
+    actorRepository,
+    entityRepository,
+    customerUseCase
+  );
   // Chat namespace
   let currentRoomId = '';
   let currentConversationId = '';
+  let customerId = '';
   const chatIo = io.of(SOCKET_NAMESPACE.CHAT.namespace);
   const chatSocketIoAdapter = new SocketIoAdapter(chatIo);
   const chatSocketUseCase = new SocketUseCase(chatSocketIoAdapter);
@@ -72,16 +113,28 @@ export const chatNameSpaceSocketSetup = (io: Websocket): SocketUseCase => {
         const conversation = await conversationUseCase.getConversationByUserId(
           data.user_id
         );
+        // Check if customer exist in conversation
+        const customer = await customerUseCase.getCustomerById(
+          data.user_id,
+          {}
+        );
+        customerId = customer ? customer.id : v7();
+        console.log('🚀 ~ customer:', customer, data.user_id);
         if (!conversation) {
           const newConversation = await conversationUseCase.createConversation({
-            sender: data.user_id,
+            sender: customerId,
+            createdAt: new Date(),
           });
+          customerId = newConversation.sender;
+          console.log('🚀 ~ newConversation:', newConversation);
           currentRoomId = newConversation.room;
           currentConversationId = newConversation._id as string;
         } else {
           currentRoomId = conversation.room;
           currentConversationId = conversation._id as string;
         }
+        console.log('🚀 ~ conversation:', currentConversationId);
+        console.log('🚀 ~ customer:', currentRoomId);
         // Join room
         socket.join(currentRoomId);
         // Create message
@@ -90,22 +143,43 @@ export const chatNameSpaceSocketSetup = (io: Websocket): SocketUseCase => {
             currentConversationId,
             {
               content: data.message,
-              sender: data.user_id,
-              participants: [data.user_id],
+              sender: customerId,
+              participants: [customerId],
             }
           );
+        console.log('🚀 ~ newMessage:', newMessage);
+        // Update conversation
+        await conversationUseCase.updateConversation(currentConversationId, {
+          latestMessage: newMessage,
+          latestMessageCreatedAt: new Date(),
+        });
         // Send message to room
         socket
           .to(currentRoomId)
           .emit(SOCKET_NAMESPACE.CHAT.endpoints.CHAT_MESSAGE, {
             message: data.message,
-            user_id: data.user_id,
+            user_id: customerId,
           });
         // Notify to admin to refetch conversation list
-        chatIo.emit(SOCKET_NAMESPACE.CHAT.endpoints.CHAT_ADMIN_NOTIFY, JSON.stringify({
-          message: newMessage.content,
-          user_id: data.user_id,
-        }));
+        chatIo.emit(
+          SOCKET_NAMESPACE.CHAT.endpoints.CHAT_ADMIN_NOTIFY,
+          JSON.stringify({
+            message: newMessage.content,
+            user_id: customerId,
+          })
+        );
+        const message = await messageNotificationUseCase.createMessage({
+          entity_info: {
+            type: 'chat',
+            kind: EntityKind.NOTIFICATION,
+          },
+          actor_info_id: customerId,
+          actor_type: ActorType.CUSTOMER,
+          message: `A new message from ${
+            newMessage.sender
+          } at: ${new Date().toLocaleString()}`,
+        });
+        console.log('🚀 ~ message:', message);
       }
     );
     // Add admin to all conversation
