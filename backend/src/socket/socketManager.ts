@@ -73,7 +73,10 @@ export const chatNameSpaceSocketSetup = (
   io: Websocket,
   sequelize: Sequelize
 ): SocketUseCase => {
-  const conversationRepo = new ConversationRepo(ConversationModel);
+  const conversationRepo = new ConversationRepo(
+    ConversationModel,
+    MessageModel
+  );
   const messageRepo = new MessageRepo(MessageModel);
   const messageUseCase = new MessageUseCase(messageRepo);
   const conversationUseCase = new ConversationUseCase(
@@ -106,6 +109,7 @@ export const chatNameSpaceSocketSetup = (
   // Chat namespace
   let currentRoomId = '';
   let currentConversationId = '';
+  let currentConversation = null;
   let customerId = '';
   const chatIo = io.of(SOCKET_NAMESPACE.CHAT.namespace);
   const chatSocketIoAdapter = new SocketIoAdapter(chatIo);
@@ -135,9 +139,11 @@ export const chatNameSpaceSocketSetup = (
           console.log('🚀 ~ newConversation:', newConversation);
           currentRoomId = newConversation.room;
           currentConversationId = newConversation._id as string;
+          currentConversation = newConversation;
         } else {
           currentRoomId = conversation.room;
           currentConversationId = conversation._id as string;
+          currentConversation = conversation;
         }
         console.log('🚀 ~ conversation:', currentConversationId);
         console.log('🚀 ~ customer:', currentRoomId);
@@ -151,6 +157,7 @@ export const chatNameSpaceSocketSetup = (
               content: data.message,
               sender: customerId,
               participants: [customerId],
+              conversation: currentConversation,
             }
           );
         console.log('🚀 ~ newMessage:', newMessage);
@@ -194,7 +201,7 @@ export const chatNameSpaceSocketSetup = (
       SOCKET_NAMESPACE.CHAT.endpoints.CHAT_ADMIN_MESSAGE,
       async (data: ChatAdminSocketData) => {
         console.log('🚀 ~ data:', data);
-        // Join room 
+        // Join room
         if (data.message === 'join-room') {
           socket.join(data.room_id);
           socket
@@ -204,8 +211,7 @@ export const chatNameSpaceSocketSetup = (
               user_id: data.user_id,
             });
           return;
-        }
-        if (data.message === 'leave-room') {
+        } else if (data.message === 'leave-room') {
           socket.leave(data.room_id);
           socket
             .to(data.room_id)
@@ -214,30 +220,37 @@ export const chatNameSpaceSocketSetup = (
               user_id: data.user_id,
             });
           return;
-        }
-        // Create message
-        const newMessage =
-          await conversationUseCase.createMessageWithConversationId(
-            data.conversation_id,
-            {
-              content: data.message,
-              sender: data.user_id,
-              participants: [data.user_id],
-            }
+        } else {
+          const joinConversation = await conversationUseCase.getConversation(
+            data.conversation_id
           );
-        // Send message to room
-        socket
-          .to(data.room_id)
-          .emit(SOCKET_NAMESPACE.CHAT.endpoints.CHAT_MESSAGE, {
-            message: newMessage.content,
-            user_id: data.user_id,
+          console.log('🚀 ~ joinConversation:', joinConversation);
+          // Create message
+          const newMessage =
+            await conversationUseCase.createMessageWithConversationId(
+              data.conversation_id,
+              {
+                content: data.message,
+                sender: data.user_id,
+                participants: [data.user_id],
+                conversation: joinConversation,
+              }
+            );
+          // Update conversation
+          console.log('🚀 ~ newMessage:', newMessage);
+          await conversationUseCase.updateConversation(data.conversation_id, {
+            latestMessage: newMessage,
+            latestMessageCreatedAt: new Date(),
+            createdAt: new Date(),
           });
-        // Update conversation
-        await conversationUseCase.updateConversation(data.conversation_id, {
-          latestMessage: newMessage,
-          latestMessageCreatedAt: new Date(),
-          createdAt: new Date(),
-        });
+          // Send message to room
+          socket
+            .to(data.room_id)
+            .emit(SOCKET_NAMESPACE.CHAT.endpoints.CHAT_MESSAGE, {
+              message: newMessage.content,
+              user_id: data.user_id,
+            });
+        }
       }
     );
   });

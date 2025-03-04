@@ -16,23 +16,6 @@ export const useChat = () => {
     setSelectedConversation(conversation);
   };
 
-  const {
-    data: messageList,
-    isLoading: isMessageListLoading,
-    refetch: refetchMessageList,
-  } = useQuery({
-    queryKey: ["messageList", selectedConversation?._id],
-    queryFn: () =>
-      chatServices.getMessageListByConversationId(
-        selectedConversation?._id || "",
-        {
-          limit: 10,
-          page: 1,
-        },
-      ),
-    placeholderData: keepPreviousData
-  });
-
   const chatSidebarProps = {
     collapsed,
     onCollapse: handleCollapse,
@@ -41,10 +24,7 @@ export const useChat = () => {
   };
 
   const chatMessagesProps = {
-    messageList: messageList?.data || [],
-    isMessageListLoading,
     conversation: selectedConversation,
-    refetchMessageList,
   };
 
   return {

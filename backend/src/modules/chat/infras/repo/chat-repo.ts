@@ -22,7 +22,10 @@ import { messageModelName } from 'src/modules/chat/infras/repo/chat-dto';
 import { CreatedAt } from '@sequelize/core/decorators-legacy';
 
 export class ConversationRepo implements ConversationRepository {
-  constructor(private readonly conversationModel: Model<IConversation>) {}
+  constructor(
+    private readonly conversationModel: Model<IConversation>,
+    private readonly messageModel: Model<IMessage>
+  ) {}
   async getConversationByUserId(userId: string): Promise<IConversation | null> {
     const conversation = await this.conversationModel.findOne({
       sender: userId,
@@ -161,15 +164,22 @@ export class ConversationRepo implements ConversationRepository {
         path: 'messages',
         match: condition,
         options: {
-          skip,
-          limit,
           sort: {
             createdAt: -1,
           },
+          skip,
+          limit,
         },
-      }).lean()
+      })
+      .lean()
       .exec();
-    const total = await this.conversationModel.countDocuments(condition);
+
+    const total = await this.messageModel.countDocuments({
+      conversation: conversationId, // Now works correctly
+      ...condition,
+    });
+    console.log('🚀 ~ ConversationRepo ~ total:', total);
+
     const messages = data?.messages.reverse() || [];
     return {
       data: messages as unknown as IMessage[],

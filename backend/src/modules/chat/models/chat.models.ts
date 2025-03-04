@@ -14,6 +14,7 @@ export interface IMessage extends Document {
   participants: string[];
   content: string;
   createdAt: Date;
+  conversation: ObjectId;
 }
 
 export const MessageSchema = new Schema<IMessage>({
@@ -33,6 +34,11 @@ export const MessageSchema = new Schema<IMessage>({
     type: Date,
     required: true,
     default: Date.now,
+  },
+  conversation: {
+    type: Schema.Types.ObjectId,
+    ref: 'Conversation',
+    required: true,
   },
 });
 

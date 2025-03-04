@@ -9,7 +9,7 @@ export const chatServices = {
   ): Promise<ListResponseModel<IConversation>> => {
     const response = await axiosInstance.get("/conversation", {
       params: {
-        condition,
+        ...condition,
       },
     });
     return response.data;
@@ -19,7 +19,7 @@ export const chatServices = {
     condition?: IMessageConditionDTO,
   ): Promise<ListResponseModel<IMessage>> => {
     const response = await axiosInstance.get(`/conversation/${conversationId}/message`, {
-      params: { condition },
+      params: { ...condition },
     });
     return response.data;
   },

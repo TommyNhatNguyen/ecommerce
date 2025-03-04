@@ -9,7 +9,10 @@ import { ChatHttpService } from 'src/modules/chat/infras/transport/chat.http-ser
 import { Router } from 'express';
 
 export const setupChat = () => {
-  const conversationRepo = new ConversationRepo(ConversationModel);
+  const conversationRepo = new ConversationRepo(
+    ConversationModel,
+    MessageModel
+  );
   const messageRepo = new MessageRepo(MessageModel);
   const messageUseCase = new MessageUseCase(messageRepo);
   const conversationUseCase = new ConversationUseCase(

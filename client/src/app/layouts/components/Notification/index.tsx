@@ -35,14 +35,7 @@ const Notification = (props: Props) => {
       dispatch(getNotificationThunk({}));
     }
   }, []);
-  useEffect(() => {
-    if (!isShowNotification && notificationList.count_unread > 0) {
-      notificationApi.info({
-        message: "You have new notifications",
-        description: `${notificationList.count_unread} new notifications`,
-      });
-    }
-  }, [notificationList]);
+  
   return (
     <div className="relative z-50">
       <Badge count={count_unread}>

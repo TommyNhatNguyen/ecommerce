@@ -176,6 +176,20 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
       onClick: _onLogout,
     },
   ];
+  const { notificationList } = useAppSelector((state) => state.notification);
+  useEffect(() => {
+    if (notificationList.count_unread > 0) {
+      const hasShownNotification = sessionStorage.getItem('hasShownNotification');
+      if (!hasShownNotification) {
+        notificationApi.info({
+          message: "You have new notifications", 
+          description: `${notificationList.count_unread} new notifications`,
+        });
+        sessionStorage.setItem('hasShownNotification', 'true');
+      }
+    }
+  }, [notificationList]);
+
   // --- ORDER NOTIFICATION ---
   useSocket(
     socketServices.orderIo,
@@ -207,10 +221,13 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
     [SOCKET_EVENTS_ENDPOINT.CHAT_ADMIN_NOTIFY],
     (data: string) => {
       const parsedData: { from: string; message: string } = JSON.parse(data);
-      notificationApi.info({
-        message: "New message from customer",
-        description: parsedData.message,
-      });
+      console.log("🚀 ~ DashboardLayout ~ parsedData:", parsedData);
+      if (!pathname.includes(ADMIN_ROUTES.chat)) {
+        notificationApi.info({
+          message: "New message from customer",
+          description: parsedData.message,
+        });
+      }
       dispatch(getNotificationThunk({}));
     },
   );
@@ -292,7 +309,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
             </Dropdown>
           </div>
         </Header>
-        <Content className="mb-4 overflow-y-auto overflow-x-hidden p-2">
+        <Content className="mb-4 gap-4 overflow-y-auto overflow-x-hidden p-2">
           <div className="mb-4 rounded-lg bg-white px-4 py-2">
             <h1 className="text-xl font-bold capitalize">
               {currentPath.map((path) => path.toUpperCase()).join(" - ")}

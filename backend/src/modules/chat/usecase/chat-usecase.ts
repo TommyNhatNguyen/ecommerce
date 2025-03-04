@@ -48,6 +48,9 @@ export class ConversationUseCase implements IConversationUseCase {
     id: string,
     condition?: ConversationConditionDTO
   ): Promise<IConversation | null> {
+    if (!id) {
+      throw CONVERSATION_NOT_FOUND;
+    }
     return this.conversationRepository.getConversation(id, condition);
   }
 

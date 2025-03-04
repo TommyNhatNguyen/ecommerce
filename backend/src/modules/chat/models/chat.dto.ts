@@ -17,6 +17,8 @@ export const CreateMessageDTOSchema = z.object({
   participants: z.array(z.string()).optional(),
   // Create when user chat
   content: z.string(),
+  // Create when user chat
+  conversation: z.any(),
 });
 
 export const UpdateMessageDTOSchema = z.object({
@@ -26,6 +28,8 @@ export const UpdateMessageDTOSchema = z.object({
   content: z.string().optional(),
   // Update when user chat
   participants: z.array(z.string()).optional(),
+  // Update when user chat
+  conversation: z.any().optional(),
 });
 
 export const UpdateConversationDTOSchema = z.object({
@@ -53,6 +57,7 @@ export const MessageConditionDTOSchema = z.object({
   participants: z.array(z.string()).optional(),
   content: z.string().optional(),
   createdAt: z.date().optional(),
+  conversation: z.any().optional(),
 });
 
 export type CreateConversationDTO = z.infer<typeof CreateConversationDTOSchema>;

@@ -116,6 +116,7 @@ export class ChatHttpService {
     const { success, data, error } = ConversationConditionDTOSchema.safeParse(
       req.query
     );
+    
     if (!success) {
       res.status(400).json({ success: false, message: error?.message });
       return;
@@ -129,6 +130,7 @@ export class ChatHttpService {
       res.status(400).json({ success: false, message: pagingError?.message });
       return;
     }
+    console.log('🚀 ~ ChatHttpService ~ getConversationList ~ data:', req.query, req.params, data, pagingData);
     try {
       const conversationList =
         await this.conversationUseCase.getConversationList(pagingData, data);
