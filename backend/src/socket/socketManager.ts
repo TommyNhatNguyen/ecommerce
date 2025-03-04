@@ -63,6 +63,12 @@ type ChatSocketData = {
   message: string;
   user_id: string;
 };
+type ChatAdminSocketData = {
+  message: string;
+  user_id: string;
+  conversation_id: string;
+  room_id: string;
+};
 export const chatNameSpaceSocketSetup = (
   io: Websocket,
   sequelize: Sequelize
@@ -152,6 +158,7 @@ export const chatNameSpaceSocketSetup = (
         await conversationUseCase.updateConversation(currentConversationId, {
           latestMessage: newMessage,
           latestMessageCreatedAt: new Date(),
+          createdAt: new Date(),
         });
         // Send message to room
         socket
@@ -183,6 +190,56 @@ export const chatNameSpaceSocketSetup = (
       }
     );
     // Add admin to all conversation
+    socket.on(
+      SOCKET_NAMESPACE.CHAT.endpoints.CHAT_ADMIN_MESSAGE,
+      async (data: ChatAdminSocketData) => {
+        console.log('🚀 ~ data:', data);
+        // Join room 
+        if (data.message === 'join-room') {
+          socket.join(data.room_id);
+          socket
+            .to(data.room_id)
+            .emit(SOCKET_NAMESPACE.CHAT.endpoints.CHAT_MESSAGE, {
+              message: `Admin ${data.user_id} joined the room`,
+              user_id: data.user_id,
+            });
+          return;
+        }
+        if (data.message === 'leave-room') {
+          socket.leave(data.room_id);
+          socket
+            .to(data.room_id)
+            .emit(SOCKET_NAMESPACE.CHAT.endpoints.CHAT_MESSAGE, {
+              message: `Admin ${data.user_id} left the room`,
+              user_id: data.user_id,
+            });
+          return;
+        }
+        // Create message
+        const newMessage =
+          await conversationUseCase.createMessageWithConversationId(
+            data.conversation_id,
+            {
+              content: data.message,
+              sender: data.user_id,
+              participants: [data.user_id],
+            }
+          );
+        // Send message to room
+        socket
+          .to(data.room_id)
+          .emit(SOCKET_NAMESPACE.CHAT.endpoints.CHAT_MESSAGE, {
+            message: newMessage.content,
+            user_id: data.user_id,
+          });
+        // Update conversation
+        await conversationUseCase.updateConversation(data.conversation_id, {
+          latestMessage: newMessage,
+          latestMessageCreatedAt: new Date(),
+          createdAt: new Date(),
+        });
+      }
+    );
   });
   return chatSocketUseCase;
 };

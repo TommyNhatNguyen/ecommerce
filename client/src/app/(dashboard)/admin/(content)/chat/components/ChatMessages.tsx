@@ -4,26 +4,73 @@ import { SendOutlined } from "@ant-design/icons";
 import { IConversation, IMessage } from "@/app/shared/models/chat/chat.model";
 import { defaultImage } from "@/app/shared/resources/images/default-image";
 import InputAdmin from "@/app/shared/components/InputAdmin";
+import { useSocket, useSocketPush } from "@/app/shared/hooks/useSocket";
+import { SOCKET_EVENTS_ENDPOINT } from "@/app/constants/socket-endpoint";
+import { socketServices } from "@/app/shared/services/sockets";
+import { useAppSelector } from "@/app/shared/hooks/useRedux";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
 interface ChatMessagesProps {
   messageList: IMessage[];
   isMessageListLoading: boolean;
   conversation: IConversation;
+  refetchMessageList: () => void;
 }
 
 const ChatMessages = ({
   conversation,
   messageList,
-  isMessageListLoading,
 }: ChatMessagesProps) => {
+  const { register, handleSubmit, reset, control } = useForm<{
+    message: string;
+  }>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
+  const { userInfo } = useAppSelector((state) => state.auth);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const _onSendMessage: SubmitHandler<{ message: string }> = (data) => {
+    console.log("🚀 ~ data:", data);
+    useSocketPush(
+      socketServices.chatIo,
+      SOCKET_EVENTS_ENDPOINT.CHAT_ADMIN_MESSAGE,
+      {
+        conversation_id: conversation?._id || "",
+        room_id: conversation?.room || "",
+        message: data.message || "",
+        user_id: userInfo?.id || "admin",
+      },
+    );
+    reset();
+  };
+
   useEffect(() => {
-    scrollToBottom();
+    if (conversation) {
+      scrollToBottom();
+      useSocketPush(
+        socketServices.chatIo,
+        SOCKET_EVENTS_ENDPOINT.CHAT_ADMIN_MESSAGE,
+        {
+          conversation_id: conversation?._id || "",
+          room_id: conversation?.room || "",
+          message: "join-room",
+          user_id: userInfo?.id || "admin",
+        },
+      );
+    }
+    return () => {
+      useSocketPush(
+        socketServices.chatIo,
+        SOCKET_EVENTS_ENDPOINT.CHAT_ADMIN_MESSAGE,
+        {
+          conversation_id: conversation?._id || "",
+          room_id: conversation?.room || "",
+          message: "leave-room",
+          user_id: userInfo?.id || "admin",
+        },
+      );
+    };
   }, [conversation]);
 
   if (!conversation) {
@@ -52,7 +99,7 @@ const ChatMessages = ({
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 content-end overflow-y-auto p-4">
         <div className="flex flex-col gap-3">
           {messageList.map((message) => (
             <div
@@ -60,13 +107,6 @@ const ChatMessages = ({
               className={`flex w-full max-w-full ${message.sender === conversation.sender ? "justify-start" : "justify-end"}`}
             >
               <div className="flex max-w-[40%] gap-2">
-                {message.sender !== conversation.sender && (
-                  <Avatar
-                    src={conversation.sender || defaultImage}
-                    size={24}
-                    className="mt-1"
-                  />
-                )}
                 <div className="flex max-w-full flex-col gap-1">
                   <div
                     className={`max-w-full whitespace-pre-wrap text-wrap break-words rounded-2xl px-4 py-2 ${
@@ -92,17 +132,24 @@ const ChatMessages = ({
 
       {/* Message Input */}
       <div className="border-t border-gray-200 p-4">
-        <div className="flex gap-2">
-          <InputAdmin
-            placeholder="Write a message..."
-            className="font-open-sans-regular text-sm"
-            size="large"
-            style={{ backgroundColor: "var(--bg-primary-color)" }}
+        <div className="relative gap-2">
+          <Controller
+            control={control}
+            name="message"
+            render={({ field }) => (
+              <InputAdmin
+                placeholder="Write a message..."
+                size="large"
+                className="bg-bg-primary-color text-sm"
+                {...field}
+              />
+            )}
           />
           <Button
-            type="primary"
+            type="text"
             icon={<SendOutlined />}
-            className="flex h-10 w-10 items-center justify-center bg-green-200 hover:bg-green-300"
+            className="absolute right-2 top-1/2 flex h-[30px] w-[30px] -translate-y-1/2 items-center justify-center rounded-full bg-transparent text-green-300"
+            onClick={handleSubmit(_onSendMessage)}
           />
         </div>
       </div>

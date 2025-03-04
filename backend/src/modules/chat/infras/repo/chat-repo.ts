@@ -19,6 +19,7 @@ import { IConversation, IMessage } from 'src/modules/chat/models/chat.models';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { messageModelName } from 'src/modules/chat/infras/repo/chat-dto';
+import { CreatedAt } from '@sequelize/core/decorators-legacy';
 
 export class ConversationRepo implements ConversationRepository {
   constructor(private readonly conversationModel: Model<IConversation>) {}
@@ -45,6 +46,9 @@ export class ConversationRepo implements ConversationRepository {
     const query = this.conversationModel
       .find({
         ...condition,
+      })
+      .sort({
+        createdAt: -1,
       })
       .populate('messages')
       .populate('latestMessage');
@@ -166,7 +170,7 @@ export class ConversationRepo implements ConversationRepository {
       }).lean()
       .exec();
     const total = await this.conversationModel.countDocuments(condition);
-    const messages = data?.messages || [];
+    const messages = data?.messages.reverse() || [];
     return {
       data: messages as unknown as IMessage[],
       meta: {

@@ -1,6 +1,6 @@
 import { IConversation } from "@/app/shared/models/chat/chat.model";
 import { chatServices } from "@/app/shared/services/chat/chatServices";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
 export const useChat = () => {
@@ -16,7 +16,11 @@ export const useChat = () => {
     setSelectedConversation(conversation);
   };
 
-  const { data: messageList, isLoading: isMessageListLoading } = useQuery({
+  const {
+    data: messageList,
+    isLoading: isMessageListLoading,
+    refetch: refetchMessageList,
+  } = useQuery({
     queryKey: ["messageList", selectedConversation?._id],
     queryFn: () =>
       chatServices.getMessageListByConversationId(
@@ -26,6 +30,7 @@ export const useChat = () => {
           page: 1,
         },
       ),
+    placeholderData: keepPreviousData
   });
 
   const chatSidebarProps = {
@@ -39,6 +44,7 @@ export const useChat = () => {
     messageList: messageList?.data || [],
     isMessageListLoading,
     conversation: selectedConversation,
+    refetchMessageList,
   };
 
   return {

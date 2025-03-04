@@ -1,3 +1,4 @@
+import { IMessage } from "@/app/shared/models/chat/chat.model";
 import { InventoryModel } from "@/app/shared/models/inventories/inventories.model";
 import { OrderModel } from "@/app/shared/models/orders/orders.model";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
@@ -6,12 +7,14 @@ interface SocketState {
   isConnected: boolean;
   orderCreated: OrderModel;
   inventoryLowInventory: InventoryModel;
+  chatMessage: IMessage[];
 }
 
 const initialState: SocketState = {
   isConnected: false,
   orderCreated: {} as OrderModel,
   inventoryLowInventory: {} as InventoryModel,
+  chatMessage: [] as IMessage[],
 };
 
 export const socketSlice = createSlice({
@@ -41,9 +44,16 @@ export const socketSlice = createSlice({
       }
       state.inventoryLowInventory = inventory;
     },
+    setChatMessage: (state, action: PayloadAction<IMessage[]>) => {
+      state.chatMessage = action.payload;
+    },
   },
 });
 
-export const { setIsConnected, setOrderCreated, setInventoryLowInventory } =
-  socketSlice.actions;
+export const {
+  setIsConnected,
+  setOrderCreated,
+  setInventoryLowInventory,
+  setChatMessage,
+} = socketSlice.actions;
 export const socketReducer = socketSlice.reducer;
