@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, Button, Avatar, Tooltip } from "antd";
 import {
   SearchOutlined,
@@ -13,12 +13,16 @@ import { useQuery } from "@tanstack/react-query";
 import { chatServices } from "@/app/shared/services/chat/chatServices";
 import { IConversation } from "@/app/shared/models/chat/chat.model";
 import { defaultImage } from "@/app/shared/resources/images/default-image";
+import { useInView } from "react-intersection-observer";
 
 interface ChatSidebarProps {
   collapsed: boolean;
   onCollapse?: (collapsed: boolean) => void;
   selectedConversation: IConversation | undefined;
   handleSelectConversation: (conversation: IConversation) => void;
+  conversationList: IConversation[];
+  hasNextConversation: boolean;
+  fetchNextConversation: () => void;
 }
 // This would typically come from your data source
 const ChatSidebar = ({
@@ -26,25 +30,24 @@ const ChatSidebar = ({
   onCollapse,
   selectedConversation,
   handleSelectConversation,
+  conversationList,
+  hasNextConversation,
+  fetchNextConversation,
 }: ChatSidebarProps) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const { ref, inView } = useInView({
+    threshold: 0,
+  });
+  useEffect(() => {
+    if (inView && hasNextConversation) {
+      fetchNextConversation();
+    }
+  }, [inView, hasNextConversation]);
   const _onCollapse = () => {
     onCollapse?.(!collapsed);
   };
   const _onSelectConversation = (conversation: IConversation) => {
     handleSelectConversation(conversation);
   };
-
-  const { data: conversationList } = useQuery({
-    queryKey: ["conversation", currentPage, limit],
-    queryFn: () =>
-      chatServices.getConversationList({
-        page: currentPage,
-        limit,
-      }),
-  });
-  console.log("🚀 ~ conversationList:", conversationList);
 
   return (
     <div className="flex h-full flex-col">
@@ -71,8 +74,8 @@ const ChatSidebar = ({
       {/* Conversation List */}
       <div className="flex-1 overflow-y-auto">
         <div className="flex flex-col gap-2 pr-2">
-          {conversationList?.data &&
-            conversationList.data.map((item) => (
+          {conversationList &&
+            conversationList.map((item, index) => (
               <Button
                 type="text"
                 key={item._id}
@@ -84,6 +87,9 @@ const ChatSidebar = ({
                     : "px-4 py-3",
                 )}
                 onClick={() => _onSelectConversation(item)}
+                ref={
+                  index === (conversationList as any).length - 1 ? ref : null
+                }
               >
                 {collapsed ? (
                   <Tooltip

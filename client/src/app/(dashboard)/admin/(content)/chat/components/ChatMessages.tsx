@@ -15,9 +15,13 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 
 interface ChatMessagesProps {
   conversation?: IConversation;
+  refetchConversationList: () => void;
 }
 
-const ChatMessages = ({ conversation }: ChatMessagesProps) => {
+const ChatMessages = ({
+  conversation,
+  refetchConversationList,
+}: ChatMessagesProps) => {
   const [renderMessages, setRenderMessages] = useState<IMessage[]>([]);
   const { handleSubmit, reset, control } = useForm<{ message: string }>();
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -125,6 +129,8 @@ const ChatMessages = ({ conversation }: ChatMessagesProps) => {
       shouldScrollToBottom.current = true;
       scrollToBottom();
       refetch();
+      refetchConversationList();
+      console.log("🚀 ~ data:", parsedData);
     },
   );
 
@@ -143,6 +149,7 @@ const ChatMessages = ({ conversation }: ChatMessagesProps) => {
     scrollToBottom();
     setTimeout(() => {
       refetch();
+      refetchConversationList();
     }, 100);
     reset();
   };
