@@ -2,6 +2,11 @@ import { NextFunction, Request, Response } from 'express';
 import { JwtPayload, sign, verify } from 'jsonwebtoken';
 import z from 'zod';
 
+export enum JWT_TYPES_ENUM {
+  CUSTOMER = 'CUSTOMER',
+  ADMIN = 'ADMIN',
+}
+
 export const JWT_TYPES = {
   CUSTOMER: 'CUSTOMER',
   ADMIN: 'ADMIN',

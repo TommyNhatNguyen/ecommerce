@@ -1,4 +1,9 @@
-import { BaseOrder, BaseSortBy, ModelStatus, Roles } from 'src/share/models/base-model';
+import {
+  BaseOrder,
+  BaseSortBy,
+  ModelStatus,
+  Roles,
+} from 'src/share/models/base-model';
 import z from 'zod';
 
 export const IRolePermissionCreateDTOSchema = z.object({
@@ -37,8 +42,8 @@ export const IRoleConditionSchema = z.object({
   status: z.nativeEnum(ModelStatus).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
-  order: z.string().optional().default(BaseOrder.DESC),
-  sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
+  order: z.string().default(BaseOrder.DESC).optional(),
+  sortBy: z.string().default(BaseSortBy.CREATED_AT).optional(),
   include_users: z
     .string()
     .refine((value) => value === 'true' || value === 'false')

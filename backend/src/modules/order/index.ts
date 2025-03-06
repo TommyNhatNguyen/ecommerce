@@ -74,6 +74,12 @@ import { userModelName } from 'src/modules/user/infras/repo/dto';
 import { PostgresUserRepository } from 'src/modules/user/infras/repo/repo';
 import { UserUseCase } from 'src/modules/user/usecase';
 import Publisher from 'src/brokers/infras/publisher';
+import { jwtVerify } from 'src/middlewares/jwt';
+import { JWT_TYPES_ENUM } from 'src/middlewares/jwt';
+import { jwtType } from 'src/middlewares/jwt-type';
+import { validateAuthorizationRole } from 'src/middlewares/role-validation';
+import { PermissionType } from 'src/share/models/base-model';
+import { ResourcesType } from 'src/share/models/base-model';
 
 export function setupOrderRouter(
   sequelize: Sequelize,
@@ -232,7 +238,17 @@ export function setupOrderRouter(
   );
   const orderHttpService = new OrderHttpService(orderUseCase);
   router.get('/order/:id', orderHttpService.getById.bind(orderHttpService));
-  router.get('/order', orderHttpService.getList.bind(orderHttpService));
+  router.get(
+    '/order',
+    jwtType(JWT_TYPES_ENUM.ADMIN),
+    jwtVerify,
+    validateAuthorizationRole(
+      ResourcesType.ORDER,
+      PermissionType.READ,
+      sequelize
+    ),
+    orderHttpService.getList.bind(orderHttpService)
+  );
   router.post(
     '/order',
     checkJwtActor,
