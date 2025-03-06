@@ -1,7 +1,7 @@
 
 import { ListResponse } from "src/share/models/base-model";
 import { PagingDTO } from "src/share/models/paging";
-import { User } from "src/modules/user/models/user.model";
+import { LoginResponse, User } from "src/modules/user/models/user.model";
 import { IUserConditionDTO, IUserCreateDTO, IUserLoginDTO, IUserUpdateDTO } from "src/modules/user/models/user.dto";
 import { Transaction } from "sequelize";
 
@@ -15,7 +15,7 @@ export interface IUserUseCase {
   updateUser(id: string, data: IUserUpdateDTO): Promise<Omit<User, "hash_password">>;
   deleteUser(id: string): Promise<boolean>;
   getUserByUsername(username: string, condition?: IUserConditionDTO, t?: Transaction): Promise<User>;
-  login(data: IUserLoginDTO): Promise<boolean | string>;
+  login(data: IUserLoginDTO): Promise<LoginResponse>;
 }
 
 export interface IUserRepository extends IQueryRepository, ICommandRepository {}

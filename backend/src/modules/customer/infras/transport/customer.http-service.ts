@@ -12,6 +12,7 @@ import { PagingDTOSchema } from "src/share/models/paging";
 export class CustomerHttpService {
   constructor(private readonly customerUseCase: ICustomerUseCase) {}
   async getCustomerByUsername(req: CustomRequest, res: Response) {
+    console.log('🚀 ~ CustomerHttpService ~ req.data:', req.data);
     const username = req.data?.data;
     const { data: conditionData, success: conditionSuccess } =
       CustomerConditionDTOSchema.safeParse(req.query);

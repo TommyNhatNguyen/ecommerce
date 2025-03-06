@@ -1,10 +1,10 @@
-import { NextFunction, Request, Response } from "express";
-import { JwtPayload, sign, verify } from "jsonwebtoken";
-import z from "zod";
+import { NextFunction, Request, Response } from 'express';
+import { JwtPayload, sign, verify } from 'jsonwebtoken';
+import z from 'zod';
 
 export const JWT_TYPES = {
-  CUSTOMER: "CUSTOMER",
-  ADMIN: "ADMIN",
+  CUSTOMER: 'CUSTOMER',
+  ADMIN: 'ADMIN',
 };
 
 export type JWTTokenObject = {
@@ -28,20 +28,18 @@ export const RefreshTokenCreateDTOSchema = z.object({
 export type RefreshTokenCreateDTO = z.infer<typeof RefreshTokenCreateDTOSchema>;
 
 export const generateTokens = (data: any, type: string): JWTTokenObject => {
-  console.log("🚀 ~ generateTokens ~ type:", type);
-  console.log("🚀 ~ generateTokens ~ type:", data);
   let accessKey = process.env.ACCESS_JWT_PRIVATE_KEY;
   let refreshKey = process.env.REFRESH_JWT_PRIVATE_KEY;
   let accessTime = process.env.ACCESS_JWT_EXPIRE_TIME;
   let refreshTime = process.env.REFRESH_JWT_EXPIRE_TIME;
-
+  let payload = type == JWT_TYPES.ADMIN ? JSON.stringify(data) : data;
+  console.log('🚀 ~ generateTokens ~ payload:', payload);
   switch (type) {
     case JWT_TYPES.CUSTOMER:
       accessKey = process.env.CUSTOMER_ACCESS_JWT_PRIVATE_KEY;
       refreshKey = process.env.CUSTOMER_REFRESH_JWT_PRIVATE_KEY;
       accessTime = process.env.CUSTOMER_ACCESS_JWT_EXPIRE_TIME;
       refreshTime = process.env.CUSTOMER_REFRESH_JWT_EXPIRE_TIME;
-      console.log("🚀 ~ generateTokens ~ accessKey:", accessKey);
       break;
     case JWT_TYPES.ADMIN:
       accessKey = process.env.ACCESS_JWT_PRIVATE_KEY;
@@ -53,10 +51,10 @@ export const generateTokens = (data: any, type: string): JWTTokenObject => {
       break;
   }
 
-  const accessToken = sign({ data }, accessKey as string, {
+  const accessToken = sign({ payload }, accessKey as string, {
     expiresIn: accessTime,
   });
-  const refreshToken = sign({ data }, refreshKey as string, {
+  const refreshToken = sign({ payload }, refreshKey as string, {
     expiresIn: refreshTime,
   });
 
@@ -68,12 +66,27 @@ export const generateTokens = (data: any, type: string): JWTTokenObject => {
 
 export const jwtSign = (req: Request, res: Response, next: NextFunction) => {
   try {
+    let accessToken: string;
+    let refreshToken: string;
     const username = res.locals.username;
+    const role_id = res.locals.role_id;
     const type = res.locals.type;
-    const { accessToken, refreshToken } = generateTokens(username, type);
+    if (type == JWT_TYPES.ADMIN) {
+      console.log('🚀 ~ jwtSign ~ role_id:', role_id, username, type);
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+        generateTokens({ username, role_id }, type);
+      accessToken = newAccessToken;
+      refreshToken = newRefreshToken;
+    } else {
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+        generateTokens(username, type);
+      accessToken = newAccessToken;
+      refreshToken = newRefreshToken;
+    }
+
     if (accessToken && refreshToken) {
       res.status(200).send({
-        message: "Login successful",
+        message: 'Login successful',
         data: {
           accessToken,
           refreshToken,
@@ -81,7 +94,7 @@ export const jwtSign = (req: Request, res: Response, next: NextFunction) => {
       });
     } else {
       res.status(500).send({
-        messgae: "Internal server error",
+        messgae: 'Internal server error',
       });
     }
   } catch (error) {
@@ -97,7 +110,7 @@ export const jwtVerify = (
 ) => {
   try {
     const type = res.locals.type;
-    const accessToken = req.headers.authorization?.split(" ")[1] || "";
+    const accessToken = req.headers.authorization?.split(' ')[1] || '';
     let accessPrivateKey = process.env.ACCESS_JWT_PRIVATE_KEY;
     switch (type) {
       case JWT_TYPES.CUSTOMER:
@@ -111,21 +124,27 @@ export const jwtVerify = (
     }
     if (!accessToken) {
       res.status(401).send({
-        message: "Unathorized! Access denied",
+        message: 'Unathorized! Access denied',
       });
     }
     const decoded = verify(
       accessToken,
       accessPrivateKey as string
     ) as JwtPayload;
-    req.data = decoded;
+    req.data = {
+      data:
+        type == JWT_TYPES.ADMIN ? JSON.parse(decoded.payload) : decoded.payload,
+      iat: decoded.iat,
+      exp: decoded.exp,
+    };
+    console.log('🚀 ~ req.data:', req.data);
     next();
   } catch (error: any) {
-    if (error.name === "TokenExpiredError") {
-      res.status(401).json({ message: "Please log in again." });
+    if (error.name === 'TokenExpiredError') {
+      res.status(401).json({ message: 'Please log in again.' });
       return;
     }
-    res.status(401).json({ message: "Invalid token." });
+    res.status(401).json({ message: 'Invalid token.' });
     return;
   }
 };
@@ -134,7 +153,7 @@ export const jwtRefresh = (req: Request, res: Response, next: NextFunction) => {
   const { data, success } = RefreshTokenCreateDTOSchema.safeParse(req.body);
   if (!success) {
     res.status(400).send({
-      message: "Wrong payload",
+      message: 'Wrong payload',
     });
   }
   const { refreshToken } = data!;
@@ -151,15 +170,15 @@ export const jwtRefresh = (req: Request, res: Response, next: NextFunction) => {
       default:
         break;
     }
-    if (!refreshToken) res.status(400).send({ message: "Invalid request" });
+    if (!refreshToken) res.status(400).send({ message: 'Invalid request' });
     const decoded = verify(refreshToken, refreshPrivateKey) as JwtPayload;
     const username = decoded.data as string;
-    if (!decoded) res.status(403).send({ message: "Unauthorized" });
+    if (!decoded) res.status(403).send({ message: 'Unauthorized' });
     const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
       generateTokens(username, type);
     if (newAccessToken && newRefreshToken) {
       res.status(200).send({
-        message: "Successful",
+        message: 'Successful',
         data: {
           accessToken: newAccessToken,
           refreshToken: newRefreshToken,

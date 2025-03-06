@@ -28,6 +28,10 @@ export const setupUserRouter = (sequelize: Sequelize) => {
   router.post(
     "/users/login",
     userHttpService.login.bind(userHttpService),
+    (req: Request, res: Response, next: NextFunction) => {
+      res.locals.type = JWT_TYPES.ADMIN;
+      next();
+    },
     jwtSign
   );
   router.post(

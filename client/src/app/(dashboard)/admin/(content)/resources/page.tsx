@@ -98,7 +98,7 @@ export default function ResourcesPage() {
       <div className="grid h-full flex-1 grid-cols-3 gap-4 overflow-y-auto">
         {imageData?.pages.map((page) => {
           return page.data.map((image, index) => {
-            if (index === page.data.length - 1) {
+            if (index === (page.data as any).length - 1) {
               return (
                 <>
                   <Card

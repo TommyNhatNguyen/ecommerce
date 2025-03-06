@@ -88,7 +88,7 @@ const ChatSidebar = ({
                 )}
                 onClick={() => _onSelectConversation(item)}
                 ref={
-                  index === (conversationList as any).length - 1 ? ref : null
+                  index === conversationList.length - 1 ? ref : null
                 }
               >
                 {collapsed ? (

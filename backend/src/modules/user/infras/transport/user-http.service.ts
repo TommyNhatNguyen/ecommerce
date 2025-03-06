@@ -13,7 +13,7 @@ export class UserHttpService {
   constructor(private readonly userUseCase: IUserUseCase) {}
 
   async getUserByUsername(req: CustomRequest, res: Response) {
-    const username = req.data?.data;
+    const { username, role_id } = req.data?.data;
     const { data: conditionData, success: conditionSuccess } =
       IUserConditionSchema.safeParse(req.query);
     if (!conditionSuccess) {
@@ -51,9 +51,10 @@ export class UserHttpService {
       return;
     }
     try {
-      const username = await this.userUseCase.login(data);
-      if (username) {
+      const { username, role_id } = await this.userUseCase.login(data);
+      if (username && role_id) {
         res.locals.username = username;
+        res.locals.role_id = role_id;
         next();
       }
     } catch (error) {
