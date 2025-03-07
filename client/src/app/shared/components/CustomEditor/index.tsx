@@ -66,6 +66,7 @@ import {
   Delete,
   UploadResponse,
   ImageUploadEditing,
+  Editor,
 } from "ckeditor5";
 import "ckeditor5/ckeditor5.css";
 import "./style.css";
@@ -88,7 +89,7 @@ const CustomEditor = (
     editorContainerClassName,
     ...props
   }: CustomEditorPropsType,
-  ref: Ref<LegacyRef<CKEditor<ClassicEditor>>>,
+  ref: Ref<CKEditor<ClassicEditor>>,
 ) => {
   const editorContainerRef = useRef(null);
   const editorRef = useRef(null);
@@ -312,7 +313,7 @@ const CustomEditor = (
                 editor={ClassicEditor}
                 config={editorConfig}
                 {...props}
-                ref={ref as LegacyRef<CKEditor<ClassicEditor>>}
+                ref={ref}
               />
             )}
           </div>

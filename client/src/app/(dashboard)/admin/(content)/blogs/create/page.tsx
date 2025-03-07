@@ -8,12 +8,14 @@ import { IBlogsCreate } from "@/app/shared/interfaces/blogs/blogs.interface";
 import { Button, Image, Select, UploadFile } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { Editor } from "ckeditor5/src/core.js";
-import React, { useState } from "react";
+import React, { LegacyRef, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ModelStatus } from "../../../../../../../../backend/src/share/models/base-model";
 import { useAppSelector } from "@/app/shared/hooks/useRedux";
 import LoadingComponent from "@/app/shared/components/LoadingComponent";
 import { CustomerDragger } from "@/app/shared/components/CustomUploader";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import { ClassicEditor } from "ckeditor5";
 
 type BlogsPropsType = {};
 const BlogsCreate = (props: BlogsPropsType) => {
@@ -24,6 +26,7 @@ const BlogsCreate = (props: BlogsPropsType) => {
     formState: { errors },
     control,
     reset,
+    setValue,
   } = useForm<IBlogsCreate>({
     defaultValues: {
       status: ModelStatus.ACTIVE,
@@ -33,6 +36,7 @@ const BlogsCreate = (props: BlogsPropsType) => {
   const { handleCreateBlog, isCreateBlogLoading } = useBlogsCreate();
   const _onResetForm = () => {
     reset();
+    setValue("description", "");
     setImages({});
   };
   const _onCreateBlog = (data: IBlogsCreate) => {
@@ -103,15 +107,18 @@ const BlogsCreate = (props: BlogsPropsType) => {
             placeholder="Description"
             required={true}
             {...field}
-            customComponent={({ onChange, props }: any, ref: any) => (
-              <CustomEditor
-                onChange={(_: any, editor: Editor) => {
-                  field.onChange(editor.getData());
-                }}
-                {...props}
-                ref={ref}
-              />
-            )}
+            customComponent={({ onChange, props }: any, ref: any) => {
+              return (
+                <CustomEditor
+                  onChange={(_: any, editor: Editor) => {
+                    field.onChange(editor.getData());
+                  }}
+                  data={field.value}
+                  {...props}
+                  ref={ref}
+                />
+              );
+            }}
           />
         )}
       />

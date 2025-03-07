@@ -48,7 +48,6 @@ import {
   inventoryNameSpaceSocketSetup,
 } from 'src/socket/socketManager';
 import { orderNameSpaceSocketSetup } from 'src/socket/socketManager';
-import mongoose from 'mongoose';
 import { connectMongoDB } from 'src/share/mongoose';
 import { setupChat } from 'src/modules/chat';
 // ENVIRONMENT CONFIGURATION
