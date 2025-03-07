@@ -106,6 +106,10 @@ import {
   blogsModelName,
   BlogsPersistence,
 } from 'src/modules/blogs/infras/dto/blogs.dto';
+import {
+  couponModelName,
+  CouponPersistence,
+} from 'src/modules/coupon/infras/repo/postgres/coupon.dto';
 
 export const initializeAssociation = () => {
   MessagePersistence.belongsTo(ActorPersistence, {
@@ -379,6 +383,18 @@ export const initializeAssociation = () => {
     as: productSellableModelName.toLowerCase(),
   });
 
+  DiscountPersistence.hasOne(CouponPersistence, {
+    foreignKey: 'discount_id',
+    as: couponModelName.toLowerCase(),
+    onDelete: 'CASCADE',
+  });
+
+  CouponPersistence.belongsTo(DiscountPersistence, {
+    foreignKey: 'discount_id',
+    as: discountModelName.toLowerCase(),
+    onDelete: 'CASCADE',
+  });
+
   ProductSellablePersistence.belongsTo(VariantPersistence, {
     foreignKey: 'variant_id',
     as: variantModelName.toLowerCase(),
@@ -472,5 +488,4 @@ export const initializeAssociation = () => {
     foreignKey: 'user_id',
     as: userModelName.toLowerCase(),
   });
-
 };

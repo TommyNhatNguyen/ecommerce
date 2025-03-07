@@ -1,0 +1,1 @@
+export const COUPON_NOT_FOUND_ERROR = new Error('Coupon not found');
