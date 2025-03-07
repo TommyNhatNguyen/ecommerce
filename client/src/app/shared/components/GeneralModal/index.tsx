@@ -1,16 +1,17 @@
 import LoadingComponent from "@/app/shared/components/LoadingComponent";
 import { cn } from "@/lib/utils";
 import { Modal, ModalProps, Spin } from "antd";
-import { type ClassValue } from "clsx";
 import { LoaderPinwheel } from "lucide-react";
 import React from "react";
+import { ClassNameValue } from "tailwind-merge";
 
 type GeneralModalProps = {
   loading?: boolean;
   renderTitle?: () => React.ReactNode;
   renderFooter?: () => React.ReactNode;
   renderContent: () => React.ReactNode;
-  className?: ClassValue;
+  className?: ClassNameValue;
+  formContentClassName?: ClassNameValue;
 } & ModalProps;
 
 const GeneralModal = ({
@@ -18,6 +19,7 @@ const GeneralModal = ({
   renderTitle,
   renderFooter,
   renderContent,
+  formContentClassName,
   className,
   ...props
 }: GeneralModalProps) => {
@@ -31,7 +33,7 @@ const GeneralModal = ({
   };
   const _renderContent = () => {
     return (
-      <div className="form-content my-4">
+      <div className={cn("form-content my-4", formContentClassName)}>
         {renderContent()}
         <LoadingComponent isLoading={loading} />
       </div>

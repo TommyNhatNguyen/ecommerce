@@ -30,15 +30,12 @@ export default function AuthRootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  
   return (
     <html lang="en" className="--dashboard">
       <body
         className={`${openSans.variable} ${openSansMedium.variable} ${openSansBold.variable} --dashboard antialiased`}
       >
-        <StoreProvider>
-          {children}
-        </StoreProvider>
+        <StoreProvider>{children}</StoreProvider>
       </body>
     </html>
   );
