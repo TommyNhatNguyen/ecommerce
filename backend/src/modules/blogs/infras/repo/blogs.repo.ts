@@ -1,4 +1,4 @@
-import { Transaction } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
 import { Includeable, Sequelize, WhereOptions } from 'sequelize';
 import { imageModelName } from 'src/infras/repository/image/dto';
 import { ImagePersistence } from 'src/infras/repository/image/dto';
@@ -85,6 +85,11 @@ export class PostgresBlogsPersistence implements IBlogsRepository {
         offset: (page - 1) * limit,
         limit,
         order: [['created_at', 'DESC']],
+        where: {
+          status: {
+            [Op.not]: 'DELETED',
+          },
+        },
       });
       return {
         data: rows.map((row) => row.dataValues),
@@ -103,6 +108,11 @@ export class PostgresBlogsPersistence implements IBlogsRepository {
         offset: (page - 1) * limit,
         limit,
         order: [['created_at', 'DESC']],
+        where: {
+          status: {
+            [Op.not]: 'DELETED',
+          },
+        },
       });
       return {
         data: rows.map((row) => row.dataValues),

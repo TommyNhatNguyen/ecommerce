@@ -11,26 +11,27 @@ export interface IBlogsCreate {
 }
 
 export interface IBlogsUpdate {
-  title: string;
-  description: string;
-  short_description: string;
-  thumnail_url: string;
-  user_id: string;
+  title?: string;
+  description?: string;
+  short_description?: string;
+  thumnail_url?: string;
+  user_id?: string;
+  status?: ModelStatus;
 }
 
 export interface IBlogsCondition {
-  id: string;
-  title: string;
-  description: string;
-  short_description: string;
-  thumnail_url: string;
-  user_id: string;
-  status: ModelStatus;
-  created_at: string;
-  updated_at: string;
-  limit: number;
-  page: number;
-  order: OrderModel;
-  include_users: boolean;
-  include_all: boolean;
+  id?: string;
+  title?: string;
+  description?: string;
+  short_description?: string;
+  thumnail_url?: string;
+  user_id?: string;
+  status?: ModelStatus;
+  created_at?: string;
+  updated_at?: string;
+  limit?: number;
+  page?: number;
+  order?: OrderModel;
+  include_users?: boolean;
+  include_all?: boolean;
 }
