@@ -158,6 +158,11 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
     }
 
     // --- INVENTORY ---
+    console.log(
+      '🚀 ~ ProductSellableUseCase ~ createNewProductSellable ~ data:',
+      data.inventory_quantity_by_warehouse,
+      productSellable.id
+    );
     await this.inventoryUseCase.createInventory(
       {
         product_sellable_id: productSellable.id,

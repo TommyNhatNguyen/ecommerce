@@ -77,37 +77,34 @@ export class ProductUseCase implements IProductUseCase {
         }
         // --- VARIANT AND PRODUCT SELLABLE ---
         if (variants && variants.length > 0) {
-          const variantsData = await Promise.all(
-            variants.map(async (variant) => {
-              const variantData = await this.variantUseCase.createVariant(
+          for (const variant of variants) {
+            const variantData = await this.variantUseCase.createVariant(
+              {
+                ...variant.variant_data,
+                product_id: product.id,
+              },
+              t
+            );
+            console.log(
+              '🚀 ~ ProductUseCase ~ variant processing ~ variantData:',
+              variantData
+            );
+
+            const productSellableData =
+              await this.productSellableUseCase.createNewProductSellable(
                 {
-                  ...variant.variant_data,
-                  product_id: product.id,
+                  ...variant.product_sellables,
+                  variant_id: variantData.id,
                 },
                 t
               );
-              console.log("🚀 ~ ProductUseCase ~ variants.map ~ variantData:", variantData)
-              const productSellableData =
-                await this.productSellableUseCase.createNewProductSellable(
-                  {
-                    ...variant.product_sellables,
-                    variant_id: variantData.id,
-                  },
-                  t
-                );
-              return {
-                variant: variantData,
-                productSellable: productSellableData,
-              };
-            })
-          );
-          console.log(variantsData);
+          }
         }
         return product;
       });
       return result;
     } catch (error) {
-      console.log("🚀 ~ ProductUseCase ~ createNewProduct ~ error:", error)
+      console.log('🚀 ~ ProductUseCase ~ createNewProduct ~ error:', error);
       throw error;
     }
   }

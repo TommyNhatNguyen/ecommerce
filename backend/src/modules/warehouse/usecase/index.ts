@@ -33,12 +33,12 @@ export class WarehouseUseCase implements IWarehouseUsecase {
     if (!warehouse) {
       throw WAREHOUSE_NOT_FOUND;
     }
-    const payload : WarehouseUpdateDTO = {
-      ...data,
-      total_cost: warehouse.total_cost + (data?.total_cost ?? 0),
-      total_quantity: warehouse.total_quantity + (data?.total_quantity ?? 0),
-    }
-    return await this.warehouseRepository.updateWarehouse(id, payload, t);
+    const updatedWarehouse = await this.warehouseRepository.updateWarehouse(
+      id,
+      data,
+      t
+    );
+    return updatedWarehouse;
   }
   async deleteWarehouse(id: string, t?: Transaction): Promise<boolean> {
     const warehouse = await this.warehouseRepository.getWarehouseById(
