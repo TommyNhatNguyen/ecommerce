@@ -110,6 +110,7 @@ import {
   couponModelName,
   CouponPersistence,
 } from 'src/modules/coupon/infras/repo/postgres/coupon.dto';
+import { brandModelName, BrandPersistence } from 'src/modules/brand/infras/repo/brand.dto';
 
 export const initializeAssociation = () => {
   MessagePersistence.belongsTo(ActorPersistence, {
@@ -290,6 +291,16 @@ export const initializeAssociation = () => {
     through: productCategoryModelName,
     foreignKey: 'category_id',
     otherKey: 'product_id',
+    as: productModelName.toLowerCase(),
+  });
+
+  ProductPersistence.hasOne(BrandPersistence, {
+    foreignKey: 'product_id',
+    as: brandModelName.toLowerCase(),
+  });
+
+  BrandPersistence.belongsTo(ProductPersistence, {
+    foreignKey: 'product_id',
     as: productModelName.toLowerCase(),
   });
 
