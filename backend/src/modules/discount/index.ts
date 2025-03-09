@@ -9,7 +9,7 @@ import {
 import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/postgres/discount.repo';
 import { DiscountHttpService } from 'src/modules/discount/infras/transport/discount.http-service';
 import { DiscountUseCase } from 'src/modules/discount/usecase';
-import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
+import { inventoryModelName, inventoryWarehouseModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
 import { InventoryUseCase } from 'src/modules/inventory/usecase';
 import {
@@ -42,7 +42,11 @@ export const setupDiscountRouter = (sequelize: Sequelize) => {
     sequelize,
     inventoryModelName
   );
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository);
+  const inventoryWarehouseRepository = new PostgresInventoryRepository(
+    sequelize,
+    inventoryWarehouseModelName
+  );
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository);
   const discountUseCase = new DiscountUseCase(repository);
 
   const productSellableUseCase = new ProductSellableUseCase(

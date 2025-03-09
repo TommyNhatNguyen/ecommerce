@@ -3,6 +3,7 @@ import {
   InventoryConditionDTO,
   InventoryCreateDTO,
   InventoryUpdateDTO,
+  InventoryWarehouseCreateDTO,
 } from 'src/modules/inventory/models/inventory.dto';
 import {
   IInventoryRepository,
@@ -16,9 +17,12 @@ import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
 export class InventoryUseCase implements IInventoryUseCase {
-  constructor(private readonly inventoryRepository: IInventoryRepository) {}
-  async getInventoryById(id: string): Promise<Inventory> {
-    return await this.inventoryRepository.get(id);
+  constructor(
+    private readonly inventoryRepository: IInventoryRepository,
+    private readonly inventoryWarehouseRepository: IInventoryRepository
+  ) {}
+  async getInventoryById(id: string, condition?: InventoryConditionDTO): Promise<Inventory> {
+    return await this.inventoryRepository.get(id, condition);
   }
 
   async getInventoryList(
@@ -32,18 +36,45 @@ export class InventoryUseCase implements IInventoryUseCase {
     data: InventoryCreateDTO,
     t?: Transaction
   ): Promise<Inventory> {
-    // Create inventory
+    // 1. Calculate total quantity and total cost for inventory
+    const totalQuantity = data.inventory_warehouse.reduce((acc, curr) => {
+      return acc + curr.quantity;
+    }, 0);
+    const totalCost = data.inventory_warehouse.reduce((acc, curr) => {
+      return acc + Number(curr.cost) * Number(curr.quantity);
+    }, 0);
+    // 2. Create Inventory for product sellable
     const processData: InventoryCreateDTO = {
       ...data,
-      total_value: data.cost * data.quantity,
+      total_quantity: Number(totalQuantity),
+      total_cost: Number(totalCost),
       stock_status: this.determineStockStatus(
-        data.quantity ?? 0,
+        Number(totalQuantity),
         data.low_stock_threshold ?? 0
       ),
     };
     const createdInventory = await this.inventoryRepository.create(
       processData,
       t
+    );
+    // 3. Create InventoryWarehouse for inventory
+    const processInventoryWarehouseData: InventoryWarehouseCreateDTO[] =
+      data.inventory_warehouse.map((item) => ({
+        ...item,
+        inventory_id: createdInventory.id,
+      }));
+    const createdInventoryWarehouseData =
+      await this.inventoryWarehouseRepository.addInventoryWarehouse(
+        processInventoryWarehouseData,
+        t
+      );
+    console.log(
+      '🚀 ~ InventoryUseCase ~ processInventoryWarehouseData:',
+      processInventoryWarehouseData
+    );
+    console.log(
+      '🚀 ~ InventoryUseCase ~ createdInventoryWarehouseData:',
+      createdInventoryWarehouseData
     );
     return createdInventory;
   }
@@ -53,23 +84,26 @@ export class InventoryUseCase implements IInventoryUseCase {
     data: InventoryUpdateDTO,
     t?: Transaction
   ): Promise<Inventory> {
-    // Get current inventory data
+    // 1. Get current inventory data
     const currentInventory = await this.inventoryRepository.get(id);
-
-    // Prepare update payload
+    // 2. Prepare update payload
     const payload: InventoryUpdateDTO = { ...data };
-
-    // 1. Calculate total value using updated or current cost and quantity
-    const quantity = data.quantity ?? currentInventory.quantity;
-    const cost = data.cost ?? currentInventory.cost;
-    payload.total_value = cost * quantity;
-
-    // 2. Update stock status based on threshold and quantity
+    // 3. Calculate total value using updated or current cost and quantity
+    const totalQuantity =
+      data?.inventory_warehouse?.reduce((acc, curr) => {
+        return acc + (curr.quantity ?? 0);
+      }, 0) || data.total_quantity || currentInventory.total_quantity;
+    const totalCost =
+      data?.inventory_warehouse?.reduce((acc, curr) => {
+        return acc + (curr.cost ?? 0);
+      }, 0) || data.total_cost || currentInventory.total_cost;
+    payload.total_quantity = totalQuantity;
+    payload.total_cost = totalCost;
+    // 4. Update stock status based on threshold and quantity
     const threshold =
       data.low_stock_threshold ?? currentInventory.low_stock_threshold;
-    payload.stock_status = this.determineStockStatus(quantity, threshold);
-
-    // Update inventory with transaction if provided
+    payload.stock_status = this.determineStockStatus(totalQuantity, threshold);
+    // 5. Update inventory with transaction if provided
     return await this.inventoryRepository.update(id, payload, t);
   }
 

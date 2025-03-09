@@ -9,8 +9,13 @@ export class InventoryHttpService {
 
   async getInventory(req: Request, res: Response) {
     const { id } = req.params;
+    const { success, data } = InventoryConditionDTOSchema.safeParse(req.query);
+    if (!success) {
+      res.status(400).json({ message: 'Invalid condition' });
+      return;
+    }
     try {
-      const result = await this.inventoryUseCase.getInventoryById(id);
+      const result = await this.inventoryUseCase.getInventoryById(id, data);
       res.json({ message: 'Success', data: result });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
@@ -19,7 +24,9 @@ export class InventoryHttpService {
   }
   async getInventoryList(req: Request, res: Response) {
     const paging = PagingDTOSchema.safeParse(req.query);
-    const condition = InventoryConditionDTOSchema.safeParse(req.body);
+    const condition = InventoryConditionDTOSchema.safeParse(req.query);
+    console.log("🚀 ~ InventoryHttpService ~ getInventoryList ~ condition:", condition.success)
+    console.log("🚀 ~ InventoryHttpService ~ getInventoryList ~ condition:", paging.success)
     if (!paging.success || !condition.success) {
       res.status(400).json({ message: 'Invalid paging or condition' });
       return;
@@ -31,6 +38,7 @@ export class InventoryHttpService {
       );
       res.json({ message: 'Success', data: result });
     } catch (error) {
+      console.log("🚀 ~ InventoryHttpService ~ getInventoryList ~ error:", error)
       res.status(500).json({ message: 'Internal server error' });
       return;
     }

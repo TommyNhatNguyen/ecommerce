@@ -161,10 +161,8 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
     await this.inventoryUseCase.createInventory(
       {
         product_sellable_id: productSellable.id,
-        quantity: data.quantity ?? 0,
+        inventory_warehouse: data.inventory_quantity_by_warehouse ?? [],
         low_stock_threshold: data.low_stock_threshold ?? 0,
-        cost: data.cost ?? 0,
-        total_value: (data.cost ?? 0) * (data.quantity ?? 0),
       },
       t
     );

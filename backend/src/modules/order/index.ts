@@ -42,7 +42,7 @@ import cloudinary from 'src/share/cloudinary';
 import { costModelName } from 'src/modules/cost/infras/repo/postgres/cost.dto';
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
 import { InventoryUseCase } from 'src/modules/inventory/usecase';
-import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
+import { inventoryModelName, inventoryWarehouseModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
 import { ProductUseCase } from 'src/modules/products/usecase';
 import { CustomerUseCase } from 'src/modules/customer/usecase';
 import { ShippingUseCase } from 'src/modules/shipping/usecase';
@@ -158,7 +158,11 @@ export function setupOrderRouter(
     productSellableImageModelName
   );
   const discountUseCase = new DiscountUseCase(discountRepository);
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository);
+  const inventoryWarehouseRepository = new PostgresInventoryRepository(
+    sequelize,
+    inventoryWarehouseModelName
+  );
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository);
 
   const productSellableUseCase = new ProductSellableUseCase(
     productSellableRepository,

@@ -4,6 +4,7 @@ import {
   inventoryInit,
   inventoryModelName,
   inventoryWarehouseInit,
+  inventoryWarehouseModelName,
 } from 'src/modules/inventory/infras/repo/postgres/dto';
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
 import { InventoryHttpService } from 'src/modules/inventory/infras/transport/inventory.http-service';
@@ -17,7 +18,14 @@ export function setupInventoryRouter(sequelize: Sequelize) {
     sequelize,
     inventoryModelName
   );
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository);
+  const inventoryWarehouseRepository = new PostgresInventoryRepository(
+    sequelize,
+    inventoryWarehouseModelName
+  );
+  const inventoryUseCase = new InventoryUseCase(
+    inventoryRepository,
+    inventoryWarehouseRepository
+  );
   const inventoryHttpService = new InventoryHttpService(inventoryUseCase);
   router.get(
     '/inventories',

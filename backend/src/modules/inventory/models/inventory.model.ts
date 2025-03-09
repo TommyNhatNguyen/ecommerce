@@ -17,6 +17,16 @@ export enum StockStatus {
   LOW_STOCK = 'LOW_STOCK',
 }
 
+export const InventoryWarehouseSchema = z.object({
+  inventory_id: z.string().uuid(),
+  warehouse_id: z.string().uuid(),
+  quantity: z.number().min(0),
+  cost: z.number().min(0),
+  status: z.nativeEnum(ModelStatus),
+  created_at: z.date(),
+  updated_at: z.date(),
+});
+
 export const InventorySchema = z.object({
   id: z.string().uuid(),
   total_quantity: z.number().min(0),
@@ -47,3 +57,4 @@ export const InventorySchema = z.object({
   }),
 });
 export type Inventory = z.infer<typeof InventorySchema>;
+export type InventoryWarehouse = z.infer<typeof InventoryWarehouseSchema>;

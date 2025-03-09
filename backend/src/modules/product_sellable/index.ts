@@ -4,7 +4,7 @@ import { CloudinaryImageRepository } from 'src/modules/image/infras/repo/repo';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/postgres/discount.repo';
 import { DiscountUseCase } from 'src/modules/discount/usecase';
-import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
+import { inventoryModelName, inventoryWarehouseModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
 import { InventoryUseCase } from 'src/modules/inventory/usecase';
 import {
@@ -42,7 +42,11 @@ export const setupProductSellableRouter = (sequelize: Sequelize) => {
     sequelize,
     inventoryModelName
   );
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository);
+  const inventoryWarehouseRepository = new PostgresInventoryRepository(
+    sequelize,
+    inventoryWarehouseModelName
+  );
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository);
   const productSellableVariantRepository =
     new PostgresProductSellableRepository(
       sequelize,

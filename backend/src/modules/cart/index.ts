@@ -11,7 +11,7 @@ import { CartUseCase } from 'src/modules/cart/usecase';
 import { CartHttpService } from 'src/modules/cart/infras/transport/cart.http-service';
 import cloudinary from 'src/share/cloudinary';
 import { CloudinaryImageRepository } from 'src/modules/image/infras/repo/repo';
-import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
+import { inventoryModelName, inventoryWarehouseModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
 import { InventoryUseCase } from 'src/modules/inventory/usecase';
 import { PostgresProductSellableRepository } from 'src/modules/product_sellable/infras/repo/postgres/repo';
@@ -40,7 +40,11 @@ export function setupCartRouter(sequelize: Sequelize) {
     sequelize,
     inventoryModelName
   );
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository);
+  const inventoryWarehouseRepository = new PostgresInventoryRepository(
+    sequelize,
+    inventoryWarehouseModelName
+  );
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository);
   const productSellableRepository = new PostgresProductSellableRepository(
     sequelize,
     productSellableModelName

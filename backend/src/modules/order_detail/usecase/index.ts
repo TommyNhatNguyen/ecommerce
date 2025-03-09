@@ -121,22 +121,24 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
             if (!isSufficientInventory) {
               throw ORDER_DETAIL_PRODUCT_OUT_OF_STOCK_ERROR;
             } else {
-              const response = await Promise.all(
-                products.data.map(async (product) => {
-                  const orderQuantity =
-                    products_detail.find(
-                      (item) => item.id === product.variant_id
-                    )?.quantity ?? 0;
-                  return await this.inventoryUseCase.updateInventory(
-                    product.inventory?.id ?? '',
-                    {
-                      quantity:
-                        (product.inventory?.quantity ?? 0) - orderQuantity,
-                    },
-                    t
-                  );
-                })
-              );
+              // TODO: Update inventory for order
+              // const response = await Promise.all(
+              //   products.data.map(async (product) => {
+              //     const orderQuantity =
+              //       products_detail.find(
+              //         (item) => item.id === product.variant_id
+              //       )?.quantity ?? 0;
+                  
+              //     return await this.inventoryUseCase.updateInventory(
+              //       product.inventory?.id ?? '',
+              //       {
+              //         quantity:
+              //           (product.inventory?.quantity ?? 0) - orderQuantity,
+              //       },
+              //       t
+              //     );
+              //   })
+              // );
             }
             if (products.data.length !== products_detail.length) {
               throw ORDER_DETAIL_PRODUCT_ERROR;

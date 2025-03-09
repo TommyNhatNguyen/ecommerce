@@ -2,14 +2,16 @@ import { Transaction } from 'sequelize';
 import {
   InventoryConditionDTO,
   InventoryUpdateDTO,
+  InventoryWarehouseCreateDTO,
+  InventoryWarehouseUpdateDTO,
 } from 'src/modules/inventory/models/inventory.dto';
 import { InventoryCreateDTO } from 'src/modules/inventory/models/inventory.dto';
-import { Inventory } from 'src/modules/inventory/models/inventory.model';
+import { Inventory, InventoryWarehouse } from 'src/modules/inventory/models/inventory.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
 export interface IInventoryUseCase {
-  getInventoryById(id: string): Promise<Inventory>;
+  getInventoryById(id: string, condition?: InventoryConditionDTO): Promise<Inventory>;
   getInventoryList(
     paging: PagingDTO,
     condition: InventoryConditionDTO
@@ -28,10 +30,24 @@ export interface IInventoryUseCase {
 
 export interface IInventoryRepository
   extends IQueryRepository,
-    ICommandRepository {}
+    ICommandRepository {
+  addInventoryWarehouse(
+    data: InventoryWarehouseCreateDTO[],
+    t?: Transaction
+  ): Promise<InventoryWarehouse[]>;
+  updateInventoryWarehouse(
+    data: InventoryWarehouseUpdateDTO[],
+    t?: Transaction
+  ): Promise<InventoryWarehouse[]>;
+  deleteInventoryWarehouse(
+    inventory_id: string,
+    warehouse_id: string,
+    t?: Transaction
+  ): Promise<boolean>;
+}
 
 export interface IQueryRepository {
-  get(id: string): Promise<Inventory>;
+  get(id: string, condition?: InventoryConditionDTO): Promise<Inventory>;
   list(
     paging: PagingDTO,
     condition: InventoryConditionDTO

@@ -3,6 +3,7 @@ import { StockStatus } from 'src/modules/inventory/models/inventory.model';
 import { z } from 'zod';
 import { v7 as uuidv7 } from 'uuid';
 import { ProductStatsSortBy } from 'src/modules/products/models/product.dto';
+import { InventoryWarehouseCreateDTOSchema, InventoryWarehouseUpdateDTOSchema } from 'src/modules/inventory/models/inventory.dto';
 
 export const ProductSellableCreateDTOSchema = z.object({
   id: z
@@ -12,7 +13,7 @@ export const ProductSellableCreateDTOSchema = z.object({
   price: z.number().nonnegative().min(0),
   total_discounts: z.number().nonnegative().min(0).optional(),
   price_after_discounts: z.number().nonnegative().min(0).optional(),
-  quantity: z.number().nonnegative().min(0).optional(),
+  inventory_quantity_by_warehouse: z.array(InventoryWarehouseCreateDTOSchema).optional(),
   low_stock_threshold: z.number().nonnegative().min(0).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
   cost: z.number().nonnegative().min(0).optional(),
@@ -26,7 +27,7 @@ export const ProductSellableUpdateDTOSchema = z.object({
   price: z.number().nonnegative().min(0).optional(),
   total_discounts: z.number().nonnegative().min(0).optional(),
   price_after_discounts: z.number().nonnegative().min(0).optional(),
-  quantity: z.number().nonnegative().min(0).optional(),
+  inventory_quantity_by_warehouse: z.array(InventoryWarehouseUpdateDTOSchema).optional(),
   low_stock_threshold: z.number().nonnegative().min(0).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
   cost: z.number().nonnegative().min(0).optional(),

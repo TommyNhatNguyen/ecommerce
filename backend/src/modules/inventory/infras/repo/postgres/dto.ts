@@ -27,7 +27,7 @@ export const inventoryInit = (sequelize: Sequelize) => {
         defaultValue: () => uuidv7(),
       },
       total_quantity: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0,
         validate: { min: 0 },

@@ -324,7 +324,7 @@ export class PostgresProductSellableRepository
     data: ProductSellableCreateDTO,
     t?: Transaction
   ): Promise<ProductSellable> {
-    const { quantity, ...rest } = data;
+    const { inventory_quantity_by_warehouse, ...rest } = data;
     const payload = { ...rest };
     if (t) {
       const result = await this.sequelize.models[this.modelName].create(
@@ -351,7 +351,7 @@ export class PostgresProductSellableRepository
     data: ProductSellableUpdateDTO,
     t?: Transaction
   ): Promise<ProductSellable> {
-    const { discountIds, variantIds, imageIds, quantity, ...rest } = data;
+    const { discountIds, variantIds, imageIds, inventory_quantity_by_warehouse, ...rest } = data;
     const result = await this.sequelize.models[this.modelName].update(rest, {
       where: { id },
       returning: true,

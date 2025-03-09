@@ -4,7 +4,7 @@ import { CloudinaryImageRepository } from 'src/modules/image/infras/repo/repo';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/postgres/discount.repo';
 import { DiscountUseCase } from 'src/modules/discount/usecase';
-import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
+import { inventoryModelName, inventoryWarehouseModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
 import { InventoryUseCase } from 'src/modules/inventory/usecase';
 import {
@@ -57,7 +57,11 @@ export const productSellableCronJobInit = (sequelize: Sequelize): CronJob => {
     sequelize,
     inventoryModelName
   );
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository);
+  const inventoryWarehouseRepository = new PostgresInventoryRepository(
+    sequelize,
+    inventoryWarehouseModelName
+  );
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository);
   const discountRepository = new PostgresDiscountRepository(
     sequelize,
     discountModelName
@@ -137,7 +141,11 @@ export const inventoryLowStockCronJobInit = (
     sequelize,
     inventoryModelName
   );
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository);
+  const inventoryWarehouseRepository = new PostgresInventoryRepository(
+    sequelize,
+    inventoryWarehouseModelName
+  );
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository);
 
   const inventoryLowStockCronJob = new CronJob(
     '0 9 * * *', // cronTime
@@ -168,7 +176,7 @@ export const inventoryLowStockCronJobInit = (
                   actor_type: ActorType.SYSTEM,
                   message: `Updated at ${new Date().toLocaleString()}: ${
                     inventory.product_sellable.variant.name
-                  } is running out of stock: ${inventory.quantity} left`,
+                  } is running out of stock: ${inventory.total_quantity} left`,
                 });
                 console.log('🚀 ~ message:', message);
                 inventoryAlertPublisher.publishMessage(
