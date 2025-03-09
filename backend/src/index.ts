@@ -151,7 +151,7 @@ app.use(errorHandler);
 // DATABASE SYNC
 (async () => {
   try {
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: true });
     console.log('Database synced successfully.');
   } catch (error) {
     console.error('Unable to connect to the database:', error);

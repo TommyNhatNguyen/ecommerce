@@ -22,6 +22,9 @@ import { PostgresProductSellableRepository } from 'src/modules/product_sellable/
 import { ProductSellableHttpService } from 'src/modules/product_sellable/infras/transport/product-sellable.http-service';
 import { ProductSellableUseCase } from 'src/modules/product_sellable/usecase';
 import cloudinary from 'src/share/cloudinary';
+import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
+import { PostgresWarehouseRepository } from 'src/modules/warehouse/infras/repo/warehouse.repo';
+import { WarehouseUseCase } from 'src/modules/warehouse/usecase';
 
 export const setupProductSellableRouter = (sequelize: Sequelize) => {
   productSellableInit(sequelize);
@@ -46,7 +49,12 @@ export const setupProductSellableRouter = (sequelize: Sequelize) => {
     sequelize,
     inventoryWarehouseModelName
   );
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository);
+  const warehouseRepository = new PostgresWarehouseRepository(
+    sequelize,
+    warehouseModelName
+  );
+  const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository, warehouseUseCase);
   const productSellableVariantRepository =
     new PostgresProductSellableRepository(
       sequelize,

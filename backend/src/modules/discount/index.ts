@@ -19,6 +19,9 @@ import {
 import { PostgresProductSellableRepository } from 'src/modules/product_sellable/infras/repo/postgres/repo';
 import { ProductSellableUseCase } from 'src/modules/product_sellable/usecase';
 import cloudinary from 'src/share/cloudinary';
+import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
+import { PostgresWarehouseRepository } from 'src/modules/warehouse/infras/repo/warehouse.repo';
+import { WarehouseUseCase } from 'src/modules/warehouse/usecase';
 
 export const setupDiscountRouter = (sequelize: Sequelize) => {
   discountInit(sequelize);
@@ -46,7 +49,12 @@ export const setupDiscountRouter = (sequelize: Sequelize) => {
     sequelize,
     inventoryWarehouseModelName
   );
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository);
+  const warehouseRepository = new PostgresWarehouseRepository(
+    sequelize,
+    warehouseModelName
+  );
+  const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository, warehouseUseCase);
   const discountUseCase = new DiscountUseCase(repository);
 
   const productSellableUseCase = new ProductSellableUseCase(

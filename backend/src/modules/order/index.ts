@@ -80,6 +80,9 @@ import { jwtType } from 'src/middlewares/jwt-type';
 import { validateAuthorizationRole } from 'src/middlewares/role-validation';
 import { PermissionType } from 'src/share/models/base-model';
 import { ResourcesType } from 'src/share/models/base-model';
+import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
+import { PostgresWarehouseRepository } from 'src/modules/warehouse/infras/repo/warehouse.repo';
+import { WarehouseUseCase } from 'src/modules/warehouse/usecase';
 
 export function setupOrderRouter(
   sequelize: Sequelize,
@@ -162,7 +165,12 @@ export function setupOrderRouter(
     sequelize,
     inventoryWarehouseModelName
   );
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository);
+  const warehouseRepository = new PostgresWarehouseRepository(
+    sequelize,
+    warehouseModelName
+  );
+  const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository, warehouseUseCase);
 
   const productSellableUseCase = new ProductSellableUseCase(
     productSellableRepository,

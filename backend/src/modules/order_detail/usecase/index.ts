@@ -114,7 +114,7 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
                 products_detail.find((item) => item.id === product.variant_id)
                   ?.quantity ?? 0;
               return checkSufficientInventory(
-                product.inventory?.quantity ?? 0,
+                product.inventory?.total_quantity ?? 0,
                 orderQuantity
               );
             });
@@ -122,23 +122,59 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
               throw ORDER_DETAIL_PRODUCT_OUT_OF_STOCK_ERROR;
             } else {
               // TODO: Update inventory for order
-              // const response = await Promise.all(
-              //   products.data.map(async (product) => {
-              //     const orderQuantity =
-              //       products_detail.find(
-              //         (item) => item.id === product.variant_id
-              //       )?.quantity ?? 0;
-                  
-              //     return await this.inventoryUseCase.updateInventory(
-              //       product.inventory?.id ?? '',
-              //       {
-              //         quantity:
-              //           (product.inventory?.quantity ?? 0) - orderQuantity,
-              //       },
-              //       t
-              //     );
-              //   })
-              // );
+              const response = await Promise.all(
+                products.data.map(async (product) => {
+                  // 1. Get inventory Id
+                  const inventoryId = product.inventory?.id || '';
+                  // 2. Get inventory warehouse Id
+                  const warehouseId =
+                    products_detail.find(
+                      (item) => item.id === product.variant_id
+                    )?.warehouse_id || '';
+                  // 3. Get order quantity
+                  const orderQuantity =
+                    products_detail.find(
+                      (item) => item.id === product.variant_id
+                    )?.quantity ?? 0;
+                  console.log(
+                    '🚀 ~ OrderDetailUseCase ~ products.data.map ~ orderQuantity:',
+                    orderQuantity
+                  );
+                  console.log(
+                    '🚀 ~ OrderDetailUseCase ~ products.data.map ~ inventoryId:',
+                    inventoryId
+                  );
+                  console.log(
+                    '🚀 ~ OrderDetailUseCase ~ products.data.map ~ warehouseId:',
+                    warehouseId
+                  );
+                  // 4. Get quantity by inventory and warehouse
+                  const inventoryWarehouse =
+                    await this.inventoryUseCase.getInventoryByInventoryIdAndWarehouseId(
+                      inventoryId,
+                      warehouseId,
+                      t
+                    );
+                  console.log(
+                    '🚀 ~ OrderDetailUseCase ~ products.data.map ~ inventoryWarehouse:',
+                    inventoryWarehouse
+                  );
+                  // 3. Update inventory quantity
+                  return await this.inventoryUseCase.updateInventory(
+                    inventoryId,
+                    {
+                      inventory_warehouse: [
+                        {
+                          inventory_id: inventoryId,
+                          warehouse_id: warehouseId,
+                          quantity: inventoryWarehouse.quantity - orderQuantity,
+                        },
+                      ],
+                    },
+                    t
+                  );
+                })
+              );
             }
             if (products.data.length !== products_detail.length) {
               throw ORDER_DETAIL_PRODUCT_ERROR;

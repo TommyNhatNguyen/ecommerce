@@ -100,6 +100,7 @@ export class OrderUseCase implements IOrderUseCase {
             ? cart.product_sellable?.map((product) => ({
                 id: product.id,
                 quantity: product.cart_product_sellable?.quantity || 0,
+                warehouse_id: ""
               }))
             : order_detail_info.products_detail,
         order_discounts: order_detail_info.order_discounts,

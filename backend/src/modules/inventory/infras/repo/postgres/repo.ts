@@ -33,6 +33,21 @@ export class PostgresInventoryRepository implements IInventoryRepository {
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+
+  async getInventoryByInventoryIdAndWarehouseId(inventory_id: string, warehouse_id: string, t?: Transaction): Promise<InventoryWarehouse> {
+    if (t) {
+      const inventoryWarehouse = await this.sequelize.models[this.modelName].findOne({
+        where: { inventory_id, warehouse_id },
+        transaction: t,
+      });
+      return inventoryWarehouse?.dataValues;
+    }
+    const inventoryWarehouse = await this.sequelize.models[this.modelName].findOne({
+      where: { inventory_id, warehouse_id },
+    });
+    return inventoryWarehouse?.dataValues;
+  }
+
   async addInventoryWarehouse(
     data: InventoryWarehouseCreateDTO[],
     t?: Transaction

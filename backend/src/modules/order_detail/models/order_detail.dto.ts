@@ -29,6 +29,7 @@ export const OrderDetailCreateDTOSchema = z.object({
     z.object({
       id: z.string().uuid(),
       quantity: z.number(),
+      warehouse_id: z.string().uuid().optional(),
     })
   ),
   order_discounts: z.array(z.string()).optional(),

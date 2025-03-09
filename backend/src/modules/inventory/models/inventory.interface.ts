@@ -26,6 +26,11 @@ export interface IInventoryUseCase {
     t?: Transaction
   ): Promise<Inventory>;
   deleteInventory(id: string, t?: Transaction): Promise<boolean>;
+  getInventoryByInventoryIdAndWarehouseId(
+    inventory_id: string,
+    warehouse_id: string,
+    t?: Transaction
+  ): Promise<InventoryWarehouse>;
 }
 
 export interface IInventoryRepository
@@ -44,6 +49,11 @@ export interface IInventoryRepository
     warehouse_id: string,
     t?: Transaction
   ): Promise<boolean>;
+  getInventoryByInventoryIdAndWarehouseId(
+    inventory_id: string,
+    warehouse_id: string,
+    t?: Transaction
+  ): Promise<InventoryWarehouse>;
 }
 
 export interface IQueryRepository {

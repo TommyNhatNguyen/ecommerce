@@ -39,7 +39,7 @@ export const warehouseInit = (sequelize: Sequelize) => {
         allowNull: false,
       },
       total_quantity: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0,
         validate: { min: 0 },

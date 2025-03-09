@@ -25,12 +25,18 @@ import { PostgresProductSellableRepository } from 'src/modules/product_sellable/
 import { CloudinaryImageRepository } from 'src/modules/image/infras/repo/repo';
 import cloudinary from 'src/share/cloudinary';
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
-import { inventoryModelName, inventoryWarehouseModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
+import {
+  inventoryModelName,
+  inventoryWarehouseModelName,
+} from 'src/modules/inventory/infras/repo/postgres/dto';
 import { InventoryUseCase } from 'src/modules/inventory/usecase';
 import { DiscountUseCase } from 'src/modules/discount/usecase';
 import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/postgres/discount.repo';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { ProductSellableUseCase } from 'src/modules/product_sellable/usecase';
+import { PostgresWarehouseRepository } from 'src/modules/warehouse/infras/repo/warehouse.repo';
+import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
+import { WarehouseUseCase } from 'src/modules/warehouse/usecase';
 
 export const setupProductRouter = (sequelize: Sequelize) => {
   init(sequelize);
@@ -70,9 +76,15 @@ export const setupProductRouter = (sequelize: Sequelize) => {
     sequelize,
     inventoryWarehouseModelName
   );
+  const warehouseRepository = new PostgresWarehouseRepository(
+    sequelize,
+    warehouseModelName
+  );
+  const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
   const inventoryUseCase = new InventoryUseCase(
     inventoryRepository,
-    inventoryWarehouseRepository
+    inventoryWarehouseRepository,
+    warehouseUseCase
   );
   const productSellableVariantRepository =
     new PostgresProductSellableRepository(

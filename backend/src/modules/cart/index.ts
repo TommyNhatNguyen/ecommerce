@@ -25,6 +25,9 @@ import { DiscountUseCase } from 'src/modules/discount/usecase';
 import { ProductSellableUseCase } from 'src/modules/product_sellable/usecase';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/postgres/discount.repo';
+import { PostgresWarehouseRepository } from 'src/modules/warehouse/infras/repo/warehouse.repo';
+import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
+import { WarehouseUseCase } from 'src/modules/warehouse/usecase';
 
 export function setupCartRouter(sequelize: Sequelize) {
   cartInit(sequelize);
@@ -44,7 +47,12 @@ export function setupCartRouter(sequelize: Sequelize) {
     sequelize,
     inventoryWarehouseModelName
   );
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository);
+  const warehouseRepository = new PostgresWarehouseRepository(
+    sequelize,
+    warehouseModelName
+  );
+  const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository, warehouseUseCase);
   const productSellableRepository = new PostgresProductSellableRepository(
     sequelize,
     productSellableModelName

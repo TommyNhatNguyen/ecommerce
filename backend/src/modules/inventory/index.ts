@@ -9,6 +9,9 @@ import {
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
 import { InventoryHttpService } from 'src/modules/inventory/infras/transport/inventory.http-service';
 import { InventoryUseCase } from 'src/modules/inventory/usecase';
+import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
+import { PostgresWarehouseRepository } from 'src/modules/warehouse/infras/repo/warehouse.repo';
+import { WarehouseUseCase } from 'src/modules/warehouse/usecase';
 
 export function setupInventoryRouter(sequelize: Sequelize) {
   inventoryInit(sequelize);
@@ -18,13 +21,19 @@ export function setupInventoryRouter(sequelize: Sequelize) {
     sequelize,
     inventoryModelName
   );
+  const warehouseRepository = new PostgresWarehouseRepository(
+    sequelize,
+    warehouseModelName
+  );
+  const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
   const inventoryWarehouseRepository = new PostgresInventoryRepository(
     sequelize,
     inventoryWarehouseModelName
   );
   const inventoryUseCase = new InventoryUseCase(
     inventoryRepository,
-    inventoryWarehouseRepository
+    inventoryWarehouseRepository,
+    warehouseUseCase
   );
   const inventoryHttpService = new InventoryHttpService(inventoryUseCase);
   router.get(

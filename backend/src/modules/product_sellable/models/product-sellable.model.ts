@@ -28,13 +28,12 @@ export const ProductSellableSchema = z.object({
   [inventoryModelName]: z
     .object({
       id: z.string().uuid(),
-      quantity: z.number().min(0),
-      cost: z.number().min(0),
-      total_value: z.number().min(0),
-      status: z.nativeEnum(ModelStatus),
+      total_quantity: z.number().min(0),
+      total_cost: z.number().min(0),
+      stock_status: z.nativeEnum(StockStatus),
       created_at: z.date(),
       updated_at: z.date(),
-      stock_status: z.nativeEnum(StockStatus),
+      status: z.nativeEnum(ModelStatus),
       low_stock_threshold: z.number().min(0),
     })
     .optional(),

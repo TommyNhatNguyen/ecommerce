@@ -41,6 +41,9 @@ import { EntityKind } from 'src/modules/messages/entity/models/entity.model';
 import { StockStatus } from 'src/modules/inventory/models/inventory.model';
 import Publisher from 'src/brokers/infras/publisher';
 import { QueueTypes } from 'src/brokers/transport/queueTypes';
+import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
+import { PostgresWarehouseRepository } from 'src/modules/warehouse/infras/repo/warehouse.repo';
+import { WarehouseUseCase } from 'src/modules/warehouse/usecase';
 
 export const productSellableCronJobInit = (sequelize: Sequelize): CronJob => {
   const productSellableRepository = new PostgresProductSellableRepository(
@@ -61,7 +64,12 @@ export const productSellableCronJobInit = (sequelize: Sequelize): CronJob => {
     sequelize,
     inventoryWarehouseModelName
   );
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository);
+  const warehouseRepository = new PostgresWarehouseRepository(
+    sequelize,
+    warehouseModelName
+  );
+  const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository, warehouseUseCase);
   const discountRepository = new PostgresDiscountRepository(
     sequelize,
     discountModelName
@@ -145,7 +153,12 @@ export const inventoryLowStockCronJobInit = (
     sequelize,
     inventoryWarehouseModelName
   );
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository);
+  const warehouseRepository = new PostgresWarehouseRepository(
+    sequelize,
+    warehouseModelName
+  );
+  const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository, warehouseUseCase);
 
   const inventoryLowStockCronJob = new CronJob(
     '0 9 * * *', // cronTime
