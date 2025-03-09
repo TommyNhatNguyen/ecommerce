@@ -1,10 +1,6 @@
-import {
-  ImageConditionSchema,
-  ImageCreateDTOSchema,
-  ImageUpdateDTOSchema,
-} from "@models/image/image.dto";
-import { IImageUseCase } from "@models/image/image.interface";
 import { Request, Response } from "express";
+import { ImageConditionSchema, ImageCreateDTOSchema, ImageUpdateDTOSchema } from "src/modules/image/models/image.dto";
+import { IImageUseCase } from "src/modules/image/models/image.interface";
 import { PagingDTOSchema } from "src/share/models/paging";
 
 export class ImageHttpService {

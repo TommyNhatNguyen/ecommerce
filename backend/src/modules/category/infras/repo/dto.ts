@@ -1,5 +1,8 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
-import { imageModelName, ImagePersistence } from 'src/infras/repository/image/dto';
+import {
+  imageModelName,
+  ImagePersistence,
+} from 'src/modules/image/infras/repo/dto';
 import { ModelStatus } from 'src/share/models/base-model';
 
 export class CategoryPersistence extends Model {}

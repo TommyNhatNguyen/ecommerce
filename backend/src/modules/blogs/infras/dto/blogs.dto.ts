@@ -2,7 +2,7 @@ import { DataTypes, Model, Sequelize } from 'sequelize';
 import {
   imageModelName,
   ImagePersistence,
-} from 'src/infras/repository/image/dto';
+} from 'src/modules/image/infras/repo/dto';
 import { userModelName } from 'src/modules/user/infras/repo/dto';
 import { ModelStatus } from 'src/share/models/base-model';
 import { v7 as uuidv7 } from 'uuid';

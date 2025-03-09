@@ -1,8 +1,8 @@
-import { IImageCloudinaryRepository } from '@models/image/image.interface';
 import { CategoryConditionDTOSchema, CategoryCreateDTOSchema, CategoryUpdateDTOSchema } from 'src/modules/category/models/category.dto';
 import { ICategoryUseCase } from 'src/modules/category/models/category.interface';
 import { ICategoryRepository } from 'src/modules/category/models/category.interface';
 import { Category } from 'src/modules/category/models/category.model';
+import { IImageCloudinaryRepository } from 'src/modules/image/models/image.interface';
 import {
   BaseOrder,
   BaseSortBy,

@@ -5,7 +5,7 @@ import {
   categoryModelName,
 } from 'src/modules/category/infras/repo/dto';
 import PostgresCategoryRepository from 'src/modules/category/infras/repo/repo';
-import { CloudinaryImageRepository } from 'src/infras/repository/image/repo';
+import { CloudinaryImageRepository } from 'src/modules/image/infras/repo/repo';
 import { CategoryHttpService } from 'src/modules/category/infras/transport/category-http.service';
 import cloudinary from 'src/share/cloudinary';
 import { CategoryUseCase } from 'src/modules/category/usecase';

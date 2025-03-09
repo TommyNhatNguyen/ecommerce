@@ -4,7 +4,7 @@ import { Includeable, Sequelize } from 'sequelize';
 import {
   imageModelName,
   ImagePersistence,
-} from 'src/infras/repository/image/dto';
+} from 'src/modules/image/infras/repo/dto';
 import {
   CartAddProductsSellableDTO,
   CartConditionDTO,

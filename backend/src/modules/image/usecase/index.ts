@@ -1,6 +1,10 @@
-import { ImageConditionDTO, ImageCreateDTO, ImageUpdateDTO } from "@models/image/image.dto";
-import { IImageCloudinaryRepository, IImageRepository, IImageUseCase } from "@models/image/image.interface";
-import { Image } from "@models/image/image.model";
+
+import { ImageConditionDTO, ImageUpdateDTO } from "src/modules/image/models/image.dto";
+import { ImageCreateDTO } from "src/modules/image/models/image.dto";
+import { IImageCloudinaryRepository } from "src/modules/image/models/image.interface";
+import { IImageRepository } from "src/modules/image/models/image.interface";
+import { IImageUseCase } from "src/modules/image/models/image.interface";
+import { Image } from "src/modules/image/models/image.model";
 import { ListResponse } from "src/share/models/base-model";
 import { PagingDTO } from "src/share/models/paging";
 

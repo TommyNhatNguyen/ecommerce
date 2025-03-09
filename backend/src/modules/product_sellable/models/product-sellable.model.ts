@@ -1,7 +1,5 @@
-import { ImageSchema } from '@models/image/image.model';
-import { ReviewSchema } from '@models/review/review.model';
-import { imageModelName } from 'src/infras/repository/image/dto';
-import { reviewModelName } from 'src/infras/repository/review/dto';
+import { imageModelName } from 'src/modules/image/infras/repo/dto';
+import { ImageSchema } from 'src/modules/image/models/image.model';
 import { cartProductModelName } from 'src/modules/cart/infras/repo/postgres/cart.dto';
 import { CartProductSellableSchema } from 'src/modules/cart/models/cart.model';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';

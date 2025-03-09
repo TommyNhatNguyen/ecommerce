@@ -1,5 +1,4 @@
 import { IDiscountUseCase } from 'src/modules/discount/models/discount.interface';
-import { IImageCloudinaryRepository } from '@models/image/image.interface';
 import { IDiscountRepository } from 'src/modules/discount/models/discount.interface';
 import { IInventoryUseCase } from 'src/modules/inventory/models/inventory.interface';
 import { IProductSellableRepository } from 'src/modules/product_sellable/models/product-sellable.interface';
@@ -25,6 +24,7 @@ import {
 import { PRODUCT_SELLABLE_DISCOUNT_DATE_ERROR } from 'src/modules/product_sellable/models/product-sellable.error';
 import { CronJob } from 'cron';
 import { DiscountCalculatorUsecaseImpl } from 'src/modules/order_detail/usecase/DiscountCalculatorUsecase';
+import { IImageCloudinaryRepository } from 'src/modules/image/models/image.interface';
 
 export class ProductSellableUseCase implements IProductSellableUseCase {
   constructor(

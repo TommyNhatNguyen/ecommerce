@@ -9,7 +9,10 @@ import { Sequelize } from 'sequelize';
 import { PostgresProductRepository } from 'src/modules/products/infras/repo/postgres/repo';
 import { ProductUseCase } from 'src/modules/products/usecase';
 import { ProductHttpService } from 'src/modules/products/infras/transport/products.http-service';
-import { variantModelName, variantOptionValueModelName } from 'src/modules/variant/infras/repo/postgres/dto';
+import {
+  variantModelName,
+  variantOptionValueModelName,
+} from 'src/modules/variant/infras/repo/postgres/dto';
 import { PostgresVariantRepository } from 'src/modules/variant/infras/repo/postgres/repo';
 import { VariantUseCase } from 'src/modules/variant/usecase';
 import {
@@ -19,7 +22,7 @@ import {
   productSellableVariantModelName,
 } from 'src/modules/product_sellable/infras/repo/postgres/dto';
 import { PostgresProductSellableRepository } from 'src/modules/product_sellable/infras/repo/postgres/repo';
-import { CloudinaryImageRepository } from 'src/infras/repository/image/repo';
+import { CloudinaryImageRepository } from 'src/modules/image/infras/repo/repo';
 import cloudinary from 'src/share/cloudinary';
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
 import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/dto';

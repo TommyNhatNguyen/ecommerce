@@ -1,6 +1,6 @@
 import { CronJob } from 'cron';
 import { Sequelize } from 'sequelize';
-import { CloudinaryImageRepository } from 'src/infras/repository/image/repo';
+import { CloudinaryImageRepository } from 'src/modules/image/infras/repo/repo';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/postgres/discount.repo';
 import { DiscountUseCase } from 'src/modules/discount/usecase';

@@ -5,7 +5,7 @@ import { reviewModelName } from 'src/infras/repository/review/dto';
 import { ReviewSchema } from '@models/review/review.model';
 import { variantModelName } from 'src/modules/variant/infras/repo/postgres/dto';
 import { VariantSchema } from 'src/modules/variant/models/variant.model';
-import { imageModelName } from 'src/infras/repository/image/dto';
+import { imageModelName } from 'src/modules/image/infras/repo/dto';
 import { ImageSchema } from '@models/image/image.model';
 import { CategorySchema } from 'src/modules/category/models/category.model';
 

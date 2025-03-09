@@ -55,8 +55,8 @@ import {
 } from 'src/modules/variant/infras/repo/postgres/dto';
 import { VariantPersistence } from 'src/modules/variant/infras/repo/postgres/dto';
 import { reviewModelName } from 'src/infras/repository/review/dto';
-import { ImagePersistence } from 'src/infras/repository/image/dto';
-import { imageModelName } from 'src/infras/repository/image/dto';
+import { ImagePersistence } from 'src/modules/image/infras/repo/dto';
+import { imageModelName } from 'src/modules/image/infras/repo/dto';
 import { ReviewPersistence } from 'src/infras/repository/review/dto';
 import {
   inventoryModelName,

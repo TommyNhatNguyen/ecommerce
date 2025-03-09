@@ -23,7 +23,7 @@ import {
 import {
   imageModelName,
   ImagePersistence,
-} from 'src/infras/repository/image/dto';
+} from 'src/modules/image/infras/repo/dto';
 import {
   inventoryModelName,
   InventoryPersistence,

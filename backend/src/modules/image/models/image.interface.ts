@@ -1,5 +1,7 @@
-import { ImageConditionDTO, ImageCreateDTO, ImageUpdateDTO } from '@models/image/image.dto';
-import { Image } from '@models/image/image.model';
+import { ImageConditionDTO } from 'src/modules/image/models/image.dto';
+import { ImageUpdateDTO } from 'src/modules/image/models/image.dto';
+import { ImageCreateDTO } from 'src/modules/image/models/image.dto';
+import { Image } from 'src/modules/image/models/image.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { Meta, PagingDTO } from 'src/share/models/paging';
 

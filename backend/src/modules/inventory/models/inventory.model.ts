@@ -1,5 +1,4 @@
-import { ImageSchema } from '@models/image/image.model';
-import { imageModelName } from 'src/infras/repository/image/dto';
+import { imageModelName } from 'src/modules/image/infras/repo/dto';
 import { cartProductModelName } from 'src/modules/cart/infras/repo/postgres/cart.dto';
 import { CartProductSellableSchema } from 'src/modules/cart/models/cart.model';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
@@ -10,6 +9,7 @@ import { ProductSellableSchema } from 'src/modules/product_sellable/models/produ
 import { variantModelName } from 'src/modules/variant/infras/repo/postgres/dto';
 import { ModelStatus } from 'src/share/models/base-model';
 import z from 'zod';
+import { ImageSchema } from 'src/modules/image/models/image.model';
 
 export enum StockStatus {
   IN_STOCK = 'IN_STOCK',

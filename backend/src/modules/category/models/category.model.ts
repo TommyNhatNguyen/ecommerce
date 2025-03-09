@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { ModelStatus } from 'src/share/models/base-model';
-import { imageModelName } from 'src/infras/repository/image/dto';
-import { ImageSchema } from '@models/image/image.model';
+import { imageModelName } from 'src/modules/image/infras/repo/dto';
+import { ImageSchema } from 'src/modules/image/models/image.model';
 
 export const CategorySchema = z.object({
   id: z.string().uuid(),

@@ -1,14 +1,7 @@
-import {
-  ImageConditionDTO,
-  ImageCreateDTO,
-  ImageUpdateDTO,
-} from '@models/image/image.dto';
-import {
-  IImageCloudinaryRepository,
-  IImageRepository,
-} from '@models/image/image.interface';
-import { Image } from '@models/image/image.model';
 import { Op, Sequelize, where, WhereOptions } from 'sequelize';
+import { ImageConditionDTO, ImageCreateDTO, ImageUpdateDTO } from 'src/modules/image/models/image.dto';
+import { IImageCloudinaryRepository, IImageRepository } from 'src/modules/image/models/image.interface';
+import { Image } from 'src/modules/image/models/image.model';
 import {
   BaseOrder,
   BaseSortBy,

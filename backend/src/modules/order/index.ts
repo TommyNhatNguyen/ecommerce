@@ -37,7 +37,7 @@ import { PostgresPaymentMethodRepository } from 'src/modules/payment_method/infr
 import { PostgresCostRepository } from 'src/modules/cost/infras/repo/postgres/cost.repo';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/postgres/discount.repo';
-import { CloudinaryImageRepository } from 'src/infras/repository/image/repo';
+import { CloudinaryImageRepository } from 'src/modules/image/infras/repo/repo';
 import cloudinary from 'src/share/cloudinary';
 import { costModelName } from 'src/modules/cost/infras/repo/postgres/cost.dto';
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';

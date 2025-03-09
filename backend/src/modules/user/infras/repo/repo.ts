@@ -23,8 +23,8 @@ import {
   permissionModelName,
   PermissionPersistence,
 } from 'src/modules/permission/infras/repo/dto';
-import { ImagePersistence } from 'src/infras/repository/image/dto';
-import { imageModelName } from 'src/infras/repository/image/dto';
+import { ImagePersistence } from 'src/modules/image/infras/repo/dto';
+import { imageModelName } from 'src/modules/image/infras/repo/dto';
 import { Transaction } from 'sequelize';
 
 export class PostgresUserRepository implements IUserRepository {

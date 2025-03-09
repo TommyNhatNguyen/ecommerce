@@ -30,8 +30,8 @@ import {
   paymentMethodModelName,
   PaymentMethodPersistence,
 } from 'src/modules/payment_method/infras/postgres/repo/payment_method.dto';
-import { ImagePersistence } from 'src/infras/repository/image/dto';
-import { imageModelName } from 'src/infras/repository/image/dto';
+import { ImagePersistence } from 'src/modules/image/infras/repo/dto';
+import { imageModelName } from 'src/modules/image/infras/repo/dto';
 import { Op } from 'sequelize';
 import { productSellableModelName } from 'src/modules/product_sellable/infras/repo/postgres/dto';
 import { ProductSellablePersistence } from 'src/modules/product_sellable/infras/repo/postgres/dto';

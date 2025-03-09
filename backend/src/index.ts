@@ -6,7 +6,7 @@ import { sequelize } from 'src/share/sequelize';
 import { setupProductRouter } from 'src/modules/products';
 import setupCategoryRouter from 'src/modules/category';
 import { setupDiscountRouter } from 'src/modules/discount';
-import { setupImageRouter } from 'src/routers/image';
+import { setupImageRouter } from 'src/modules/image';
 import { setupInventoryRouter } from 'src/modules/inventory';
 import { setupReviewRouter } from 'src/routers/review';
 import { setupOrderRouter } from 'src/modules/order';

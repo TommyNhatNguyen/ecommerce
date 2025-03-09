@@ -20,8 +20,8 @@ import {
 import { WhereOptions } from '@sequelize/core';
 import { UserPersistence } from 'src/modules/user/infras/repo/dto';
 import { userModelName } from 'src/modules/user/infras/repo/dto';
-import { ImagePersistence } from 'src/infras/repository/image/dto';
-import { imageModelName } from 'src/infras/repository/image/dto';
+import { ImagePersistence } from 'src/modules/image/infras/repo/dto';
+import { imageModelName } from 'src/modules/image/infras/repo/dto';
 
 export class PostgresRoleRepository implements IRoleRepository {
   constructor(

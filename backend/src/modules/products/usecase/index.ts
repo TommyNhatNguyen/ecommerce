@@ -1,4 +1,3 @@
-import { IImageCloudinaryRepository } from '@models/image/image.interface';
 import {
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,

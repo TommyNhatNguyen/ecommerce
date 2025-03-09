@@ -1,7 +1,7 @@
 import { Op, Transaction } from 'sequelize';
 import { Includeable, Sequelize, WhereOptions } from 'sequelize';
-import { imageModelName } from 'src/infras/repository/image/dto';
-import { ImagePersistence } from 'src/infras/repository/image/dto';
+import { imageModelName } from 'src/modules/image/infras/repo/dto';
+import { ImagePersistence } from 'src/modules/image/infras/repo/dto';
 import {
   BlogsConditionDTOSchema,
   BlogsCreateDTOSchema,

@@ -1,10 +1,13 @@
-
 import { Op, Sequelize, where } from 'sequelize';
 import {
   imageModelName,
   ImagePersistence,
-} from 'src/infras/repository/image/dto';
-import { CategoryConditionDTOSchema, CategoryCreateDTOSchema, CategoryUpdateDTOSchema } from 'src/modules/category/models/category.dto';
+} from 'src/modules/image/infras/repo/dto';
+import {
+  CategoryConditionDTOSchema,
+  CategoryCreateDTOSchema,
+  CategoryUpdateDTOSchema,
+} from 'src/modules/category/models/category.dto';
 import { ICategoryRepository } from 'src/modules/category/models/category.interface';
 import { Category } from 'src/modules/category/models/category.model';
 import { productModelName } from 'src/modules/products/infras/repo/postgres/dto';

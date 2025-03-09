@@ -33,7 +33,7 @@ import {
 import {
   imageModelName,
   ImagePersistence,
-} from 'src/infras/repository/image/dto';
+} from 'src/modules/image/infras/repo/dto';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
 
 export class PostgresOptionRepository implements IOptionRepository {

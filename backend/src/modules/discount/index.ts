@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import { Sequelize } from 'sequelize';
-import { CloudinaryImageRepository } from 'src/infras/repository/image/repo';
+import { CloudinaryImageRepository } from 'src/modules/image/infras/repo/repo';
 import {
   discountInit,
   discountModelName,

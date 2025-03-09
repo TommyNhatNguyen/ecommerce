@@ -21,7 +21,7 @@ import {
   IUserRepository,
   IUserUseCase,
 } from 'src/modules/user/models/user.interface';
-import { IImageCloudinaryRepository } from '@models/image/image.interface';
+import { IImageCloudinaryRepository } from 'src/modules/image/models/image.interface';
 import { Transaction } from 'sequelize';
 
 export class UserUseCase implements IUserUseCase {

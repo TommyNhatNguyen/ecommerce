@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { DataTypes, Model } from 'sequelize';
-import { imageModelName } from 'src/infras/repository/image/dto';
+import { imageModelName } from 'src/modules/image/infras/repo/dto';
 import { ModelStatus } from 'src/share/models/base-model';
 import { v7 as uuidv7 } from 'uuid';
 export class UserPersistence extends Model {

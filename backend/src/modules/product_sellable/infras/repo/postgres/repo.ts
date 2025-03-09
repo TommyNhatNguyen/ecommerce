@@ -1,7 +1,7 @@
 import { Includeable, Op, WhereOptions } from 'sequelize';
 import { Sequelize } from 'sequelize';
-import { ImagePersistence } from 'src/infras/repository/image/dto';
-import { imageModelName } from 'src/infras/repository/image/dto';
+import { ImagePersistence } from 'src/modules/image/infras/repo/dto';
+import { imageModelName } from 'src/modules/image/infras/repo/dto';
 import {
   discountModelName,
   DiscountPersistence,

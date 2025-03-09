@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ModelStatus } from 'src/share/models/base-model';
-import { imageModelName } from 'src/infras/repository/image/dto';
+import { imageModelName } from 'src/modules/image/infras/repo/dto';
 import { ImageSchema } from '@models/image/image.model';
 import { userModelName } from 'src/modules/user/infras/repo/dto';
 import { UserSchema } from 'src/modules/user/models/user.model';
