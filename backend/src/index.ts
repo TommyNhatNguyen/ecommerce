@@ -4,7 +4,7 @@ import { config } from 'dotenv';
 import path from 'path';
 import { sequelize } from 'src/share/sequelize';
 import { setupProductRouter } from 'src/modules/products';
-import setupCategoryRouter from 'src/routers/category';
+import setupCategoryRouter from 'src/modules/category';
 import { setupDiscountRouter } from 'src/modules/discount';
 import { setupImageRouter } from 'src/routers/image';
 import { setupInventoryRouter } from 'src/modules/inventory';
@@ -147,7 +147,7 @@ app.use(errorHandler);
 // DATABASE SYNC
 (async () => {
   try {
-    await sequelize.sync({ alter: true });
+    await sequelize.sync({ force: true });
     console.log('Database synced successfully.');
   } catch (error) {
     console.error('Unable to connect to the database:', error);

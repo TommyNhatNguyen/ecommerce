@@ -24,6 +24,7 @@ export function init(sequelize: Sequelize) {
       name: { type: DataTypes.STRING, allowNull: false },
       description: { type: DataTypes.TEXT, allowNull: true },
       short_description: { type: DataTypes.TEXT, allowNull: true },
+      sku: { type: DataTypes.STRING, allowNull: false },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
         allowNull: false,

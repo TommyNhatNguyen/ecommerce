@@ -1,7 +1,5 @@
-import { CategorySchema } from '@models/category/category.model';
 import { ImageSchema } from '@models/image/image.model';
 import { ReviewSchema } from '@models/review/review.model';
-import { categoryModelName } from 'src/infras/repository/category/dto';
 import { imageModelName } from 'src/infras/repository/image/dto';
 import { reviewModelName } from 'src/infras/repository/review/dto';
 import { cartProductModelName } from 'src/modules/cart/infras/repo/postgres/cart.dto';

@@ -13,6 +13,7 @@ export const VariantConditionDTOSchema = z.object({
   sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
   option_value_ids: z.array(z.string()).optional(),
   product_id: z.string().uuid().optional(),
+  sku: z.string().optional(),
   include_options_value: z
     .string()
     .refine((value) => value === 'true' || value === 'false')
@@ -39,6 +40,7 @@ export const VariantCreateDTOSchema = z.object({
   name: z.string(),
   options_value_ids: z.array(z.string()),
   product_id: z.string().uuid().optional(),
+  sku: z.string(),
 });
 
 export const VariantUpdateDTOSchema = z.object({
@@ -46,6 +48,7 @@ export const VariantUpdateDTOSchema = z.object({
   status: z.nativeEnum(ModelStatus).optional(),
   options_value_ids: z.array(z.string()).optional(),
   product_id: z.string().uuid().optional(),
+  sku: z.string().optional(),
 });
 
 export const VariantOptionValueCreateDTOSchema = z.object({

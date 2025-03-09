@@ -1,11 +1,8 @@
-import {
-  CategoryConditionDTOSchema,
-  CategoryCreateDTOSchema,
-  CategoryUpdateDTOSchema,
-} from '@models/category/category.dto';
-import { ICategoryUseCase } from '@models/category/category.interface';
 import { Request, Response } from 'express';
 import { PagingDTOSchema } from 'src/share/models/paging';
+import { ICategoryUseCase } from 'src/modules/category/models/category.interface';
+import { CategoryConditionDTOSchema, CategoryUpdateDTOSchema } from 'src/modules/category/models/category.dto';
+import { CategoryCreateDTOSchema } from 'src/modules/category/models/category.dto';
 
 export class CategoryHttpService {
   constructor(private readonly useCase: ICategoryUseCase) {}

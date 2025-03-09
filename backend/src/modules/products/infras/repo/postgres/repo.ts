@@ -3,7 +3,7 @@ import { Sequelize, Op, Model, Includeable, WhereOptions } from 'sequelize';
 import {
   categoryModelName,
   CategoryPersistence,
-} from 'src/infras/repository/category/dto';
+} from 'src/modules/category/infras/repo/dto';
 import {
   BaseOrder,
   BaseSortBy,

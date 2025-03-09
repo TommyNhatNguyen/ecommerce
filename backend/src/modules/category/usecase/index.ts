@@ -1,15 +1,14 @@
-import {
-  CategoryConditionDTOSchema,
-  CategoryCreateDTOSchema,
-  CategoryUpdateDTOSchema,
-} from '@models/category/category.dto';
-import {
-  ICategoryRepository,
-  ICategoryUseCase,
-} from '@models/category/category.interface';
-import { Category } from '@models/category/category.model';
 import { IImageCloudinaryRepository } from '@models/image/image.interface';
-import { BaseOrder, BaseSortBy, ListResponse, ModelStatus } from 'src/share/models/base-model';
+import { CategoryConditionDTOSchema, CategoryCreateDTOSchema, CategoryUpdateDTOSchema } from 'src/modules/category/models/category.dto';
+import { ICategoryUseCase } from 'src/modules/category/models/category.interface';
+import { ICategoryRepository } from 'src/modules/category/models/category.interface';
+import { Category } from 'src/modules/category/models/category.model';
+import {
+  BaseOrder,
+  BaseSortBy,
+  ListResponse,
+  ModelStatus,
+} from 'src/share/models/base-model';
 import { PagingDTO, Meta } from 'src/share/models/paging';
 import { v7 as uuidv7 } from 'uuid';
 export class CategoryUseCase implements ICategoryUseCase {
@@ -27,7 +26,9 @@ export class CategoryUseCase implements ICategoryUseCase {
       sortBy: BaseSortBy.CREATED_AT,
     });
     if (updatedCategory?.image) {
-      await this.cloudinaryImageRepository.delete(updatedCategory.image.cloudinary_id);
+      await this.cloudinaryImageRepository.delete(
+        updatedCategory.image.cloudinary_id
+      );
     }
     const category = await this.repository.update(id, data);
     return category;

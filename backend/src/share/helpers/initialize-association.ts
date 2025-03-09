@@ -47,7 +47,7 @@ import { CartPersistence } from 'src/modules/cart/infras/repo/postgres/cart.dto'
 import {
   categoryModelName,
   CategoryPersistence,
-} from 'src/infras/repository/category/dto';
+} from 'src/modules/category/infras/repo/dto';
 import {
   // variantImageModelName,
   variantModelName,
@@ -169,6 +169,8 @@ export const initializeAssociation = () => {
     otherKey: 'order_detail_id',
     as: orderDetailModelName.toLowerCase(),
   });
+
+  // TODO: add Receivables to OrderDetailPersistence
 
   OrderDetailPersistence.belongsToMany(DiscountPersistence, {
     through: orderDetailDiscountModelName,
@@ -326,20 +328,6 @@ export const initializeAssociation = () => {
     otherKey: 'variant_id',
     as: variantModelName.toLowerCase(),
   });
-
-  // VariantPersistence.belongsToMany(ImagePersistence, {
-  //   through: variantImageModelName,
-  //   foreignKey: 'variant_id',
-  //   otherKey: 'image_id',
-  //   as: imageModelName.toLowerCase(),
-  // });
-
-  // ImagePersistence.belongsToMany(VariantPersistence, {
-  //   through: variantImageModelName,
-  //   foreignKey: 'image_id',
-  //   otherKey: 'variant_id',
-  //   as: variantModelName.toLowerCase(),
-  // });
 
   ProductSellablePersistence.belongsToMany(ImagePersistence, {
     through: productSellableImageModelName,

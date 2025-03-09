@@ -1,9 +1,6 @@
-import {
-  CategoryConditionDTOSchema,
-  CategoryCreateDTOSchema,
-  CategoryUpdateDTOSchema,
-} from '@models/category/category.dto';
-import { Category } from '@models/category/category.model';
+import { CategoryCreateDTOSchema, CategoryUpdateDTOSchema } from 'src/modules/category/models/category.dto';
+import { CategoryConditionDTOSchema } from 'src/modules/category/models/category.dto';
+import { Category } from 'src/modules/category/models/category.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { Meta, PagingDTO } from 'src/share/models/paging';
 

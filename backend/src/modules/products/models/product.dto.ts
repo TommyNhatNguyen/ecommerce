@@ -16,6 +16,7 @@ export const ProductCreateDTOSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   short_description: z.string().optional(),
+  sku: z.string(),
   status: z.nativeEnum(ModelStatus).optional(),
   categoryIds: z.array(z.string().uuid()).optional(),
   variants: z
@@ -36,6 +37,8 @@ export const ProductCategoryCreateDTOSchema = z.object({
 export const ProductUpdateDTOSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
+  short_description: z.string().optional(),
+  sku: z.string().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   updated_at: z.date().optional(),
   categoryIds: z.array(z.string().uuid()).optional(),
@@ -51,6 +54,7 @@ export const ProductConditionDTOSchema = z.object({
   status: z.nativeEnum(ModelStatus).optional(),
   name: z.string().optional(),
   categoryIds: z.array(z.string().uuid()).optional(),
+  sku: z.string().optional(),
   priceRange: z
     .object({
       from: z.union([z.string(), z.number()]).optional(),

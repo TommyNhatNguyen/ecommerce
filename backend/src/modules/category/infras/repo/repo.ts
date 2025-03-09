@@ -1,15 +1,12 @@
-import {
-  CategoryConditionDTOSchema,
-  CategoryCreateDTOSchema,
-  CategoryUpdateDTOSchema,
-} from '@models/category/category.dto';
-import { ICategoryRepository } from '@models/category/category.interface';
-import { Category } from '@models/category/category.model';
+
 import { Op, Sequelize, where } from 'sequelize';
 import {
   imageModelName,
   ImagePersistence,
 } from 'src/infras/repository/image/dto';
+import { CategoryConditionDTOSchema, CategoryCreateDTOSchema, CategoryUpdateDTOSchema } from 'src/modules/category/models/category.dto';
+import { ICategoryRepository } from 'src/modules/category/models/category.interface';
+import { Category } from 'src/modules/category/models/category.model';
 import { productModelName } from 'src/modules/products/infras/repo/postgres/dto';
 import { ProductPersistence } from 'src/modules/products/infras/repo/postgres/dto';
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
