@@ -61,6 +61,7 @@ import { ReviewPersistence } from 'src/modules/review/infras/repo/dto';
 import {
   inventoryModelName,
   InventoryPersistence,
+  inventoryWarehouseModelName,
 } from 'src/modules/inventory/infras/repo/postgres/dto';
 import {
   permissionModelName,
@@ -110,7 +111,9 @@ import {
   couponModelName,
   CouponPersistence,
 } from 'src/modules/coupon/infras/repo/postgres/coupon.dto';
+import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
 import { brandModelName, BrandPersistence } from 'src/modules/brand/infras/repo/brand.dto';
+import { WarehousePersistence } from 'src/modules/warehouse/infras/repo/warehouse.dto';
 
 export const initializeAssociation = () => {
   MessagePersistence.belongsTo(ActorPersistence, {
@@ -416,6 +419,20 @@ export const initializeAssociation = () => {
     foreignKey: 'product_sellable_id',
     as: productSellableModelName.toLowerCase(),
     onDelete: 'CASCADE',
+  });
+
+  InventoryPersistence.belongsToMany(WarehousePersistence, {
+    through: inventoryWarehouseModelName,
+    foreignKey: 'inventory_id',
+    otherKey: 'warehouse_id',
+    as: warehouseModelName.toLowerCase(),
+  });
+
+  WarehousePersistence.belongsToMany(InventoryPersistence, {
+    through: inventoryWarehouseModelName,
+    foreignKey: 'warehouse_id',
+    otherKey: 'inventory_id',
+    as: inventoryModelName.toLowerCase(),
   });
 
   ProductPersistence.hasMany(ReviewPersistence, {

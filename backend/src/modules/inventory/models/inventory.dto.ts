@@ -6,21 +6,19 @@ import z from 'zod';
 import { v7 as uuidv7 } from 'uuid';
 import { StockStatus } from 'src/modules/inventory/models/inventory.model';
 export const InventoryCreateDTOSchema = z.object({
-  quantity: z.number().min(0),
-  cost: z.number().min(0),
+  total_quantity: z.number().min(0).optional(),
+  total_cost: z.number().min(0).optional(),
   product_sellable_id: z.string().uuid(),
   low_stock_threshold: z.number().min(0).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
-  total_value: z.number().min(0).optional(),
 });
 
 export const InventoryUpdateDTOSchema = z.object({
-  quantity: z.number().min(0).optional(),
-  cost: z.number().min(0).optional(),
+  total_quantity: z.number().min(0).optional(),
+  total_cost: z.number().min(0).optional(),
   low_stock_threshold: z.number().min(0).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
-  total_value: z.number().min(0).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
 });
@@ -33,13 +31,13 @@ export enum InventorySortBy {
 
 export const InventoryConditionDTOSchema = z.object({
   product_sellable_id: z.string().uuid().optional(),
-  quantity: z.number().min(0).optional(),
+  total_quantity: z.number().min(0).optional(),
+  total_cost: z.number().min(0).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
   low_stock_threshold: z.number().min(0).optional(),
   include_all: z.boolean().optional(),
   include_product_sellable: z.boolean().optional(),
-  total_value: z.number().min(0).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
   cost: z.number().min(0).optional(),

@@ -1,0 +1,1 @@
+export const WAREHOUSE_NOT_FOUND = new Error('Warehouse not found');

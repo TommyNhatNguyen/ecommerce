@@ -3,6 +3,7 @@ import { Sequelize } from 'sequelize';
 import {
   inventoryInit,
   inventoryModelName,
+  inventoryWarehouseInit,
 } from 'src/modules/inventory/infras/repo/postgres/dto';
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
 import { InventoryHttpService } from 'src/modules/inventory/infras/transport/inventory.http-service';
@@ -10,6 +11,7 @@ import { InventoryUseCase } from 'src/modules/inventory/usecase';
 
 export function setupInventoryRouter(sequelize: Sequelize) {
   inventoryInit(sequelize);
+  inventoryWarehouseInit(sequelize);
   const router = Router();
   const inventoryRepository = new PostgresInventoryRepository(
     sequelize,
