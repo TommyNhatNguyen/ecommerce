@@ -105,7 +105,7 @@ import {
 import {
   blogsModelName,
   BlogsPersistence,
-} from 'src/modules/blogs/infras/dto/blogs.dto';
+} from 'src/modules/blogs/infras/repo/blogs.dto';
 import {
   couponModelName,
   CouponPersistence,
