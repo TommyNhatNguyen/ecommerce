@@ -1,11 +1,7 @@
-import {
-  ReviewConditionDTO,
-  ReviewCreateDTO,
-  ReviewUpdateDTO,
-} from '@models/review/review.dto';
-import { IReviewRepository } from '@models/review/review.interface';
-import { Review } from '@models/review/review.model';
 import { Sequelize } from 'sequelize';
+import { ReviewConditionDTO, ReviewCreateDTO, ReviewUpdateDTO } from 'src/modules/review/models/review.dto';
+import { IReviewRepository } from 'src/modules/review/models/review.interface';
+import { Review } from 'src/modules/review/models/review.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 

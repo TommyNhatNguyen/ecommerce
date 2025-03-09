@@ -1,10 +1,6 @@
-import {
-  ReviewConditionDTO,
-  ReviewCreateDTO,
-  ReviewUpdateDTO,
-} from '@models/review/review.dto';
-import { IReviewUseCase } from '@models/review/review.interface';
 import { Request, Response } from 'express';
+import { ReviewConditionDTO, ReviewCreateDTO, ReviewUpdateDTO } from 'src/modules/review/models/review.dto';
+import { IReviewUseCase } from 'src/modules/review/models/review.interface';
 import { PagingDTOSchema } from 'src/share/models/paging';
 
 export class ReviewHttpService {

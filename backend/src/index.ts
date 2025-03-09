@@ -8,7 +8,7 @@ import setupCategoryRouter from 'src/modules/category';
 import { setupDiscountRouter } from 'src/modules/discount';
 import { setupImageRouter } from 'src/modules/image';
 import { setupInventoryRouter } from 'src/modules/inventory';
-import { setupReviewRouter } from 'src/routers/review';
+import { setupReviewRouter } from 'src/modules/review';
 import { setupOrderRouter } from 'src/modules/order';
 import { setupCustomerRouter } from 'src/modules/customer';
 import { setupShippingRouter } from 'src/modules/shipping';

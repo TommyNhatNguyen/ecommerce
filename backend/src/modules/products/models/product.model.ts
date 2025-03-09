@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { ModelStatus } from 'src/share/models/base-model';
 import { categoryModelName } from 'src/modules/category/infras/repo/dto';
-import { reviewModelName } from 'src/infras/repository/review/dto';
+import { reviewModelName } from 'src/modules/review/infras/repo/dto';
 import { ReviewSchema } from '@models/review/review.model';
 import { variantModelName } from 'src/modules/variant/infras/repo/postgres/dto';
 import { VariantSchema } from 'src/modules/variant/models/variant.model';

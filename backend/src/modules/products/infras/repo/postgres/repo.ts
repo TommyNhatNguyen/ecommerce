@@ -31,7 +31,7 @@ import {
 import {
   reviewModelName,
   ReviewPersistence,
-} from 'src/infras/repository/review/dto';
+} from 'src/modules/review/infras/repo/dto';
 import sequelize from 'sequelize';
 import {
   ProductCategoryCreateDTO,

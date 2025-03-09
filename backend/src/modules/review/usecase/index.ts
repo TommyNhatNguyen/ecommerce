@@ -1,13 +1,8 @@
-import {
-  ReviewConditionDTO,
-  ReviewCreateDTO,
-  ReviewUpdateDTO,
-} from '@models/review/review.dto';
-import {
-  IReviewRepository,
-  IReviewUseCase,
-} from '@models/review/review.interface';
-import { Review } from '@models/review/review.model';
+import { ReviewCreateDTO, ReviewUpdateDTO } from 'src/modules/review/models/review.dto';
+import { ReviewConditionDTO } from 'src/modules/review/models/review.dto';
+import { IReviewUseCase } from 'src/modules/review/models/review.interface';
+import { IReviewRepository } from 'src/modules/review/models/review.interface';
+import { Review } from 'src/modules/review/models/review.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
