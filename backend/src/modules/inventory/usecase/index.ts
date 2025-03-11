@@ -82,7 +82,8 @@ export class InventoryUseCase implements IInventoryUseCase {
       total_cost: Number(totalCost),
       stock_status: this.determineStockStatus(
         Number(totalQuantity),
-        data.low_stock_threshold ?? 0
+        data.low_stock_threshold ?? 0,
+        data.high_stock_threshold ?? 9999999
       ),
     };
     const createdInventory = await this.inventoryRepository.create(
@@ -152,10 +153,12 @@ export class InventoryUseCase implements IInventoryUseCase {
 
   private determineStockStatus(
     quantity: number,
-    lowStockThreshold: number
+    lowStockThreshold: number,
+    highStockThreshold: number
   ): StockStatus {
     if (quantity === 0) return StockStatus.OUT_OF_STOCK;
     if (quantity <= lowStockThreshold) return StockStatus.LOW_STOCK;
+    if (quantity > highStockThreshold) return StockStatus.OVER_STOCK;
     return StockStatus.IN_STOCK;
   }
 

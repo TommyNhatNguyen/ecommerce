@@ -4,7 +4,10 @@ import { CloudinaryImageRepository } from 'src/modules/image/infras/repo/repo';
 import { discountModelName } from 'src/modules/discount/infras/repo/postgres/discount.dto';
 import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/postgres/discount.repo';
 import { DiscountUseCase } from 'src/modules/discount/usecase';
-import { inventoryModelName, inventoryWarehouseModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
+import {
+  inventoryModelName,
+  inventoryWarehouseModelName,
+} from 'src/modules/inventory/infras/repo/postgres/dto';
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
 import { InventoryUseCase } from 'src/modules/inventory/usecase';
 import {
@@ -69,7 +72,11 @@ export const productSellableCronJobInit = (sequelize: Sequelize): CronJob => {
     warehouseModelName
   );
   const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository, warehouseUseCase);
+  const inventoryUseCase = new InventoryUseCase(
+    inventoryRepository,
+    inventoryWarehouseRepository,
+    warehouseUseCase
+  );
   const discountRepository = new PostgresDiscountRepository(
     sequelize,
     discountModelName
@@ -158,7 +165,11 @@ export const inventoryLowStockCronJobInit = (
     warehouseModelName
   );
   const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository, warehouseUseCase);
+  const inventoryUseCase = new InventoryUseCase(
+    inventoryRepository,
+    inventoryWarehouseRepository,
+    warehouseUseCase
+  );
 
   const inventoryLowStockCronJob = new CronJob(
     '0 9 * * *', // cronTime
@@ -178,29 +189,55 @@ export const inventoryLowStockCronJobInit = (
               }
             );
             console.log('🚀 ~ inventories:', inventories);
-            for (const inventory of inventories.data) {
-              if (inventory.stock_status !== StockStatus.IN_STOCK) {
-                const message = await messageUseCase.createMessage({
-                  entity_info: {
-                    type: 'inventory',
-                    kind: EntityKind.NOTIFICATION,
-                  },
-                  actor_info_id: '01953dd6-65f9-73d8-8497-048605665a83',
-                  actor_type: ActorType.SYSTEM,
-                  message: `Updated at ${new Date().toLocaleString()}: ${
-                    inventory.product_sellable.variant.name
-                  } is running out of stock: ${inventory.total_quantity} left`,
-                });
-                console.log('🚀 ~ message:', message);
-                inventoryAlertPublisher.publishMessage(
-                  QueueTypes.INVENTORY_ALERT,
-                  {
-                    from: 'inventory',
-                    message: inventory,
-                  }
-                );
-              }
-            }
+            await Promise.all(
+              inventories.data.map(async (inventory) => {
+                if (inventory.stock_status === StockStatus.LOW_STOCK) {
+                  const message = await messageUseCase.createMessage({
+                    entity_info: {
+                      type: 'inventory',
+                      kind: EntityKind.NOTIFICATION,
+                    },
+                    actor_info_id: '01953dd6-65f9-73d8-8497-048605665a83',
+                    actor_type: ActorType.SYSTEM,
+                    message: `Updated at ${new Date().toLocaleString()}: ${
+                      inventory.product_sellable.variant.name
+                    } is running out of stock: ${
+                      inventory.total_quantity
+                    } left`,
+                  });
+                  console.log('🚀 ~ message:', message);
+
+                  inventoryAlertPublisher.publishMessage(
+                    QueueTypes.INVENTORY_ALERT,
+                    {
+                      from: 'inventory',
+                      message: inventory,
+                    }
+                  );
+                } else if (inventory.stock_status === StockStatus.OVER_STOCK) {
+                  const message = await messageUseCase.createMessage({
+                    entity_info: {
+                      type: 'inventory',
+                      kind: EntityKind.NOTIFICATION,
+                    },
+                    actor_info_id: '01953dd6-65f9-73d8-8497-048605665a83',
+                    actor_type: ActorType.SYSTEM,
+                    message: `Updated at ${new Date().toLocaleString()}: ${
+                      inventory.product_sellable.variant.name
+                    } is over stock: ${inventory.total_quantity} left`,
+                  });
+                  console.log('🚀 ~ message:', message);
+
+                  inventoryAlertPublisher.publishMessage(
+                    QueueTypes.INVENTORY_ALERT,
+                    {
+                      from: 'inventory',
+                      message: inventory,
+                    }
+                  );
+                }
+              })
+            );
           }
         );
       } catch (error) {
