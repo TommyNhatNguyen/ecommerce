@@ -215,8 +215,9 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
 
   async getProductSellableById(
     id: string,
-    condition: ProductSellableConditionDTO
+    condition: ProductSellableConditionDTO,
+    t?: Transaction
   ): Promise<ProductSellable | null> {
-    return await this.repository.get(id, condition);
+    return await this.repository.get(id, condition, t);
   }
 }

@@ -211,6 +211,7 @@ export function setupOrderRouter(
     costUseCase,
     discountUseCase,
     inventoryUseCase,
+    warehouseUseCase,
     sequelize
   );
 

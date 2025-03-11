@@ -92,7 +92,8 @@ export class PostgresProductSellableRepository
 
   async get(
     id: string,
-    condition?: ProductSellableConditionDTO
+    condition?: ProductSellableConditionDTO,
+    t?: Transaction
   ): Promise<ProductSellable | null> {
     const include: any[] = [
       {
@@ -159,6 +160,7 @@ export class PostgresProductSellableRepository
     }
     const data = await this.sequelize.models[this.modelName].findByPk(id, {
       include,
+      transaction: t,
     });
     return data ? data.dataValues : null;
   }

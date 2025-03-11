@@ -31,7 +31,8 @@ export interface IProductSellableUseCase {
   ): Promise<ListResponse<ProductSellable[]>>;
   getProductSellableById(
     id: string,
-    condition?: ProductSellableConditionDTO
+    condition?: ProductSellableConditionDTO,
+    t?: Transaction
   ): Promise<ProductSellable | null>;
   updateProductSellableDiscounts(
     t?: Transaction,
@@ -59,7 +60,8 @@ export interface IProductSellableRepository
 export interface IQueryRepository {
   get(
     id: string,
-    condition?: ProductSellableConditionDTO
+    condition?: ProductSellableConditionDTO,
+    t?: Transaction
   ): Promise<ProductSellable | null>;
   list(
     condition: ProductSellableConditionDTO,

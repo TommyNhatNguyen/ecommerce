@@ -96,11 +96,10 @@ export class OrderHttpService {
         return;
       }
       res.status(200).json({ success: true, data: order });
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
       res
-        .status(500)
-        .json({ success: false, message: 'Internal server error' });
+        .status(400)
+        .json({ success: false, message: error.message });
       return;
     }
   }
