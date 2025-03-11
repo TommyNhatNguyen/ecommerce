@@ -8,6 +8,7 @@ export const InventoryInvoiceCreateDTOSchema = z.object({
   amount: z.number().optional(),
   note: z.string().optional(),
   code: z.string().optional(),
+  inventory_id: z.string().uuid().optional(),
   status: z.nativeEnum(ModelStatus).default(ModelStatus.ACTIVE).optional(),
 });
 

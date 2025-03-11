@@ -277,33 +277,28 @@ export class OrderUseCase implements IOrderUseCase {
     t?: Transaction
   ) {
     // Tạo 1 thẻ kho bán hàng
-    const orderQuantity =
-      order?.order_detail?.product_sellable?.reduce(
-        (acc, current) => acc + (current?.product_details?.quantity || 0),
-        0
-      ) || 0;
-    const orderAmount = order?.order_detail?.product_sellable
-      ?.map(
-        (item) =>
-          (item?.inventory?.avg_cost || 0) * item.product_details?.quantity
-      )
-      .reduce((acc, current) => acc + current, 0);
-    const inventoryInvoicePayload: InventoryInvoiceCreateDTO = {
-      code: `BH${order.id.substring(0, 5)}` || inventory_invoice_info?.code,
-      type: InventoryInvoiceType.SALE_INVOICE,
-      note:
-        inventory_invoice_info?.note || `Đơn hàng ${order.id} đã được xác nhận`,
-      quantity: orderQuantity,
-      amount: orderAmount,
-    };
-    console.log(
-      '🚀 ~ OrderUseCase ~ inventoryInvoicePayload:',
-      inventoryInvoicePayload
-    );
-    const inventoryInvoice = await this.inventoryInvoicesUseCase.create(
-      inventoryInvoicePayload,
-      t
-    );
+    for (const orderProduct of order.order_detail?.product_sellable || []) {
+      const orderQuantity = orderProduct.product_details?.quantity || 0;
+      const orderAmount =
+        (orderProduct?.inventory?.avg_cost || 0) * orderQuantity;
+      const inventoryInvoicePayload: InventoryInvoiceCreateDTO = {
+        code: `BH${Math.random().toString(36).substring(2, 15).padStart(5, '2')}` || inventory_invoice_info?.code,
+        type: InventoryInvoiceType.SALE_INVOICE,
+        note:
+          inventory_invoice_info?.note || `Đơn hàng ${order.id} đã được xác nhận`,
+        quantity: orderQuantity,
+        amount: orderAmount,
+        inventory_id: orderProduct.inventory?.id || '',
+      };
+      console.log(
+        '🚀 ~ OrderUseCase ~ inventoryInvoicePayload:',
+        inventoryInvoicePayload
+      );
+      const inventoryInvoice = await this.inventoryInvoicesUseCase.create(
+        inventoryInvoicePayload,
+        t
+      );
+    }
     // Cập nhật lại kho hàng
     const { products_detail } = order_detail_info || {};
     for (const product of products_detail || []) {

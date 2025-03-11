@@ -122,7 +122,6 @@ export class PostgresOrderRepository implements IOrderRepository {
           {
             model: InventoryPersistence,
             as: inventoryModelName,
-            attributes: ['avg_cost'],
           },
           {
             model: DiscountPersistence,
