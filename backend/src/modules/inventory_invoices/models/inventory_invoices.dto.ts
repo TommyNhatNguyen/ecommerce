@@ -3,12 +3,12 @@ import { BaseOrder, BaseSortBy, ModelStatus } from 'src/share/models/base-model'
 import z from 'zod';
 
 export const InventoryInvoiceCreateDTOSchema = z.object({
-  type: z.nativeEnum(InventoryInvoiceType),
-  quantity: z.number(),
-  amount: z.number(),
+  type: z.nativeEnum(InventoryInvoiceType).optional(),
+  quantity: z.number().optional(),
+  amount: z.number().optional(),
   note: z.string().optional(),
-  code: z.string(),
-  status: z.nativeEnum(ModelStatus).default(ModelStatus.ACTIVE),
+  code: z.string().optional(),
+  status: z.nativeEnum(ModelStatus).default(ModelStatus.ACTIVE).optional(),
 });
 
 export const InventoryInvoiceUpdateDTOSchema = z.object({

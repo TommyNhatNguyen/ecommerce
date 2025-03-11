@@ -36,7 +36,7 @@ export const OrderDetailSchema = z.object({
   [discountModelName]: DiscountSchema.optional(),
   [shippingModelName]: ShippingSchema.optional(),
   [paymentModelName]: PaymentSchema.optional(),
-  [productSellableModelName]: ProductSellableSchema.optional(),
+  [productSellableModelName]: z.array(ProductSellableSchema).optional(),
 });
 
 export type OrderDetail = z.infer<typeof OrderDetailSchema>;

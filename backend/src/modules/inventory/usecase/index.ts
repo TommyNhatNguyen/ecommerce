@@ -75,11 +75,13 @@ export class InventoryUseCase implements IInventoryUseCase {
     const totalCost = data.inventory_warehouse.reduce((acc, curr) => {
       return acc + Number(curr.cost) * Number(curr.quantity);
     }, 0);
+    const avgCost = totalCost / totalQuantity;
     // 2. Create Inventory for product sellable
     const processData: InventoryCreateDTO = {
       ...data,
       total_quantity: Number(totalQuantity),
       total_cost: Number(totalCost),
+      avg_cost: Number(avgCost),
       stock_status: this.determineStockStatus(
         Number(totalQuantity),
         data.low_stock_threshold ?? 0,

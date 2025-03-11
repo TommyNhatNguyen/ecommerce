@@ -27,6 +27,7 @@ export enum InventorySortBy {
 export const InventoryCreateDTOSchema = z.object({
   total_quantity: z.number().min(0).optional(),
   total_cost: z.number().min(0).optional(),
+  avg_cost: z.number().min(0).optional(),
   product_sellable_id: z.string().uuid(),
   low_stock_threshold: z.number().min(0).default(0).optional(),
   high_stock_threshold: z.number().min(0).default(9999999).optional(),
@@ -42,6 +43,7 @@ export enum InventoryUpdatedType {
 export const InventoryUpdateDTOSchema = z.object({
   total_quantity: z.number().min(0).optional(),
   total_cost: z.number().min(0).optional(),
+  avg_cost: z.number().min(0).optional(),
   low_stock_threshold: z.number().min(0).optional(),
   high_stock_threshold: z.number().min(0).optional(),
   note: z.string().optional(),
@@ -58,6 +60,7 @@ export const InventoryConditionDTOSchema = z.object({
   product_sellable_id: z.string().uuid().optional(),
   total_quantity: z.number().min(0).optional(),
   total_cost: z.number().min(0).optional(),
+  avg_cost: z.number().min(0).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   stock_status: z.nativeEnum(StockStatus).optional(),
   low_stock_threshold: z.number().min(0).optional(),

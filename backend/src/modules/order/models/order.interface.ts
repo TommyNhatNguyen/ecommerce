@@ -15,7 +15,7 @@ export interface IOrderUseCase {
   create(
     data: Omit<OrderCreateDTO, 'total_price' | 'customer_id' | 'order_detail_id'>, t?:Transaction
   ): Promise<Order>;
-  update(id: string, data: OrderUpdateDTO): Promise<Order>;
+  update(id: string, data: OrderUpdateDTO, t?: Transaction): Promise<Order>;
   delete(id: string): Promise<boolean>;
 }
 
@@ -33,6 +33,6 @@ export interface IQueryRepository {
 
 export interface ICommandRepository {
   create(data:Omit<OrderCreateDTO, 'order_detail_info'>, t?:Transaction): Promise<Order>;
-  update(id: string, data: OrderUpdateDTO): Promise<Order>;
+  update(id: string, data: OrderUpdateDTO, t?: Transaction): Promise<Order>;
   delete(id: string): Promise<boolean>;
 }

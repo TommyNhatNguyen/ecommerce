@@ -57,7 +57,14 @@ export class PostgresPaymentRepository implements IPaymentRepository {
     );
     return newPayment.dataValues;
   }
-  async updatePayment(id: string, payment: PaymentUpdateDTO): Promise<Payment> {
+  async updatePayment(id: string, payment: PaymentUpdateDTO, t?: Transaction): Promise<Payment> {
+    if (t) {
+      const updatedPayment = await this.sequelize.models[this.modelName].update(
+        payment,
+        { where: { id }, returning: true, transaction: t }
+      );
+      return updatedPayment[1][0].dataValues;
+    }
     const updatedPayment = await this.sequelize.models[this.modelName].update(
       payment,
       { where: { id }, returning: true }

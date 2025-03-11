@@ -2,6 +2,7 @@ import { ModelStatus } from 'src/share/models/base-model';
 import z from 'zod';
 
 export enum InventoryInvoiceType {
+  SALE_INVOICE = 'SALE_INVOICE',
   IMPORT_INVOICE = 'IMPORT_INVOICE',
   DISCARD_INVOICE = 'DISCARD_INVOICE',
   UPDATE_COST_INVOICE = 'UPDATE_COST_INVOICE',

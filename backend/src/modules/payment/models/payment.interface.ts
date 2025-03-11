@@ -13,7 +13,7 @@ export interface IPaymentUseCase {
     condition: PaymentConditionDTO
   ): Promise<ListResponse<Payment[]>>;
   createPayment(payment: PaymentCreateDTO, t?: Transaction): Promise<Payment>;
-  updatePayment(id: string, payment: PaymentUpdateDTO): Promise<Payment>;
+  updatePayment(id: string, payment: PaymentUpdateDTO, t?: Transaction): Promise<Payment>;
   deletePayment(id: string): Promise<boolean>;
 }
 
@@ -31,6 +31,6 @@ export interface IQueryRepository {
 
 export interface ICommandRepository {
   createPayment(payment: PaymentCreateDTO, t?: Transaction): Promise<Payment>;
-  updatePayment(id: string, payment: PaymentUpdateDTO): Promise<Payment>;
+  updatePayment(id: string, payment: PaymentUpdateDTO, t?: Transaction): Promise<Payment>;
   deletePayment(id: string): Promise<boolean>;
 }

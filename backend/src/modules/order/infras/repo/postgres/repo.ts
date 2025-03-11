@@ -46,6 +46,7 @@ import {
   OptionValuePersistence,
 } from 'src/modules/options/infras/repo/postgres/dto';
 import { Transaction } from 'sequelize';
+import { inventoryModelName, InventoryPersistence } from 'src/modules/inventory/infras/repo/postgres/dto';
 export class PostgresOrderRepository implements IOrderRepository {
   constructor(
     private readonly sequelize: Sequelize,
@@ -117,6 +118,11 @@ export class PostgresOrderRepository implements IOrderRepository {
               exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'],
             },
             through: { attributes: [] },
+          },
+          {
+            model: InventoryPersistence,
+            as: inventoryModelName,
+            attributes: ['avg_cost'],
           },
           {
             model: DiscountPersistence,
@@ -358,14 +364,26 @@ export class PostgresOrderRepository implements IOrderRepository {
     );
     return order.dataValues;
   }
-  async update(id: string, data: OrderUpdateDTO): Promise<Order> {
-    const order: any = await this.sequelize.models[this.modelName].update(
-      data,
-      {
-        where: { id },
-        returning: true,
-      }
-    );
+  async update(
+    id: string,
+    data: OrderUpdateDTO,
+    t?: Transaction
+  ): Promise<Order> {
+    if (t) {
+      const order: any = await this.sequelize.models[this.modelName].update(
+        data,
+        {
+          where: { id },
+          returning: true,
+          transaction: t,
+        }
+      );
+      return order[1][0].dataValues;
+    }
+    const order = await this.sequelize.models[this.modelName].update(data, {
+      where: { id },
+      returning: true,
+    });
     return order[1][0].dataValues;
   }
   async delete(id: string): Promise<boolean> {

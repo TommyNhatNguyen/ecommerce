@@ -35,6 +35,8 @@ export const ProductSellableSchema = z.object({
       updated_at: z.date(),
       status: z.nativeEnum(ModelStatus),
       low_stock_threshold: z.number().min(0),
+      high_stock_threshold: z.number().min(0),
+      avg_cost: z.number().min(0),
     })
     .optional(),
   [cartProductModelName]: z
@@ -46,6 +48,13 @@ export const ProductSellableSchema = z.object({
     created_at: z.date(),
     updated_at: z.date(),
     status: z.nativeEnum(ModelStatus),
+  }),
+  product_details: z.object({
+    quantity: z.number(),
+    price: z.number(),
+    subtotal: z.number(),
+    discount_amount: z.number(),
+    total: z.number(),
   }),
 });
 

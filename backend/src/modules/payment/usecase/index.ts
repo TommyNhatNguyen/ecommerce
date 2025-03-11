@@ -22,8 +22,8 @@ export class PaymentUseCase implements IPaymentUseCase {
   createPayment(payment: PaymentCreateDTO, t?: Transaction): Promise<Payment> {
     return this.paymentRepository.createPayment(payment, t);
   }
-  updatePayment(id: string, payment: PaymentUpdateDTO): Promise<Payment> {
-    return this.paymentRepository.updatePayment(id, payment);
+  updatePayment(id: string, payment: PaymentUpdateDTO, t?: Transaction): Promise<Payment> {
+    return this.paymentRepository.updatePayment(id, payment, t);
   }
   deletePayment(id: string): Promise<boolean> {
     return this.paymentRepository.deletePayment(id);

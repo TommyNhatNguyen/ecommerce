@@ -48,9 +48,38 @@ export const OrderDetailAddDiscountsDTOSchema = z.object({
   discount_id: z.string().uuid(),
 });
 
-export const OrderDetailUpdateDTOSchema = OrderDetailSchema.omit({
-  id: true,
-}).partial();
+export const OrderDetailUpdateDTOSchema = z.object({
+  subtotal: z.number().default(0).optional(),
+  total_shipping_fee: z.number().default(0).optional(),
+  total_payment_fee: z.number().default(0).optional(),
+  total_costs: z.number().default(0).optional(),
+  total_discount: z.number().default(0).optional(),
+  total_order_discount: z.number().default(0).optional(),
+  total_product_discount: z.number().default(0).optional(),
+  total: z.number().default(0).optional(),
+  shipping_method_id: z.string().uuid().optional(),
+  payment_id: z.string().uuid().optional(),
+  payment_info: z.object({
+    payment_method_id: z.string().uuid().optional(),
+    paid_amount: z.number().optional(),
+    paid_all_date: z.string().datetime().optional(),
+  }).optional(),
+  customer_id: z.string().uuid().optional(),
+  customer_firstName: z.string().optional(),
+  customer_lastName: z.string().optional(),
+  customer_phone: z.string().optional(),
+  customer_email: z.string().optional(),
+  customer_address: z.string().optional(),
+  costs_detail: z.array(z.string()).optional(),
+  products_detail: z.array(
+    z.object({
+      id: z.string().uuid(),
+      quantity: z.number().optional(),
+      warehouse_id: z.string().uuid(),
+    })
+  ),
+  order_discounts: z.array(z.string()).optional(),
+});
 
 export const OrderDetailConditionDTOSchema = OrderDetailSchema.omit({
   id: true,

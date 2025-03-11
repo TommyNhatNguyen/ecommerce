@@ -83,6 +83,9 @@ import { ResourcesType } from 'src/share/models/base-model';
 import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
 import { PostgresWarehouseRepository } from 'src/modules/warehouse/infras/repo/warehouse.repo';
 import { WarehouseUseCase } from 'src/modules/warehouse/usecase';
+import { InventoryInvoiceRepository } from 'src/modules/inventory_invoices/infras/repo/inventory_invoices.repo';
+import { inventoryInvoiceModelName } from 'src/modules/inventory_invoices/infras/repo/inventory_invoices.dto';
+import { InventoryInvoiceUseCase } from 'src/modules/inventory_invoices/usecase';
 
 export function setupOrderRouter(
   sequelize: Sequelize,
@@ -240,13 +243,19 @@ export function setupOrderRouter(
 
   const userRepository = new PostgresUserRepository(sequelize, userModelName);
   const userUsecase = new UserUseCase(userRepository, cloudinaryRepository);
-
+  const inventoryInvoicesRepository = new InventoryInvoiceRepository(sequelize, inventoryInvoiceModelName);
+  const inventoryInvoicesUseCase = new InventoryInvoiceUseCase(inventoryInvoicesRepository);
   const orderUseCase = new OrderUseCase(
     orderRepository,
     orderDetailUseCase,
     cartUseCase,
     messageUsecase,
     userUsecase,
+    paymentUseCase,
+    inventoryInvoicesUseCase,
+    productSellableUseCase,
+    inventoryUseCase,
+    warehouseUseCase,
     orderAlertPublisher
   );
   const orderHttpService = new OrderHttpService(orderUseCase);
