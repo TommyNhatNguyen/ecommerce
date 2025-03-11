@@ -78,6 +78,10 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
     transaction?: Transaction
   ): Promise<OrderDetail> {
     try {
+      /**
+       * Lưu ý: Cho phép tạo order detail, chưa cần update inventory và warehouse
+       * Lý do: Cần được admin xác nhận đơn hàng rồi mới update inventory và warehouse
+       * */
       const result = await this.sequelize.transaction(
         async (innerTransaction) => {
           let t = innerTransaction;
@@ -112,105 +116,101 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
                 },
                 { page: 1, limit: products_detail.length }
               );
-            for (const product of products_detail) {
-              // Get product sellable
-              const productSellableId =
-                products.data.find((item) => item.variant_id == product.id)
-                  ?.id || '';
-              // Get current inventory info by product sellable id
-              const productInventory = await this.productSellableUseCase
-                .getProductSellableById(productSellableId, {}, t)
-                .then((item) => item?.inventory);
-              // Get inventory id
-              const productInventoryId = productInventory?.id || '';
-              // Get warehouse id
-              const productWarehouseId = product.warehouse_id || '';
-              // Get the cost of that product by inventory id and warehouse id
-              const productInventoryByWarehouse =
-                await this.inventoryUseCase.getInventoryByInventoryIdAndWarehouseId(
-                  productInventoryId,
-                  productWarehouseId,
-                  t
-                );
-              // Calculate total quantity, total cost of inventory after order
-              const totalInventoryQuantityAfterOrder =
-                (productInventory?.total_quantity || 0) - product.quantity;
-              const totalInventoryCostAfterOrder =
-                (productInventory?.total_cost || 0) -
-                product.quantity * productInventoryByWarehouse.cost;
-              // Check if sufficient inventory
-              console.log(
-                '🚀 ~ OrderDetailUseCase ~ result ~ totalInventoryQuantityAfterOrder:',
-                totalInventoryQuantityAfterOrder,
-                totalInventoryCostAfterOrder
-              );
-              if (
-                totalInventoryQuantityAfterOrder < 0 ||
-                totalInventoryCostAfterOrder < 0
-              ) {
-                throw ORDER_DETAIL_PRODUCT_OUT_OF_STOCK_ERROR;
-              }
-              // Update inventory with new total quantity, total cost
-              await this.inventoryUseCase.updateInventory(
-                productInventoryId,
-                {
-                  total_quantity: totalInventoryQuantityAfterOrder,
-                  total_cost: totalInventoryCostAfterOrder,
-                },
-                t
-              );
-              // Update quantity, cost of inventory in each warehouse after order
-              const inventoryWarehouseQuantityAfterOrder =
-                productInventoryByWarehouse.quantity - product.quantity;
-              const inventoryWarehouseCostAfterOrder =
-                productInventoryByWarehouse.total_cost -
-                product.quantity * productInventoryByWarehouse.cost;
-              // Check if sufficient inventory warehouse
-              if (
-                inventoryWarehouseQuantityAfterOrder < 0 ||
-                inventoryWarehouseCostAfterOrder < 0
-              ) {
-                throw ORDER_DETAIL_PRODUCT_OUT_OF_STOCK_ERROR;
-              }
-              await this.inventoryUseCase.updateInventoryWarehouse(
-                [
-                  {
-                    inventory_id: productInventoryId,
-                    warehouse_id: productWarehouseId,
-                    quantity: inventoryWarehouseQuantityAfterOrder,
-                    total_cost: inventoryWarehouseCostAfterOrder,
-                  },
-                ],
-                t
-              );
-              // Calculate total quantity, total cost of warehouse after order
-              const warehouse = await this.warehouseUseCase.getWarehouseById(
-                productWarehouseId,
-                {},
-                t
-              );
-              const totalWarehouseQuantityAfterOrder =
-                warehouse.total_quantity - product.quantity;
-              const totalWarehouseCostAfterOrder =
-                warehouse.total_cost -
-                product.quantity * productInventoryByWarehouse.cost;
-              // Check if sufficient warehouse
-              if (
-                totalWarehouseQuantityAfterOrder < 0 ||
-                totalWarehouseCostAfterOrder < 0
-              ) {
-                throw ORDER_DETAIL_PRODUCT_OUT_OF_STOCK_ERROR;
-              }
-              // Update warehouse with new total quantity, total cost
-              await this.warehouseUseCase.updateWarehouse(
-                productWarehouseId,
-                {
-                  total_quantity: totalWarehouseQuantityAfterOrder,
-                  total_cost: totalWarehouseCostAfterOrder,
-                },
-                t
-              );
-            }
+            // Update inventory, warehouse of each product
+            // for (const product of products_detail) {
+            //   // Get product sellable
+            //   const productSellableId =
+            //     products.data.find((item) => item.variant_id == product.id)
+            //       ?.id || '';
+            //   // Get current inventory info by product sellable id
+            //   const productInventory = await this.productSellableUseCase
+            //     .getProductSellableById(productSellableId, {}, t)
+            //     .then((item) => item?.inventory);
+            //   // Get inventory id
+            //   const productInventoryId = productInventory?.id || '';
+            //   // Get warehouse id
+            //   const productWarehouseId = product.warehouse_id || '';
+            //   // Get the cost of that product by inventory id and warehouse id
+            //   const productInventoryByWarehouse =
+            //     await this.inventoryUseCase.getInventoryByInventoryIdAndWarehouseId(
+            //       productInventoryId,
+            //       productWarehouseId,
+            //       t
+            //     );
+            //   // Calculate total quantity, total cost of inventory after order
+            //   const totalInventoryQuantityAfterOrder =
+            //     (productInventory?.total_quantity || 0) - product.quantity;
+            //   const totalInventoryCostAfterOrder =
+            //     (productInventory?.total_cost || 0) -
+            //     product.quantity * productInventoryByWarehouse.cost;
+            //   // Check if sufficient inventory
+            //   if (
+            //     totalInventoryQuantityAfterOrder < 0 ||
+            //     totalInventoryCostAfterOrder < 0
+            //   ) {
+            //     throw ORDER_DETAIL_PRODUCT_OUT_OF_STOCK_ERROR;
+            //   }
+            //   // Update inventory with new total quantity, total cost
+            //   await this.inventoryUseCase.updateInventory(
+            //     productInventoryId,
+            //     {
+            //       total_quantity: totalInventoryQuantityAfterOrder,
+            //       total_cost: totalInventoryCostAfterOrder,
+            //     },
+            //     t
+            //   );
+            //   // Update quantity, cost of inventory in each warehouse after order
+            //   const inventoryWarehouseQuantityAfterOrder =
+            //     productInventoryByWarehouse.quantity - product.quantity;
+            //   const inventoryWarehouseCostAfterOrder =
+            //     productInventoryByWarehouse.total_cost -
+            //     product.quantity * productInventoryByWarehouse.cost;
+            //   // Check if sufficient inventory warehouse
+            //   if (
+            //     inventoryWarehouseQuantityAfterOrder < 0 ||
+            //     inventoryWarehouseCostAfterOrder < 0
+            //   ) {
+            //     throw ORDER_DETAIL_PRODUCT_OUT_OF_STOCK_ERROR;
+            //   }
+            //   await this.inventoryUseCase.updateInventoryWarehouse(
+            //     [
+            //       {
+            //         inventory_id: productInventoryId,
+            //         warehouse_id: productWarehouseId,
+            //         quantity: inventoryWarehouseQuantityAfterOrder,
+            //         total_cost: inventoryWarehouseCostAfterOrder,
+            //       },
+            //     ],
+            //     t
+            //   );
+            //   // Calculate total quantity, total cost of warehouse after order
+            //   const warehouse = await this.warehouseUseCase.getWarehouseById(
+            //     productWarehouseId,
+            //     {},
+            //     t
+            //   );
+            //   const totalWarehouseQuantityAfterOrder =
+            //     warehouse.total_quantity - product.quantity;
+            //   const totalWarehouseCostAfterOrder =
+            //     warehouse.total_cost -
+            //     product.quantity * productInventoryByWarehouse.cost;
+            //   // Check if sufficient warehouse
+            //   if (
+            //     totalWarehouseQuantityAfterOrder < 0 ||
+            //     totalWarehouseCostAfterOrder < 0
+            //   ) {
+            //     throw ORDER_DETAIL_PRODUCT_OUT_OF_STOCK_ERROR;
+            //   }
+            //   // Update warehouse with new total quantity, total cost
+            //   await this.warehouseUseCase.updateWarehouse(
+            //     productWarehouseId,
+            //     {
+            //       total_quantity: totalWarehouseQuantityAfterOrder,
+            //       total_cost: totalWarehouseCostAfterOrder,
+            //     },
+            //     t
+            //   );
+            // }
             payload.subtotal = products.data.reduce((acc, product) => {
               const productDetail = products_detail.find(
                 (p) => p.id === product.variant_id

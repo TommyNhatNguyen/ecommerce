@@ -16,12 +16,12 @@ import {
   IOrderUseCase,
 } from 'src/modules/order/models/order.interface';
 import { Order } from 'src/modules/order/models/order.model';
-import { OrderDetailCreateDTO } from 'src/modules/order_detail/models/order_detail.dto';
+import { OrderDetailCreateDTO, OrderDetailUpdateDTO } from 'src/modules/order_detail/models/order_detail.dto';
 import { IOrderDetailUseCase } from 'src/modules/order_detail/models/order_detail.interface';
 import { OrderDetail } from 'src/modules/order_detail/models/order_detail.model';
 import { productSellableModelName } from 'src/modules/product_sellable/infras/repo/postgres/dto';
 import { IUserUseCase } from 'src/modules/user/models/user.interface';
-import { ListResponse } from 'src/share/models/base-model';
+import { ListResponse, OrderState } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { SOCKET_NAMESPACE } from 'src/socket/models/socket-endpoint';
 import { SocketUseCase } from 'src/socket/usecase';
@@ -100,7 +100,7 @@ export class OrderUseCase implements IOrderUseCase {
             ? cart.product_sellable?.map((product) => ({
                 id: product.id,
                 quantity: product.cart_product_sellable?.quantity || 0,
-                warehouse_id: ""
+                warehouse_id: '',
               }))
             : order_detail_info.products_detail,
         order_discounts: order_detail_info.order_discounts,
@@ -125,7 +125,7 @@ export class OrderUseCase implements IOrderUseCase {
         t
       );
     } else {
-      // Create order without cart_id
+      // Create order detail without cart_id
       const orderDetail = await this.orderDetailUseCase.create(
         order_detail_info,
         t
@@ -133,6 +133,7 @@ export class OrderUseCase implements IOrderUseCase {
       orderDetailId = orderDetail.id;
       orderDetailCreated = orderDetail;
     }
+    // Create new order with PENDING state
     const order = await this.orderRepository.create(
       {
         ...orderData,
@@ -180,46 +181,52 @@ export class OrderUseCase implements IOrderUseCase {
   }
   async update(id: string, data: OrderUpdateDTO): Promise<Order> {
     /**
-     * description check
-     * order_state check
-     * status check
-     * order_detail_info
-     */
-    /** order_detail_info
-     *  subtotal
-     *  total_shipping_fee
-     *  total_payment_fee
-     *  total_costs
-     *  total_discount
-     *  total
-     * ---------
-     * Products
-     *  product_id
-     *  quantity
-     *  price
-     *  subtotal
-     *  discount_amount
-     * ---------
-     * Shipping
-     *  shipping_id
-     * ------------
-     * Payment
-     *  payment_id
-     * ------------
-     * Customer
-     *  customer_id
-     *  customer_name
-     *  customer_phone
-     *  customer_email
-     *  customer_address
+     * description: Không cho cập nhật
+     * order_state: Cho cập nhật (Kiểm tra trạng thái cập nhật để có rules khác nhau)
+     * status: Không cho cập nhật
+     * adjust_amount: Cho cập nhật
+     * adjust_amount_note: Cho cập nhật
+     * total: Tính lại total = total hiện tại + điều chỉnh (Không cho cập nhật trực tiếp)
+     * paid_amount: Cho cập nhật
+     * paid_all_date: Cho cập nhật
      */
     const { order_detail_info, ...orderData } = data;
     // const orderDetail = await this.orderDetailUseCase.update(id, order_detail_info);
+    switch (orderData.order_state) {
+      case OrderState.CONFIRMED:
+        await this.handleConfirmedOrder(order_detail_info || {});
+        break;
+      case OrderState.SHIPPED:
+        // await this.handleShippedOrder(orderData);
+        break;
+      case OrderState.DELIVERED:
+        // await this.handleDeliveredOrder(orderData);
+        break;
+      case OrderState.FAILED:
+        // await this.handleFailedOrder(orderData);
+        break;
+      case OrderState.CANCELLED:
+        // await this.handleCancelledOrder(orderData);
+        break;
+      default:
+        break;
+    }
     return await this.orderRepository.update(id, {
       ...orderData,
     });
   }
   async delete(id: string): Promise<boolean> {
     return await this.orderRepository.delete(id);
+  }
+  private async handleConfirmedOrder(orderDetail: OrderDetailUpdateDTO) {
+    // Tạo 1 thẻ kho bán hàng
+  }
+  private async handleShippedOrder(order: Order) {}
+  private async handleDeliveredOrder(order: Order) {}
+  private async handleFailedOrder(order: Order) {
+    // Tạo 1 thẻ kho thất bại, hỏi admin có update lại kho hàng hay không
+  }
+  private async handleCancelledOrder(order: Order) {
+    // Tạo 1 thẻ kho huỷ đơn hàng (tính từ lúc confirmed order), không thì khỏi tạo
   }
 }
