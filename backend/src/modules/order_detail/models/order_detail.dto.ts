@@ -41,6 +41,8 @@ export const OrderDetailAddProductsDTOSchema = z.object({
   price: z.number(),
   subtotal: z.number(),
   discount_amount: z.number().default(0),
+  cost: z.number().default(0),
+  total_cost: z.number().default(0),
 });
 
 export const OrderDetailAddDiscountsDTOSchema = z.object({

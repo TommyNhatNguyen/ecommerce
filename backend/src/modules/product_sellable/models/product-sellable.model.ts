@@ -55,6 +55,8 @@ export const ProductSellableSchema = z.object({
     subtotal: z.number(),
     discount_amount: z.number(),
     total: z.number(),
+    cost: z.number(),
+    total_cost: z.number(),
   }),
 });
 

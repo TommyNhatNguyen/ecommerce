@@ -283,6 +283,11 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
                     (products_detail.find((p) => p.id === product.variant_id)
                       ?.quantity ?? 0) -
                   discountAmountList[product.variant_id],
+                cost: product.inventory?.avg_cost || 0,
+                total_cost:
+                  (product.inventory?.avg_cost || 0) *
+                  (products_detail.find((p) => p.id === product.variant_id)
+                    ?.quantity ?? 0),
               }))
             );
           }

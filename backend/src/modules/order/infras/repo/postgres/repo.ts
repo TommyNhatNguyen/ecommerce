@@ -103,6 +103,8 @@ export class PostgresOrderRepository implements IOrderRepository {
             'subtotal',
             'discount_amount',
             'total',
+            'cost',
+            'total_cost',
           ],
           as: 'product_details',
         },

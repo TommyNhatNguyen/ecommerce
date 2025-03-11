@@ -167,6 +167,16 @@ export function orderDetailProductSellableInit(sequelize: Sequelize) {
         type: DataTypes.FLOAT,
         allowNull: false,
       },
+      cost: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      total_cost: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0,
+      },
       discount_amount: {
         type: DataTypes.FLOAT,
         allowNull: false,
