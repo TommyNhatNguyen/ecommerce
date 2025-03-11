@@ -1,0 +1,1 @@
+export const INVENTORY_INVOICE_NOT_FOUND = new Error('Inventory invoice not found');
