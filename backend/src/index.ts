@@ -53,6 +53,7 @@ import { setupChat } from 'src/modules/chat';
 import { setupCouponRouter } from 'src/modules/coupon';
 import setupBrandRouter from 'src/modules/brand';
 import { setupWarehouseRouter } from 'src/modules/warehouse';
+import { setupInventoryInvoiceRouter } from 'src/modules/inventory_invoices';
 // ENVIRONMENT CONFIGURATION
 config();
 
@@ -143,6 +144,7 @@ app.use('/v1', setupBlogsRouter(sequelize));
 app.use('/v1', setupCouponRouter(sequelize));
 app.use('/v1', setupBrandRouter(sequelize));
 app.use('/v1', setupWarehouseRouter(sequelize));
+app.use('/v1', setupInventoryInvoiceRouter(sequelize));
 app.use('/v1', setupChat());
 // DATABASE ASSOCIATIONS AND ERROR HANDLING
 initializeAssociation();

@@ -13,8 +13,14 @@ class RabbitMQ {
 
   private async getConnection(): Promise<Connection> {
     if (!this.connection) {
-      this.connection = await amqp.connect('amqp://localhost');
-      console.log('✅ RabbitMQ Connected.');
+      try {
+        this.connection = await amqp.connect('amqp://localhost');
+        console.log('✅ RabbitMQ Connected.');
+        return this.connection;
+      } catch (error) {
+        console.log('❌ RabbitMQ Connection Failed.');
+        throw error;
+      }
     }
     return this.connection;
   }
