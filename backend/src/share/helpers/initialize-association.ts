@@ -112,8 +112,15 @@ import {
   CouponPersistence,
 } from 'src/modules/coupon/infras/repo/postgres/coupon.dto';
 import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
-import { brandModelName, BrandPersistence } from 'src/modules/brand/infras/repo/brand.dto';
+import {
+  brandModelName,
+  BrandPersistence,
+} from 'src/modules/brand/infras/repo/brand.dto';
 import { WarehousePersistence } from 'src/modules/warehouse/infras/repo/warehouse.dto';
+import {
+  inventoryInvoiceModelName,
+  InventoryInvoicePersistence,
+} from 'src/modules/inventory_invoices/infras/repo/inventory_invoices.dto';
 
 export const initializeAssociation = () => {
   MessagePersistence.belongsTo(ActorPersistence, {
@@ -432,6 +439,16 @@ export const initializeAssociation = () => {
     through: inventoryWarehouseModelName,
     foreignKey: 'warehouse_id',
     otherKey: 'inventory_id',
+    as: inventoryModelName.toLowerCase(),
+  });
+
+  InventoryPersistence.hasMany(InventoryInvoicePersistence, {
+    foreignKey: 'inventory_id',
+    as: inventoryInvoiceModelName.toLowerCase(),
+  });
+
+  InventoryInvoicePersistence.belongsTo(InventoryPersistence, {
+    foreignKey: 'inventory_id',
     as: inventoryModelName.toLowerCase(),
   });
 
