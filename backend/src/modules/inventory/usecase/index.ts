@@ -3,7 +3,9 @@ import {
   InventoryConditionDTO,
   InventoryCreateDTO,
   InventoryUpdateDTO,
+  InventoryUpdatedType,
   InventoryWarehouseCreateDTO,
+  InventoryWarehouseUpdateDTO,
 } from 'src/modules/inventory/models/inventory.dto';
 import {
   IInventoryRepository,
@@ -24,6 +26,17 @@ export class InventoryUseCase implements IInventoryUseCase {
     private readonly inventoryWarehouseRepository: IInventoryRepository,
     private readonly warehouseUseCase: IWarehouseUsecase
   ) {}
+
+  async updateInventoryWarehouse(
+    data: InventoryWarehouseUpdateDTO[],
+    t?: Transaction
+  ): Promise<InventoryWarehouse[]> {
+    return await this.inventoryWarehouseRepository.updateInventoryWarehouse(
+      data,
+      t
+    );
+  }
+
   async getInventoryByInventoryIdAndWarehouseId(
     inventory_id: string,
     warehouse_id: string,
@@ -38,9 +51,10 @@ export class InventoryUseCase implements IInventoryUseCase {
 
   async getInventoryById(
     id: string,
-    condition?: InventoryConditionDTO
+    condition?: InventoryConditionDTO,
+    t?: Transaction
   ): Promise<Inventory> {
-    return await this.inventoryRepository.get(id, condition);
+    return await this.inventoryRepository.get(id, condition, t);
   }
 
   async getInventoryList(
@@ -58,14 +72,9 @@ export class InventoryUseCase implements IInventoryUseCase {
     const totalQuantity = data.inventory_warehouse.reduce((acc, curr) => {
       return acc + curr.quantity;
     }, 0);
-    console.log(
-      '🚀 ~ InventoryUseCase ~ totalQuantity ~ totalQuantity:',
-      totalQuantity
-    );
     const totalCost = data.inventory_warehouse.reduce((acc, curr) => {
       return acc + Number(curr.cost) * Number(curr.quantity);
     }, 0);
-    console.log('🚀 ~ InventoryUseCase ~ totalCost ~ totalCost:', totalCost);
     // 2. Create Inventory for product sellable
     const processData: InventoryCreateDTO = {
       ...data,
@@ -85,6 +94,7 @@ export class InventoryUseCase implements IInventoryUseCase {
       data.inventory_warehouse.map((item) => ({
         ...item,
         inventory_id: createdInventory.id,
+        total_cost: Number(item.cost) * Number(item.quantity),
       }));
     const createdInventoryWarehouseData =
       await this.inventoryWarehouseRepository.addInventoryWarehouse(
@@ -136,39 +146,7 @@ export class InventoryUseCase implements IInventoryUseCase {
     t?: Transaction
   ): Promise<Inventory> {
     // 1. Get current inventory data
-    const currentInventory = await this.inventoryRepository.get(id);
-    // 2. Prepare update payload
-    const { inventory_warehouse, ...payload } = data;
-    // 3. Update inventory warehouse with transaction if provided
-    const updatedInventoryInWarehouse =
-      await this.inventoryWarehouseRepository.updateInventoryWarehouse(
-        inventory_warehouse || [],
-        t
-      );
-    // 4. Update total quantity and total cost
-    const totalQuantity = updatedInventoryInWarehouse.reduce((acc, curr) => {
-      return acc + Number(curr.quantity);
-    }, 0);
-    const totalCost = updatedInventoryInWarehouse.reduce((acc, curr) => {
-      return acc + Number(curr.cost) * Number(curr.quantity);
-    }, 0);
-    payload.total_quantity = totalQuantity;
-    payload.total_cost = totalCost;
-    payload.stock_status = this.determineStockStatus(
-      totalQuantity,
-      currentInventory.low_stock_threshold ?? 0
-    );
-    // 5. Update inventory with transaction if provided
-    const updatedInventory = await this.inventoryRepository.update(
-      id,
-      payload,
-      t
-    );
-    console.log('🚀 ~ InventoryUseCase ~ updatedInventory:', updatedInventory);
-    console.log(
-      '🚀 ~ InventoryUseCase ~ updatedInventoryInWarehouse:',
-      updatedInventoryInWarehouse
-    );
+    const updatedInventory = await this.inventoryRepository.update(id, data, t);
     return updatedInventory;
   }
 

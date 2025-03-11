@@ -41,6 +41,7 @@ import { checkSufficientInventory } from 'src/modules/order_detail/usecase/check
 import { Sequelize } from 'sequelize';
 import { DiscountCalculatorUsecaseImpl } from './DiscountCalculatorUsecase';
 import { Transaction } from 'sequelize';
+import { InventoryUpdatedType } from 'src/modules/inventory/models/inventory.dto';
 
 export class OrderDetailUseCase implements IOrderDetailUseCase {
   constructor(
@@ -122,62 +123,46 @@ export class OrderDetailUseCase implements IOrderDetailUseCase {
               throw ORDER_DETAIL_PRODUCT_OUT_OF_STOCK_ERROR;
             } else {
               // TODO: Update inventory for order
-              const response = await Promise.all(
-                products.data.map(async (product) => {
-                  // 1. Get inventory Id
-                  const inventoryId = product.inventory?.id || '';
-                  // 2. Get inventory warehouse Id
-                  const warehouseId =
-                    products_detail.find(
-                      (item) => item.id === product.variant_id
-                    )?.warehouse_id || '';
-                  // 3. Get order quantity
-                  const orderQuantity =
-                    products_detail.find(
-                      (item) => item.id === product.variant_id
-                    )?.quantity ?? 0;
-                  console.log(
-                    '🚀 ~ OrderDetailUseCase ~ products.data.map ~ orderQuantity:',
-                    orderQuantity
-                  );
-                  console.log(
-                    '🚀 ~ OrderDetailUseCase ~ products.data.map ~ inventoryId:',
-                    inventoryId
-                  );
-                  console.log(
-                    '🚀 ~ OrderDetailUseCase ~ products.data.map ~ warehouseId:',
-                    warehouseId
-                  );
-                  // 4. Get quantity by inventory and warehouse
-                  const inventoryWarehouse =
-                    await this.inventoryUseCase.getInventoryByInventoryIdAndWarehouseId(
-                      inventoryId,
-                      warehouseId,
-                      t
-                    );
-                  console.log(
-                    '🚀 ~ OrderDetailUseCase ~ products.data.map ~ inventoryWarehouse:',
-                    inventoryWarehouse
-                  );
-                  // 3. Update inventory quantity
-                  return await this.inventoryUseCase.updateInventory(
-                    inventoryId,
-                    {
-                      inventory_warehouse: [
-                        {
-                          inventory_id: inventoryId,
-                          warehouse_id: warehouseId,
-                          quantity: inventoryWarehouse.quantity - orderQuantity,
-                        },
-                      ],
-                    },
-                    t
-                  );
-                })
-              );
-            }
-            if (products.data.length !== products_detail.length) {
-              throw ORDER_DETAIL_PRODUCT_ERROR;
+              // For each order item, get its inventory id and warehouse id
+              // Calculate total quantity, total cost of inventory after order
+              // Update inventory with new total quantity, total cost
+              // Calculate quantity, cost of inventory in each warehouse after order
+              // Update inventory warehouse with new quantity, cost
+              // Calculate total quantity, total cost of warehouse after order
+              // Update warehouse with new total quantity, total cost
+              products_detail.forEach(async (product) => {
+                // Get product sellable
+                const productSellableId =
+                  products.data.find((item) => item.variant_id == product.id)
+                    ?.id || '';
+                // Get current inventory info by product sellable id
+                const productInventory = await this.productSellableUseCase
+                  .getProductSellableById(productSellableId)
+                  .then((item) => item?.inventory);
+                // Get inventory id
+                const productInventoryId = productInventory?.id || '';
+                // Get warehouse id
+                const productWarehouseId = product.warehouse_id || '';
+                // Get the cost of that product by inventory id and warehouse id 
+                const productCost = (await this.inventoryUseCase.getInventoryByInventoryIdAndWarehouseId(productInventoryId, productWarehouseId, t)).cost || 0
+                // Calculate total quantity, total cost of inventory after order
+                const totalInventoryQuantityAfterOrder =
+                  (productInventory?.total_quantity || 0) - product.quantity;
+                const totalInventoryCostAfterOrder =
+                  (productInventory?.total_cost || 0) - (product.quantity * productCost);
+                // Update inventory with new total quantity, total cost
+                await this.inventoryUseCase.updateInventory(productInventoryId, {
+                  total_quantity: totalInventoryQuantityAfterOrder,
+                  total_cost: totalInventoryCostAfterOrder,
+                }, t)
+                // Calculate quantity, cost of inventory in each warehouse after order
+                await this.inventoryUseCase.updateInventoryWarehouse([{
+                  inventory_id: productInventoryId,
+                  warehouse_id: productWarehouseId,
+                  quantity: totalInventoryQuantityAfterOrder,
+                  cost: totalInventoryCostAfterOrder,
+                }], t)
+              });
             }
             payload.subtotal = products.data.reduce((acc, product) => {
               const productDetail = products_detail.find(

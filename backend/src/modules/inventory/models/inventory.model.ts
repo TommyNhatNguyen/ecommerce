@@ -22,6 +22,7 @@ export const InventoryWarehouseSchema = z.object({
   warehouse_id: z.string().uuid(),
   quantity: z.number().min(0),
   cost: z.number().min(0),
+  total_cost: z.number().min(0).optional(),
   status: z.nativeEnum(ModelStatus),
   created_at: z.date(),
   updated_at: z.date(),

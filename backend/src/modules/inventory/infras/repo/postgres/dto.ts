@@ -80,6 +80,7 @@ export class InventoryWarehousePersistence extends Model {
   declare warehouse_id: string;
   declare quantity: number;
   declare cost: number;
+  declare total_cost: number;
   declare status: ModelStatus;
   declare created_at: Date;
   declare updated_at: Date;
@@ -104,6 +105,12 @@ export const inventoryWarehouseInit = (sequelize: Sequelize) => {
         validate: { min: 0 },
       },
       cost: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+        defaultValue: 0,
+        validate: { min: 0 },
+      },
+      total_cost: {
         type: DataTypes.FLOAT,
         allowNull: false,
         defaultValue: 0,

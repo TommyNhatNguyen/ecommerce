@@ -6,12 +6,19 @@ import {
   InventoryWarehouseUpdateDTO,
 } from 'src/modules/inventory/models/inventory.dto';
 import { InventoryCreateDTO } from 'src/modules/inventory/models/inventory.dto';
-import { Inventory, InventoryWarehouse } from 'src/modules/inventory/models/inventory.model';
+import {
+  Inventory,
+  InventoryWarehouse,
+} from 'src/modules/inventory/models/inventory.model';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 
 export interface IInventoryUseCase {
-  getInventoryById(id: string, condition?: InventoryConditionDTO): Promise<Inventory>;
+  getInventoryById(
+    id: string,
+    condition?: InventoryConditionDTO,
+    t?: Transaction
+  ): Promise<Inventory>;
   getInventoryList(
     paging: PagingDTO,
     condition: InventoryConditionDTO
@@ -31,6 +38,10 @@ export interface IInventoryUseCase {
     warehouse_id: string,
     t?: Transaction
   ): Promise<InventoryWarehouse>;
+  updateInventoryWarehouse(
+    data: InventoryWarehouseUpdateDTO[],
+    t?: Transaction
+  ): Promise<InventoryWarehouse[]>;
 }
 
 export interface IInventoryRepository
@@ -57,7 +68,11 @@ export interface IInventoryRepository
 }
 
 export interface IQueryRepository {
-  get(id: string, condition?: InventoryConditionDTO): Promise<Inventory>;
+  get(
+    id: string,
+    condition?: InventoryConditionDTO,
+    t?: Transaction
+  ): Promise<Inventory>;
   list(
     paging: PagingDTO,
     condition: InventoryConditionDTO

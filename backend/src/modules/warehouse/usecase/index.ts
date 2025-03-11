@@ -1,4 +1,5 @@
 import { Transaction } from 'sequelize';
+import { InventoryUpdatedType } from 'src/modules/inventory/models/inventory.dto';
 import {
   WarehouseCreateDTO,
   WarehouseUpdateDTO,
@@ -25,14 +26,6 @@ export class WarehouseUseCase implements IWarehouseUsecase {
     data: WarehouseUpdateDTO,
     t?: Transaction
   ): Promise<Warehouse> {
-    const warehouse = await this.warehouseRepository.getWarehouseById(
-      id,
-      {},
-      t
-    );
-    if (!warehouse) {
-      throw WAREHOUSE_NOT_FOUND;
-    }
     const updatedWarehouse = await this.warehouseRepository.updateWarehouse(
       id,
       data,

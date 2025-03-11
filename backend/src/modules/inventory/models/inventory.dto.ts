@@ -8,6 +8,7 @@ export const InventoryWarehouseCreateDTOSchema = z.object({
   warehouse_id: z.string().uuid(),
   quantity: z.number().min(0),
   cost: z.number().min(0),
+  total_cost: z.number().min(0).optional(),
 });
 
 export const InventoryWarehouseUpdateDTOSchema = z.object({
@@ -15,6 +16,7 @@ export const InventoryWarehouseUpdateDTOSchema = z.object({
   warehouse_id: z.string().uuid().optional(),
   quantity: z.number().min(0).optional(),
   cost: z.number().min(0).optional(),
+  total_cost: z.number().min(0).optional(),
 });
 
 export enum InventorySortBy {
@@ -31,6 +33,11 @@ export const InventoryCreateDTOSchema = z.object({
   inventory_warehouse: z.array(InventoryWarehouseCreateDTOSchema),
 });
 
+export enum InventoryUpdatedType {
+  CREATE_NEW_ORDER = 'CREATE_NEW_ORDER',
+  UPDATE_EXISTING_ORDER = 'UPDATE_EXISTING_ORDER',
+}
+
 export const InventoryUpdateDTOSchema = z.object({
   total_quantity: z.number().min(0).optional(),
   total_cost: z.number().min(0).optional(),
@@ -40,7 +47,8 @@ export const InventoryUpdateDTOSchema = z.object({
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
   inventory_warehouse: z.array(InventoryWarehouseUpdateDTOSchema).optional(),
-  
+  type: z.nativeEnum(InventoryUpdatedType).optional(),
+  order_quantity: z.number().min(0).optional(),
 });
 
 export const InventoryConditionDTOSchema = z.object({

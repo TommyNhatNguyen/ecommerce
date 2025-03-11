@@ -26,7 +26,10 @@ import {
 } from 'src/modules/variant/infras/repo/postgres/dto';
 import { inventoryWarehouseModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
 import { InventoryWarehousePersistence } from 'src/modules/inventory/infras/repo/postgres/dto';
-import { warehouseModelName, WarehousePersistence } from 'src/modules/warehouse/infras/repo/warehouse.dto';
+import {
+  warehouseModelName,
+  WarehousePersistence,
+} from 'src/modules/warehouse/infras/repo/warehouse.dto';
 
 export class PostgresInventoryRepository implements IInventoryRepository {
   constructor(
@@ -34,17 +37,39 @@ export class PostgresInventoryRepository implements IInventoryRepository {
     private readonly modelName: string
   ) {}
 
-  async getInventoryByInventoryIdAndWarehouseId(inventory_id: string, warehouse_id: string, t?: Transaction): Promise<InventoryWarehouse> {
+  async getInventoryByInventoryIdAndWarehouseId(
+    inventory_id: string,
+    warehouse_id: string,
+    t?: Transaction
+  ): Promise<InventoryWarehouse> {
+    console.log(
+      '🚀 ~ PostgresInventoryRepository ~ getInventoryByInventoryIdAndWarehouseId ~ warehouse_id:',
+      warehouse_id,
+      inventory_id
+    );
+
     if (t) {
-      const inventoryWarehouse = await this.sequelize.models[this.modelName].findOne({
+      const inventoryWarehouse = await this.sequelize.models[
+        this.modelName
+      ].findOne({
         where: { inventory_id, warehouse_id },
         transaction: t,
       });
+      console.log(
+        '🚀 ~ PostgresInventoryRepository ~ getInventoryByInventoryIdAndWarehouseId ~ inventoryWarehouse:',
+        inventoryWarehouse?.dataValues
+      );
       return inventoryWarehouse?.dataValues;
     }
-    const inventoryWarehouse = await this.sequelize.models[this.modelName].findOne({
+    const inventoryWarehouse = await this.sequelize.models[
+      this.modelName
+    ].findOne({
       where: { inventory_id, warehouse_id },
     });
+    console.log(
+      '🚀 ~ PostgresInventoryRepository ~ getInventoryByInventoryIdAndWarehouseId ~ inventoryWarehouse:',
+      inventoryWarehouse?.dataValues
+    );
     return inventoryWarehouse?.dataValues;
   }
 
@@ -124,7 +149,11 @@ export class PostgresInventoryRepository implements IInventoryRepository {
     return true;
   }
 
-  async get(id: string, condition?: InventoryConditionDTO): Promise<Inventory> {
+  async get(
+    id: string,
+    condition?: InventoryConditionDTO,
+    t?: Transaction
+  ): Promise<Inventory> {
     const include: Includeable[] = [];
     if (condition?.include_inventory_warehouse) {
       include.push({
@@ -133,9 +162,13 @@ export class PostgresInventoryRepository implements IInventoryRepository {
       });
     }
     const inventory = await this.sequelize.models[this.modelName].findByPk(id, {
-      include
+      include,
+      transaction: t,
     });
-    return inventory?.dataValues;
+    if (!inventory) {
+      throw new Error('Inventory not found');
+    }
+    return inventory.dataValues;
   }
   async list(
     paging: PagingDTO,
@@ -167,7 +200,6 @@ export class PostgresInventoryRepository implements IInventoryRepository {
       const inventory = await this.sequelize.models[this.modelName].findAll({
         order: [[sortBy, order]],
         include,
-        
       });
       return {
         data: inventory.map((row) => row.dataValues),
