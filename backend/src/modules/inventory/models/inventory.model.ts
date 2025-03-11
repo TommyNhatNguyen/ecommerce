@@ -37,6 +37,8 @@ export const InventorySchema = z.object({
   updated_at: z.date(),
   stock_status: z.nativeEnum(StockStatus),
   low_stock_threshold: z.number().min(0),
+  high_stock_threshold: z.number().min(0),
+  note: z.string().optional(),
   [productSellableModelName]: z.object({
     id: z.string().uuid(),
     price: z.number().nonnegative().min(0),

@@ -10,6 +10,7 @@ export class InventoryPersistence extends Model {
   declare status: ModelStatus;
   declare stock_status: StockStatus;
   declare low_stock_threshold: number;
+  declare high_stock_threshold: number;
   declare created_at: Date;
   declare updated_at: Date;
 }
@@ -43,6 +44,16 @@ export const inventoryInit = (sequelize: Sequelize) => {
         allowNull: false,
         defaultValue: 0,
         validate: { min: 0 },
+      },
+      high_stock_threshold: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 9999999,
+        validate: { min: 0 },
+      },
+      note: {
+        type: DataTypes.TEXT,
+        allowNull: true,
       },
       status: {
         type: DataTypes.ENUM(...Object.values(ModelStatus)),
