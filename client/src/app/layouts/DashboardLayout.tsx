@@ -29,78 +29,33 @@ import { getUserInfo } from "@/app/shared/store/reducers/auth";
 import OrderNotification from "@/app/layouts/components/OrderNotification";
 import { useSocketNotifications } from "@/app/layouts/hooks/useSocketNotification";
 import { HeaderSection } from "@/app/layouts/components/HeaderSection";
-import { createPortal } from "react-dom";
-import SettingModal from "@/app/shared/components/GeneralModal/components/SettingModal";
-import { useSettingModal } from "@/app/layouts/hooks/useSettingModal";
+import { IntlProvider, useIntl } from "react-intl";
+import { useLanguage } from "@/app/shared/hooks/useLanguage";
+import { LOCALES } from "@/app/shared/translation/locales";
+
 const { Footer, Sider, Content } = Layout;
+
 type DashboardLayoutPropsType = {
   children: React.ReactNode;
 };
 
-const items: MenuItem[] = [
-  {
-    key: ADMIN_ROUTES.dashboard,
-    label: "Dashboard (Coming soon)",
-    icon: <LayoutDashboard size={16} />,
-    disabled: true,
-  },
-  {
-    key: ADMIN_ROUTES.chat,
-    label: "Chat",
-    icon: <MessageCircle size={16} />,
-  },
-  {
-    key: ADMIN_ROUTES.orders.index,
-    label: "Orders",
-    icon: <ShoppingCart size={16} />,
-  },
-  {
-    key: ADMIN_ROUTES.sales,
-    label: "Sales (Coming soon)",
-    icon: <BarChart size={16} />,
-    disabled: true,
-  },
-  {
-    key: ADMIN_ROUTES.inventory.index,
-    label: "Inventory",
-    icon: <Package size={16} />,
-  },
-  {
-    key: ADMIN_ROUTES.customers,
-    label: "Customers (Coming soon)",
-    icon: <Users size={16} />,
-    disabled: true,
-  },
-  {
-    key: ADMIN_ROUTES.blogs.index,
-    label: "Blogs",
-    icon: <Book size={16} />,
-  },
-  {
-    key: ADMIN_ROUTES.resources,
-    label: "Resources",
-    icon: <FolderOpen size={16} />,
-  },
-  {
-    key: ADMIN_ROUTES.permissions.index,
-    label: "Permissions",
-    icon: <Lock size={16} />,
-  },
-  {
-    key: ADMIN_ROUTES.website,
-    label: "Website setting",
-    icon: <Globe size={16} />,
-  },
-];
-
 export const DashboardWrapper = ({ children }: DashboardLayoutPropsType) => {
   const queryClient = new QueryClient();
+  const { messages, locale } = useLanguage();
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <NotificationContextProvider>
-        <DashboardLayout>{children}</DashboardLayout>
-      </NotificationContextProvider>
-    </QueryClientProvider>
+    //@ts-ignore
+    <IntlProvider
+      messages={messages}
+      locale={locale}
+      defaultLocale={LOCALES.ENGLISH}
+    >
+      <QueryClientProvider client={queryClient}>
+        <NotificationContextProvider>
+          <DashboardLayout>{children}</DashboardLayout>
+        </NotificationContextProvider>
+      </QueryClientProvider>
+    </IntlProvider>
   );
 };
 
@@ -110,18 +65,79 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   const pathname = usePathname();
   const router = useRouter();
   const currentPath = pathname.split("/").slice(1);
+  const intl = useIntl();
   const { notificationApi } = useNotification();
   const { orderCreated, inventoryLowInventory } = useAppSelector(
     (state) => state.socket,
   );
+
+  const menuItems: MenuItem[] = [
+    {
+      key: ADMIN_ROUTES.dashboard,
+      label: `${intl.formatMessage({ id: "dashboard" })} (${intl.formatMessage({ id: "coming_soon" })})`,
+      icon: <LayoutDashboard size={16} />,
+      disabled: true,
+    },
+    {
+      key: ADMIN_ROUTES.chat,
+      label: intl.formatMessage({ id: "chat" }),
+      icon: <MessageCircle size={16} />,
+    },
+    {
+      key: ADMIN_ROUTES.orders.index,
+      label: intl.formatMessage({ id: "orders" }),
+      icon: <ShoppingCart size={16} />,
+    },
+    {
+      key: ADMIN_ROUTES.sales,
+      label: `${intl.formatMessage({ id: "sales" })} (${intl.formatMessage({ id: "coming_soon" })})`,
+      icon: <BarChart size={16} />,
+      disabled: true,
+    },
+    {
+      key: ADMIN_ROUTES.inventory.index,
+      label: intl.formatMessage({ id: "inventory" }),
+      icon: <Package size={16} />,
+    },
+    {
+      key: ADMIN_ROUTES.customers,
+      label: `${intl.formatMessage({ id: "customers" })} (${intl.formatMessage({ id: "coming_soon" })})`,
+      icon: <Users size={16} />,
+      disabled: true,
+    },
+    {
+      key: ADMIN_ROUTES.blogs.index,
+      label: intl.formatMessage({ id: "blogs" }),
+      icon: <Book size={16} />,
+    },
+    {
+      key: ADMIN_ROUTES.resources,
+      label: intl.formatMessage({ id: "resources" }),
+      icon: <FolderOpen size={16} />,
+    },
+    {
+      key: ADMIN_ROUTES.permissions.index,
+      label: intl.formatMessage({ id: "permissions" }),
+      icon: <Lock size={16} />,
+    },
+    {
+      key: ADMIN_ROUTES.website,
+      label: intl.formatMessage({ id: "website" }),
+      icon: <Globe size={16} />,
+    },
+  ];
+
   const toggleCollapsed = () => {
     setCollapsed(!collapsed);
   };
+
   const handleSelect = (key: string) => {
     router.push(key);
   };
+
   // Handle socket notifications
   useSocketNotifications(pathname, notificationApi);
+
   // Handle notifications display
   const { notificationList } = useAppSelector((state) => state.notification);
   useEffect(() => {
@@ -138,6 +154,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
       }
     }
   }, [notificationList]);
+
   // Handle order/inventory notifications
   useEffect(() => {
     if (orderCreated?.created_at) {
@@ -167,6 +184,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
       router.push(ADMIN_ROUTES.login);
     }
   }, []);
+
   return (
     <>
       <Layout className="h-screen">
@@ -179,7 +197,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
           </div>
           <Divider variant="dashed" />
           <Menu
-            items={items}
+            items={menuItems}
             inlineCollapsed={collapsed}
             selectedKeys={[`/${pathname.split("/").slice(1, 3).join("/")}`]}
             onSelect={(e) => handleSelect(e.key)}
