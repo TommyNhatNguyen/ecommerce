@@ -67,55 +67,48 @@ export class InventoryInvoiceUseCase implements IInventoryInvoiceUseCase {
   ): Promise<InventoryInvoice | null> {
     try {
       const result = await this.sequelize?.transaction(async (t) => {
-        // TODO: Tạo mới một invoice nhập hàng sẽ cập nhật inventory + warehouse
-        const inventory_id = data?.inventory_id || '';
-        const warehouse_id = data?.warehouse_id || '';
-        const quantity = data?.quantity || 0;
-        const cost = data?.cost || 0;
-        const amount = quantity * cost;
-        const code =
+        let inventoryInvoice;
+        let inventory_id = data?.inventory_id || '';
+        let warehouse_id = data?.warehouse_id || '';
+        let quantity = data?.quantity || 0;
+        let cost = data?.cost || 0;
+        let amount = quantity * cost;
+        let code =
           data?.code ||
           `IMPORT-INV-${data?.type}-${Math.random()
             .toString(36)
             .substring(2, 15)}`;
-        // 2. Tạo mới một invoice
-        const inventoryInvoice = await this.inventoryInvoiceRepository.create(
-          {
-            ...data,
-            quantity: quantity,
-            cost: cost,
-            amount: amount,
-            inventory_id: inventory_id,
-            warehouse_id: warehouse_id,
-            code: code,
-          },
+        // 1. Lấy data: cập nhật cái gì, ở kho nào, số lượng bao nhiêu, note là gì
+        const inventoryWarehouse =
+          await this.inventoryUseCase?.getInventoryByInventoryIdAndWarehouseId(
+            inventory_id,
+            warehouse_id,
+            t
+          );
+        const inventory = await this.inventoryUseCase?.getInventoryById(
+          inventory_id,
+          {},
+          t
+        );
+        const warehouse = await this.warehouseUseCase?.getWarehouseById(
+          warehouse_id,
+          {},
           t
         );
         if (data.type == InventoryInvoiceType.IMPORT_INVOICE) {
-          console.log(
-            '🚀 ~ InventoryInvoiceUseCase ~ create ~ amount:',
-            quantity,
-            cost,
-            amount
-          );
-          // 1. Lấy data: cập nhật cái gì, ở kho nào, số lượng bao nhiêu, note là gì
-          const inventoryWarehouse =
-            await this.inventoryUseCase?.getInventoryByInventoryIdAndWarehouseId(
-              inventory_id,
-              warehouse_id,
-              t
-            );
-          const inventory = await this.inventoryUseCase?.getInventoryById(
-            inventory_id,
-            {},
+          inventoryInvoice = await this.inventoryInvoiceRepository.create(
+            {
+              ...data,
+              quantity: quantity,
+              cost: cost,
+              amount: amount,
+              inventory_id: inventory_id,
+              warehouse_id: warehouse_id,
+              code: code,
+            },
             t
           );
-          const warehouse = await this.warehouseUseCase?.getWarehouseById(
-            warehouse_id,
-            {},
-            t
-          );
-          // 3. Cập nhật theo inventory và warehouse: quantity, total_cost, cost (tính trung bình)
+          // 2. Cập nhật theo inventory và warehouse: quantity, total_cost, cost (tính trung bình)
           const inventoryWareHouseUpdatedQuantity =
             (inventoryWarehouse?.quantity || 0) + quantity;
           const inventoryWareHouseUpdatedTotalCost =
@@ -135,7 +128,7 @@ export class InventoryInvoiceUseCase implements IInventoryInvoiceUseCase {
             ],
             t
           );
-          // 4. Cập nhật inventory tổng
+          // 3. Cập nhật inventory tổng
           const inventoryUpdatedTotalQuantity =
             (inventory?.total_quantity || 0) + quantity;
           const inventoryUpdatedTotalCost =
@@ -151,7 +144,7 @@ export class InventoryInvoiceUseCase implements IInventoryInvoiceUseCase {
             },
             t
           );
-          // 5. Cập nhật warehouse tổng
+          // 4. Cập nhật warehouse tổng
           const warehouseUpdatedTotalQuantity =
             (warehouse?.total_quantity || 0) + quantity;
           const warehouseUpdatedTotalCost =
@@ -164,8 +157,75 @@ export class InventoryInvoiceUseCase implements IInventoryInvoiceUseCase {
             },
             t
           );
+        } else if (data.type == InventoryInvoiceType.DISCARD_INVOICE) {
+          // 2. Cập nhật theo inventory và warehouse: quantity, total_cost, cost (tính trung bình)
+          cost = inventoryWarehouse?.cost || 0;
+          amount = quantity * cost;
+          code =
+            data?.code ||
+            `DISCARD-INV-${Math.random().toString(36).substring(2, 15)}`;
+          inventoryInvoice = await this.inventoryInvoiceRepository.create(
+            {
+              ...data,
+              quantity: quantity,
+              cost: cost,
+              amount: amount,
+              inventory_id: inventory_id,
+              warehouse_id: warehouse_id,
+              code: code,
+            },
+            t
+          );
+          // 2. Cập nhật theo inventory và warehouse: quantity, total_cost, cost (tính trung bình)
+          const inventoryWareHouseUpdatedQuantity =
+            (inventoryWarehouse?.quantity || 0) - quantity;
+          const inventoryWareHouseUpdatedTotalCost =
+            (inventoryWarehouse?.total_cost || 0) - amount;
+          const inventoryWareHouseUpdatedCost =
+            inventoryWareHouseUpdatedTotalCost /
+            inventoryWareHouseUpdatedQuantity;
+          await this.inventoryUseCase?.updateInventoryWarehouse(
+            [
+              {
+                inventory_id: inventory_id,
+                warehouse_id: warehouse_id,
+                quantity: inventoryWareHouseUpdatedQuantity,
+                total_cost: inventoryWareHouseUpdatedTotalCost,
+                cost: inventoryWareHouseUpdatedCost,
+              },
+            ],
+            t
+          );
+          // 3. Cập nhật inventory tổng
+          const inventoryUpdatedTotalQuantity =
+            (inventory?.total_quantity || 0) - quantity;
+          const inventoryUpdatedTotalCost =
+            (inventory?.total_cost || 0) - amount;
+          const inventoryUpdatedAvgCost =
+            inventoryUpdatedTotalCost / inventoryUpdatedTotalQuantity;
+          await this.inventoryUseCase?.updateInventory(
+            inventory_id,
+            {
+              total_quantity: inventoryUpdatedTotalQuantity,
+              total_cost: inventoryUpdatedTotalCost,
+              avg_cost: inventoryUpdatedAvgCost,
+            },
+            t
+          );
+          // 4. Cập nhật warehouse tổng
+          const warehouseUpdatedTotalQuantity =
+            (warehouse?.total_quantity || 0) - quantity;
+          const warehouseUpdatedTotalCost =
+            (warehouse?.total_cost || 0) - amount;
+          await this.warehouseUseCase?.updateWarehouse(
+            warehouse_id,
+            {
+              total_quantity: warehouseUpdatedTotalQuantity,
+              total_cost: warehouseUpdatedTotalCost,
+            },
+            t
+          );
         }
-        console.log('🚀 ~ InventoryInvoiceUseCase ~ result ~ code:', code);
         return inventoryInvoice;
       });
       return result || null;
