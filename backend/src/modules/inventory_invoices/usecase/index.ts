@@ -225,6 +225,72 @@ export class InventoryInvoiceUseCase implements IInventoryInvoiceUseCase {
             },
             t
           );
+        } else if (data.type == InventoryInvoiceType.UPDATE_COST_INVOICE) {
+          cost = data?.cost || 0;
+          quantity = inventoryWarehouse?.quantity || 0;
+          amount = quantity * cost;
+          code =
+            data?.code ||
+            `UPDATE-COST-INV-${Math.random().toString(36).substring(2, 15)}`;
+          inventoryInvoice = await this.inventoryInvoiceRepository.create(
+            {
+              ...data,
+              quantity: quantity,
+              cost: cost,
+              amount: amount,
+              inventory_id: inventory_id,
+              warehouse_id: warehouse_id,
+              code: code,
+            },
+            t
+          );
+          // 2. Cập nhật theo inventory và warehouse: quantity, total_cost, cost (tính trung bình)
+          const diffCost = cost - (inventoryWarehouse?.cost || 0);
+          const diffTotalCost = diffCost * quantity;
+          const inventoryWareHouseUpdatedQuantity =
+            inventoryWarehouse?.quantity || 0;
+          const inventoryWareHouseUpdatedTotalCost =
+            (inventoryWarehouse?.total_cost || 0) + diffTotalCost;
+          const inventoryWareHouseUpdatedCost = cost;
+          await this.inventoryUseCase?.updateInventoryWarehouse(
+            [
+              {
+                inventory_id: inventory_id,
+                warehouse_id: warehouse_id,
+                quantity: inventoryWareHouseUpdatedQuantity,
+                total_cost: inventoryWareHouseUpdatedTotalCost,
+                cost: inventoryWareHouseUpdatedCost,
+              },
+            ],
+            t
+          );
+          // 3. Cập nhật inventory tổng
+          const inventoryUpdatedTotalQuantity = inventory?.total_quantity || 0;
+          const inventoryUpdatedTotalCost =
+            (inventory?.total_cost || 0) + diffTotalCost;
+          const inventoryUpdatedAvgCost =
+            inventoryUpdatedTotalCost / inventoryUpdatedTotalQuantity;
+          await this.inventoryUseCase?.updateInventory(
+            inventory_id,
+            {
+              total_quantity: inventoryUpdatedTotalQuantity,
+              total_cost: inventoryUpdatedTotalCost,
+              avg_cost: inventoryUpdatedAvgCost,
+            },
+            t
+          );
+          // 4. Cập nhật warehouse tổng
+          const warehouseUpdatedTotalQuantity = warehouse?.total_quantity || 0;
+          const warehouseUpdatedTotalCost =
+            (warehouse?.total_cost || 0) + diffTotalCost;
+          await this.warehouseUseCase?.updateWarehouse(
+            warehouse_id,
+            {
+              total_quantity: warehouseUpdatedTotalQuantity,
+              total_cost: warehouseUpdatedTotalCost,
+            },
+            t
+          );
         }
         return inventoryInvoice;
       });
