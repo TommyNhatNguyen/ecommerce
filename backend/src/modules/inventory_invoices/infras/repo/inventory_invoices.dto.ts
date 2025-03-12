@@ -28,9 +28,15 @@ export const inventoryInvoiceInit = (sequelize: Sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    amount: {
-      type: DataTypes.INTEGER,
+    cost: {
+      type: DataTypes.FLOAT,
       allowNull: false,
+      defaultValue: 0,
+    },
+    amount: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      defaultValue: 0,
     },
     note: {
       type: DataTypes.TEXT,

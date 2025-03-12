@@ -27,8 +27,8 @@ export class InventoryUseCase implements IInventoryUseCase {
   constructor(
     private readonly inventoryRepository: IInventoryRepository,
     private readonly inventoryWarehouseRepository: IInventoryRepository,
-    private readonly inventoryInvoiceUseCase: InventoryInvoiceUseCase,
-    private readonly warehouseUseCase: IWarehouseUsecase
+    private readonly inventoryInvoiceUseCase?: InventoryInvoiceUseCase,
+    private readonly warehouseUseCase?: IWarehouseUsecase
   ) {}
 
   async updateInventoryWarehouse(
@@ -127,9 +127,9 @@ export class InventoryUseCase implements IInventoryUseCase {
         item.warehouse_id,
         {
           total_quantity:
-            currentWarehouse.total_quantity + Number(item.quantity),
+            (currentWarehouse?.total_quantity || 0) + Number(item.quantity),
           total_cost:
-            currentWarehouse.total_cost +
+            (currentWarehouse?.total_cost || 0) +
             Number(item.cost) * Number(item.quantity),
         },
         t
@@ -144,7 +144,7 @@ export class InventoryUseCase implements IInventoryUseCase {
         note: `New inventory created at ${new Date().toISOString()}`,
         warehouse_id: item.warehouse_id,
       };
-      await this.inventoryInvoiceUseCase.create(inventoryInvoicePayload, t);
+      await this.inventoryInvoiceUseCase?.create(inventoryInvoicePayload, t);
     }
 
     console.log(
@@ -163,8 +163,20 @@ export class InventoryUseCase implements IInventoryUseCase {
     data: InventoryUpdateDTO,
     t?: Transaction
   ): Promise<Inventory> {
-    // 1. Get current inventory data
-    const updatedInventory = await this.inventoryRepository.update(id, data, t);
+    const inventory = await this.getInventoryById(id, {}, t);
+    const payload: InventoryUpdateDTO = { ...data };
+    if (data.total_quantity) {
+      payload.stock_status = this.determineStockStatus(
+        data.total_quantity,
+        inventory.low_stock_threshold ?? 0,
+        inventory.high_stock_threshold ?? 9999999
+      );
+    }
+    const updatedInventory = await this.inventoryRepository.update(
+      id,
+      payload,
+      t
+    );
     return updatedInventory;
   }
 

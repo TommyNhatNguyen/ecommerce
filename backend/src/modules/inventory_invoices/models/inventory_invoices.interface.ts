@@ -26,7 +26,7 @@ export interface IInventoryInvoiceUseCase {
   create(
     data: InventoryInvoiceCreateDTO,
     t?: Transaction
-  ): Promise<InventoryInvoice>;
+  ): Promise<InventoryInvoice | null>;
   update(
     id: string,
     data: InventoryInvoiceUpdateDTO,
