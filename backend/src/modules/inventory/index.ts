@@ -9,9 +9,12 @@ import {
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
 import { InventoryHttpService } from 'src/modules/inventory/infras/transport/inventory.http-service';
 import { InventoryUseCase } from 'src/modules/inventory/usecase';
+import { InventoryInvoiceUseCase } from 'src/modules/inventory_invoices/usecase';
+import { inventoryInvoiceModelName } from 'src/modules/inventory_invoices/infras/repo/inventory_invoices.dto';
 import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
 import { PostgresWarehouseRepository } from 'src/modules/warehouse/infras/repo/warehouse.repo';
 import { WarehouseUseCase } from 'src/modules/warehouse/usecase';
+import { InventoryInvoiceRepository } from 'src/modules/inventory_invoices/infras/repo/inventory_invoices.repo';
 
 export function setupInventoryRouter(sequelize: Sequelize) {
   inventoryInit(sequelize);
@@ -30,9 +33,17 @@ export function setupInventoryRouter(sequelize: Sequelize) {
     sequelize,
     inventoryWarehouseModelName
   );
+  const inventoryInvoiceRepository = new InventoryInvoiceRepository(
+    sequelize,
+    inventoryInvoiceModelName
+  );
+  const inventoryInvoiceUseCase = new InventoryInvoiceUseCase(
+    inventoryInvoiceRepository
+  );
   const inventoryUseCase = new InventoryUseCase(
     inventoryRepository,
     inventoryWarehouseRepository,
+    inventoryInvoiceUseCase,
     warehouseUseCase
   );
   const inventoryHttpService = new InventoryHttpService(inventoryUseCase);

@@ -173,7 +173,14 @@ export function setupOrderRouter(
     warehouseModelName
   );
   const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository, warehouseUseCase);
+  const inventoryInvoiceRepository = new InventoryInvoiceRepository(
+    sequelize,
+    inventoryInvoiceModelName
+  );
+  const inventoryInvoiceUseCase = new InventoryInvoiceUseCase(
+    inventoryInvoiceRepository
+  );
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository, inventoryInvoiceUseCase, warehouseUseCase);
 
   const productSellableUseCase = new ProductSellableUseCase(
     productSellableRepository,

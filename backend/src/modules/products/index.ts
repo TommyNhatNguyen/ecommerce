@@ -37,6 +37,9 @@ import { ProductSellableUseCase } from 'src/modules/product_sellable/usecase';
 import { PostgresWarehouseRepository } from 'src/modules/warehouse/infras/repo/warehouse.repo';
 import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
 import { WarehouseUseCase } from 'src/modules/warehouse/usecase';
+import { InventoryInvoiceUseCase } from 'src/modules/inventory_invoices/usecase';
+import { InventoryInvoiceRepository } from 'src/modules/inventory_invoices/infras/repo/inventory_invoices.repo';
+import { inventoryInvoiceModelName } from 'src/modules/inventory_invoices/infras/repo/inventory_invoices.dto';
 
 export const setupProductRouter = (sequelize: Sequelize) => {
   init(sequelize);
@@ -81,9 +84,17 @@ export const setupProductRouter = (sequelize: Sequelize) => {
     warehouseModelName
   );
   const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
+  const inventoryInvoiceRepository = new InventoryInvoiceRepository(
+    sequelize,
+    inventoryInvoiceModelName
+  );
+  const inventoryInvoiceUseCase = new InventoryInvoiceUseCase(
+    inventoryInvoiceRepository
+  );
   const inventoryUseCase = new InventoryUseCase(
     inventoryRepository,
     inventoryWarehouseRepository,
+    inventoryInvoiceUseCase,
     warehouseUseCase
   );
   const productSellableVariantRepository =

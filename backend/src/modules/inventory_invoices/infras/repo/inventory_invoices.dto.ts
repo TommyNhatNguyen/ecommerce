@@ -40,6 +40,10 @@ export const inventoryInvoiceInit = (sequelize: Sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    warehouse_id: {
+      type: DataTypes.UUID,
+      allowNull: true,
+    },
     status: {
       type: DataTypes.ENUM(...Object.values(ModelStatus)),
       allowNull: false,

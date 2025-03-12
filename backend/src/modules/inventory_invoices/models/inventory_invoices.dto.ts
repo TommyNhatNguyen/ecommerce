@@ -9,6 +9,7 @@ export const InventoryInvoiceCreateDTOSchema = z.object({
   note: z.string().optional(),
   code: z.string().optional(),
   inventory_id: z.string().uuid().optional(),
+  warehouse_id: z.string().uuid().optional(),
   status: z.nativeEnum(ModelStatus).default(ModelStatus.ACTIVE).optional(),
 });
 
@@ -19,6 +20,7 @@ export const InventoryInvoiceUpdateDTOSchema = z.object({
   note: z.string().optional(),
   code: z.string().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
+  warehouse_id: z.string().uuid().optional(),
 });
 
 export const InventoryInvoiceConditionDTOSchema = z.object({
@@ -30,6 +32,7 @@ export const InventoryInvoiceConditionDTOSchema = z.object({
   note: z.string().optional(),
   code: z.string().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
+  warehouse_id: z.string().uuid().optional(),
   created_at: z.string().datetime().optional(),
   updated_at: z.string().datetime().optional(),
   sortBy: z.nativeEnum(BaseSortBy).optional(),

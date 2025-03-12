@@ -171,7 +171,6 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
       },
       t
     );
-
     // --- IMAGE ---
     if (data.imageIds && data.imageIds.length > 0) {
       await this.imageRepository?.addImages(

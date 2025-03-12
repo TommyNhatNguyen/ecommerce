@@ -9,7 +9,10 @@ import {
 import { PostgresDiscountRepository } from 'src/modules/discount/infras/repo/postgres/discount.repo';
 import { DiscountHttpService } from 'src/modules/discount/infras/transport/discount.http-service';
 import { DiscountUseCase } from 'src/modules/discount/usecase';
-import { inventoryModelName, inventoryWarehouseModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
+import {
+  inventoryModelName,
+  inventoryWarehouseModelName,
+} from 'src/modules/inventory/infras/repo/postgres/dto';
 import { PostgresInventoryRepository } from 'src/modules/inventory/infras/repo/postgres/repo';
 import { InventoryUseCase } from 'src/modules/inventory/usecase';
 import {
@@ -22,6 +25,9 @@ import cloudinary from 'src/share/cloudinary';
 import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
 import { PostgresWarehouseRepository } from 'src/modules/warehouse/infras/repo/warehouse.repo';
 import { WarehouseUseCase } from 'src/modules/warehouse/usecase';
+import { InventoryInvoiceRepository } from 'src/modules/inventory_invoices/infras/repo/inventory_invoices.repo';
+import { inventoryInvoiceModelName } from 'src/modules/inventory_invoices/infras/repo/inventory_invoices.dto';
+import { InventoryInvoiceUseCase } from 'src/modules/inventory_invoices/usecase';
 
 export const setupDiscountRouter = (sequelize: Sequelize) => {
   discountInit(sequelize);
@@ -54,7 +60,19 @@ export const setupDiscountRouter = (sequelize: Sequelize) => {
     warehouseModelName
   );
   const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository, warehouseUseCase);
+  const inventoryInvoiceRepository = new InventoryInvoiceRepository(
+    sequelize,
+    inventoryInvoiceModelName
+  );
+  const inventoryInvoiceUseCase = new InventoryInvoiceUseCase(
+    inventoryInvoiceRepository
+  );
+  const inventoryUseCase = new InventoryUseCase(
+    inventoryRepository,
+    inventoryWarehouseRepository,
+    inventoryInvoiceUseCase,
+    warehouseUseCase
+  );
   const discountUseCase = new DiscountUseCase(repository);
 
   const productSellableUseCase = new ProductSellableUseCase(

@@ -1,3 +1,4 @@
+import { InventoryInvoiceUseCase } from 'src/modules/inventory_invoices/usecase';
 import { Transaction } from 'sequelize';
 import {
   InventoryConditionDTO,
@@ -19,11 +20,14 @@ import {
 import { IWarehouseUsecase } from 'src/modules/warehouse/models/warehouse.interface';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
+import { InventoryInvoiceCreateDTO } from 'src/modules/inventory_invoices/models/inventory_invoices.dto';
+import { InventoryInvoiceType } from 'src/modules/inventory_invoices/models/inventory_invoices.model';
 
 export class InventoryUseCase implements IInventoryUseCase {
   constructor(
     private readonly inventoryRepository: IInventoryRepository,
     private readonly inventoryWarehouseRepository: IInventoryRepository,
+    private readonly inventoryInvoiceUseCase: InventoryInvoiceUseCase,
     private readonly warehouseUseCase: IWarehouseUsecase
   ) {}
 
@@ -130,6 +134,17 @@ export class InventoryUseCase implements IInventoryUseCase {
         },
         t
       );
+      // --- INVENTORY INVOICE ---
+      const inventoryInvoicePayload: InventoryInvoiceCreateDTO = {
+        code: `NEW-INV-${Math.random().toString(36).substring(2, 15)}`,
+        inventory_id: createdInventory.id,
+        type: InventoryInvoiceType.IMPORT_INVOICE,
+        quantity: Number(item.quantity),
+        amount: Number(item.cost) * Number(item.quantity),
+        note: `New inventory created at ${new Date().toISOString()}`,
+        warehouse_id: item.warehouse_id,
+      };
+      await this.inventoryInvoiceUseCase.create(inventoryInvoicePayload, t);
     }
 
     console.log(

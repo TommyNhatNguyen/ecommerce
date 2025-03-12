@@ -47,6 +47,9 @@ import { QueueTypes } from 'src/brokers/transport/queueTypes';
 import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
 import { PostgresWarehouseRepository } from 'src/modules/warehouse/infras/repo/warehouse.repo';
 import { WarehouseUseCase } from 'src/modules/warehouse/usecase';
+import { InventoryInvoiceRepository } from 'src/modules/inventory_invoices/infras/repo/inventory_invoices.repo';
+import { InventoryInvoiceUseCase } from 'src/modules/inventory_invoices/usecase';
+import { inventoryInvoiceModelName } from 'src/modules/inventory_invoices/infras/repo/inventory_invoices.dto';
 
 export const productSellableCronJobInit = (sequelize: Sequelize): CronJob => {
   const productSellableRepository = new PostgresProductSellableRepository(
@@ -72,9 +75,17 @@ export const productSellableCronJobInit = (sequelize: Sequelize): CronJob => {
     warehouseModelName
   );
   const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
+  const inventoryInvoiceRepository = new InventoryInvoiceRepository(
+    sequelize,
+    inventoryInvoiceModelName
+  );  
+  const inventoryInvoiceUseCase = new InventoryInvoiceUseCase(
+    inventoryInvoiceRepository
+  );
   const inventoryUseCase = new InventoryUseCase(
     inventoryRepository,
     inventoryWarehouseRepository,
+    inventoryInvoiceUseCase,
     warehouseUseCase
   );
   const discountRepository = new PostgresDiscountRepository(
@@ -165,11 +176,17 @@ export const inventoryLowStockCronJobInit = (
     warehouseModelName
   );
   const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
+  const inventoryInvoiceRepository = new InventoryInvoiceRepository(
+    sequelize,
+    inventoryInvoiceModelName
+  );
+  const inventoryInvoiceUseCase = new InventoryInvoiceUseCase(
+    inventoryInvoiceRepository
+  );
   const inventoryUseCase = new InventoryUseCase(
     inventoryRepository,
     inventoryWarehouseRepository,
-    warehouseUseCase
-  );
+    inventoryInvoiceUseCase, warehouseUseCase);
 
   const inventoryLowStockCronJob = new CronJob(
     '0 9 * * *', // cronTime

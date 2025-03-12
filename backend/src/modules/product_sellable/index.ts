@@ -25,6 +25,9 @@ import cloudinary from 'src/share/cloudinary';
 import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
 import { PostgresWarehouseRepository } from 'src/modules/warehouse/infras/repo/warehouse.repo';
 import { WarehouseUseCase } from 'src/modules/warehouse/usecase';
+import { InventoryInvoiceRepository } from 'src/modules/inventory_invoices/infras/repo/inventory_invoices.repo';
+import { inventoryInvoiceModelName } from 'src/modules/inventory_invoices/infras/repo/inventory_invoices.dto';
+import { InventoryInvoiceUseCase } from 'src/modules/inventory_invoices/usecase';
 
 export const setupProductSellableRouter = (sequelize: Sequelize) => {
   productSellableInit(sequelize);
@@ -54,7 +57,14 @@ export const setupProductSellableRouter = (sequelize: Sequelize) => {
     warehouseModelName
   );
   const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
-  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository, warehouseUseCase);
+  const inventoryInvoiceRepository = new InventoryInvoiceRepository(
+    sequelize,
+    inventoryInvoiceModelName
+  );
+  const inventoryInvoiceUseCase = new InventoryInvoiceUseCase(
+    inventoryInvoiceRepository
+  );
+  const inventoryUseCase = new InventoryUseCase(inventoryRepository, inventoryWarehouseRepository, inventoryInvoiceUseCase, warehouseUseCase);
   const productSellableVariantRepository =
     new PostgresProductSellableRepository(
       sequelize,
