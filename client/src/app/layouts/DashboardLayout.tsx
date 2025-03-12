@@ -28,10 +28,10 @@ import { cookiesStorage } from "@/app/shared/utils/localStorage";
 import { getUserInfo } from "@/app/shared/store/reducers/auth";
 import OrderNotification from "@/app/layouts/components/OrderNotification";
 import { useSocketNotifications } from "@/app/layouts/hooks/useSocketNotification";
-import { HeaderSection } from "@/app/layouts/components/HeaderSection";
 import { IntlProvider, useIntl } from "react-intl";
 import { useLanguage } from "@/app/shared/hooks/useLanguage";
 import { LOCALES } from "@/app/shared/translation/locales";
+import { HeaderSection } from "@/app/layouts/components/HeaderSection";
 
 const { Footer, Sider, Content } = Layout;
 

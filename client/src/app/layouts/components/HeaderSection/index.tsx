@@ -1,4 +1,4 @@
-import { Input, Dropdown, Avatar } from "antd";
+import { Input, Dropdown, Avatar, Select } from "antd";
 import { Search, ChevronDown, Settings, User, LogOut } from "lucide-react";
 import { defaultImage } from "@/app/shared/resources/images/default-image";
 import { Header } from "antd/es/layout/layout";
@@ -10,8 +10,11 @@ import { logout } from "@/app/shared/store/reducers/auth";
 import { useRouter } from "next/navigation";
 import SettingModal from "@/app/shared/components/GeneralModal/components/SettingModal";
 import { useSettingModal } from "@/app/layouts/hooks/useSettingModal";
+import { LOCALES } from "@/app/shared/translation/locales";
+import { useLanguage } from "@/app/shared/hooks/useLanguage";
 
 export const HeaderSection = () => {
+  const { locale, switchLanguage } = useLanguage();
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { userInfo } = useAppSelector((state) => state.auth);
@@ -60,6 +63,14 @@ export const HeaderSection = () => {
           prefix={<Search />}
         />
         <div className="flex items-center gap-4">
+          <Select
+            value={locale}
+            onChange={switchLanguage}
+            options={[
+              { value: LOCALES.ENGLISH, label: "English" },
+              { value: LOCALES.VIETNAMESE, label: "Tiếng Việt" },
+            ]}
+          />
           <Notification />
           <Dropdown
             menu={{
