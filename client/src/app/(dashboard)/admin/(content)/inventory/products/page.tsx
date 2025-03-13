@@ -1,4 +1,6 @@
 "use client";
+import CustomTable from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/CustomTable";
+import Filter from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/Filter";
 import React from "react";
 
 type ProductPagePropsType = {};
@@ -8,7 +10,7 @@ const ProductPage = ({}: ProductPagePropsType) => {
     <div className="grid h-full min-h-[300px] grid-flow-row grid-cols-2 gap-4">
       {/* Bảng sản phẩm */}
       {/* Filter sản phẩm */}
-      <div className="filter">
+      <Filter>
         {/* 
         - Tìm kiếm
         - Nhóm hàng
@@ -18,12 +20,13 @@ const ProductPage = ({}: ProductPagePropsType) => {
         - Trạng thái giảm giá
         - Số bản ghi
         */}
-      </div>
+      </Filter>
       {/* Danh sách sản phẩm */}
-      <div className="product-list">
-        {/* Header của bảng sản phẩm */}
-        <div className="product-list__header">
-          {/* 
+      <CustomTable>
+        <div className="product-list">
+          {/* Header của bảng sản phẩm */}
+          <div className="product-list__header">
+            {/* 
           - Thao tác: Chuyển nhóm hàng, chuyển trạng thái kinh doanh, chuyển thuộc tính
           - Tải lại
           - Thêm mới
@@ -32,10 +35,11 @@ const ProductPage = ({}: ProductPagePropsType) => {
           - Xuất excel (Chưa có)
           - Thêm cột 
           */}
+          </div>
+          {/* Danh sách sản phẩm scroll infinite*/}
+          <div className="product-list__body"></div>
         </div>
-        {/* Danh sách sản phẩm scroll infinite*/}
-        <div className="product-list__body"></div>
-      </div>
+      </CustomTable>
     </div>
   );
 };

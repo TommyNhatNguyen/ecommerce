@@ -6,6 +6,7 @@ import { ProductModel } from "@/app/shared/models/products/products.model";
 export type VariantProductModel = {
   id: string;
   name: string;
+  sku: string;
   status: ModelStatus;
   created_at: string;
   updated_at: string;
