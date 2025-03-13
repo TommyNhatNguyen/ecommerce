@@ -4,20 +4,25 @@ import { Image, TableProps, Tag } from "antd";
 import { IntlShape } from "react-intl";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { formatCurrency, formatNumber } from "@/app/shared/utils/utils";
+
+
+
 export const productColumns: (
   intl: IntlShape,
 ) => TableProps<ProductModel>["columns"] = (intl: IntlShape) => [
   {
     key: "image",
     title: () => intl.formatMessage({ id: "thumbnail" }),
-    render: (_, { image, sku }) => {
+    render: (_, { image }) => {
       return (
-        <div className="flex items-center gap-2">
           <Image src={image?.[0]?.url} width={50} height={50} />
-          <span>{sku}</span>
-        </div>
       );
     },
+  },
+  {
+    key: "sku",
+    title: () => intl.formatMessage({ id: "sku" }),
+    dataIndex: "sku",
   },
   {
     key: "name",
@@ -74,6 +79,11 @@ export const variantColumns: (
     },
   },
   {
+    key: "sku",
+    title: () => intl.formatMessage({ id: "sku" }),
+    dataIndex: "sku",
+  },
+  {
     key: "name",
     title: () => intl.formatMessage({ id: "name" }),
     dataIndex: "name",
@@ -88,7 +98,7 @@ export const variantColumns: (
     },
   },
   {
-    key: 'discount',
+    key: "discount",
     title: () => intl.formatMessage({ id: "number_of_discount_campaign" }),
     dataIndex: "discount",
     render: (_, { product_sellable }) => {

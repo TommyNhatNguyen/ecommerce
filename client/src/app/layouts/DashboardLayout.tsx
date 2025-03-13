@@ -227,7 +227,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
         </Sider>
         <Layout>
           <HeaderSection />
-          <Content className="mb-4 gap-4 overflow-y-auto overflow-x-hidden p-2">
+          <Content className="mb-4 gap-4 p-2">
             <Breadcrumb separator=">" className="mb-4">
               {currentPath.slice(1).map((path) => (
                 <Breadcrumb.Item

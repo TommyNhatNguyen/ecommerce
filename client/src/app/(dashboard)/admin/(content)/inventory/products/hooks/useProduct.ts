@@ -30,7 +30,7 @@ export function useProducts() {
     }
   };
 
-  const { data: productsData, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } =
+  const { data: productsData, fetchNextPage, hasNextPage, isFetchingNextPage, refetch, isLoading } =
     useInfiniteQuery({
       queryKey: ["products"],
       queryFn: () => productService.getProducts({
@@ -61,6 +61,7 @@ export function useProducts() {
     errorSoftDelete,
     products,
     fetchNextPage,
+    isLoading,
     hasNextPage,
     isFetchingNextPage,
     refetch,
