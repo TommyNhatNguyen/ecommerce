@@ -13,5 +13,7 @@ export default {
     permissions: "Permissions",
     website: "Website Settings",
     coming_soon: "Coming Soon",
+    product_inventory: "Products & Inventory",
+    inventory_management: "Inventory Management",
   },
 };

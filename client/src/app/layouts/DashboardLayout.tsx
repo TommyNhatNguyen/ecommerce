@@ -5,7 +5,7 @@ import NotificationContextProvider, {
 } from "@/app/contexts/NotificationContext";
 import Logo from "@/app/shared/components/Logo";
 import { MenuItem } from "@/app/shared/types/antd.model";
-import { Divider, Layout, Menu } from "antd";
+import { Breadcrumb, Divider, Layout, Menu } from "antd";
 import {
   FolderOpen,
   Users,
@@ -19,6 +19,9 @@ import {
   Book,
   Globe,
   MessageCircle,
+  House,
+  NotebookPenIcon,
+  Settings,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -96,8 +99,25 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
     },
     {
       key: ADMIN_ROUTES.inventory.index,
-      label: intl.formatMessage({ id: "inventory" }),
-      icon: <Package size={16} />,
+      label: intl.formatMessage({ id: "inventory_management" }),
+      icon: <House size={16} />,
+      children: [
+        {
+          key: ADMIN_ROUTES.inventory.index,
+          label: intl.formatMessage({ id: "inventory" }),
+          icon: <NotebookPenIcon size={16} />,
+        },
+        {
+          key: ADMIN_ROUTES.inventory.products.index,
+          label: intl.formatMessage({ id: "products" }),
+          icon: <Package size={16} />,
+        },
+        {
+          key: ADMIN_ROUTES.inventory.settings,
+          label: intl.formatMessage({ id: "settings" }),
+          icon: <Settings size={16} />,
+        },
+      ],
     },
     {
       key: ADMIN_ROUTES.customers,
@@ -132,6 +152,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   };
 
   const handleSelect = (key: string) => {
+    console.log(key);
     router.push(key);
   };
 
@@ -199,7 +220,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
           <Menu
             items={menuItems}
             inlineCollapsed={collapsed}
-            selectedKeys={[`/${pathname.split("/").slice(1, 3).join("/")}`]}
+            selectedKeys={[`/${pathname.split("/").slice(1).join("/")}`]}
             onSelect={(e) => handleSelect(e.key)}
             mode="inline"
           />
@@ -207,16 +228,22 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
         <Layout>
           <HeaderSection />
           <Content className="mb-4 gap-4 overflow-y-auto overflow-x-hidden p-2">
-            <div className="mb-4 rounded-lg bg-white px-4 py-2">
-              <h1 className="text-xl font-bold capitalize">
-                {currentPath.map((path) => path.toUpperCase()).join(" - ")}
-              </h1>
-            </div>
+            <Breadcrumb separator=">" className="mb-4">
+              {currentPath.slice(1).map((path) => (
+                <Breadcrumb.Item
+                  key={path}
+                  onClick={() => handleSelect(path)}
+                  className="capitalize"
+                >
+                  {intl.formatMessage({ id: path })}
+                </Breadcrumb.Item>
+              ))}
+            </Breadcrumb>
             {children}
           </Content>
-          <Footer className="text-center">
+          {/* <Footer className="text-center">
             @copyright 2023 Nguyen Anh Nhat
-          </Footer>
+          </Footer> */}
         </Layout>
       </Layout>
     </>

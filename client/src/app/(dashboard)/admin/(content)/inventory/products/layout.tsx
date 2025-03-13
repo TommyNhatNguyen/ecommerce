@@ -1,12 +1,10 @@
 "use client";
 import { TabsProps } from "antd";
 import { ADMIN_ROUTES } from "@/app/constants/routes";
-import { LucideSettings, LucideTrash, Package } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Tabs } from "antd";
 import React, { useState } from "react";
-import { LucideBoxes } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import { useIntl } from "react-intl";
 
 type InventoryProductLayoutPropsType = {
   children: React.ReactNode;
@@ -16,6 +14,7 @@ const InventoryProductLayout = ({
   children,
 }: InventoryProductLayoutPropsType) => {
   const pathname = usePathname();
+  const intl = useIntl();
   const [activeTab, setActiveTab] = useState<string>(
     pathname || ADMIN_ROUTES.inventory.index,
   );
@@ -26,33 +25,34 @@ const InventoryProductLayout = ({
   };
   const tabs: TabsProps["items"] = [
     {
-      label: "Inventory",
-      key: ADMIN_ROUTES.inventory.index,
-      icon: <Package className="h-4 w-4" />,
+      label: intl.formatMessage({ id: "products_list" }),
+      key: ADMIN_ROUTES.inventory.products.index,
     },
     {
-      label: "Inventory Settings",
-      key: ADMIN_ROUTES.inventory.settings,
-      icon: <LucideSettings className="h-4 w-4" />,
+      label: intl.formatMessage({ id: "categories" }),
+      key: ADMIN_ROUTES.inventory.products.categories,
     },
     {
-      label: "Products settings",
-      key: ADMIN_ROUTES.inventory.products,
-      icon: <LucideBoxes className="h-4 w-4" />,
+      label: intl.formatMessage({ id: "brands" }),
+      key: ADMIN_ROUTES.inventory.products.brands,
     },
     {
-      label: "Deleted Products",
-      key: ADMIN_ROUTES.inventory.deleted,
-      icon: <LucideTrash className="h-4 w-4" />,
+      label: intl.formatMessage({ id: "attributes" }),
+      key: ADMIN_ROUTES.inventory.products.attributes,
     },
   ];
   return (
-    <>
-      <div className="mb-4 rounded-lg bg-white px-4 py-2">
-        <Tabs items={tabs} onChange={_onChangeTab} activeKey={activeTab} />
+    <div className="h-full">
+      <Tabs
+        items={tabs}
+        onChange={_onChangeTab}
+        activeKey={activeTab}
+        type="card"
+      />
+      <div className="h-full bg-custom-white p-2">
+        {children}
       </div>
-      {children}
-    </>
+    </div>
   );
 };
 
