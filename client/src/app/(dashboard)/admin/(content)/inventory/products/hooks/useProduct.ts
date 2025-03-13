@@ -44,6 +44,9 @@ export function useProducts() {
         includeVariantImage: true,
       }),
       getNextPageParam: (lastPage, pages) => {
+        if (lastPage.meta.current_page === lastPage.meta.total_page) {
+          return undefined;
+        }
         return lastPage.meta.current_page + 1;
       },
       initialPageParam: 1,

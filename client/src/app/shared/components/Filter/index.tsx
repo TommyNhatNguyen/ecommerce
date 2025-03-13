@@ -12,18 +12,11 @@ type Props = {
 type FilterItemProps = {
   children: React.ReactNode;
   name: string;
+  label?: string | React.ReactNode;
   wrapperClassName?: string;
 };
 
-type FilterSearchProps = {
-  name: string;
-  children: React.ReactNode;
-  wrapperClassName?: string;
-  label?: string | React.ReactNode;
-} & SearchProps;
-
 interface FilterComponent extends React.ForwardRefExoticComponent<Props> {
-  Search: React.FC<FilterSearchProps>;
   Item: React.FC<FilterItemProps>;
 }
 
@@ -42,19 +35,17 @@ const Filter = (
 
 const FilterComponent = forwardRef(Filter) as FilterComponent;
 
-FilterComponent.Search = ({
+FilterComponent.Item = ({
   children,
-  name,
   wrapperClassName,
   label,
   ...props
-}: FilterSearchProps) => {
-  const intl = useIntl();
+}: FilterItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <div
       className={cn(
-        "mb-2 rounded-sm border border-solid border-neutral-100 bg-neutral-50 p-2 duration-300",
+        "mb-4 rounded-sm border border-solid border-neutral-100 bg-neutral-50 p-2 transition-all duration-300",
         isOpen && "max-h-[48px] overflow-hidden",
         wrapperClassName,
       )}
@@ -71,30 +62,7 @@ FilterComponent.Search = ({
           />
         </div>
       )}
-      <Input.Search
-        name={name}
-        placeholder={intl.formatMessage({ id: "search" })}
-        {...props}
-      />
-    </div>
-  );
-};
-
-FilterComponent.Item = ({
-  children,
-  wrapperClassName,
-  ...props
-}: FilterItemProps) => {
-  return (
-    <div
-      className={cn(
-        "mb-2 rounded-sm border border-solid border-slate-300 bg-slate-200 p-2",
-        wrapperClassName,
-      )}
-    >
       {children}
-      {/* Clear all */}
-      {/* Collapse */}
     </div>
   );
 };

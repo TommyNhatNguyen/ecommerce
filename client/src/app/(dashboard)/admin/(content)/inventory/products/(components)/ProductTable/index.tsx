@@ -1,11 +1,11 @@
 import {
   PRODUCTS_COLUMNS,
   VARIANT_COLUMNS,
-} from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/columns/columnsMenu";
+} from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/ProductTable/columns/columnsMenu";
 import {
   productColumns,
   variantColumns,
-} from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/columns/productColumns";
+} from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/ProductTable/columns/productColumns";
 import ModalProductDetail from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/ModalProductDetail";
 import { useProducts } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useProduct";
 import { VariantProductModel } from "@/app/shared/models/variant/variant.model";
@@ -20,17 +20,29 @@ import {
 } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
+import { useProductFilter } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useProductFilter";
+import { useInView } from "react-intersection-observer";
 
-type Props = {};
+type Props = {
+  selectedCategories: string[];
+};
 
-const ProductTable = (props: Props) => {
+const ProductTable = ({ selectedCategories }: Props) => {
   const intl = useIntl();
   const [selectedColumns, setSelectedColumns] = useState<{
     [key: string]: string[];
   }>({});
   const [productDetail, setProductDetail] =
     useState<VariantProductModel | null>(null);
-  const { products, isFetchingNextPage, refetch, isLoading } = useProducts();
+  const { ref, inView } = useInView();
+  const {
+    products,
+    isFetchingNextPage,
+    refetch,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+  } = useProducts();
   const newProductColumns = useMemo(() => {
     return productColumns(intl)?.map((item) => ({
       ...item,
@@ -72,10 +84,15 @@ const ProductTable = (props: Props) => {
       });
     }
   }, [products]);
-
+  useEffect(() => {
+    console.log("🚀 ~ useEffect ~ inView:", hasNextPage);
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView]);
   return (
     <div className="h-full">
-      <div className="flex items-center justify-between gap-2 mb-2">
+      <div className="mb-2 flex items-center justify-between gap-2">
         {/* Tải lại */}
         <div className="left"></div>
         <div className="right flex items-center gap-2">
@@ -156,43 +173,47 @@ const ProductTable = (props: Props) => {
           </Dropdown>
         </div>
       </div>
-      <Table
-        dataSource={products}
-        columns={newProductColumns}
-        rowKey={(record) => record.id}
-        pagination={false}
-        loading={isFetchingNextPage}
-        expandable={{
-          childrenColumnName: "variant",
-          expandRowByClick: true,
-          expandedRowRender: (record) => {
-            return (
-              <>
-                <Table
-                  key={record.id}
-                  dataSource={record.variant}
-                  columns={newVariantColumns}
-                  rowKey={(record) => record.id}
-                  onRow={(record) => {
-                    return {
-                      onClick: () => {
-                        setProductDetail(record);
-                      },
-                    };
-                  }}
-                />
-                <ModalProductDetail
-                  data={productDetail}
-                  open={!!productDetail}
-                  onCancel={handleCancelModalProductDetail}
-                />
-              </>
-            );
-          },
-        }}
+      <div>
+        <Table
+          dataSource={products}
+          columns={newProductColumns}
+          rowKey={(record) => record.id}
+          pagination={false}
+          loading={isFetchingNextPage}
+          expandable={{
+            childrenColumnName: "variant",
+            expandRowByClick: true,
+            expandedRowRender: (record) => {
+              return (
+                <>
+                  <Table
+                    key={record.id}
+                    dataSource={record.variant}
+                    columns={newVariantColumns}
+                    rowKey={(record) => record.id}
+                    onRow={(record) => {
+                      return {
+                        onClick: () => {
+                          setProductDetail(record);
+                        },
+                      };
+                    }}
+                    pagination={false}
+                  />
+                </>
+              );
+            },
+          }}
+        />
+        <div ref={ref}></div>
+      </div>
+      <ModalProductDetail
+        data={productDetail}
+        open={!!productDetail}
+        onCancel={handleCancelModalProductDetail}
       />
     </div>
   );
 };
 
-export default ProductTable;
+export default React.memo(ProductTable);

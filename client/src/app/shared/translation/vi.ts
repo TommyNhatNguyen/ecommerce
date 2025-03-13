@@ -43,5 +43,6 @@ export default {
     quantity: "Số lượng",
     cost: "Giá vốn",
     search: "Tìm kiếm",
+    check_all: "Chọn tất cả",
   },
 };

@@ -5,8 +5,6 @@ import { IntlShape } from "react-intl";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { formatCurrency, formatNumber } from "@/app/shared/utils/utils";
 
-
-
 export const productColumns: (
   intl: IntlShape,
 ) => TableProps<ProductModel>["columns"] = (intl: IntlShape) => [
@@ -14,9 +12,7 @@ export const productColumns: (
     key: "image",
     title: () => intl.formatMessage({ id: "thumbnail" }),
     render: (_, { image }) => {
-      return (
-          <Image src={image?.[0]?.url} width={50} height={50} />
-      );
+      return <Image src={image?.[0]?.url} width={50} height={50} />;
     },
   },
   {

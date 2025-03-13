@@ -1,52 +1,26 @@
 "use client";
 
-import Filter from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/Filter";
+import ProductFilter from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/ProductFilter";
 import ProductTable from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/ProductTable";
-import { VariantProductModel } from "@/app/shared/models/variant/variant.model";
-import React, { useRef, useState } from "react";
-import { useIntl } from "react-intl";
+import { useProductFilter } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useProductFilter";
+import React from "react";
 
 type ProductPagePropsType = {};
 
 const ProductPage = ({}: ProductPagePropsType) => {
-  const filterRef = useRef<HTMLDivElement>(null);
-  const [selectedProductColumns, setSelectedProductColumns] = useState<
-    string[]
-  >([]);
-  const [selectedVariantColumns, setSelectedVariantColumns] = useState<
-    string[]
-  >([]);
-  const [productDetail, setProductDetail] =
-    useState<VariantProductModel | null>(null);
-  const intl = useIntl();
-
-  const handleCancelModalProductDetail = () => {
-    setProductDetail(null);
-  };
+  const { selectedCategories, categories, search, ...rest } = useProductFilter();
   return (
     <div className="relative grid h-full grid-cols-12 gap-2 overflow-y-auto px-4">
       <div className="col-span-2">
-        <Filter ref={filterRef}>
-          <Filter.Search
-            name="search"
-            label={intl.formatMessage({ id: "search" })}
-            onSearch={(value) => {
-              console.log(value);
-            }}
-          >
-            Tìm kiếm
-          </Filter.Search>
-          <Filter.Item name="category">Nhóm hàng</Filter.Item>
-          <Filter.Item name="options">Thuộc tính</Filter.Item>
-          <Filter.Item name="brand">Nhãn hàng</Filter.Item>
-          <Filter.Item name="status">Trạng thái sản phẩm</Filter.Item>
-          <Filter.Item name="discount">Trạng thái giảm giá</Filter.Item>
-          <Filter.Item name="limit">Số bản ghi</Filter.Item>
-        </Filter>
+        <ProductFilter
+          selectedCategories={selectedCategories}
+          search={search}
+          categories={categories || []}
+          {...rest}
+        />
       </div>
-      {/* Danh sách sản phẩm */}
       <div className="col-span-10">
-        <ProductTable />
+        <ProductTable selectedCategories={selectedCategories} />
       </div>
     </div>
   );
