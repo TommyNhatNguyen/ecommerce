@@ -66,7 +66,7 @@ export enum ProductStatsSortBy {
   INVENTORY_VALUE = "inventory_value",
 }
 
-export type GetProductsBodyDTO = {
+export type ProductConditionDTO = {
   limit?: number;
   page?: number;
   status?: ModelStatus;

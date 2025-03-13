@@ -1,13 +1,22 @@
 "use client";
+import {
+  productColumns,
+  variantColumns,
+} from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/columns/productColumns";
 import CustomTable from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/CustomTable";
 import Filter from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/Filter";
+import { useProducts } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useProduct";
+import { Table } from "antd";
 import React from "react";
+import { useIntl } from "react-intl";
 
 type ProductPagePropsType = {};
 
 const ProductPage = ({}: ProductPagePropsType) => {
+  const { products } = useProducts();
+  const intl = useIntl();
   return (
-    <div className="grid h-full min-h-[300px] grid-flow-row grid-cols-2 gap-4">
+    <div className="h-full">
       {/* Bảng sản phẩm */}
       {/* Filter sản phẩm */}
       <Filter>
@@ -23,6 +32,33 @@ const ProductPage = ({}: ProductPagePropsType) => {
       </Filter>
       {/* Danh sách sản phẩm */}
       <CustomTable>
+        <Table
+          dataSource={products}
+          columns={productColumns(intl)}
+          rowKey={(record) => record.id}
+          pagination={false}
+          expandable={{
+            childrenColumnName: "variant",
+            expandRowByClick: true,
+            expandedRowRender: (record) => {
+              return (
+                <Table
+                  key={record.id}
+                  dataSource={record.variant}
+                  columns={variantColumns(intl)}
+                  rowKey={(record) => record.id}
+                  onRow={(record) => {
+                    return {
+                      onClick: () => {
+                        console.log(record);
+                      },
+                    };
+                  }}
+                />
+              );
+            },
+          }}
+        />
         <div className="product-list">
           {/* Header của bảng sản phẩm */}
           <div className="product-list__header">

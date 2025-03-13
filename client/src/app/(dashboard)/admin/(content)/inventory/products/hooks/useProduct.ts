@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { productService } from "@/app/shared/services/products/productService";
+import { ProductConditionDTO } from "@/app/shared/interfaces/products/product.dto";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 export function useProducts() {
   const [loadingSoftDelete, setLoadingSoftDelete] = useState(false);
@@ -28,9 +30,39 @@ export function useProducts() {
     }
   };
 
+  const { data: productsData, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } =
+    useInfiniteQuery({
+      queryKey: ["products"],
+      queryFn: () => productService.getProducts({
+        // includeCategory: true,
+        includeDiscount: true,
+        includeImage: true,
+        includeVariant: true,
+        includeVariantInfo: true,
+        includeVariantOption: true,
+        includeVariantOptionType: true,
+        includeVariantImage: true,
+      }),
+      getNextPageParam: (lastPage, pages) => {
+        return lastPage.meta.current_page + 1;
+      },
+      initialPageParam: 1,
+    });
+  
+  const products = useMemo(() => {
+    return productsData?.pages?.flatMap(page => page.data) || [];
+  }, [productsData])
+  console.log("🚀 ~ products ~ products:", products)
+
+
   return {
     handleSoftDeleteProduct,
     loadingSoftDelete,
     errorSoftDelete,
+    products,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
   };
 }

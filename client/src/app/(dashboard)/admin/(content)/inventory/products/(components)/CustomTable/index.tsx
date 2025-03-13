@@ -1,15 +1,17 @@
-import React from 'react'
+import { Table } from "antd";
+import React from "react";
 
-type Props = {
+type Props<T> = {
   children: React.ReactNode;
-}
+  data?: T[];
+};
 
-const CustomTable = ({children, ...props}: Props) => {
+const CustomTable = <T,>({ children, data, ...props }: Props<T>) => {
   return (
     <div className="custom-table" {...props}>
       {children}
     </div>
-  )
-}
+  );
+};
 
-export default CustomTable
+export default CustomTable;

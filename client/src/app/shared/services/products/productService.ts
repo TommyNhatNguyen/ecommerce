@@ -1,7 +1,7 @@
 import {
   CreateProductDTO,
   CreateProductDTOV2,
-  GetProductsBodyDTO,
+  ProductConditionDTO,
   ProductGetStatsCondition,
   UpdateProductDTO,
 } from "@/app/shared/interfaces/products/product.dto";
@@ -18,7 +18,7 @@ export const productService = {
     return response.data;
   },
   getProducts: async (
-    query: GetProductsBodyDTO,
+    query?: ProductConditionDTO,
   ): Promise<ListResponseModel<ProductModel>> => {
     const response = await axiosInstance.get("/products", {
       params: query,
@@ -27,7 +27,7 @@ export const productService = {
   },
   getProductById: async (
     id: string,
-    query: GetProductsBodyDTO,
+    query: ProductConditionDTO,
   ): Promise<ProductModel> => {
     const response = await axiosInstance.get(`/products/${id}`, {
       params: query,
