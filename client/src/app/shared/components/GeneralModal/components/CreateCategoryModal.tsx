@@ -1,5 +1,5 @@
 import { ERROR_MESSAGE } from "@/app/constants/errors";
-import { statusOptions } from "@/app/constants/seeds";
+import { STATUS_OPTIONS } from "@/app/constants/seeds";
 import GeneralModal from "@/app/shared/components/GeneralModal";
 import InputAdmin from "@/app/shared/components/InputAdmin";
 import { CreateCategoryFormDTO } from "@/app/shared/interfaces/categories/category.dto";
@@ -157,7 +157,7 @@ const CreateCategoryModal = ({
                 name="status"
                 render={({ field }) => (
                   <Select
-                    options={statusOptions}
+                    options={STATUS_OPTIONS}
                     placeholder="Select Status"
                     value={field.value}
                     onChange={field.onChange}

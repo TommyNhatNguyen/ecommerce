@@ -24,7 +24,7 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { productService } from "@/app/shared/services/products/productService";
 import { useQuery } from "@tanstack/react-query";
 import { Dayjs } from "dayjs";
-import { statusOptions } from "@/app/constants/seeds";
+import { STATUS_OPTIONS } from "@/app/constants/seeds";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import LoadingComponent from "@/app/shared/components/LoadingComponent";
 import { PlusIcon, TrashIcon } from "lucide-react";
@@ -75,7 +75,7 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
       updateStatusLoading,
       deleteProductLoading,
       deleteSelectedProductsLoading,
-      deleteVariantLoading
+      deleteVariantLoading,
     ],
     queryFn: () =>
       productService.getProducts({
@@ -89,7 +89,7 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
         includeImage: true,
         includeVariantOption: true,
         includeVariantOptionType: true,
-        status: "DELETED"
+        status: "DELETED",
       }),
     placeholderData: keepPreviousData,
   });
@@ -194,7 +194,7 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
       title: "Status",
       key: "status",
       dataIndex: "status",
-      filters: statusOptions.map((option) => ({
+      filters: STATUS_OPTIONS.map((option) => ({
         text: option.label,
         value: option.value,
       })),
@@ -203,7 +203,7 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
       render: (_, { status, id }) => {
         return (
           <Select
-            options={statusOptions}
+            options={STATUS_OPTIONS}
             defaultValue={status}
             disabled={updateStatusLoading}
             onSelect={(value) => {
@@ -413,7 +413,7 @@ const DeletedProductPage = ({}: DeletedProductPagePropsType) => {
       render: (_, { status, id }) => {
         return (
           <Select
-            options={statusOptions}
+            options={STATUS_OPTIONS}
             defaultValue={status}
             disabled={updateVariantStatusLoading}
             onSelect={(value) => {

@@ -12,6 +12,7 @@ export interface IBrandUseCase {
     paging: PagingDTO,
     condition?: BrandConditionDTO
   ): Promise<ListResponse<Brand[]>>;
+  getAllBrand(condition?: BrandConditionDTO): Promise<Brand[]>;
 }
 
 export interface IBrandRepository
@@ -24,6 +25,7 @@ export interface IQueryRepository {
     paging: PagingDTO,
     condition?: BrandConditionDTO
   ): Promise<ListResponse<Brand[]>>;
+  getAll(condition?: BrandConditionDTO): Promise<Brand[]>;
 }
 
 export interface ICommandRepository {

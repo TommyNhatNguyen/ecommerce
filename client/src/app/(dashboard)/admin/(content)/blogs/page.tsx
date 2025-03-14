@@ -1,6 +1,6 @@
 "use client";
 import { useBlog } from "@/app/(dashboard)/admin/(content)/blogs/hooks/useBlog";
-import { statusOptions } from "@/app/constants/seeds";
+import { STATUS_OPTIONS } from "@/app/constants/seeds";
 import { cn } from "@/app/shared/utils/utils";
 import { IBlogs } from "@/app/shared/models/blogs/blogs.model";
 import { Image, Select, Table, TableProps } from "antd";
@@ -59,7 +59,7 @@ const BlogsPage = (props: Props) => {
       title: "Status",
       key: "status",
       dataIndex: "status",
-      filters: statusOptions.map((option) => ({
+      filters: STATUS_OPTIONS.map((option) => ({
         text: option.label,
         value: option.value,
       })),
@@ -67,7 +67,7 @@ const BlogsPage = (props: Props) => {
       render: (_, { status, id }) => {
         return (
           <Select
-            options={statusOptions}
+            options={STATUS_OPTIONS}
             defaultValue={status}
             onSelect={(value) => {
               _onSelectStatus(value, id);

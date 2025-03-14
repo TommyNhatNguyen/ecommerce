@@ -45,5 +45,7 @@ export default {
     search: "Tìm kiếm",
     check_all: "Chọn tất cả",
     select_attributes: "Chọn thuộc tính",
+    sell_active: "Đang bán",
+    sell_inactive: "Đã ngừng bán",
   },
 };

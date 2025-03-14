@@ -1,7 +1,7 @@
 "use client";
 import CreateRoleModal from "@/app/(dashboard)/admin/(content)/permissions/role/components/CreateRoleModal";
 import { useRole } from "@/app/(dashboard)/admin/(content)/permissions/role/hooks/useRole";
-import { statusOptions } from "@/app/constants/seeds";
+import { STATUS_OPTIONS } from "@/app/constants/seeds";
 import ActionGroup from "@/app/shared/components/ActionGroup";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { Role } from "@/app/shared/models/role/role.model";
@@ -25,7 +25,11 @@ const RolePage = (props: Props) => {
     isCreateRoleLoading,
   } = useRole();
   const [isAddNewRoleModalOpen, setIsAddNewRoleModalOpen] = useState(false);
-  const { data: roleData, isLoading: roleLoading, refetch: refetchRoleList } = useQuery({
+  const {
+    data: roleData,
+    isLoading: roleLoading,
+    refetch: refetchRoleList,
+  } = useQuery({
     queryKey: [
       "role-list",
       isChangeStatusLoading,
@@ -96,7 +100,7 @@ const RolePage = (props: Props) => {
       render: (_, { status, id }) => {
         return (
           <Select
-            options={statusOptions}
+            options={STATUS_OPTIONS}
             value={status}
             disabled={false}
             onSelect={(value) => {

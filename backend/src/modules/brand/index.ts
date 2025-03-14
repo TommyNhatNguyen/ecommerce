@@ -16,7 +16,12 @@ function setupBrandRouter(sequelize: Sequelize) {
   );
   const brandUseCase = new BrandUseCase(brandRepository);
   const brandHttpService = new BrandHttpService(brandUseCase);
+  router.get(
+    '/brands/all',
+    brandHttpService.getAllBrand.bind(brandHttpService)
+  );
   router.post('/brands', brandHttpService.createBrand.bind(brandHttpService));
+  router.get('/brands', brandHttpService.listBrand.bind(brandHttpService));
   router.put(
     '/brands/:id',
     brandHttpService.updateBrand.bind(brandHttpService)
@@ -26,7 +31,6 @@ function setupBrandRouter(sequelize: Sequelize) {
     brandHttpService.deleteBrand.bind(brandHttpService)
   );
   router.get('/brands/:id', brandHttpService.getBrand.bind(brandHttpService));
-  router.get('/brands', brandHttpService.listBrand.bind(brandHttpService));
   return router;
 }
 

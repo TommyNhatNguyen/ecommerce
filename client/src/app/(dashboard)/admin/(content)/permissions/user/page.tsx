@@ -1,6 +1,6 @@
 "use client";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
-import { statusOptions } from "@/app/constants/seeds";
+import { STATUS_OPTIONS } from "@/app/constants/seeds";
 import { cn } from "@/app/shared/utils/utils";
 import { User } from "@/app/shared/models/user/user.model";
 import { userService } from "@/app/shared/services/user/userService";
@@ -109,7 +109,7 @@ const UserPage = ({}: UserPagePropsType) => {
       render: (_, { status, id }) => {
         return (
           <Select
-            options={statusOptions}
+            options={STATUS_OPTIONS}
             value={status}
             disabled={false}
             onSelect={(value) => {

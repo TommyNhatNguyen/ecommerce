@@ -1,4 +1,5 @@
 import { useDebounce } from "@/app/shared/hooks/useDebounce";
+import { brandService } from "@/app/shared/services/brands/brandService";
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { optionService } from "@/app/shared/services/variant/optionService";
 import { useQuery } from "@tanstack/react-query";
@@ -8,6 +9,8 @@ export const useProductFilter = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [search, setSearch] = useState<string>("");
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(["ACTIVE"]);
   const handleSelectCategory = (value: string[]) => {
     setSelectedCategories(value);
   };
@@ -16,6 +19,12 @@ export const useProductFilter = () => {
   };
   const handleSelectOption = (value: string[]) => {
     setSelectedOptions(value);
+  };
+  const handleSelectBrand = (value: string[]) => {
+    setSelectedBrands(value);
+  };
+  const handleSelectStatus = (value: string[]) => {
+    setSelectedStatuses(value);
   };
   const { data: categories } = useQuery({
     queryKey: ["categories"],
@@ -31,15 +40,25 @@ export const useProductFilter = () => {
       return optionService.getAllOptions({ include_option_values: true });
     },
   });
-  console.log("🚀 ~ useProductFilter ~ options:", options);
+  const { data: brands } = useQuery({
+    queryKey: ["brands"],
+    queryFn: () => {
+      return brandService.getAllBrands();
+    },
+  });
   return {
     categories: categories?.data,
     options: options?.data,
+    brands: brands?.data,
     selectedCategories,
     search,
     selectedOptions,
+    selectedBrands,
+    selectedStatuses,
     handleSelectCategory,
     handleSearch,
     handleSelectOption,
+    handleSelectBrand,
+    handleSelectStatus,
   };
 };

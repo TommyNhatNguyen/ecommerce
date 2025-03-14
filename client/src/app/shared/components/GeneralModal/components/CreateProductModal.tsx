@@ -14,7 +14,7 @@ import {
 } from "antd";
 import { PlusIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { statusOptions } from "@/app/constants/seeds";
+import { STATUS_OPTIONS } from "@/app/constants/seeds";
 import { ERROR_MESSAGE } from "@/app/constants/errors";
 import InputAdmin from "@/app/shared/components/InputAdmin";
 import GeneralModal from "@/app/shared/components/GeneralModal";
@@ -670,7 +670,7 @@ const CreateProductModal = ({
                                 {...field}
                                 customComponent={(props: any, ref: any) => (
                                   <Select
-                                    options={statusOptions}
+                                    options={STATUS_OPTIONS}
                                     placeholder="Select Status"
                                     value={field.value}
                                     onChange={field.onChange}
@@ -725,7 +725,7 @@ const CreateProductModal = ({
                 className="w-full"
                 customComponent={(props: any, ref: any) => (
                   <Select
-                    options={statusOptions}
+                    options={STATUS_OPTIONS}
                     placeholder="Select Status"
                     value={field.value}
                     onChange={field.onChange}

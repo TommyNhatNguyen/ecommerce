@@ -106,6 +106,25 @@ export class BrandHttpService {
       return;
     }
   }
+  async getAllBrand(req: Request, res: Response) {
+    const { success, data, error } = BrandConditionDTOSchema.safeParse(
+      req.query
+    );
+    if (!success) {
+      res.status(400).json({ message: error?.message });
+      return;
+    }
+    try {
+      const brands = await this.brandUseCase.getAllBrand(data);
+      res
+        .status(200)
+        .json({ message: 'Brands retrieved successfully', data: brands });
+      return;
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get all brands' });
+      return;
+    }
+  }
 }
 
 export default BrandHttpService;

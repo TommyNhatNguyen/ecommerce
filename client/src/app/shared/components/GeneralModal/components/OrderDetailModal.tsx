@@ -1,7 +1,6 @@
-
 import { DISCOUNT_SCOPE, DISCOUNT_TYPE } from "@/app/constants/enum";
 import { ORDER_STATE } from "@/app/constants/order-state";
-import { statusOptions } from "@/app/constants/seeds";
+import { STATUS_OPTIONS } from "@/app/constants/seeds";
 import GeneralModal from "@/app/shared/components/GeneralModal";
 import InputAdmin from "@/app/shared/components/InputAdmin";
 import LoadingComponent from "@/app/shared/components/LoadingComponent";
@@ -189,7 +188,7 @@ const OrderDetailModal = ({
                 error={errors.status?.message}
                 customComponent={(props, ref: any) => {
                   return (
-                    <Select {...props} ref={ref} options={statusOptions} />
+                    <Select {...props} ref={ref} options={STATUS_OPTIONS} />
                   );
                 }}
               />

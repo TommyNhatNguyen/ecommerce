@@ -18,6 +18,12 @@ class PostgresBrandRepository implements IBrandRepository {
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+  async getAll(condition?: BrandConditionDTO): Promise<Brand[]> {
+    const brands = await this.sequelize.models[this.modelName].findAll({
+      where: condition,
+    });
+    return brands.map((brand) => brand.dataValues);
+  }
   async get(id: string, condition?: BrandConditionDTO): Promise<Brand | null> {
     const brand = await this.sequelize.models[this.modelName].findByPk(id);
     return brand ? brand.dataValues : null;

@@ -1,7 +1,7 @@
 "use client";
 import useOrder from "@/app/(dashboard)/admin/(content)/orders/hooks/useOrder";
 import { ORDER_STATE, ORDER_STATE_COLOR } from "@/app/constants/order-state";
-import { statusOptions } from "@/app/constants/seeds";
+import { STATUS_OPTIONS } from "@/app/constants/seeds";
 import ActionGroup from "@/app/shared/components/ActionGroup";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import { DiscountModel } from "@/app/shared/models/discounts/discounts.model";
@@ -497,7 +497,7 @@ const OrderTable = ({
       render: (_, { status, id }) => {
         return (
           <Select
-            options={statusOptions}
+            options={STATUS_OPTIONS}
             value={status}
             loading={isUpdateOrderStatusLoading}
             disabled={false}
@@ -553,7 +553,9 @@ const OrderTable = ({
         width: 100,
         render: (_, { product_sellable }) => (
           <Tooltip title={product_sellable?.id || "Product not found"}>
-            <span>{product_sellable?.id.substring(0, 10) || "Product not found"}</span>
+            <span>
+              {product_sellable?.id.substring(0, 10) || "Product not found"}
+            </span>
           </Tooltip>
         ),
       },
@@ -651,9 +653,7 @@ const OrderTable = ({
                 ));
               }}
             >
-              <span>
-                {formatCurrency(discount_amount || 0)}
-              </span>
+              <span>{formatCurrency(discount_amount || 0)}</span>
             </Tooltip>
           );
         },
@@ -666,7 +666,7 @@ const OrderTable = ({
           <Tooltip title={formatCurrency(total)}>
             <span>{formatCurrency(total)}</span>
           </Tooltip>
-        ),  
+        ),
       },
     ];
   const orderExpandedRowRender = (

@@ -40,7 +40,7 @@ import React, { Key, useEffect, useState } from "react";
 import {
   dataSource,
   discountCampaigns,
-  statusOptions,
+  STATUS_OPTIONS,
 } from "@/app/constants/seeds";
 import { Dayjs } from "dayjs";
 import InputAdmin from "@/app/shared/components/InputAdmin";
@@ -320,7 +320,7 @@ const InventoryTable = ({
       title: "Status",
       key: "status",
       dataIndex: "status",
-      filters: statusOptions.map((option) => ({
+      filters: STATUS_OPTIONS.map((option) => ({
         text: option.label,
         value: option.value,
       })),
@@ -329,7 +329,7 @@ const InventoryTable = ({
       render: (_, { status, id }) => {
         return (
           <Select
-            options={statusOptions}
+            options={STATUS_OPTIONS}
             defaultValue={status}
             disabled={updateStatusLoading}
             onSelect={(value) => {
@@ -542,7 +542,7 @@ const InventoryTable = ({
       render: (_, { status, id }) => {
         return (
           <Select
-            options={statusOptions}
+            options={STATUS_OPTIONS}
             defaultValue={status}
             disabled={updateVariantStatusLoading}
             onSelect={(value) => {

@@ -1,6 +1,9 @@
 import { useProductFilter } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useProductFilter";
+import { STATUS_OPTIONS } from "@/app/constants/seeds";
+import CustomCheckboxGroup from "@/app/shared/components/CustomCheckbox";
 import Filter from "@/app/shared/components/Filter";
 import FilterComponent from "@/app/shared/components/Filter";
+import { BrandModel } from "@/app/shared/models/brands/brands.model";
 import { CategoryModel } from "@/app/shared/models/categories/categories.model";
 import { OptionModel } from "@/app/shared/models/variant/variant.model";
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
@@ -27,17 +30,27 @@ type Props = {
   handleSearch: (value: string) => void;
   handleSelectOption: (value: string[]) => void;
   selectedOptions: string[];
+  brands: BrandModel[];
+  handleSelectBrand: (value: string[]) => void;
+  selectedBrands: string[];
+  selectedStatuses: string[];
+  handleSelectStatus: (value: string[]) => void;
 };
 
 const ProductFilter = ({  
   categories,
   options,
+  brands,
   search,
   selectedCategories,
   selectedOptions,
+  selectedBrands,
+  selectedStatuses,
   handleSearch,
   handleSelectCategory,
   handleSelectOption,
+  handleSelectBrand,
+  handleSelectStatus,
 }: Props) => {
   const intl = useIntl();
   const _onSearch = (value: string) => {
@@ -46,15 +59,14 @@ const ProductFilter = ({
   const _onSelectCategory = (value: string[]) => {
     handleSelectCategory(value);
   };
-  const _onSelectAllCategory = () => {
-    if (checkAll) {
-      handleSelectCategory([]);
-    } else {
-      handleSelectCategory(categories?.map((item) => item.id) || []);
-    }
-  };
+  const _onSelectBrand = (value: string[]) => {
+    handleSelectBrand(value);
+  }
   const _onSelectOption = (value: string[]) => {
     handleSelectOption(value);
+  }
+  const _onSelectStatus = (value: string[]) => {
+    handleSelectStatus(value);
   }
   const optionTree: TreeProps["treeData"] = useMemo(() => {
     return options?.map((item) => {
@@ -91,10 +103,6 @@ const ProductFilter = ({
       };
     });
   }, [options]);
-  const indeterminate =
-    selectedCategories.length > 0 &&
-    selectedCategories.length < categories.length;
-  const checkAll = selectedCategories.length === categories.length;
   return (
     <FilterComponent>
       <Filter.Item name="search" label={intl.formatMessage({ id: "search" })}>
@@ -110,20 +118,13 @@ const ProductFilter = ({
         name="category"
         label={intl.formatMessage({ id: "categories" })}
       >
-        <Checkbox
-          indeterminate={indeterminate}
-          onChange={_onSelectAllCategory}
-          checked={checkAll}
-        >
-          {intl.formatMessage({ id: "check_all" })}
-        </Checkbox>
-        <Checkbox.Group
-          options={categories?.map((item) => ({
+        <CustomCheckboxGroup
+          data={categories?.map((item) => ({
             label: item.name,
             value: item.id,
           }))}
-          value={selectedCategories}
-          onChange={_onSelectCategory}
+          selectedData={selectedCategories}
+          onSelect={_onSelectCategory}
         />
       </Filter.Item>
       <Filter.Item
@@ -142,8 +143,26 @@ const ProductFilter = ({
           placeholder={intl.formatMessage({ id: "select_attributes" })}
         />
       </Filter.Item>
-      <Filter.Item name="brand">Nhãn hàng</Filter.Item>
-      <Filter.Item name="status">Trạng thái sản phẩm</Filter.Item>
+      <Filter.Item name="brand" label={intl.formatMessage({ id: "brands" })}>
+        <CustomCheckboxGroup
+          data={brands?.map((item) => ({
+            label: item.name,
+            value: item.id,
+          }))}
+          selectedData={selectedBrands}
+          onSelect={_onSelectBrand}
+        />
+      </Filter.Item>
+      <Filter.Item name="status" label={intl.formatMessage({ id: "status" })}>
+        <CustomCheckboxGroup
+          data={STATUS_OPTIONS.map((item) => ({
+            label: intl.formatMessage({ id: `sell_${item.label}` }),
+            value: item.value,
+          }))}
+          selectedData={selectedStatuses}
+          onSelect={_onSelectStatus}
+        />
+      </Filter.Item>
       <Filter.Item name="discount">Trạng thái giảm giá</Filter.Item>
       <Filter.Item name="limit">Số bản ghi</Filter.Item>
     </FilterComponent>

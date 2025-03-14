@@ -12,7 +12,7 @@ import {
   ControllerRenderProps,
   useForm,
 } from "react-hook-form";
-import { statusOptions } from "@/app/constants/seeds";
+import { STATUS_OPTIONS } from "@/app/constants/seeds";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import { FileDiff, PlusIcon, Trash2Icon } from "lucide-react";
 import { defaultImage } from "@/app/shared/resources/images/default-image";
@@ -145,7 +145,7 @@ const UpdateCategoryModal = ({
                 name="status"
                 render={({ field }) => (
                   <Select
-                    options={statusOptions}
+                    options={STATUS_OPTIONS}
                     placeholder="Select Status"
                     value={field.value}
                     onChange={field.onChange}

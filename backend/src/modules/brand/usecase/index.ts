@@ -33,6 +33,9 @@ export class BrandUseCase implements IBrandUseCase {
   ): Promise<ListResponse<Brand[]>> {
     return await this.brandRepository.list(paging, condition);
   }
+  async getAllBrand(condition?: BrandConditionDTO): Promise<Brand[]> {
+    return await this.brandRepository.getAll(condition);
+  }
 }
 
 export default BrandUseCase;

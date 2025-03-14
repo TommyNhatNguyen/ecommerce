@@ -1,7 +1,7 @@
 "use client";
 import { useBlogsCreate } from "@/app/(dashboard)/admin/(content)/blogs/create/hooks/useBlogsCreate";
 import { ERROR_MESSAGE } from "@/app/constants/errors";
-import { statusOptions } from "@/app/constants/seeds";
+import { STATUS_OPTIONS } from "@/app/constants/seeds";
 import CustomEditor from "@/app/shared/components/CustomEditor";
 import InputAdmin from "@/app/shared/components/InputAdmin";
 import { IBlogsCreate } from "@/app/shared/interfaces/blogs/blogs.interface";
@@ -160,7 +160,7 @@ const BlogsCreate = (props: BlogsPropsType) => {
             className="w-full"
             customComponent={(props: any, ref: any) => (
               <Select
-                options={statusOptions}
+                options={STATUS_OPTIONS}
                 placeholder="Select Status"
                 value={field.value}
                 onChange={field.onChange}

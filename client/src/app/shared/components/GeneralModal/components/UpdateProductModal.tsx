@@ -22,7 +22,7 @@ import { Controller, useForm } from "react-hook-form";
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { formatCurrency, formatNumber } from "@/app/shared/utils/utils";
 import { discountsService } from "@/app/shared/services/discounts/discountsService";
-import { statusOptions } from "@/app/constants/seeds";
+import { STATUS_OPTIONS } from "@/app/constants/seeds";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { defaultImage } from "@/app/shared/resources/images/default-image";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
@@ -204,7 +204,6 @@ const UpdateProductModal = ({
     // _onClearAllFormData();
     // _onCloseModalUpdateProduct();
   };
-
 
   useEffect(() => {
     if (updateProductData) {
@@ -453,7 +452,7 @@ const UpdateProductModal = ({
                     className="w-full"
                     customComponent={(props: any, ref: any) => (
                       <Select
-                        options={statusOptions}
+                        options={STATUS_OPTIONS}
                         placeholder="Select Status"
                         value={field.value}
                         onChange={field.onChange}
@@ -762,7 +761,7 @@ const UpdateProductModal = ({
                                 {...field}
                                 customComponent={(props: any, ref: any) => (
                                   <Select
-                                    options={statusOptions}
+                                    options={STATUS_OPTIONS}
                                     placeholder="Select Status"
                                     value={field.value}
                                     onChange={field.onChange}
