@@ -22,6 +22,9 @@ export class OptionUseCase implements IOptionUseCase {
     private readonly optionRepository: IOptionRepository,
     private readonly optionValueUseCase: IOptionValueUseCase
   ) {}
+  getAll(condition?: OptionConditionDTO): Promise<Option[]> {
+    return this.optionRepository.getAll(condition);
+  }
   getOptionById(id: string, condition?: OptionConditionDTO): Promise<Option> {
     return this.optionRepository.get(id, condition);
   }

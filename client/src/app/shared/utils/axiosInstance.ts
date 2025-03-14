@@ -10,6 +10,7 @@ export const axiosInstance = axios.create({
   headers: {
     Authorization: `Bearer ${cookiesStorage.getToken().accessToken}`,
   },
+  
 });
 
 axiosInstance.interceptors.request.use((config) => {
@@ -25,10 +26,8 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async (error) => {
-    error.config._retry = false;
     const prevRequest = error.config;
-    if (error?.response?.status === 403 && !prevRequest._retry) {
-      prevRequest._retry = true;
+    if (error?.response?.status === 401) {
       try {
         // get url
         const url = error.config.url.includes("users");
@@ -47,8 +46,8 @@ axiosInstance.interceptors.response.use(
         }
         return axiosInstance(prevRequest);
       } catch (error) {
-        console.log(error);
         cookiesStorage.deleteToken();
+        console.log(error);
       }
     } else {
       return Promise.reject(error);

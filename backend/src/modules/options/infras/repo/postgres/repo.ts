@@ -41,6 +41,57 @@ export class PostgresOptionRepository implements IOptionRepository {
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+
+  async getAll(condition: OptionConditionDTO): Promise<Option[]> {
+    const include: Includeable[] = [];
+    const optionValueInclude: Includeable[] = [];
+    const variantInclude: Includeable[] = [];
+    const variantWhere: WhereOptions = {};
+    const order = condition?.order || BaseOrder.DESC;
+    const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
+    if (condition.include_option_values) {
+      if (condition.include_variant) {
+        if (condition.include_variant_info) {
+          variantInclude.push({
+            model: ProductSellablePersistence,
+            as: productSellableModelName.toLowerCase(),
+            include: [
+              {
+                model: ImagePersistence,
+                as: imageModelName.toLowerCase(),
+                attributes: {
+                  exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'],
+                },
+                through: { attributes: [] },
+              },
+            ],
+          });
+        }
+        if (condition.product_id) {
+          variantWhere.product_id = condition.product_id;
+        }
+        optionValueInclude.push({
+          model: VariantPersistence,
+          as: variantModelName.toLowerCase(),
+          through: { attributes: [] },
+          include: variantInclude,
+          where: variantWhere,
+        });
+      }
+      include.push({
+        model: OptionValuePersistence,
+        as: optionValueModelName,
+        include: optionValueInclude,
+      });
+    }
+    const options = await this.sequelize.models[
+      this.modelName
+    ].findAll({
+      order: [[sortBy, order]],
+      include,
+    });
+    return options.map((option) => option.dataValues);
+  }
   async get(id: string, condition: OptionConditionDTO): Promise<Option> {
     const include: Includeable[] = [];
     const optionValueInclude: Includeable[] = [];

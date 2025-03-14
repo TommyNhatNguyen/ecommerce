@@ -2,26 +2,42 @@ import { useProductFilter } from "@/app/(dashboard)/admin/(content)/inventory/pr
 import Filter from "@/app/shared/components/Filter";
 import FilterComponent from "@/app/shared/components/Filter";
 import { CategoryModel } from "@/app/shared/models/categories/categories.model";
+import { OptionModel } from "@/app/shared/models/variant/variant.model";
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { useQuery } from "@tanstack/react-query";
-import { Checkbox, Divider, Input, Select } from "antd";
-import React, { useState } from "react";
+import {
+  Checkbox,
+  ColorPicker,
+  Divider,
+  Input,
+  Select,
+  Tag,
+  TreeProps,
+  TreeSelect,
+} from "antd";
+import React, { useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 
 type Props = {
   selectedCategories: string[];
   handleSelectCategory: (value: string[]) => void;
   categories: CategoryModel[];
+  options: OptionModel[] | undefined;
   search: string;
   handleSearch: (value: string) => void;
+  handleSelectOption: (value: string[]) => void;
+  selectedOptions: string[];
 };
 
-const ProductFilter = ({
-  selectedCategories,
-  handleSelectCategory,
+const ProductFilter = ({  
   categories,
+  options,
   search,
+  selectedCategories,
+  selectedOptions,
   handleSearch,
+  handleSelectCategory,
+  handleSelectOption,
 }: Props) => {
   const intl = useIntl();
   const _onSearch = (value: string) => {
@@ -37,6 +53,44 @@ const ProductFilter = ({
       handleSelectCategory(categories?.map((item) => item.id) || []);
     }
   };
+  const _onSelectOption = (value: string[]) => {
+    handleSelectOption(value);
+  }
+  const optionTree: TreeProps["treeData"] = useMemo(() => {
+    return options?.map((item) => {
+      return {
+        key: item.id,
+        title: item.name,
+        value: item.id,
+        children: item?.option_values?.map((optionVal) => {
+          return {
+            key: optionVal.id,
+            value: optionVal.id,
+            title: (
+              <div className="flex items-center gap-2">
+                {item.is_color ? (
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="flex-shrink-0"
+                      style={{
+                        background: optionVal.value,
+                        width: "10px",
+                        height: "10px",
+                        borderRadius: "50%",
+                      }}
+                    ></div>
+                    <p>{optionVal.name}</p>
+                  </div>
+                ) : (
+                  <p>{optionVal.name}</p>
+                )}
+              </div>
+            ),
+          };
+        }),
+      };
+    });
+  }, [options]);
   const indeterminate =
     selectedCategories.length > 0 &&
     selectedCategories.length < categories.length;
@@ -72,7 +126,22 @@ const ProductFilter = ({
           onChange={_onSelectCategory}
         />
       </Filter.Item>
-      <Filter.Item name="options">Thuộc tính</Filter.Item>
+      <Filter.Item
+        name="options"
+        label={intl.formatMessage({ id: "attributes" })}
+      >
+        <TreeSelect
+          className="w-full"
+          treeData={optionTree}
+          treeCheckable={true}
+          showCheckedStrategy={"SHOW_CHILD"}
+          multiple={true}
+          allowClear={true}
+          value={selectedOptions}
+          onChange={_onSelectOption}
+          placeholder={intl.formatMessage({ id: "select_attributes" })}
+        />
+      </Filter.Item>
       <Filter.Item name="brand">Nhãn hàng</Filter.Item>
       <Filter.Item name="status">Trạng thái sản phẩm</Filter.Item>
       <Filter.Item name="discount">Trạng thái giảm giá</Filter.Item>

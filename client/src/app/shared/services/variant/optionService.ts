@@ -4,29 +4,47 @@ import { OptionModel, OptionValueModel } from "@/app/shared/models/variant/varia
 import { axiosInstance } from "@/app/shared/utils/axiosInstance";
 
 export const optionService = {
-  getOptionValuesList: async (condition: OptionValueConditionDTO) : Promise<ListResponseModel<OptionValueModel>> => {
+  getOptionValuesList: async (
+    condition: OptionValueConditionDTO,
+  ): Promise<ListResponseModel<OptionValueModel>> => {
     const response = await axiosInstance.get(`/options-values`, {
       params: condition,
     });
     return response.data;
   },
-  getOptionList: async (condition: OptionConditionDTO) : Promise<ListResponseModel<OptionModel>> => {
+  getOptionList: async (
+    condition: OptionConditionDTO,
+  ): Promise<ListResponseModel<OptionModel>> => {
     const response = await axiosInstance.get(`/options`, {
       params: condition,
     });
     return response.data;
   },
-  createOption: async (data: OptionCreateDTO) : Promise<OptionModel> => {
+  createOption: async (data: OptionCreateDTO): Promise<OptionModel> => {
     const response = await axiosInstance.post(`/options`, data);
     return response.data;
   },
-  getOptionById: async (id: string, condition?: OptionConditionDTO) : Promise<OptionModel> => {
+  getAllOptions: async (
+    condition: OptionConditionDTO,
+  ): Promise<{ data: OptionModel[] }> => {
+    const response = await axiosInstance.get(`/options/all`, {
+      params: condition,
+    });
+    return response.data;
+  },
+  getOptionById: async (
+    id: string,
+    condition?: OptionConditionDTO,
+  ): Promise<OptionModel> => {
     const response = await axiosInstance.get(`/options/${id}`, {
       params: condition,
     });
     return response.data;
   },
-  updateOption: async (id: string, data: OptionUpdateDTO) : Promise<OptionModel> => {
+  updateOption: async (
+    id: string,
+    data: OptionUpdateDTO,
+  ): Promise<OptionModel> => {
     const response = await axiosInstance.put(`/options/${id}`, data);
     return response.data;
   },

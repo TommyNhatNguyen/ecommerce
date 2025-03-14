@@ -85,7 +85,6 @@ const ProductTable = ({ selectedCategories }: Props) => {
     }
   }, [products]);
   useEffect(() => {
-    console.log("🚀 ~ useEffect ~ inView:", hasNextPage);
     if (inView && hasNextPage) {
       fetchNextPage();
     }

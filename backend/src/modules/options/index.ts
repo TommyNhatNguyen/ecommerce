@@ -30,6 +30,7 @@ export function setupOptionRouter(sequelize: Sequelize) {
   const optionUseCase = new OptionUseCase(optionRepository, optionValueUseCase);
   const optionHttpService = new OptionHttpService(optionUseCase);
   const router = Router();
+  router.get('/options/all', optionHttpService.getAll.bind(optionHttpService));
   router.get(
     '/options/:id',
     optionHttpService.getOptionById.bind(optionHttpService)

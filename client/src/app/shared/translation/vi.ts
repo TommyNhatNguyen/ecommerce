@@ -44,5 +44,6 @@ export default {
     cost: "Giá vốn",
     search: "Tìm kiếm",
     check_all: "Chọn tất cả",
+    select_attributes: "Chọn thuộc tính",
   },
 };

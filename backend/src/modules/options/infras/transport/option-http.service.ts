@@ -16,6 +16,23 @@ import { PagingDTOSchema } from 'src/share/models/paging';
 export class OptionHttpService {
   constructor(private readonly useCase: IOptionUseCase) {}
 
+  async getAll(req: Request, res: Response) {
+    const { success, data, error } = OptionConditionDTOSchema.safeParse(
+      req.query
+    );
+    if (!success) {
+      res.status(400).json({ message: error?.message });
+      return;
+    }
+    try {
+      const options = await this.useCase.getAll(data);
+      res.status(200).json({ message: 'Options found', data: options });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to get options' });
+      return;
+    }
+  }
+
   async getOptionById(req: Request, res: Response) {
     const { id } = req.params;
     const { success, data, error } = OptionConditionDTOSchema.safeParse(

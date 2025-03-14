@@ -15,6 +15,7 @@ export interface IOptionUseCase {
   createOption(data: OptionCreateDTO): Promise<Option>;
   updateOption(id: string, data: OptionUpdateDTO): Promise<Option>;
   deleteOption(id: string): Promise<boolean>;
+  getAll(condition?: OptionConditionDTO): Promise<Option[]>;
   listOption(
     paging: PagingDTO,
     condition?: OptionConditionDTO
@@ -31,6 +32,7 @@ export interface IQueryRepository {
     paging: PagingDTO,
     condition?: OptionConditionDTO
   ): Promise<ListResponse<Option[]>>;
+  getAll(condition?: OptionConditionDTO): Promise<Option[]>;
 }
 
 export interface ICommandRepository {
