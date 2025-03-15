@@ -2,11 +2,14 @@ import { cn } from "@/app/shared/utils/utils";
 import { Button, Input, InputProps } from "antd";
 import { SearchProps } from "antd/es/input";
 import { ChevronDown } from "lucide-react";
-import React, { forwardRef, useState } from "react";
+import React, { forwardRef, useEffect, useState } from "react";
+import { useInView } from "react-intersection-observer";
 import { useIntl } from "react-intl";
 
 type Props = {
   children: React.ReactNode;
+  clearAll?: () => void;
+  hasSelectedItems?: boolean;
 } & React.RefAttributes<HTMLDivElement>;
 
 type FilterItemProps = {
@@ -14,6 +17,9 @@ type FilterItemProps = {
   name: string;
   label?: string | React.ReactNode;
   wrapperClassName?: string;
+  fetchNextPage?: () => void;
+  hasNextPage?: boolean;
+  refetch?: () => void;
 };
 
 interface FilterComponent extends React.ForwardRefExoticComponent<Props> {
@@ -21,14 +27,22 @@ interface FilterComponent extends React.ForwardRefExoticComponent<Props> {
 }
 
 const Filter = (
-  { children, ...props }: Props,
+  { children, hasSelectedItems, clearAll, ...props }: Props,
   ref?: React.Ref<HTMLDivElement>,
 ) => {
+  const intl = useIntl();
   return (
     <div className="sticky top-10" ref={ref}>
+      {hasSelectedItems && (
+        <Button
+          type="primary"
+          className="mb-2 w-fit"
+          onClick={clearAll}
+        >
+          {intl.formatMessage({ id: "clear_all_filters" })}
+        </Button>
+      )}
       {children}
-      {/* Clear all */}
-      {/* Collapse */}
     </div>
   );
 };
@@ -39,19 +53,28 @@ FilterComponent.Item = ({
   children,
   wrapperClassName,
   label,
+  fetchNextPage,
+  hasNextPage,
+  refetch,
   ...props
 }: FilterItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { ref, inView } = useInView();
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage && fetchNextPage();
+    }
+  }, [inView]);
   return (
     <div
       className={cn(
-        "mb-4 rounded-sm border border-solid border-neutral-100 bg-neutral-50 p-2 transition-all duration-300",
+        "mb-4 max-h-[200px] overflow-y-auto rounded-sm border border-solid border-neutral-100 bg-neutral-50 p-2 transition-all duration-300",
         isOpen && "max-h-[48px] overflow-hidden",
         wrapperClassName,
       )}
     >
       {label && (
-        <div className="mb-2 flex items-center justify-between pl-1">
+        <div className="mb-2 flex items-center justify-between pl-1 capitalize">
           <div className="font-roboto-medium text-sm">{label}</div>
           <Button
             type="text"
@@ -63,6 +86,7 @@ FilterComponent.Item = ({
         </div>
       )}
       {children}
+      <div ref={ref} className="h-2"></div>
     </div>
   );
 };

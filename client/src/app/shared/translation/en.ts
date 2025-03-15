@@ -46,5 +46,11 @@ export default {
     search: "Search",
     check_all: "Check All",
     select_attributes: "Select Attributes",
+    select_discount: "Select Discount",
+    discount: "Discount",
+    load_more: "Load More",
+    clear_all: "Clear All",
+    clear_all_filters: "Clear All Filters",
+    limit: "Limit",
   },
 };

@@ -47,5 +47,11 @@ export default {
     select_attributes: "Chọn thuộc tính",
     sell_active: "Đang bán",
     sell_inactive: "Đã ngừng bán",
+    select_discount: "Chọn chiến dịch giảm giá",
+    discount: "Chiến dịch giảm giá",
+    load_more: "Tải thêm",
+    clear_all: "Xóa tất cả",
+    clear_all_filters: "Xóa tất cả bộ lọc",
+    limit: "Số bản ghi",
   },
 };

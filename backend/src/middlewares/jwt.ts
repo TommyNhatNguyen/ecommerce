@@ -128,7 +128,7 @@ export const jwtVerify = (
         break;
     }
     if (!accessToken) {
-      res.status(401).send({
+      res.status(403).send({
         message: 'Unathorized! Access denied',
       });
     }
@@ -149,7 +149,7 @@ export const jwtVerify = (
       res.status(401).json({ message: 'Please log in again.' });
       return;
     }
-    res.status(401).json({ message: 'Invalid token.' });
+    res.status(403).json({ message: 'Invalid token.' });
     return;
   }
 };

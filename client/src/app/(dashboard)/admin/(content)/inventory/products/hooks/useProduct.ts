@@ -7,8 +7,42 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 export function useProducts() {
   const [loadingSoftDelete, setLoadingSoftDelete] = useState(false);
   const [errorSoftDelete, setErrorSoftDelete] = useState<string>("");
+  const [limit, setLimit] = useState<number>(10);
   const { notificationApi } = useNotification();
 
+  const {
+    data: productsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ["products"],
+    queryFn: () =>
+      productService.getProducts({
+        // includeCategory: true,
+        includeDiscount: true,
+        includeImage: true,
+        includeVariant: true,
+        includeVariantInfo: true,
+        includeVariantOption: true,
+        includeVariantOptionType: true,
+        includeVariantImage: true,
+        limit: limit,
+      }),
+    getNextPageParam: (lastPage, pages) => {
+      if (lastPage.meta.current_page === lastPage.meta.total_page) {
+        return undefined;
+      }
+      return lastPage.meta.current_page + 1;
+    },
+    initialPageParam: 1,
+  });
+
+  const products = useMemo(() => {
+    return productsData?.pages?.flatMap((page) => page.data) || [];
+  }, [productsData]);
   const handleSoftDeleteProduct = async (id: string) => {
     setLoadingSoftDelete(true);
     try {
@@ -29,34 +63,9 @@ export function useProducts() {
       setLoadingSoftDelete(false);
     }
   };
-
-  const { data: productsData, fetchNextPage, hasNextPage, isFetchingNextPage, refetch, isLoading } =
-    useInfiniteQuery({
-      queryKey: ["products"],
-      queryFn: () => productService.getProducts({
-        // includeCategory: true,
-        includeDiscount: true,
-        includeImage: true,
-        includeVariant: true,
-        includeVariantInfo: true,
-        includeVariantOption: true,
-        includeVariantOptionType: true,
-        includeVariantImage: true,
-      }),
-      getNextPageParam: (lastPage, pages) => {
-        if (lastPage.meta.current_page === lastPage.meta.total_page) {
-          return undefined;
-        }
-        return lastPage.meta.current_page + 1;
-      },
-      initialPageParam: 1,
-    });
-  
-  const products = useMemo(() => {
-    return productsData?.pages?.flatMap(page => page.data) || [];
-  }, [productsData])
-  console.log("🚀 ~ products ~ products:", products)
-
+  const handleSelectLimit = (value: number) => {
+    setLimit(value);
+  };
 
   return {
     handleSoftDeleteProduct,
@@ -68,5 +77,7 @@ export function useProducts() {
     hasNextPage,
     isFetchingNextPage,
     refetch,
+    limit,
+    handleSelectLimit,
   };
 }

@@ -11,9 +11,9 @@ export const dataSource = [
     createdAt: "2024-01-15",
   },
   {
-    key: "2", 
+    key: "2",
     productName: "Samsung Galaxy S23",
-    category: "Smartphones", 
+    category: "Smartphones",
     price: 899,
     stock: 32,
     discount: 10,
@@ -29,7 +29,7 @@ export const dataSource = [
     stock: 12,
     discount: 0,
     totalValue: 17988,
-    status: "publish", 
+    status: "publish",
     createdAt: "2024-01-08",
   },
   {
@@ -221,3 +221,9 @@ export const STATUS_OPTIONS = [
   { label: "inactive", value: "INACTIVE" },
 ];
 
+export const LIMIT_OPTIONS = [
+  { label: "10", value: 10 },
+  { label: "20", value: 20 },
+  { label: "50", value: 50 },
+  { label: "100", value: 100 },
+];

@@ -5,6 +5,8 @@ import axios from "axios";
 import { authServices } from "@/app/shared/services/auth/authServices";
 import { customerService } from "@/app/shared/services/customers/customerService";
 
+let retry = false;
+
 export const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BASE_URL,
   headers: {
@@ -23,11 +25,13 @@ axiosInstance.interceptors.request.use((config) => {
 
 axiosInstance.interceptors.response.use(
   (response) => {
+    retry = false;
     return response;
   },
   async (error) => {
     const prevRequest = error.config;
-    if (error?.response?.status === 401) {
+    if (error?.response?.status === 401 && !retry) {
+      retry = true
       try {
         // get url
         const url = error.config.url.includes("users");

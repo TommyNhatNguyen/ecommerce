@@ -1,14 +1,17 @@
+import { useProducts } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useProduct";
 import { useProductFilter } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useProductFilter";
-import { STATUS_OPTIONS } from "@/app/constants/seeds";
+import { LIMIT_OPTIONS, STATUS_OPTIONS } from "@/app/constants/seeds";
 import CustomCheckboxGroup from "@/app/shared/components/CustomCheckbox";
 import Filter from "@/app/shared/components/Filter";
 import FilterComponent from "@/app/shared/components/Filter";
 import { BrandModel } from "@/app/shared/models/brands/brands.model";
 import { CategoryModel } from "@/app/shared/models/categories/categories.model";
+import { DiscountModel } from "@/app/shared/models/discounts/discounts.model";
 import { OptionModel } from "@/app/shared/models/variant/variant.model";
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { useQuery } from "@tanstack/react-query";
 import {
+  Button,
   Checkbox,
   ColorPicker,
   Divider,
@@ -18,6 +21,7 @@ import {
   TreeProps,
   TreeSelect,
 } from "antd";
+import { Search } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 
@@ -35,24 +39,40 @@ type Props = {
   selectedBrands: string[];
   selectedStatuses: string[];
   handleSelectStatus: (value: string[]) => void;
+  discounts: DiscountModel[];
+  selectedDiscounts: string[];
+  handleSelectDiscount: (value: string[]) => void;
+  handleLoadMoreDiscount: () => void;
+  hasNextDiscountPage: boolean;
+  handleSearchDiscount: (value: string) => void;
+  handleClearAll: () => void;
+  hasSelectedItems: boolean;
 };
 
-const ProductFilter = ({  
+const ProductFilter = ({
   categories,
   options,
   brands,
-  search,
+  hasSelectedItems,
+  discounts,
   selectedCategories,
   selectedOptions,
   selectedBrands,
   selectedStatuses,
+  selectedDiscounts,
+  hasNextDiscountPage,
   handleSearch,
   handleSelectCategory,
   handleSelectOption,
   handleSelectBrand,
   handleSelectStatus,
+  handleSelectDiscount,
+  handleLoadMoreDiscount,
+  handleSearchDiscount,
+  handleClearAll,
 }: Props) => {
   const intl = useIntl();
+  const { limit, handleSelectLimit } = useProducts();
   const _onSearch = (value: string) => {
     handleSearch(value);
   };
@@ -61,13 +81,25 @@ const ProductFilter = ({
   };
   const _onSelectBrand = (value: string[]) => {
     handleSelectBrand(value);
-  }
+  };
   const _onSelectOption = (value: string[]) => {
     handleSelectOption(value);
-  }
+  };
   const _onSelectStatus = (value: string[]) => {
     handleSelectStatus(value);
-  }
+  };
+  const _onSelectDiscount = (value: string[]) => {
+    handleSelectDiscount(value);
+  };
+  const _onLoadMoreDiscount = () => {
+    handleLoadMoreDiscount();
+  };
+  const _onSearchDiscount = (value: string) => {
+    handleSearchDiscount(value);
+  };
+  const _onSelectLimit = (value: number) => {
+    handleSelectLimit(value);
+  };
   const optionTree: TreeProps["treeData"] = useMemo(() => {
     return options?.map((item) => {
       return {
@@ -104,12 +136,14 @@ const ProductFilter = ({
     });
   }, [options]);
   return (
-    <FilterComponent>
+    <FilterComponent
+      hasSelectedItems={hasSelectedItems}
+      clearAll={handleClearAll}
+    >
       <Filter.Item name="search" label={intl.formatMessage({ id: "search" })}>
         <Input.Search
-          value={search}
-          onChange={(e) => {
-            _onSearch(e.target.value);
+          onSearch={(value) => {
+            _onSearch(value);
           }}
           placeholder={intl.formatMessage({ id: "search" })}
         />
@@ -163,8 +197,56 @@ const ProductFilter = ({
           onSelect={_onSelectStatus}
         />
       </Filter.Item>
-      <Filter.Item name="discount">Trạng thái giảm giá</Filter.Item>
-      <Filter.Item name="limit">Số bản ghi</Filter.Item>
+      <Filter.Item
+        name="discount"
+        label={intl.formatMessage({ id: "discount" })}
+      >
+        <Select
+          placeholder={intl.formatMessage({ id: "select_discount" })}
+          className="w-full"
+          mode="multiple"
+          showSearch={false}
+          options={discounts?.map((item) => ({
+            label: item.name,
+            value: item.id,
+          }))}
+          value={selectedDiscounts}
+          onChange={_onSelectDiscount}
+          dropdownRender={(menu) => {
+            return (
+              <div>
+                <div className="flex w-full items-center justify-center gap-2">
+                  <Input.Search
+                    placeholder={intl.formatMessage({ id: "search" })}
+                    onSearch={_onSearchDiscount}
+                  />
+                </div>
+                {menu}
+                <Button
+                  className="w-full"
+                  disabled={!hasNextDiscountPage}
+                  onClick={_onLoadMoreDiscount}
+                >
+                  {intl.formatMessage({ id: "load_more" })}
+                </Button>
+              </div>
+            );
+          }}
+          // searchValue={searchDiscount}
+          // onSearch={setSearchDiscount}
+        />
+      </Filter.Item>
+      <Filter.Item name="limit" label={intl.formatMessage({ id: "limit" })}>
+        <Select
+          className="w-full"
+          options={LIMIT_OPTIONS.map((item) => ({
+            label: `${item.label} ${intl.formatMessage({ id: "products" })}`,
+            value: item.value,
+          }))}
+          value={limit}
+          onChange={_onSelectLimit}
+        />
+      </Filter.Item>
     </FilterComponent>
   );
 };

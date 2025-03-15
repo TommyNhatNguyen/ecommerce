@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
-import { useProductFilter } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useProductFilter";
 import { useInView } from "react-intersection-observer";
 
 type Props = {
