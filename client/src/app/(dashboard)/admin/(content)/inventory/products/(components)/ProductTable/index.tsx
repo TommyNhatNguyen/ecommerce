@@ -88,7 +88,7 @@ const ProductTable = ({ selectedCategories }: Props) => {
     }
   }, [products]);
   useEffect(() => {
-    if (inView && hasNextPage && !isLoading) {
+    if (inView && hasNextPage) {
       fetchNextPage();
     }
   }, [inView]);
@@ -214,7 +214,7 @@ const ProductTable = ({ selectedCategories }: Props) => {
             },
           }}
         />
-        <div ref={ref}></div>
+        <div className="h-10 w-full" ref={ref}></div>
       </div>
       <ModalProductDetail
         data={productDetail}

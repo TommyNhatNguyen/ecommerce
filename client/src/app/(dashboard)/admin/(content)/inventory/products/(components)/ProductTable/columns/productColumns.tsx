@@ -102,7 +102,10 @@ export const variantColumns: (
   },
   {
     key: "discount",
-    title: () => intl.formatMessage({ id: "number_of_discount_campaign" }),
+    title: () =>
+      intl.formatMessage({
+        id: "number_of_discount_campaign_active",
+      }),
     dataIndex: "discount",
     render: (_, { product_sellable }) => {
       const { discount } = product_sellable || {};
