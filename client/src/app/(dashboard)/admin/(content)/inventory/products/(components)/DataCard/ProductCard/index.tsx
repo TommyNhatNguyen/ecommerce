@@ -1,6 +1,6 @@
 import DataCard from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/DataCard";
 import { useProducts } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useProduct";
-import CreateProductModal from "@/app/shared/components/GeneralModal/components/CreateProductModal";
+import ModalCreateProduct from "@/app/shared/components/GeneralModal/components/ModalCreateProduct";
 import UpdateProductModal from "@/app/shared/components/GeneralModal/components/UpdateProductModal";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import { productService } from "@/app/shared/services/products/productService";
@@ -155,7 +155,7 @@ const ProductCard = ({}: ProductCardPropsType) => {
         handleCloseModalCreate,
         refetch,
       ) => (
-        <CreateProductModal
+        <ModalCreateProduct
           isModalCreateProductOpen={isModalCreateOpen}
           handleCloseModalCreateProduct={handleCloseModalCreate}
           refetch={refetch}

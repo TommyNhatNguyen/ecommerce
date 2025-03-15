@@ -1,5 +1,10 @@
 "use client";
-import React, { useMemo, useState } from "react";
+import React, {
+  forwardRef,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
   Button,
@@ -33,18 +38,19 @@ import { useNotification } from "@/app/contexts/NotificationContext";
 import { filterOption } from "@/lib/antd";
 import { ClassicEditor, Editor, Essentials } from "ckeditor5";
 import CustomEditor from "@/app/shared/components/CustomEditor";
+import CustomCheckboxGroup from "@/app/shared/components/CustomCheckbox";
 
-type CreateProductModalPropsType = {
-  isModalCreateProductOpen: boolean;
-  handleCloseModalCreateProduct: () => void;
+export interface ModalRefType {
+  handleOpenModal: () => void;
+  handleCloseModal: () => void;
+}
+
+type PropsType = {
   refetch?: () => void;
 };
 
-const CreateProductModal = ({
-  isModalCreateProductOpen,
-  handleCloseModalCreateProduct,
-  refetch,
-}: CreateProductModalPropsType) => {
+const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
+  const [open, setOpen] = useState(false);
   // ===== State Management =====
   const [variantImageFileList, setVariantImageFileList] = useState<{
     [key: number]: UploadFile[];
@@ -76,20 +82,20 @@ const CreateProductModal = ({
   });
   // ===== Queries =====
   const { data: categories, isLoading: isLoadingCategories } = useQuery({
-    queryKey: ["categories", isModalCreateProductOpen],
+    queryKey: ["categories", open],
     queryFn: () => categoriesService.getCategories({}),
-    enabled: isModalCreateProductOpen,
+    enabled: open,
   });
   const { data: discounts, isLoading: isLoadingDiscounts } = useQuery({
-    queryKey: ["discounts", isModalCreateProductOpen],
+    queryKey: ["discounts", open],
     queryFn: () =>
       discountsService.getDiscounts({ scope: DISCOUNT_SCOPE.PRODUCT }),
-    enabled: isModalCreateProductOpen,
+    enabled: open,
   });
   const { data: options, isLoading: isLoadingOptions } = useQuery({
-    queryKey: ["options", isModalCreateProductOpen],
+    queryKey: ["options", open],
     queryFn: () => optionService.getOptionList({ include_option_values: true }),
-    enabled: isModalCreateProductOpen,
+    enabled: open,
   });
   // ===== Computed Values =====
   const { hanldeCreateProduct, loading } = useCreateProductModal();
@@ -113,10 +119,18 @@ const CreateProductModal = ({
     _onClearAllImages();
   };
 
-  const _onCloseModalCreateProduct = () => {
-    handleCloseModalCreateProduct();
+  const handleOpenModal = () => {
+    setOpen(true);
+  };
+  const _onCloseModal = () => {
+    setOpen(false);
     _onClearAllFormData();
   };
+
+  useImperativeHandle<ModalRefType, ModalRefType>(ref, () => ({
+    handleOpenModal,
+    handleCloseModal: _onCloseModal,
+  }));
 
   const _onChangeOption = (value: string[]) => {
     setSelectedOptions(value);
@@ -206,7 +220,7 @@ const CreateProductModal = ({
     await hanldeCreateProduct(payload);
     _onClearAllFormData();
     refetch && refetch();
-    _onCloseModalCreateProduct();
+    _onCloseModal();
   };
 
   const _onChangeFileList = (id: number, fileList: UploadFile[]) => {
@@ -289,36 +303,18 @@ const CreateProductModal = ({
                         dropdownRender={(menu) => {
                           return categories?.data &&
                             categories?.data.length > 0 ? (
-                            <div className="flex flex-col gap-2 p-2">
-                              <Checkbox
-                                className="font-medium"
-                                value="all"
-                                onChange={(e) => {
-                                  field.onChange(
-                                    e.target.checked
-                                      ? categories?.data.map((item) => item.id)
-                                      : [],
-                                  );
-                                }}
-                                checked={checkAll}
-                                indeterminate={indeterminate}
-                              >
-                                <span>All</span>
-                              </Checkbox>
-                              <div className="h-[1px] w-full bg-zinc-500/30"></div>
-                              <Checkbox.Group
-                                options={categories?.data.map((item) => ({
-                                  label: item.name,
-                                  value: item.id,
-                                }))}
-                                value={field.value}
-                                onChange={field.onChange}
-                                className="flex flex-col gap-2"
-                              />
-                              <LoadingComponent
-                                isLoading={isLoadingCategories}
-                              />
-                            </div>
+                            <CustomCheckboxGroup
+                              wrapperClassName="flex flex-col gap-2"
+                              className="grid grid-cols-2 gap-2"
+                              data={categories?.data?.map((item) => ({
+                                label: item.name,
+                                value: item.id,
+                              }))}
+                              selectedData={field.value}
+                              onSelect={(value) => {
+                                field.onChange(value);
+                              }}
+                            />
                           ) : (
                             <div className="flex items-center justify-center">
                               <Empty description="No categories found" />
@@ -404,16 +400,20 @@ const CreateProductModal = ({
               {options?.data
                 ?.filter((item) => selectedOptions.includes(item.id))
                 ?.map((option) => (
-                  <div key={option.id}>
-                    <div>{option.name}</div>
-                    <Checkbox.Group
-                      options={option.option_values?.map((item) => ({
+                  <div key={option?.id}>
+                    <p className="mb-2 text-md font-roboto-medium">
+                      {option?.name}
+                    </p>
+                    <CustomCheckboxGroup
+                      wrapperClassName="flex items-center gap-2"
+                      className="flex flex-wrap gap-2"
+                      data={option?.option_values?.map((item) => ({
                         label: item.name,
                         value: item.id,
                       }))}
-                      value={selectedOptionValues[option.id]}
-                      onChange={(value) =>
-                        _onChangeOptionValue(option.id, value)
+                      selectedData={selectedOptionValues[option?.id]}
+                      onSelect={(value) =>
+                        _onChangeOptionValue(option?.id, value)
                       }
                     />
                   </div>
@@ -714,28 +714,6 @@ const CreateProductModal = ({
                 ))}
             </div>
           </div>
-          <Controller
-            control={control}
-            name="status"
-            render={({ field }) => (
-              <InputAdmin
-                label="Status"
-                placeholder="Status"
-                required={true}
-                className="w-full"
-                customComponent={(props: any, ref: any) => (
-                  <Select
-                    options={STATUS_OPTIONS}
-                    placeholder="Select Status"
-                    value={field.value}
-                    onChange={field.onChange}
-                    {...props}
-                    ref={ref}
-                  />
-                )}
-              />
-            )}
-          />
         </div>
       </>
     );
@@ -744,7 +722,7 @@ const CreateProductModal = ({
   const _renderFooterModalCreateProduct = () => {
     return (
       <div className="flex items-center justify-end gap-2">
-        <Button type="default" onClick={_onCloseModalCreateProduct}>
+        <Button type="default" onClick={_onCloseModal}>
           Cancel
         </Button>
         <Button
@@ -763,11 +741,13 @@ const CreateProductModal = ({
       renderTitle={_renderTitleModalCreateProduct}
       renderFooter={_renderFooterModalCreateProduct}
       renderContent={_renderContentModalCreateProduct}
-      open={isModalCreateProductOpen}
-      onCancel={_onCloseModalCreateProduct}
+      open={open}
+      onCancel={_onCloseModal}
       loading={createProductLoading || uploadImageLoading}
     />
   );
 };
 
-export default CreateProductModal;
+export default React.memo(
+  forwardRef<ModalRefType, PropsType>(ModalCreateProduct),
+);

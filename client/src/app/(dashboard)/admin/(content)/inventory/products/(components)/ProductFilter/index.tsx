@@ -34,12 +34,12 @@ type Props = {
   handleSearch: (value: string) => void;
   handleSelectOption: (value: string[]) => void;
   selectedOptions: string[];
-  brands: BrandModel[];
+  brands: BrandModel[] | undefined;
   handleSelectBrand: (value: string[]) => void;
   selectedBrands: string[];
   selectedStatuses: string[];
   handleSelectStatus: (value: string[]) => void;
-  discounts: DiscountModel[];
+  discounts: DiscountModel[] | undefined;
   selectedDiscounts: string[];
   handleSelectDiscount: (value: string[]) => void;
   handleLoadMoreDiscount: () => void;

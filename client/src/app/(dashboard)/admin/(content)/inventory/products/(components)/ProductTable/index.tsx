@@ -18,9 +18,10 @@ import {
   Plus,
   RefreshCcw,
 } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import { useInView } from "react-intersection-observer";
+import ModalCreateProduct, { ModalRefType } from "@/app/shared/components/GeneralModal/components/ModalCreateProduct";
 
 type Props = {
   selectedCategories: string[];
@@ -28,6 +29,7 @@ type Props = {
 
 const ProductTable = ({ selectedCategories }: Props) => {
   const intl = useIntl();
+  const modalCreateProductRef = useRef<ModalRefType>(null);
   const [selectedColumns, setSelectedColumns] = useState<{
     [key: string]: string[];
   }>({});
@@ -65,7 +67,7 @@ const ProductTable = ({ selectedCategories }: Props) => {
     }));
   };
   const _onOpenModalCreateProduct = () => {
-    console.log("open modal create product");
+    modalCreateProductRef.current?.handleOpenModal();
   };
   const handleCancelModalProductDetail = () => {
     setProductDetail(null);
@@ -183,6 +185,7 @@ const ProductTable = ({ selectedCategories }: Props) => {
           columns={newProductColumns}
           rowKey={(record) => record.id}
           pagination={false}
+          rowClassName={"bg-slate-50"}
           loading={isFetchingNextPage}
           expandable={{
             childrenColumnName: "variant",
@@ -216,6 +219,7 @@ const ProductTable = ({ selectedCategories }: Props) => {
         open={!!productDetail}
         onCancel={handleCancelModalProductDetail}
       />
+      <ModalCreateProduct ref={modalCreateProductRef} />
     </div>
   );
 };

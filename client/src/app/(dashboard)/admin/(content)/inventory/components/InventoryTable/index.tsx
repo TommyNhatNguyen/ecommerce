@@ -49,7 +49,7 @@ import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import ImgCrop from "antd-img-crop";
 import { ADMIN_ROUTES } from "@/app/constants/routes";
 import GeneralModal from "@/app/shared/components/GeneralModal";
-import CreateProductModal from "@/app/shared/components/GeneralModal/components/CreateProductModal";
+import ModalCreateProduct from "@/app/shared/components/GeneralModal/components/ModalCreateProduct";
 import { CreateProductDTO } from "@/app/shared/interfaces/products/product.dto";
 import { useInventory } from "@/app/(dashboard)/admin/(content)/inventory/hooks/useInventory";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
@@ -700,7 +700,7 @@ const InventoryTable = ({
           {isLoading && <LoadingComponent isLoading={isLoading} />}
         </div>
       </div>
-      <CreateProductModal
+      <ModalCreateProduct
         isModalCreateProductOpen={isModalCreateProductOpen}
         handleCloseModalCreateProduct={handleCloseModalCreateProduct}
         refetch={refetchProducts}

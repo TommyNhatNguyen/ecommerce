@@ -32,7 +32,7 @@ const Filter = (
 ) => {
   const intl = useIntl();
   return (
-    <div className="sticky top-10" ref={ref}>
+    <div className="sticky top-10 max-h-[800px] overflow-y-auto px-4" ref={ref}>
       {hasSelectedItems && (
         <Button
           type="primary"
