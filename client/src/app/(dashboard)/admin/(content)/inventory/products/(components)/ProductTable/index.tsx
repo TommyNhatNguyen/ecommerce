@@ -142,7 +142,10 @@ const ProductTable = ({ selectedCategories }: Props) => {
                       {intl.formatMessage({ id: "product_columns" })}
                     </p>
                     <Checkbox.Group
-                      options={PRODUCTS_COLUMNS}
+                      options={PRODUCTS_COLUMNS.map((item) => ({
+                        label: intl.formatMessage({ id: item }),
+                        value: item,
+                      }))}
                       value={selectedColumns["product"]}
                       onChange={(keys) => _onSelectColumns("product", keys)}
                       className="mt-2 flex flex-wrap gap-2"
@@ -154,7 +157,10 @@ const ProductTable = ({ selectedCategories }: Props) => {
                       {intl.formatMessage({ id: "variant_columns" })}
                     </p>
                     <Checkbox.Group
-                      options={VARIANT_COLUMNS}
+                      options={VARIANT_COLUMNS.map((item) => ({
+                        label: intl.formatMessage({ id: item }),
+                        value: item,
+                      }))}
                       value={selectedColumns["variant"]}
                       onChange={(keys) => _onSelectColumns("variant", keys)}
                       className="mt-2 flex flex-wrap gap-2"
