@@ -10,3 +10,8 @@ export type InventoryUpdateDTO = {
   updated_at?: Date;
 };
 
+export type InventoryWarehouseCreateDTO = {
+  warehouse_id: string;
+  quantity: number;
+  cost: number;
+}

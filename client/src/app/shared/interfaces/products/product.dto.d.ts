@@ -37,6 +37,7 @@ export type CreateProductBodyDTO = {
 
 export type CreateProductDTOV2 = {
   name: string;
+  sku?: string;
   description?: string;
   short_description?: string;
   status: "ACTIVE" | "INACTIVE" | "DELETED";

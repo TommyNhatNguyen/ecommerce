@@ -1,6 +1,7 @@
 "use client";
 import React, {
   forwardRef,
+  useCallback,
   useImperativeHandle,
   useMemo,
   useState,
@@ -39,6 +40,8 @@ import { filterOption } from "@/lib/antd";
 import { ClassicEditor, Editor, Essentials } from "ckeditor5";
 import CustomEditor from "@/app/shared/components/CustomEditor";
 import CustomCheckboxGroup from "@/app/shared/components/CustomCheckbox";
+import { useIntl } from "react-intl";
+import { warehouseService } from "@/app/shared/services/warehouse/warehouseService";
 
 export interface ModalRefType {
   handleOpenModal: () => void;
@@ -60,7 +63,11 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
   const [selectedOptionValues, setSelectedOptionValues] = useState<{
     [key: string]: string[];
   }>({});
+  const [selectedWarehouse, setSelectedWarehouse] = useState<{
+    [key: string]: string[];
+  }>({});
   const { notificationApi } = useNotification();
+  const intl = useIntl();
   // ===== Form Management =====
   const {
     handleSubmit,
@@ -72,6 +79,7 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
     getValues,
   } = useForm<CreateProductDTOV2>({
     defaultValues: {
+      sku: "",
       name: "",
       description: "",
       short_description: "",
@@ -81,31 +89,31 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
     },
   });
   // ===== Queries =====
-  const { data: categories, isLoading: isLoadingCategories } = useQuery({
+  const { data: categories } = useQuery({
     queryKey: ["categories", open],
     queryFn: () => categoriesService.getCategories({}),
     enabled: open,
   });
-  const { data: discounts, isLoading: isLoadingDiscounts } = useQuery({
+  const { data: discounts } = useQuery({
     queryKey: ["discounts", open],
     queryFn: () =>
       discountsService.getDiscounts({ scope: DISCOUNT_SCOPE.PRODUCT }),
     enabled: open,
   });
-  const { data: options, isLoading: isLoadingOptions } = useQuery({
+  const { data: options } = useQuery({
     queryKey: ["options", open],
     queryFn: () => optionService.getOptionList({ include_option_values: true }),
     enabled: open,
   });
+  const { data: warehouses } = useQuery({
+    queryKey: ["warehouses", open],
+    queryFn: () => warehouseService.getAll({}),
+    enabled: open,
+  });
+  console.log("🚀 ~ ModalCreateProduct ~ warehouses:", warehouses?.data);
   // ===== Computed Values =====
   const { hanldeCreateProduct, loading } = useCreateProductModal();
   const createProductLoading = loading || uploadImageLoading;
-  const checkAll =
-    categories && categories.data.length === watch("categoryIds").length;
-  const indeterminate =
-    categories &&
-    watch("categoryIds").length > 0 &&
-    watch("categoryIds").length < categories.data.length;
   const allPairs = useMemo(
     () => generateAllPairs(selectedOptionValues),
     [selectedOptionValues, selectedOptions],
@@ -141,21 +149,31 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
     );
   };
 
-  const _onChangeOptionValue = (optionId: string, value: string[]) => {
-    const currentVariantIndexList = allPairs
-      .filter((pair) => pair.some((i) => value.includes(i)))
-      .map((pair) => allPairs.indexOf(pair));
-    setSelectedOptionValues((prev) => ({
+  const _onChangeOptionValue = useCallback(
+    (optionId: string, value: string[]) => {
+      const currentVariantIndexList = allPairs
+        .filter((pair) => pair.some((i) => value.includes(i)))
+        .map((pair) => allPairs.indexOf(pair));
+      setSelectedOptionValues((prev) => ({
+        ...prev,
+        [optionId]: value,
+      }));
+      reset({
+        ...getValues(),
+        variants: getValues("variants").filter((variant, index) =>
+          currentVariantIndexList.includes(index),
+        ),
+      });
+      _onClearAllImages();
+    },
+    [allPairs],
+  );
+
+  const _onChangeWarehouse = (key: string, value: string[]) => {
+    setSelectedWarehouse((prev) => ({
       ...prev,
-      [optionId]: value,
+      [key]: value,
     }));
-    reset({
-      ...getValues(),
-      variants: getValues("variants").filter((variant, index) =>
-        currentVariantIndexList.includes(index),
-      ),
-    });
-    _onClearAllImages();
   };
 
   const _onSubmitFileList = async () => {
@@ -209,18 +227,19 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
     const payload: CreateProductDTOV2 = {
       ...data,
     };
-    const imageIds = (await _onSubmitFileList()) || [];
+    // const imageIds = (await _onSubmitFileList()) || [];
     payload.variants = payload.variants.map((variant, index) => ({
       ...variant,
       product_sellables: {
         ...variant.product_sellables,
-        imageIds: Object.values(imageIds?.[index] || {}).flat() as string[],
+        // imageIds: Object.values(imageIds?.[index] || {}).flat() as string[],
       },
     }));
-    await hanldeCreateProduct(payload);
-    _onClearAllFormData();
-    refetch && refetch();
-    _onCloseModal();
+    console.log("🚀 ~ ModalCreateProduct ~ payload:", payload);
+    // await hanldeCreateProduct(payload);
+    // _onClearAllFormData();
+    // refetch && refetch();
+    // _onCloseModal();
   };
 
   const _onChangeFileList = (id: number, fileList: UploadFile[]) => {
@@ -236,7 +255,9 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
   };
   // ===== Render Methods =====
   const _renderTitleModalCreateProduct = () => (
-    <h1 className="text-2xl font-bold">Create Product</h1>
+    <h1 className="text-2xl font-bold">
+      {intl.formatMessage({ id: "create_product" })}
+    </h1>
   );
 
   const _renderContentModalCreateProduct = () => {
@@ -246,28 +267,49 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
           {/* Product information */}
           <div className="flex w-full flex-col gap-2">
             <h3 className="text-lg font-semibold underline">
-              Product information
+              {intl.formatMessage({ id: "product_information" })}
             </h3>
             <div className="flex w-full flex-col gap-4">
-              <Controller
-                control={control}
-                name="name"
-                rules={{
-                  required: {
-                    value: true,
-                    message: ERROR_MESSAGE.REQUIRED,
-                  },
-                }}
-                render={({ field, formState: { errors } }) => (
-                  <InputAdmin
-                    label="Product Name"
-                    required={true}
-                    placeholder="Product Name"
-                    error={errors.name?.message as string}
-                    {...field}
-                  />
-                )}
-              />
+              <div className="flex w-full gap-2">
+                <Controller
+                  control={control}
+                  name="sku"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: ERROR_MESSAGE.REQUIRED,
+                    },
+                  }}
+                  render={({ field, formState: { errors } }) => (
+                    <InputAdmin
+                      label={intl.formatMessage({ id: "sku" })}
+                      required={true}
+                      placeholder={intl.formatMessage({ id: "sku" })}
+                      error={errors.sku?.message as string}
+                      {...field}
+                    />
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="name"
+                  rules={{
+                    required: {
+                      value: true,
+                      message: ERROR_MESSAGE.REQUIRED,
+                    },
+                  }}
+                  render={({ field, formState: { errors } }) => (
+                    <InputAdmin
+                      label={intl.formatMessage({ id: "product_name" })}
+                      required={true}
+                      placeholder={intl.formatMessage({ id: "product_name" })}
+                      error={errors.name?.message as string}
+                      {...field}
+                    />
+                  )}
+                />
+              </div>
               <Controller
                 name="categoryIds"
                 control={control}
@@ -281,8 +323,8 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                   <InputAdmin
                     {...field}
                     error={errors?.categoryIds?.message || ""}
-                    label="Category"
-                    placeholder="Choose category"
+                    label={intl.formatMessage({ id: "category" })}
+                    placeholder={intl.formatMessage({ id: "choose_category" })}
                     groupClassName="w-full"
                     className="w-full"
                     required={true}
@@ -297,7 +339,9 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                         placement="bottomLeft"
                         value={field.value}
                         onClear={() => field.onChange([])}
-                        placeholder="Select Category"
+                        placeholder={intl.formatMessage({
+                          id: "choose_category",
+                        })}
                         allowClear={true}
                         mode="multiple"
                         dropdownRender={(menu) => {
@@ -317,7 +361,11 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                             />
                           ) : (
                             <div className="flex items-center justify-center">
-                              <Empty description="No categories found" />
+                              <Empty
+                                description={intl.formatMessage({
+                                  id: "no_categories_found",
+                                })}
+                              />
                             </div>
                           );
                         }}
@@ -331,8 +379,8 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                 name="description"
                 render={({ field }) => (
                   <InputAdmin
-                    label="Description"
-                    placeholder="Description"
+                    label={intl.formatMessage({ id: "description" })}
+                    placeholder={intl.formatMessage({ id: "description" })}
                     {...field}
                     customComponent={({ onChange, props }: any, ref: any) => (
                       <CustomEditor
@@ -351,8 +399,10 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                 name="short_description"
                 render={({ field }) => (
                   <InputAdmin
-                    label="Short Description"
-                    placeholder="Short Description"
+                    label={intl.formatMessage({ id: "short_description" })}
+                    placeholder={intl.formatMessage({
+                      id: "short_description",
+                    })}
                     {...field}
                     customComponent={({ onChange, props }: any, ref: any) => (
                       <CustomEditor
@@ -371,12 +421,14 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
           {/* Product variants */}
           <div className="flex flex-col gap-2">
             <h3 className="text-lg font-semibold underline">
-              Product variants
+              {intl.formatMessage({ id: "product_variants" })}
             </h3>
             <div className="flex w-full flex-col gap-4">
               <InputAdmin
-                label="Variant options"
-                placeholder="Select some options"
+                label={intl.formatMessage({ id: "attributes" })}
+                placeholder={intl.formatMessage({
+                  id: "select_attributes",
+                })}
                 required={true}
                 groupClassName="w-full"
                 className="w-full"
@@ -401,7 +453,7 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                 ?.filter((item) => selectedOptions.includes(item.id))
                 ?.map((option) => (
                   <div key={option?.id}>
-                    <p className="mb-2 text-md font-roboto-medium">
+                    <p className="text-md mb-2 font-roboto-medium">
                       {option?.name}
                     </p>
                     <CustomCheckboxGroup
@@ -429,40 +481,84 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                     render={({ field }) => (
                       <div>
                         {/* Variant data */}
-                        <div className="grid grid-cols-3 gap-2">
-                          <Controller
-                            control={control}
-                            name={`variants.${index}.variant_data.name`}
-                            rules={{
-                              required: {
-                                value: true,
-                                message: ERROR_MESSAGE.REQUIRED,
-                              },
-                            }}
-                            render={({ field }) => (
-                              <InputAdmin
-                                label="Variant Name"
-                                placeholder="Variant Name"
-                                required={true}
-                                error={
-                                  errors?.variants?.[index]?.variant_data?.name
-                                    ?.message || ""
-                                }
-                                {...field}
-                                onChange={(e) => {
-                                  setValue(
-                                    `variants.${index}.variant_data.options_value_ids`,
-                                    allPairs[index],
-                                  );
-                                  field.onChange(e.target.value);
-                                }}
-                              />
-                            )}
-                          />
+                        <div className="grid grid-cols-12 gap-2">
+                          <div className="col-span-6 flex w-full gap-2">
+                            <Controller
+                              control={control}
+                              name={`variants.${index}.variant_data.sku`}
+                              rules={{
+                                required: {
+                                  value: true,
+                                  message: ERROR_MESSAGE.REQUIRED,
+                                },
+                              }}
+                              render={({ field }) => (
+                                <InputAdmin
+                                  label={intl.formatMessage({
+                                    id: "sku",
+                                  })}
+                                  placeholder={intl.formatMessage({
+                                    id: "sku",
+                                  })}
+                                  required={true}
+                                  error={
+                                    errors?.variants?.[index]?.variant_data?.sku
+                                      ?.message || ""
+                                  }
+                                  {...field}
+                                  onChange={(e) => {
+                                    // setValue(
+                                    //   `variants.${index}.variant_data.sku`,
+                                    //   e.target.value,
+                                    // );
+                                    field.onChange(e.target.value);
+                                  }}
+                                />
+                              )}
+                            />
+                            <Controller
+                              control={control}
+                              name={`variants.${index}.variant_data.name`}
+                              rules={{
+                                required: {
+                                  value: true,
+                                  message: ERROR_MESSAGE.REQUIRED,
+                                },
+                              }}
+                              render={({ field }) => (
+                                <InputAdmin
+                                  label={intl.formatMessage({
+                                    id: "variant_name",
+                                  })}
+                                  placeholder={intl.formatMessage({
+                                    id: "variant_name",
+                                  })}
+                                  required={true}
+                                  error={
+                                    errors?.variants?.[index]?.variant_data
+                                      ?.name?.message || ""
+                                  }
+                                  {...field}
+                                  onChange={(e) => {
+                                    // setValue(
+                                    //   `variants.${index}.variant_data.name`,
+                                    //   e.target.value,
+                                    // );
+                                    field.onChange(e.target.value);
+                                  }}
+                                />
+                              )}
+                            />
+                          </div>
                           <InputAdmin
-                            label="Variant options"
-                            placeholder="Select some options"
+                            label={intl.formatMessage({
+                              id: "variant_attributes",
+                            })}
+                            placeholder={intl.formatMessage({
+                              id: "select_attributes",
+                            })}
                             className="w-full"
+                            groupClassName="col-span-3"
                             required={true}
                             customComponent={(props, ref) => (
                               <Select
@@ -506,8 +602,11 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                             }}
                             render={({ field }) => (
                               <InputAdmin
-                                label="Price"
-                                placeholder="Price"
+                                label={intl.formatMessage({ id: "price" })}
+                                groupClassName="col-span-3"
+                                placeholder={intl.formatMessage({
+                                  id: "price",
+                                })}
                                 required={true}
                                 error={
                                   errors?.variants?.[index]?.product_sellables
@@ -530,40 +629,154 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                         </div>
                         {/* Product sellables */}
                         <div className="mt-2 flex flex-col gap-2">
-                          <div className="grid grid-cols-3 gap-2">
-                            {/* Inventory quantity */}
-                            <Controller
-                              control={control}
-                              name={`variants.${index}.product_sellables.quantity`}
-                              rules={{
-                                required: {
-                                  value: true,
-                                  message: ERROR_MESSAGE.REQUIRED,
-                                },
-                              }}
-                              render={({ field }) => (
-                                <InputAdmin
-                                  label="Inventory quantity"
-                                  placeholder="Inventory quantity"
-                                  required={true}
-                                  error={
-                                    errors?.variants?.[index]?.product_sellables
-                                      ?.quantity?.message || ""
-                                  }
-                                  {...field}
-                                  customComponent={(props, ref: any) => (
-                                    <InputNumber
-                                      {...props}
-                                      ref={ref}
-                                      className="w-full"
-                                      formatter={(value) =>
-                                        formatNumber(Number(value))
-                                      }
-                                    />
-                                  )}
+                          <InputAdmin
+                            label={intl.formatMessage({ id: "warehouse" })}
+                            required={true}
+                            groupClassName="w-full"
+                            className="w-full"
+                            customComponent={({ props, ref }: any) => {
+                              return (
+                                <Select
+                                  options={warehouses?.data?.map((item) => ({
+                                    label: item.name,
+                                    value: item.id,
+                                  }))}
+                                  className="w-full"
+                                  onChange={(warehouseIds) => {
+                                    setValue(
+                                      `variants.${index}.product_sellables.inventory_quantity_by_warehouse`,
+                                      warehouseIds.map(
+                                        (warehouseId: string) => ({
+                                          warehouse_id: warehouseId,
+                                          cost: 0,
+                                          quantity: 0,
+                                        }),
+                                      ),
+                                    );
+                                    _onChangeWarehouse(
+                                      index.toString(),
+                                      warehouseIds,
+                                    );
+                                  }}
+                                  value={selectedWarehouse?.[index.toString()]}
+                                  placeholder={intl.formatMessage({
+                                    id: "select_warehouse",
+                                  })}
+                                  allowClear={true}
+                                  mode="multiple"
+                                  {...props}
+                                  ref={ref}
                                 />
-                              )}
-                            />
+                              );
+                            }}
+                          />
+                          <div className="flex flex-col gap-2 mt-2">
+                            {/* Warehouse + quantity + cost */}
+                            {selectedWarehouse?.[index.toString()]?.map(
+                              (item, warehouseIndex) => {
+                                return (
+                                  <div key={item}>
+                                    {/* Warehouse ID */}
+                                    <p className="mb-2 flex-shrink-0 whitespace-nowrap text-nowrap font-roboto-medium text-sm">
+                                      {intl.formatMessage({ id: "warehouse" })}:{" "}
+                                      {
+                                        warehouses?.data?.find(
+                                          (warehouse) => warehouse.id === item,
+                                        )?.name
+                                      }
+                                    </p>
+                                    <div className="flex items-start gap-2">
+                                      {/* Inventory quantity */}
+                                      <Controller
+                                        control={control}
+                                        name={`variants.${index}.product_sellables.inventory_quantity_by_warehouse.${warehouseIndex}.quantity`}
+                                        rules={{
+                                          required: {
+                                            value: true,
+                                            message: ERROR_MESSAGE.REQUIRED,
+                                          },
+                                        }}
+                                        render={({ field }) => (
+                                          <InputAdmin
+                                            label={intl.formatMessage({
+                                              id: "inventory_quantity",
+                                            })}
+                                            placeholder={intl.formatMessage({
+                                              id: "inventory_quantity",
+                                            })}
+                                            required={true}
+                                            error={
+                                              errors?.variants?.[index]
+                                                ?.product_sellables
+                                                ?.inventory_quantity_by_warehouse?.[
+                                                warehouseIndex
+                                              ]?.quantity?.message || ""
+                                            }
+                                            {...field}
+                                            customComponent={(
+                                              props,
+                                              ref: any,
+                                            ) => (
+                                              <InputNumber
+                                                {...props}
+                                                ref={ref}
+                                                className="w-full"
+                                                formatter={(value) =>
+                                                  formatNumber(Number(value))
+                                                }
+                                              />
+                                            )}
+                                          />
+                                        )}
+                                      />
+                                      {/* Cost */}
+                                      <Controller
+                                        control={control}
+                                        name={`variants.${index}.product_sellables.inventory_quantity_by_warehouse.${warehouseIndex}.cost`}
+                                        rules={{
+                                          required: {
+                                            value: true,
+                                            message: ERROR_MESSAGE.REQUIRED,
+                                          },
+                                        }}
+                                        render={({ field }) => (
+                                          <InputAdmin
+                                            label={intl.formatMessage({
+                                              id: "cost",
+                                            })}
+                                            placeholder={intl.formatMessage({
+                                              id: "cost",
+                                            })}
+                                            required={true}
+                                            error={
+                                              errors?.variants?.[index]
+                                                ?.product_sellables
+                                                ?.inventory_quantity_by_warehouse?.[
+                                                warehouseIndex
+                                              ]?.cost?.message || ""
+                                            }
+                                            {...field}
+                                            customComponent={(
+                                              props,
+                                              ref: any,
+                                            ) => (
+                                              <InputNumber
+                                                {...props}
+                                                ref={ref}
+                                                className="w-full"
+                                                formatter={(value) =>
+                                                  formatNumber(Number(value))
+                                                }
+                                              />
+                                            )}
+                                          />
+                                        )}
+                                      />
+                                    </div>
+                                  </div>
+                                );
+                              },
+                            )}
                             {/* Low stock threshold */}
                             <Controller
                               control={control}
@@ -576,8 +789,12 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                               }}
                               render={({ field }) => (
                                 <InputAdmin
-                                  label="Low stock threshold"
-                                  placeholder="Low stock threshold"
+                                  label={intl.formatMessage({
+                                    id: "low_stock_threshold",
+                                  })}
+                                  placeholder={intl.formatMessage({
+                                    id: "low_stock_threshold",
+                                  })}
                                   required={true}
                                   error={
                                     errors?.variants?.[index]?.product_sellables
@@ -597,10 +814,10 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                                 />
                               )}
                             />
-                            {/* Cost */}
+                            {/* High stock threshold */}
                             <Controller
                               control={control}
-                              name={`variants.${index}.product_sellables.cost`}
+                              name={`variants.${index}.product_sellables.high_stock_threshold`}
                               rules={{
                                 required: {
                                   value: true,
@@ -609,12 +826,16 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                               }}
                               render={({ field }) => (
                                 <InputAdmin
-                                  label="Cost"
-                                  placeholder="Cost"
+                                  label={intl.formatMessage({
+                                    id: "high_stock_threshold",
+                                  })}
+                                  placeholder={intl.formatMessage({
+                                    id: "high_stock_threshold",
+                                  })}
                                   required={true}
                                   error={
                                     errors?.variants?.[index]?.product_sellables
-                                      ?.cost?.message || ""
+                                      ?.high_stock_threshold?.message || ""
                                   }
                                   {...field}
                                   customComponent={(props, ref: any) => (
@@ -623,7 +844,7 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                                       ref={ref}
                                       className="w-full"
                                       formatter={(value) =>
-                                        formatCurrency(Number(value))
+                                        formatNumber(Number(value))
                                       }
                                     />
                                   )}
@@ -637,8 +858,12 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                             name={`variants.${index}.product_sellables.discountIds`}
                             render={({ field }) => (
                               <InputAdmin
-                                label="Discounts"
-                                placeholder="Discounts"
+                                label={intl.formatMessage({
+                                  id: "discount",
+                                })}
+                                placeholder={intl.formatMessage({
+                                  id: "select_discount",
+                                })}
                                 className="w-full"
                                 {...field}
                                 customComponent={(props: any, ref: any) => (
@@ -648,7 +873,9 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                                       value: item.id,
                                     }))}
                                     showSearch={true}
-                                    placeholder="Select Discounts"
+                                    placeholder={intl.formatMessage({
+                                      id: "select_discount",
+                                    })}
                                     mode="multiple"
                                     {...props}
                                     ref={ref}
@@ -663,15 +890,24 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                             name={`variants.${index}.product_sellables.status`}
                             render={({ field }) => (
                               <InputAdmin
-                                label="Status"
-                                placeholder="Status"
+                                label={intl.formatMessage({ id: "status" })}
+                                placeholder={intl.formatMessage({
+                                  id: "status",
+                                })}
                                 required={true}
                                 className="w-full"
                                 {...field}
                                 customComponent={(props: any, ref: any) => (
                                   <Select
-                                    options={STATUS_OPTIONS}
-                                    placeholder="Select Status"
+                                    options={STATUS_OPTIONS.map((item) => ({
+                                      label: intl.formatMessage({
+                                        id: `onsale_${item.label}`,
+                                      }),
+                                      value: item.value,
+                                    }))}
+                                    placeholder={intl.formatMessage({
+                                      id: "select_status",
+                                    })}
                                     value={field.value}
                                     onChange={field.onChange}
                                     {...props}
@@ -684,9 +920,13 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                           {/* Images */}
                           <div className="mt-4">
                             <InputAdmin
-                              label="Product Image"
+                              label={intl.formatMessage({
+                                id: "product_image",
+                              })}
                               required={true}
-                              placeholder="Product Image"
+                              placeholder={intl.formatMessage({
+                                id: "product_image",
+                              })}
                               customComponent={() => (
                                 <Upload
                                   listType="picture-card"
@@ -723,14 +963,14 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
     return (
       <div className="flex items-center justify-end gap-2">
         <Button type="default" onClick={_onCloseModal}>
-          Cancel
+          {intl.formatMessage({ id: "close" })}
         </Button>
         <Button
           type="primary"
           htmlType="submit"
           onClick={handleSubmit(_onConfirmCreateProduct)}
         >
-          Create
+          {intl.formatMessage({ id: "add_new" })}
         </Button>
       </div>
     );

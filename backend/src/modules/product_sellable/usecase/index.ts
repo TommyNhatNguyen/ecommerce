@@ -168,6 +168,7 @@ export class ProductSellableUseCase implements IProductSellableUseCase {
         product_sellable_id: productSellable.id,
         inventory_warehouse: data.inventory_quantity_by_warehouse ?? [],
         low_stock_threshold: data.low_stock_threshold ?? 0,
+        high_stock_threshold: data.high_stock_threshold ?? 9999999,
       },
       t
     );

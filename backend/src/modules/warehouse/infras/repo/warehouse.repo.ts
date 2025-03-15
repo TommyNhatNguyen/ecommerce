@@ -18,6 +18,14 @@ export class PostgresWarehouseRepository implements IWarehouseRepository {
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+  async getAllWarehouse(
+    condition?: WarehouseConditionDTO
+  ): Promise<Warehouse[]> {
+    const warehouses = await this.sequelize.models[this.modelName].findAll({
+      where: condition,
+    });
+    return warehouses.map((warehouse) => warehouse.dataValues);
+  }
   async getWarehouseById(
     id: string,
     condition?: WarehouseConditionDTO,

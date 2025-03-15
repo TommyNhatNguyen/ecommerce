@@ -18,6 +18,10 @@ export function setupWarehouseRouter(sequelize: Sequelize) {
   const warehouseUseCase = new WarehouseUseCase(warehouseRepository);
   const warehouseHttpService = new WarehouseHttpService(warehouseUseCase);
   router.get(
+    '/warehouses/all',
+    warehouseHttpService.getAllWarehouse.bind(warehouseHttpService)
+  );
+  router.get(
     '/warehouses',
     warehouseHttpService.getWarehouseList.bind(warehouseHttpService)
   );

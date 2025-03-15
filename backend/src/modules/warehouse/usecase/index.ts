@@ -15,6 +15,11 @@ import { PagingDTO } from 'src/share/models/paging';
 
 export class WarehouseUseCase implements IWarehouseUsecase {
   constructor(private readonly warehouseRepository: IWarehouseRepository) {}
+  async getAllWarehouse(
+    condition?: WarehouseConditionDTO
+  ): Promise<Warehouse[]> {
+    return await this.warehouseRepository.getAllWarehouse(condition);
+  }
   async createWarehouse(
     data: WarehouseCreateDTO,
     t?: Transaction

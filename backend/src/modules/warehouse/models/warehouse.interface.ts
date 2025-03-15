@@ -28,6 +28,7 @@ export interface IWarehouseUsecase {
     paging: PagingDTO,
     condition?: WarehouseConditionDTO
   ): Promise<ListResponse<Warehouse[]>>;
+  getAllWarehouse(condition?: WarehouseConditionDTO): Promise<Warehouse[]>;
 }
 
 export interface IWarehouseRepository
@@ -44,6 +45,7 @@ export interface IQueryRepository {
     paging: PagingDTO,
     condition?: WarehouseConditionDTO
   ): Promise<ListResponse<Warehouse[]>>;
+  getAllWarehouse(condition?: WarehouseConditionDTO): Promise<Warehouse[]>;
 }
 
 export interface ICommandRepository {

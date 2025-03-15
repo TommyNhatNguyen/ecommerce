@@ -72,6 +72,7 @@ import "ckeditor5/ckeditor5.css";
 import "./style.css";
 import { cookiesStorage } from "@/app/shared/utils/localStorage";
 import { ValueType } from "tailwindcss/types/config";
+import { useIntl } from "react-intl";
 /**
  * Create a free account with a trial: https://portal.ckeditor.com/checkout?plan=free
  */
@@ -91,6 +92,7 @@ const CustomEditor = (
   }: CustomEditorPropsType,
   ref: Ref<CKEditor<ClassicEditor>>,
 ) => {
+  const intl = useIntl();
   const editorContainerRef = useRef(null);
   const editorRef = useRef(null);
   const [isLayoutReady, setIsLayoutReady] = useState(false);
@@ -282,7 +284,9 @@ const CustomEditor = (
           reversed: true,
         },
       },
-      placeholder: "Type or paste your content here!",
+      placeholder: intl.formatMessage({
+        id: "type_or_paste_your_content_here",
+      }),
       table: {
         contentToolbar: [
           "tableColumn",

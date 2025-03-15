@@ -9,7 +9,26 @@ import { PagingDTOSchema } from 'src/share/models/paging';
 
 export class WarehouseHttpService {
   constructor(private readonly warehouseUseCase: IWarehouseUsecase) {}
-
+  async getAllWarehouse(req: Request, res: Response) {
+    const {
+      success,
+      data: condition,
+      error,
+    } = WarehouseConditionDTOSchema.safeParse(req.body);
+    if (!success) {
+      res.status(400).json({ message: error.message });
+      return;
+    }
+    try {
+      const warehouseList = await this.warehouseUseCase.getAllWarehouse(
+        condition
+      );
+      res.json({ message: 'Success', data: warehouseList });
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error' });
+      return;
+    }
+  }
   async getWarehouse(req: Request, res: Response) {
     const { id } = req.params;
     const {

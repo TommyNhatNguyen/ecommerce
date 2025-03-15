@@ -228,17 +228,13 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
         <Layout>
           <HeaderSection />
           <Content className="mb-4 gap-4 p-2">
-            <Breadcrumb separator=">" className="mb-4">
-              {currentPath.slice(1).map((path) => (
-                <Breadcrumb.Item
-                  key={path}
-                  onClick={() => handleSelect(path)}
-                  className="capitalize"
-                >
-                  {intl.formatMessage({ id: path })}
-                </Breadcrumb.Item>
-              ))}
-            </Breadcrumb>
+            <Breadcrumb
+              items={currentPath.slice(1).map((path) => ({
+                title: intl.formatMessage({ id: path }),
+              }))}
+              separator=">"
+              className="mb-4"
+            />
             {children}
           </Content>
           {/* <Footer className="text-center">

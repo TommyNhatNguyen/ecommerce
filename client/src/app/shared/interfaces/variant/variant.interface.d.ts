@@ -41,6 +41,7 @@ export type VariantUpdateDTO = {
 
 export type CreateVariantDTOV2 = {
   name: string;
+  sku?: string;
   options_value_ids: string[];
 };
 
