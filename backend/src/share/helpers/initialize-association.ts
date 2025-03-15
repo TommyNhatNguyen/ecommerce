@@ -304,14 +304,14 @@ export const initializeAssociation = () => {
     as: productModelName.toLowerCase(),
   });
 
-  ProductPersistence.hasOne(BrandPersistence, {
-    foreignKey: 'product_id',
-    as: brandModelName.toLowerCase(),
+  BrandPersistence.hasOne(ProductPersistence, {
+    foreignKey: 'brand_id',
+    as: productModelName.toLowerCase(),
   });
 
-  BrandPersistence.belongsTo(ProductPersistence, {
-    foreignKey: 'product_id',
-    as: productModelName.toLowerCase(),
+  ProductPersistence.belongsTo(BrandPersistence, {
+    foreignKey: 'brand_id',
+    as: brandModelName.toLowerCase(),
   });
 
   ProductPersistence.hasMany(VariantPersistence, {

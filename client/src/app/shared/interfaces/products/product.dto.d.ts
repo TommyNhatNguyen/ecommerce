@@ -40,6 +40,7 @@ export type CreateProductDTOV2 = {
   sku?: string;
   description?: string;
   short_description?: string;
+  brand_id?: string;
   status: "ACTIVE" | "INACTIVE" | "DELETED";
   categoryIds: string[];
   variants: {

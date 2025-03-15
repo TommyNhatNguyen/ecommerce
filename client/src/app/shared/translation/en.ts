@@ -88,5 +88,6 @@ export default {
     sell_inactive: "Not in sales",
     warehouse: "Warehouse",
     select_warehouse: "Select Warehouse",
+    choose_brand: "Choose Brand",
   },
 };

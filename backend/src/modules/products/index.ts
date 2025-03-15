@@ -40,6 +40,9 @@ import { WarehouseUseCase } from 'src/modules/warehouse/usecase';
 import { InventoryInvoiceUseCase } from 'src/modules/inventory_invoices/usecase';
 import { InventoryInvoiceRepository } from 'src/modules/inventory_invoices/infras/repo/inventory_invoices.repo';
 import { inventoryInvoiceModelName } from 'src/modules/inventory_invoices/infras/repo/inventory_invoices.dto';
+import { BrandUseCase } from 'src/modules/brand/usecase';
+import PostgresBrandRepository from 'src/modules/brand/infras/repo/brand.repo';
+import { brandModelName } from 'src/modules/brand/infras/repo/brand.dto';
 
 export const setupProductRouter = (sequelize: Sequelize) => {
   init(sequelize);
@@ -121,11 +124,17 @@ export const setupProductRouter = (sequelize: Sequelize) => {
     discountRepository,
     productSellableImageRepository
   );
+  const brandRepository = new PostgresBrandRepository(
+    sequelize,
+    brandModelName
+  );
+  const brandUseCase = new BrandUseCase(brandRepository);
   const useCase = new ProductUseCase(
     repository,
     productCategoryRepository,
     variantUseCase,
     productSellableUseCase,
+    brandUseCase,
     sequelize
   );
   const httpService = new ProductHttpService(useCase);

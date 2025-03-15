@@ -87,5 +87,6 @@ export default {
     type_or_paste_your_content_here: "Nhập nội dung vào đây!",
     warehouse: "Kho hàng",
     select_warehouse: "Chọn kho hàng",
+    choose_brand: "Chọn thương hiệu",
   },
 };

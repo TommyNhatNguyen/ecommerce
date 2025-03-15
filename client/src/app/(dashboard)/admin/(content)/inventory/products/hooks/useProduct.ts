@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { productService } from "@/app/shared/services/products/productService";
 import { ProductConditionDTO } from "@/app/shared/interfaces/products/product.dto";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 
 export function useProducts() {
   const [loadingSoftDelete, setLoadingSoftDelete] = useState(false);
@@ -19,7 +19,7 @@ export function useProducts() {
     isLoading,
   } = useInfiniteQuery({
     queryKey: ["products"],
-    queryFn: () =>
+    queryFn: ({ pageParam = 1 }) =>
       productService.getProducts({
         // includeCategory: true,
         includeDiscount: true,
@@ -30,14 +30,15 @@ export function useProducts() {
         includeVariantOptionType: true,
         includeVariantImage: true,
         limit: limit,
+        page: pageParam,
       }),
-    getNextPageParam: (lastPage, pages) => {
-      if (lastPage.meta.current_page === lastPage.meta.total_page) {
-        return undefined;
-      }
-      return lastPage.meta.current_page + 1;
-    },
+    getNextPageParam: (lastPage) =>
+      lastPage.meta.total_page > lastPage.meta.current_page
+        ? lastPage.meta.current_page + 1
+        : undefined,
     initialPageParam: 1,
+    placeholderData: keepPreviousData,
+  
   });
 
   const products = useMemo(() => {

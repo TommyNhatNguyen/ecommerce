@@ -2,7 +2,7 @@ import { MenuProps } from "antd";
 
 export const PRODUCTS_COLUMNS = [
   "name",
-  "image",
+  // "image",
   "short_description",
   "sku",
   "category",

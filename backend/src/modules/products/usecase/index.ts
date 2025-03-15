@@ -25,6 +25,7 @@ import { IInventoryUseCase } from 'src/modules/inventory/models/inventory.interf
 import { IVariantUseCase } from 'src/modules/variant/models/variant.interface';
 import { IProductSellableUseCase } from 'src/modules/product_sellable/models/product-sellable.interface';
 import { Sequelize } from 'sequelize';
+import { IBrandUseCase } from 'src/modules/brand/models/brand.interface';
 
 export class ProductUseCase implements IProductUseCase {
   constructor(
@@ -32,6 +33,7 @@ export class ProductUseCase implements IProductUseCase {
     private readonly productCategoryRepository: IProductRepository,
     private readonly variantUseCase: IVariantUseCase,
     private readonly productSellableUseCase: IProductSellableUseCase,
+    private readonly brandUseCase: IBrandUseCase,
     private readonly sequelize: Sequelize
   ) {}
   async countTotalProduct(): Promise<number> {

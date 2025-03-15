@@ -21,7 +21,9 @@ import {
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import { useInView } from "react-intersection-observer";
-import ModalCreateProduct, { ModalRefType } from "@/app/shared/components/GeneralModal/components/ModalCreateProduct";
+import ModalCreateProduct, {
+  ModalRefType,
+} from "@/app/shared/components/GeneralModal/components/ModalCreateProduct";
 
 type Props = {
   selectedCategories: string[];
@@ -58,7 +60,7 @@ const ProductTable = ({ selectedCategories }: Props) => {
     }));
   }, [selectedColumns]);
   const _onRefetch = () => {
-    refetch();
+    refetch({});
   };
   const _onSelectColumns = (id: string, keys: string[]) => {
     setSelectedColumns((prev) => ({
@@ -86,7 +88,7 @@ const ProductTable = ({ selectedCategories }: Props) => {
     }
   }, [products]);
   useEffect(() => {
-    if (inView && hasNextPage) {
+    if (inView && hasNextPage && !isLoading) {
       fetchNextPage();
     }
   }, [inView]);
@@ -185,7 +187,7 @@ const ProductTable = ({ selectedCategories }: Props) => {
           columns={newProductColumns}
           rowKey={(record) => record.id}
           pagination={false}
-          rowClassName={"bg-slate-50"}
+          rowClassName={"bg-slate-100"}
           loading={isFetchingNextPage}
           expandable={{
             childrenColumnName: "variant",

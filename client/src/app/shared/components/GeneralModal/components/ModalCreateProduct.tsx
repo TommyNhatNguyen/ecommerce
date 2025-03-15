@@ -42,6 +42,7 @@ import CustomEditor from "@/app/shared/components/CustomEditor";
 import CustomCheckboxGroup from "@/app/shared/components/CustomCheckbox";
 import { useIntl } from "react-intl";
 import { warehouseService } from "@/app/shared/services/warehouse/warehouseService";
+import { brandService } from "@/app/shared/services/brands/brandService";
 
 export interface ModalRefType {
   handleOpenModal: () => void;
@@ -110,7 +111,11 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
     queryFn: () => warehouseService.getAll({}),
     enabled: open,
   });
-  console.log("🚀 ~ ModalCreateProduct ~ warehouses:", warehouses?.data);
+  const { data: brands } = useQuery({
+    queryKey: ["brands", open],
+    queryFn: () => brandService.getAllBrands({}),
+    enabled: open,
+  });
   // ===== Computed Values =====
   const { hanldeCreateProduct, loading } = useCreateProductModal();
   const createProductLoading = loading || uploadImageLoading;
@@ -227,19 +232,19 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
     const payload: CreateProductDTOV2 = {
       ...data,
     };
-    // const imageIds = (await _onSubmitFileList()) || [];
+    const imageIds = (await _onSubmitFileList()) || [];
     payload.variants = payload.variants.map((variant, index) => ({
       ...variant,
       product_sellables: {
         ...variant.product_sellables,
-        // imageIds: Object.values(imageIds?.[index] || {}).flat() as string[],
+        imageIds: Object.values(imageIds?.[index] || {}).flat() as string[],
       },
     }));
     console.log("🚀 ~ ModalCreateProduct ~ payload:", payload);
-    // await hanldeCreateProduct(payload);
-    // _onClearAllFormData();
-    // refetch && refetch();
-    // _onCloseModal();
+    await hanldeCreateProduct(payload);
+    _onClearAllFormData();
+    refetch && refetch();
+    _onCloseModal();
   };
 
   const _onChangeFileList = (id: number, fileList: UploadFile[]) => {
@@ -369,6 +374,38 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                             </div>
                           );
                         }}
+                      />
+                    )}
+                  />
+                )}
+              />
+              <Controller
+                name="brand_id"
+                control={control}
+                render={({ field }) => (
+                  <InputAdmin
+                    {...field}
+                    error={errors?.brand_id?.message || ""}
+                    label={intl.formatMessage({ id: "brands" })}
+                    placeholder={intl.formatMessage({ id: "choose_brand" })}
+                    groupClassName="w-full"
+                    className="w-full"
+                    required={true}
+                    customComponent={(props, ref: any) => (
+                      <Select
+                        {...props}
+                        ref={ref}
+                        options={brands?.data.map((item) => ({
+                          label: item.name,
+                          value: item.id,
+                        }))}
+                        placement="bottomLeft"
+                        value={field.value}
+                        onClear={() => field.onChange("")}
+                        placeholder={intl.formatMessage({
+                          id: "choose_brand",
+                        })}
+                        allowClear={true}
                       />
                     )}
                   />
@@ -507,10 +544,10 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                                   }
                                   {...field}
                                   onChange={(e) => {
-                                    // setValue(
-                                    //   `variants.${index}.variant_data.sku`,
-                                    //   e.target.value,
-                                    // );
+                                    setValue(
+                                      `variants.${index}.variant_data.options_value_ids`,
+                                      allPairs[index],
+                                    );
                                     field.onChange(e.target.value);
                                   }}
                                 />
@@ -540,10 +577,10 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                                   }
                                   {...field}
                                   onChange={(e) => {
-                                    // setValue(
-                                    //   `variants.${index}.variant_data.name`,
-                                    //   e.target.value,
-                                    // );
+                                    setValue(
+                                      `variants.${index}.variant_data.options_value_ids`,
+                                      allPairs[index],
+                                    );
                                     field.onChange(e.target.value);
                                   }}
                                 />
@@ -670,7 +707,7 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                               );
                             }}
                           />
-                          <div className="flex flex-col gap-2 mt-2">
+                          <div className="mt-2 flex flex-col gap-2">
                             {/* Warehouse + quantity + cost */}
                             {selectedWarehouse?.[index.toString()]?.map(
                               (item, warehouseIndex) => {

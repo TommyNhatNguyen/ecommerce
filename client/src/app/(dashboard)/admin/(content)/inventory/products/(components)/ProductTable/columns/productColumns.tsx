@@ -8,13 +8,13 @@ import { formatCurrency, formatNumber } from "@/app/shared/utils/utils";
 export const productColumns: (
   intl: IntlShape,
 ) => TableProps<ProductModel>["columns"] = (intl: IntlShape) => [
-  {
-    key: "image",
-    title: () => intl.formatMessage({ id: "thumbnail" }),
-    render: (_, { image }) => {
-      return <Image src={image?.[0]?.url} width={50} height={50} />;
-    },
-  },
+  // {
+  //   key: "image",
+  //   title: () => intl.formatMessage({ id: "thumbnail" }),
+  //   render: (_, { image }) => {
+  //     return <Image src={image?.[0]?.url} width={50} height={50} />;
+  //   },
+  // },
   {
     key: "sku",
     title: () => intl.formatMessage({ id: "sku" }),
@@ -29,6 +29,13 @@ export const productColumns: (
     key: "short_description",
     title: () => intl.formatMessage({ id: "short_description" }),
     dataIndex: "short_description",
+    render: (_, { short_description }) => {
+      return (
+        <div
+          dangerouslySetInnerHTML={{ __html: short_description || "" }}
+        ></div>
+      );
+    },
   },
   {
     key: "number_of_variants",
