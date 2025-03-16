@@ -106,5 +106,6 @@ export default {
     attribute_name: "Tên thuộc tính",
     attribute_columns: "Cột thuộc tính",
     attribute_values_columns: "Cột giá trị thuộc tính",
+    value: "Giá trị",
   },
 };

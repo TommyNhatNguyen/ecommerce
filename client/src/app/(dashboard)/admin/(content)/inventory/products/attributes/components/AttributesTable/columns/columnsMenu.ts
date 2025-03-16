@@ -8,7 +8,7 @@ export const OPTION_COLUMNS = [
 
 export const OPTION_VALUES_COLUMNS = [
   "name",
-  "is_color",
+  "value",
   "status",
   "created_at",
   "updated_at",

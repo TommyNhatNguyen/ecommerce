@@ -10,7 +10,7 @@ export const optionsColumns: (
 ) => TableProps<OptionModel>["columns"] = (intl: IntlShape) => [
   {
     key: "name",
-    title: () => intl.formatMessage({ id: "name" }),
+    title: () => intl.formatMessage({ id: "attribute_name" }),
     dataIndex: "name",
   },
   {
@@ -68,14 +68,14 @@ export const optionsValuesColumns: (
 ) => [
   {
     key: "name",
-    title: () => intl.formatMessage({ id: "name" }),
+    title: () => intl.formatMessage({ id: "attribute_name" }),
     dataIndex: "name",
   },
   {
-    key: "is_color",
-    title: () => intl.formatMessage({ id: "color" }),
-    dataIndex: "is_color",
-    render: (_, { is_color, value, name }) => {
+    key: "value",
+    title: () => intl.formatMessage({ id: "value" }),
+    dataIndex: "value",
+    render: (_, { is_color, value }) => {
       return (
         <div>
           {is_color ? (
@@ -94,6 +94,13 @@ export const optionsValuesColumns: (
     key: "status",
     title: () => intl.formatMessage({ id: "status" }),
     dataIndex: "status",
+    render: (_, { status }) => {
+      return (
+        <Tag color={status === "ACTIVE" ? "green" : "red"}>
+          {intl.formatMessage({ id: status })}
+        </Tag>
+      );
+    },
   },
   {
     key: "created_at",

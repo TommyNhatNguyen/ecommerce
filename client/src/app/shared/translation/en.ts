@@ -102,5 +102,6 @@ export default {
     attribute_name: "Attribute Name",
     attribute_columns: "Attribute Columns",
     attribute_values_columns: "Attribute Values Columns",
+    value: "Value",
   },
 };
