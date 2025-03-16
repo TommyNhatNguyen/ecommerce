@@ -8,7 +8,7 @@ import React from "react";
 type ProductPagePropsType = {};
 
 const ProductPage = ({}: ProductPagePropsType) => {
-  const { selectedCategories, categories, search, ...rest } = useProductFilter();
+  const { selectedCategories, categories, search, limit, ...rest } = useProductFilter();
   return (
     <div className="relative grid h-full grid-cols-12 gap-2 overflow-y-auto px-4">
       <div className="col-span-2">
@@ -16,11 +16,12 @@ const ProductPage = ({}: ProductPagePropsType) => {
           selectedCategories={selectedCategories}
           search={search}
           categories={categories || []}
+          limit={limit}
           {...rest}
         />
       </div>
       <div className="col-span-10">
-        <ProductTable selectedCategories={selectedCategories} />
+        <ProductTable selectedCategories={selectedCategories} limit={limit} />
       </div>
     </div>
   );

@@ -14,6 +14,7 @@ export const useProductFilter = () => {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
   const [selectedDiscounts, setSelectedDiscounts] = useState<string[]>([]);
+  const [limit, setLimit] = useState<number>(10);
   const { data: categories } = useQuery({
     queryKey: ["categories"],
     queryFn: () => {
@@ -80,6 +81,9 @@ export const useProductFilter = () => {
   const handleSearchDiscount = (value: string) => {
     console.log("🚀 ~ handleSearchDiscount ~ value:", value);
   };
+  const handleSelectLimit = (value: number) => {
+    setLimit(value);
+  };
   const hasSelectedItems = useMemo(() => {
     return (
       selectedCategories.length > 0 ||
@@ -120,5 +124,7 @@ export const useProductFilter = () => {
     handleSearchDiscount,
     hasSelectedItems,
     handleClearAll,
+    limit,
+    handleSelectLimit,
   };
 };

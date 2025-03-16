@@ -47,6 +47,8 @@ type Props = {
   handleSearchDiscount: (value: string) => void;
   handleClearAll: () => void;
   hasSelectedItems: boolean;
+  limit: number;
+  handleSelectLimit: (value: number) => void;
 };
 
 const ProductFilter = ({
@@ -61,6 +63,7 @@ const ProductFilter = ({
   selectedStatuses,
   selectedDiscounts,
   hasNextDiscountPage,
+  limit,
   handleSearch,
   handleSelectCategory,
   handleSelectOption,
@@ -70,9 +73,9 @@ const ProductFilter = ({
   handleLoadMoreDiscount,
   handleSearchDiscount,
   handleClearAll,
+  handleSelectLimit,
 }: Props) => {
   const intl = useIntl();
-  const { limit, handleSelectLimit } = useProducts();
   const _onSearch = (value: string) => {
     handleSearch(value);
   };
@@ -232,8 +235,6 @@ const ProductFilter = ({
               </div>
             );
           }}
-          // searchValue={searchDiscount}
-          // onSearch={setSearchDiscount}
         />
       </Filter.Item>
       <Filter.Item name="limit" label={intl.formatMessage({ id: "limit" })}>

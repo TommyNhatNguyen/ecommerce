@@ -1,5 +1,5 @@
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
 export const useCategory = () => {
@@ -13,22 +13,27 @@ export const useCategory = () => {
     isLoading,
     isFetching,
   } = useInfiniteQuery({
-    queryKey: ["categories-infinite"],
-    queryFn: ({ pageParam = 1 }) =>
-      categoriesService.getCategories({
+    queryKey: ["categories"],
+    queryFn: ({ pageParam = 1 }) => {
+      return categoriesService.getCategories({
         include_image: true,
         page: pageParam,
         limit: limit,
-      }),
+      });
+    },
     getNextPageParam: (lastPage) =>
       lastPage.meta.total_page > lastPage.meta.current_page
         ? lastPage.meta.current_page + 1
         : undefined,
     initialPageParam: 1,
+    placeholderData: keepPreviousData,
   });
   const categories = useMemo(() => {
     return categoriesData?.pages?.flatMap((page) => page.data) || [];
   }, [categoriesData]);
+  const handleSelectLimit = (value: number) => {
+    setLimit(value);
+  };
 
   return {
     categories,
@@ -37,5 +42,7 @@ export const useCategory = () => {
     hasNextPage,
     isLoading,
     isFetching,
+    limit,
+    handleSelectLimit,
   };
 };
