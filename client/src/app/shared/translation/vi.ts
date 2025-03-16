@@ -94,5 +94,6 @@ export default {
     INACTIVE: "Không hoạt động",
     DELETED: "Đã xóa",
     create_category: "Tạo danh mục",
+    showing: "Đang hiển thị {num_rows}/{num_total_rows} bản ghi",
   },
 };

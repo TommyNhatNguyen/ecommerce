@@ -90,5 +90,6 @@ export default {
     select_warehouse: "Select Warehouse",
     choose_brand: "Choose Brand",
     create_category: "Create Category",
+    showing: "Showing {num_rows}/{num_total_rows} records",
   },
 };

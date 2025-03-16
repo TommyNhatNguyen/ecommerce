@@ -133,7 +133,15 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
     <div className="h-full">
       <div className="mb-2 flex items-center justify-between gap-2">
         {/* Tải lại */}
-        <div className="left"></div>
+        <div className="left">
+          {intl.formatMessage(
+            { id: "showing" },
+            {
+              num_rows: products?.length,
+              num_total_rows: productsData?.pages?.[0]?.meta?.total_count,
+            },
+          )}
+        </div>
         <div className="right flex items-center gap-2">
           <Button
             type="primary"

@@ -24,7 +24,7 @@ export const categoryColumns: (
     dataIndex: "description",
     render: (_, { description }) => {
       return (
-        <div dangerouslySetInnerHTML={{ __html: description || "" }}></div>
+        <div className="max-h-[100px] overflow-y-auto" dangerouslySetInnerHTML={{ __html: description || "" }}></div>
       );
     },
   },
