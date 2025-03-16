@@ -95,6 +95,11 @@ const AttributesTable = ({ limit }: Props) => {
         options: [
           ...(optionsColumns(intl) || []).map((item) => item?.key as string),
         ],
+        "options-values": [
+          ...(optionsValuesColumns(intl) || []).map(
+            (item) => item?.key as string,
+          ),
+        ],
       });
     }
   }, [options]);
@@ -206,7 +211,6 @@ const AttributesTable = ({ limit }: Props) => {
           rowClassName={"bg-slate-100"}
           loading={isFetching}
           expandable={{
-            childrenColumnName: "option_values",
             expandRowByClick: true,
             expandedRowRender: (record, index) => {
               return (

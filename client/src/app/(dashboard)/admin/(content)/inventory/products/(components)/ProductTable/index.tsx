@@ -235,7 +235,6 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
           rowClassName={"bg-slate-100"}
           loading={isFetchingNextPage}
           expandable={{
-            childrenColumnName: "variant",
             expandRowByClick: true,
             expandedRowRender: (record, index) => {
               return (
