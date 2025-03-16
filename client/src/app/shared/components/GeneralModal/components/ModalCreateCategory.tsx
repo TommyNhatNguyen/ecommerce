@@ -1,37 +1,47 @@
 import { ERROR_MESSAGE } from "@/app/constants/errors";
 import { STATUS_OPTIONS } from "@/app/constants/seeds";
-import GeneralModal from "@/app/shared/components/GeneralModal";
+import GeneralModal, {
+  ModalRefType,
+} from "@/app/shared/components/GeneralModal";
 import InputAdmin from "@/app/shared/components/InputAdmin";
 import { CreateCategoryFormDTO } from "@/app/shared/interfaces/categories/category.dto";
 import { ImageType } from "@/app/shared/interfaces/image/image.dto";
 import { imagesService } from "@/app/shared/services/images/imagesService";
 import { Button, Input, Select, Upload, UploadFile } from "antd";
 import { PlusIcon } from "lucide-react";
-import React, { useState } from "react";
+import React, {
+  forwardRef,
+  RefObject,
+  useImperativeHandle,
+  useState,
+} from "react";
 import { Controller, useForm } from "react-hook-form";
 import CustomEditor from "../../CustomEditor";
 import { Editor } from "ckeditor5";
-import { getBase64 } from "@/app/shared/utils/utils";
+import { useIntl } from "react-intl";
+
 type CreateCategoryModalPropsType = {
-  isModalCreateCategoryOpen: boolean;
-  handleCloseModalCreateCategory: () => void;
   handleSubmitCreateCategoryForm: (data: any) => void;
   loading?: boolean;
   refetch?: () => void;
 };
 
-const CreateCategoryModal = ({
-  isModalCreateCategoryOpen,
-  handleCloseModalCreateCategory,
-  handleSubmitCreateCategoryForm,
-  loading = false,
-  refetch,
-}: CreateCategoryModalPropsType) => {
+const ModalCreateCategory = (
+  {
+    handleSubmitCreateCategoryForm,
+    loading = false,
+    refetch,
+  }: CreateCategoryModalPropsType,
+  ref: any,
+) => {
+  const [open, setOpen] = useState(false);
+  const intl = useIntl();
   const {
     handleSubmit,
     formState: { errors },
     reset,
     control,
+    setValue, 
   } = useForm<CreateCategoryFormDTO>({
     defaultValues: {
       name: "",
@@ -66,11 +76,21 @@ const CreateCategoryModal = ({
       setUploadImageLoading(false);
     }
   };
-  const _onCloseModalCreateCategory = () => {
-    handleCloseModalCreateCategory();
+
+  const handleOpenModal = () => {
+    setOpen(true);
+  };
+  const _onCloseModal = () => {
+    setOpen(false);
     setFile(undefined);
+    setValue("description", "");
     reset();
   };
+
+  useImperativeHandle<ModalRefType, ModalRefType>(ref, () => ({
+    handleOpenModal,
+    handleCloseModal: _onCloseModal,
+  }));
 
   const _onConfirmCreateCategory = async (data: any) => {
     const payload: CreateCategoryFormDTO = {
@@ -79,30 +99,34 @@ const CreateCategoryModal = ({
     if (file) {
       const imageId = await _onSubmitFileList();
       if (!imageId) return;
-      payload.imageId = imageId;
+      payload.image_id = imageId;
     }
     handleSubmitCreateCategoryForm(payload);
-    _onCloseModalCreateCategory();
+    _onCloseModal();
     refetch?.();
   };
   const _renderFooterModalCreateCategory = () => {
     return (
       <div className="flex items-center justify-end gap-2">
-        <Button type="default" onClick={_onCloseModalCreateCategory}>
-          Cancel
+        <Button type="default" onClick={_onCloseModal}>
+          {intl.formatMessage({ id: "close" })}
         </Button>
         <Button
           type="primary"
           htmlType="submit"
           onClick={handleSubmit(_onConfirmCreateCategory)}
         >
-          Create
+          {intl.formatMessage({ id: "add_new" })}
         </Button>
       </div>
     );
   };
   const _renderTitleModalCreateCategory = () => {
-    return <h1 className="text-2xl font-bold">Create Category</h1>;
+    return (
+      <h1 className="text-2xl font-bold">
+        {intl.formatMessage({ id: "create_category" })}
+      </h1>
+    );
   };
   const _renderContentModalCreateCategory = () => {
     return (
@@ -119,9 +143,9 @@ const CreateCategoryModal = ({
             }}
             render={({ field, formState: { errors } }) => (
               <InputAdmin
-                label="Name"
+                label={intl.formatMessage({ id: "name" })}
                 required={true}
-                placeholder="Name"
+                placeholder={intl.formatMessage({ id: "name" })}
                 error={errors.name?.message as string}
                 {...field}
               />
@@ -132,8 +156,8 @@ const CreateCategoryModal = ({
             name="description"
             render={({ field }) => (
               <InputAdmin
-                label="Description"
-                placeholder="Description"
+                label={intl.formatMessage({ id: "description" })}
+                placeholder={intl.formatMessage({ id: "description" })}
                 {...field}
                 customComponent={({ onChange, props }: any, ref: any) => (
                   <CustomEditor
@@ -148,8 +172,8 @@ const CreateCategoryModal = ({
             )}
           />
           <InputAdmin
-            label="Status"
-            placeholder="Status"
+            label={intl.formatMessage({ id: "status" })}
+            placeholder={intl.formatMessage({ id: "status" })}
             required={true}
             customComponent={(props: any, ref: any) => (
               <Controller
@@ -157,8 +181,11 @@ const CreateCategoryModal = ({
                 name="status"
                 render={({ field }) => (
                   <Select
-                    options={STATUS_OPTIONS}
-                    placeholder="Select Status"
+                    options={STATUS_OPTIONS.map((item) => ({
+                      label: intl.formatMessage({ id: item.label }),
+                      value: item.value,
+                    }))}
+                    placeholder={intl.formatMessage({ id: "select_status" })}
                     value={field.value}
                     onChange={field.onChange}
                     {...props}
@@ -171,9 +198,9 @@ const CreateCategoryModal = ({
         </div>
         <div className="mt-4">
           <InputAdmin
-            label="Category Image"
+            label={intl.formatMessage({ id: "image" })}
             required={true}
-            placeholder="Category Image"
+            placeholder={intl.formatMessage({ id: "image" })}
             customComponent={() => (
               <Upload
                 accept=".jpg,.jpeg,.png,.gif,.webp"
@@ -198,14 +225,16 @@ const CreateCategoryModal = ({
   };
   return (
     <GeneralModal
-      open={isModalCreateCategoryOpen}
+      open={open}
       renderTitle={_renderTitleModalCreateCategory}
       renderContent={_renderContentModalCreateCategory}
       renderFooter={_renderFooterModalCreateCategory}
-      onCancel={_onCloseModalCreateCategory}
+      onCancel={_onCloseModal}
       loading={createCategoryLoading}
     />
   );
 };
 
-export default CreateCategoryModal;
+export default React.memo(
+  forwardRef<ModalRefType, CreateCategoryModalPropsType>(ModalCreateCategory),
+);

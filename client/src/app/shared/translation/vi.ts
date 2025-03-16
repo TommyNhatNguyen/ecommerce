@@ -31,7 +31,8 @@ export default {
     is_discountinued: "Đã ngừng bán",
     actions: "Hành động",
     number_of_discount_campaign: "Số lượng chiến dịch giảm giá",
-    number_of_discount_campaign_active: "Số lượng chiến dịch giảm giá đang hoạt động",
+    number_of_discount_campaign_active:
+      "Số lượng chiến dịch giảm giá đang hoạt động",
     add_new: "Thêm mới",
     import_excel: "Nhập excel",
     export_excel: "Xuất excel",
@@ -92,5 +93,6 @@ export default {
     ACTIVE: "Đang hoạt động",
     INACTIVE: "Không hoạt động",
     DELETED: "Đã xóa",
+    create_category: "Tạo danh mục",
   },
 };

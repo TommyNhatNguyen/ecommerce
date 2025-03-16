@@ -10,7 +10,7 @@ export type CreateCategoryDTO = {
 export type CreateCategoryFormDTO = {
   name: string;
   description?: string;
-  imageId?: string;
+  image_id?: string;
   status?: ModelStatus;
 }
 

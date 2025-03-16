@@ -5,6 +5,11 @@ import { LoaderPinwheel } from "lucide-react";
 import React from "react";
 import { ClassNameValue } from "tailwind-merge";
 
+export interface ModalRefType {
+  handleOpenModal: () => void;
+  handleCloseModal: () => void;
+}
+
 type GeneralModalProps = {
   loading?: boolean;
   renderTitle?: () => React.ReactNode;

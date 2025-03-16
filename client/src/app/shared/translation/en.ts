@@ -89,5 +89,6 @@ export default {
     warehouse: "Warehouse",
     select_warehouse: "Select Warehouse",
     choose_brand: "Choose Brand",
+    create_category: "Create Category",
   },
 };

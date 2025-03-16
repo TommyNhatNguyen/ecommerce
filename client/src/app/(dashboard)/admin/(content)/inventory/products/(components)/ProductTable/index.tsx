@@ -21,11 +21,10 @@ import {
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import { useInView } from "react-intersection-observer";
-import ModalCreateProduct, {
-  ModalRefType,
-} from "@/app/shared/components/GeneralModal/components/ModalCreateProduct";
+import ModalCreateProduct from "@/app/shared/components/GeneralModal/components/ModalCreateProduct";
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { productService } from "@/app/shared/services/products/productService";
+import { ModalRefType } from "@/app/shared/components/GeneralModal";
 
 type Props = {
   selectedCategories: string[];

@@ -5,7 +5,7 @@ import { AlignJustify, Download, FilePlus, Plus } from "lucide-react";
 import { cn } from "@/app/shared/utils/utils";
 import { RefreshCcw } from "lucide-react";
 import { Button } from "antd";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
 import { CATEGORY_COLUMNS } from "@/app/(dashboard)/admin/(content)/inventory/products/categories/components/CategoryTable/columns/columnsMenu";
 import { useInView } from "react-intersection-observer";
@@ -14,43 +14,47 @@ import { categoryColumns } from "@/app/(dashboard)/admin/(content)/inventory/pro
 import { keepPreviousData } from "@tanstack/react-query";
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import ModalCreateCategory from "@/app/shared/components/GeneralModal/components/ModalCreateCategory";
+import { ModalRefType } from "@/app/shared/components/GeneralModal";
 
 type Props = {
   limit: number;
 };
 
-const CategoryTable = ({limit}: Props) => {
-  const intl = useIntl();
-  const { ref, inView } = useInView();
+const CategoryTable = ({ limit }: Props) => {
   const [selectedColumns, setSelectedColumns] = useState<{
     [key: string]: string[];
   }>({});
-    const {
-      data: categoriesData,
-      refetch,
-      fetchNextPage,
-      hasNextPage,
-      isLoading,
-      isFetching,
-    } = useInfiniteQuery({
-      queryKey: ["categories"],
-      queryFn: ({ pageParam = 1 }) => {
-        return categoriesService.getCategories({
-          include_image: true,
-          page: pageParam,
-          limit: limit,
-        });
-      },
-      getNextPageParam: (lastPage) =>
-        lastPage.meta.total_page > lastPage.meta.current_page
-          ? lastPage.meta.current_page + 1
-          : undefined,
-      initialPageParam: 1,
-      placeholderData: keepPreviousData,
-    });
-    const categories = useMemo(() => {
-      return categoriesData?.pages?.flatMap((page) => page.data) || [];
-    }, [categoriesData])
+  const intl = useIntl();
+  const { ref, inView } = useInView();
+  const { handleCreateCategory, loadingCreateCategory } = useCategory();
+  const modalCreateCategoryRef = useRef<ModalRefType>(null);
+  const {
+    data: categoriesData,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isLoading,
+    isFetching,
+  } = useInfiniteQuery({
+    queryKey: ["categories"],
+    queryFn: ({ pageParam = 1 }) => {
+      return categoriesService.getCategories({
+        include_image: true,
+        page: pageParam,
+        limit: limit,
+      });
+    },
+    getNextPageParam: (lastPage) =>
+      lastPage.meta.total_page > lastPage.meta.current_page
+        ? lastPage.meta.current_page + 1
+        : undefined,
+    initialPageParam: 1,
+    placeholderData: keepPreviousData,
+  });
+  const categories = useMemo(() => {
+    return categoriesData?.pages?.flatMap((page) => page.data) || [];
+  }, [categoriesData]);
 
   const newCategoryColumns = useMemo(() => {
     return categoryColumns(intl)?.map((item) => ({
@@ -58,7 +62,9 @@ const CategoryTable = ({limit}: Props) => {
       hidden: !selectedColumns["category"]?.includes(item?.key as string),
     }));
   }, [selectedColumns]);
-
+  const _onOpenModalCreateCategory = () => {
+    modalCreateCategoryRef.current?.handleOpenModal();
+  };
   const _onRefetch = () => {
     refetch();
   };
@@ -74,7 +80,7 @@ const CategoryTable = ({limit}: Props) => {
     }
   }, [inView]);
   useEffect(() => {
-    if (categories && categories.length > 0) {
+    if (categories && categories?.length > 0) {
       setSelectedColumns({
         category: [
           ...(categoryColumns(intl) || []).map((item) => item?.key as string),
@@ -102,7 +108,7 @@ const CategoryTable = ({limit}: Props) => {
           <Button
             type="primary"
             icon={<Plus width={16} height={16} />}
-            // onClick={_onOpenModalCreateProduct}
+            onClick={_onOpenModalCreateCategory}
           >
             {intl.formatMessage({ id: "add_new" })}
           </Button>
@@ -167,6 +173,13 @@ const CategoryTable = ({limit}: Props) => {
         />
         <div className="h-10 w-full" ref={ref}></div>
       </div>
+      <ModalCreateCategory
+        handleSubmitCreateCategoryForm={(data) =>
+          handleCreateCategory(data, _onRefetch)
+        }
+        ref={modalCreateCategoryRef}
+        loading={loadingCreateCategory}
+      />
     </div>
   );
 };

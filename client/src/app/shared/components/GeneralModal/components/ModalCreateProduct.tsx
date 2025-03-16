@@ -23,7 +23,7 @@ import { useQuery } from "@tanstack/react-query";
 import { STATUS_OPTIONS } from "@/app/constants/seeds";
 import { ERROR_MESSAGE } from "@/app/constants/errors";
 import InputAdmin from "@/app/shared/components/InputAdmin";
-import GeneralModal from "@/app/shared/components/GeneralModal";
+import GeneralModal, { ModalRefType } from "@/app/shared/components/GeneralModal";
 import LoadingComponent from "@/app/shared/components/LoadingComponent";
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { discountsService } from "@/app/shared/services/discounts/discountsService";
@@ -44,10 +44,7 @@ import { useIntl } from "react-intl";
 import { warehouseService } from "@/app/shared/services/warehouse/warehouseService";
 import { brandService } from "@/app/shared/services/brands/brandService";
 
-export interface ModalRefType {
-  handleOpenModal: () => void;
-  handleCloseModal: () => void;
-}
+
 
 type PropsType = {
   refetch?: () => void;

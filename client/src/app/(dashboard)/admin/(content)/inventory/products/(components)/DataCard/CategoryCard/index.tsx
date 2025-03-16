@@ -1,6 +1,6 @@
 import DataCard from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/DataCard";
 import { useCategory } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useCategory";
-import CreateCategoryModal from "@/app/shared/components/GeneralModal/components/CreateCategoryModal";
+import ModalCreateCategory from "@/app/shared/components/GeneralModal/components/ModalCreateCategory";
 import UpdateCategoryModal from "@/app/shared/components/GeneralModal/components/UpdateCategoryModal";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import {
@@ -132,7 +132,7 @@ const CategoryCard = (props: Props) => {
         </div>
       )}
       renderCreateModal={(isModalOpen, handleClose, refetch) => (
-        <CreateCategoryModal
+        <ModalCreateCategory
           isModalCreateCategoryOpen={isModalOpen}
           handleCloseModalCreateCategory={handleClose}
           handleSubmitCreateCategoryForm={handleSubmitCreateCategory}
