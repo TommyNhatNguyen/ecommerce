@@ -103,5 +103,10 @@ export default {
     attribute_columns: "Attribute Columns",
     attribute_values_columns: "Attribute Values Columns",
     value: "Value",
+    create_option_success: "Create option success",
+    must_have_at_least_one_option_value: "Must have at least one option value",
+    option_name: "Option Name",
+    option_value: "Option Value",
+    add_option_value: "Add option value",
   },
 };

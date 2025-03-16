@@ -1,9 +1,14 @@
 import { Button, Checkbox, ColorPicker } from "antd";
-import GeneralModal from "..";
+import GeneralModal, { ModalRefType } from "..";
 import { Controller, SubmitHandler, useForm, get } from "react-hook-form";
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { useCreateOptionModal } from "@/app/shared/components/GeneralModal/hooks/useCreateOptionModal";
-import { useEffect, useState } from "react";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import InputAdmin from "@/app/shared/components/InputAdmin";
 import { ERROR_MESSAGE } from "@/app/constants/errors";
 import { Link, MinusIcon, PlusIcon } from "lucide-react";
@@ -12,20 +17,19 @@ import {
   OptionValueCreateDTO,
 } from "@/app/shared/interfaces/variant/variant.interface";
 import { AggregationColor } from "antd/es/color-picker/color";
+import { useIntl } from "react-intl";
 
-type CreateOptionModalPropsType = {
-  isOpen: boolean;
-  handleCloseModal: () => void;
+type PropsType = {
   loading?: boolean;
   refetch?: () => void;
 };
 
-const CreateOptionsModal = ({
-  isOpen,
-  handleCloseModal,
-  loading = false,
-  refetch,
-}: CreateOptionModalPropsType) => {
+const ModalCreateOptions = (
+  { loading = false, refetch }: PropsType,
+  ref: any,
+) => {
+  const [open, setOpen] = useState(false);
+  const intl = useIntl();
   const {
     handleSubmit,
     control,
@@ -73,15 +77,18 @@ const CreateOptionsModal = ({
     ]);
     setChangeColor({});
   };
+  const handleOpenModal = () => {
+    setOpen(true);
+  };
   const _onCloseModal = () => {
-    handleCloseModal();
+    setOpen(false);
     _resetData();
   };
   const _onCreateOption: SubmitHandler<OptionCreateDTO> = async (data) => {
     await handleCreateOption(data, () => {
       notificationApi.success({
-        message: "Create option success",
-        description: "Create option success",
+        message: intl.formatMessage({ id: "create_option_success" }),
+        description: intl.formatMessage({ id: "create_option_success" }),
       });
       _resetData();
       _onCloseModal();
@@ -100,8 +107,12 @@ const CreateOptionsModal = ({
   const _onRemoveOptionValue = (id: number) => {
     if (getValues("option_values").length === 1) {
       notificationApi.error({
-        message: "You must have at least one option value",
-        description: "You must have at least one option value",
+        message: intl.formatMessage({
+          id: "must_have_at_least_one_option_value",
+        }),
+        description: intl.formatMessage({
+          id: "must_have_at_least_one_option_value",
+        }),
       });
       return;
     }
@@ -114,6 +125,12 @@ const CreateOptionsModal = ({
   const _onChangeColor = (index: number, value: AggregationColor) => {
     setChangeColor({ ...changeColor, [index]: value });
   };
+
+  useImperativeHandle<ModalRefType, ModalRefType>(ref, () => ({
+    handleOpenModal,
+    handleCloseModal: _onCloseModal,
+  }));
+
   useEffect(() => {
     _resetData();
   }, [watch("is_color")]);
@@ -136,8 +153,8 @@ const CreateOptionsModal = ({
             }}
             render={({ field }) => (
               <InputAdmin
-                label="Name"
-                placeholder="Name"
+                label={intl.formatMessage({ id: "attribute_name" })}
+                placeholder={intl.formatMessage({ id: "attribute_name" })}
                 error={errors.name?.message as string}
                 required={true}
                 {...field}
@@ -150,13 +167,15 @@ const CreateOptionsModal = ({
             name="is_color"
             render={({ field: { value, ...field } }) => (
               <InputAdmin
-                label="Is color?"
-                placeholder="Is color?"
+                label={intl.formatMessage({ id: "is_color" })}
+                placeholder={intl.formatMessage({ id: "is_color" })}
                 {...field}
                 error={errors?.is_color?.message as string}
                 customComponent={(props, ref: any) => (
                   <Checkbox {...props} ref={ref} checked={value} value={value}>
-                    {value ? "🎨 Yes" : "🖌️ No"}
+                    {value
+                      ? intl.formatMessage({ id: "yes" })
+                      : intl.formatMessage({ id: "no" })}
                   </Checkbox>
                 )}
               />
@@ -179,8 +198,8 @@ const CreateOptionsModal = ({
               render={({ field }) => (
                 <div className="flex w-full items-center gap-2">
                   <InputAdmin
-                    label="Option name"
-                    placeholder="Option name"
+                    label={intl.formatMessage({ id: "option_name" })}
+                    placeholder={intl.formatMessage({ id: "option_name" })}
                     required={true}
                     groupClassName="flex-1"
                     error={
@@ -199,8 +218,8 @@ const CreateOptionsModal = ({
                   <div className="flex items-end gap-2">
                     {watch("is_color") ? (
                       <InputAdmin
-                        label="Option value"
-                        placeholder="Option value"
+                        label={intl.formatMessage({ id: "option_value" })}
+                        placeholder={intl.formatMessage({ id: "option_value" })}
                         required={true}
                         customComponent={(props) => (
                           <ColorPicker
@@ -219,8 +238,8 @@ const CreateOptionsModal = ({
                       />
                     ) : (
                       <InputAdmin
-                        label="Option value"
-                        placeholder="Option value"
+                        label={intl.formatMessage({ id: "option_value" })}
+                        placeholder={intl.formatMessage({ id: "option_value" })}
                         value={watch(`option_values.${index}.value`)}
                         disabled={true}
                         required={true}
@@ -249,7 +268,7 @@ const CreateOptionsModal = ({
           className="m-auto w-fit"
           icon={<PlusIcon className="h-4 w-4" />}
         >
-          Add option value
+          {intl.formatMessage({ id: "add_option_value" })}
         </Button>
       </div>
     );
@@ -258,21 +277,21 @@ const CreateOptionsModal = ({
     return (
       <div className="flex items-center justify-end gap-2">
         <Button type="default" onClick={_onCloseModal}>
-          Cancel
+          {intl.formatMessage({ id: "close" })}
         </Button>
         <Button
           type="primary"
           htmlType="submit"
           onClick={handleSubmit(_onCreateOption)}
         >
-          Create
+          {intl.formatMessage({ id: "add_new" })}
         </Button>
       </div>
     );
   };
   return (
     <GeneralModal
-      open={isOpen}
+      open={open}
       renderTitle={_renderTitle}
       renderFooter={_renderFooter}
       renderContent={_renderContent}
@@ -282,4 +301,6 @@ const CreateOptionsModal = ({
   );
 };
 
-export default CreateOptionsModal;
+export default React.memo(
+  forwardRef<ModalRefType, PropsType>(ModalCreateOptions),
+);

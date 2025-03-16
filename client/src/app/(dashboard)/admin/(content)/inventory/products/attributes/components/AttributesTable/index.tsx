@@ -21,6 +21,7 @@ import {
   OPTION_COLUMNS,
   OPTION_VALUES_COLUMNS,
 } from "@/app/(dashboard)/admin/(content)/inventory/products/attributes/components/AttributesTable/columns/columnsMenu";
+import ModalCreateOptions from "@/app/shared/components/GeneralModal/components/ModalCreateOptions";
 
 type Props = {
   limit: number;
@@ -32,8 +33,7 @@ const AttributesTable = ({ limit }: Props) => {
   }>({});
   const intl = useIntl();
   const { ref, inView } = useInView();
-  // const { handleCreateOption,  isCreateLoading} = useAttributes();
-  const modalCreateOption = useRef<ModalRefType>(null);
+  const modalCreateOptionRef = useRef<ModalRefType>(null);
   const {
     data: optionData,
     refetch,
@@ -73,7 +73,7 @@ const AttributesTable = ({ limit }: Props) => {
     }));
   }, [selectedColumns]);
   const _onOpenModalCreateOptions = () => {
-    modalCreateOption.current?.handleOpenModal();
+    modalCreateOptionRef.current?.handleOpenModal();
   };
   const _onRefetch = () => {
     refetch();
@@ -232,12 +232,7 @@ const AttributesTable = ({ limit }: Props) => {
         />
         <div className="h-10 w-full" ref={ref}></div>
       </div>
-      {/* <ModalCreateoptions
-        handleCreateoptions={(data) => handleCreateoptions(data, _onRefetch)}
-        ref={modalCreateOption}
-        loading={loadingCreateoptions}
-        refetch={_onRefetch}
-      /> */}
+      <ModalCreateOptions refetch={_onRefetch} ref={modalCreateOptionRef} />
     </div>
   );
 };

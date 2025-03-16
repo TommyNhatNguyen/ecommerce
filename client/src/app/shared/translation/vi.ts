@@ -106,6 +106,11 @@ export default {
     attribute_name: "Tên thuộc tính",
     attribute_columns: "Cột thuộc tính",
     attribute_values_columns: "Cột giá trị thuộc tính",
+    option_name: "Tên thuộc tính con",
+    option_value: "Giá trị thuộc tính con",
+    add_option_value: "Thêm giá trị thuộc tính",
     value: "Giá trị",
+    create_option_success: "Tạo thuộc tính thành công",
+    must_have_at_least_one_option_value: "Phải có ít nhất một giá trị thuộc tính",
   },
 };

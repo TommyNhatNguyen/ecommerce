@@ -1,6 +1,6 @@
 import DataCard from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/DataCard";
 import { useOptions } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useOptions";
-import CreateOptionsModal from "@/app/shared/components/GeneralModal/components/CreateOptionsModal";
+import ModalCreateOptions from "@/app/shared/components/GeneralModal/components/ModalCreateOptions";
 import UpdateOptionsModal from "@/app/shared/components/GeneralModal/components/UpdateOptionsModal";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import { optionService } from "@/app/shared/services/variant/optionService";
@@ -135,7 +135,7 @@ const OptionsCard = (props: Props) => {
         </div>
       )}
       renderCreateModal={(isModalOpen, handleClose, refetch) => (
-        <CreateOptionsModal
+        <ModalCreateOptions
           isOpen={isModalOpen}
           handleCloseModal={handleClose}
           refetch={refetch}
