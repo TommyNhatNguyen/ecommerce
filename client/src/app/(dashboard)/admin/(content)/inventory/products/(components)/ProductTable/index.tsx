@@ -117,8 +117,8 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
     // Initialize selected columns when products are loaded
     if (products && products.length > 0) {
       setSelectedColumns({
-        product: productColumns(intl).map((item) => item?.key as string),
-        variant: variantColumns(intl).map((item) => item?.key as string),
+        product: productColumns(intl)?.map((item) => item?.key as string) || [],
+        variant: variantColumns(intl)?.map((item) => item?.key as string) || [],
       });
     }
   }, [products]);

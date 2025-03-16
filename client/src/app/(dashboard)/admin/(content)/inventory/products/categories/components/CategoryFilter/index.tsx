@@ -7,21 +7,26 @@ import { Input, Select } from 'antd'
 import React from 'react'
 import { useIntl } from 'react-intl'
 
-type Props = {}
+type Props = {
+  limit: number;
+  handleSelectLimit: (value: number) => void;
+  hasSelectedItems: boolean;  
+  handleClearAll: () => void;
+  handleSearch: (value: string) => void;
+}
 
-const CategoryFilter = (props: Props) => {
+const CategoryFilter = ({limit, handleSelectLimit, hasSelectedItems, handleClearAll, handleSearch}: Props) => {
   const intl = useIntl();
-  const { limit, handleSelectLimit } = useCategory();
   const _onSearch = (value: string) => {
-    console.log(value);
+    handleSearch(value);
   };
   const _onSelectLimit = (value: string) => {
     handleSelectLimit(Number(value));
   }
   return (
     <FilterComponent
-    // hasSelectedItems={hasSelectedItems}
-    // clearAll={handleClearAll}
+      hasSelectedItems={hasSelectedItems}
+      clearAll={handleClearAll}
     >
       <Filter.Item name="search" label={intl.formatMessage({ id: "search" })}>
         <Input.Search

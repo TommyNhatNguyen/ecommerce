@@ -11,17 +11,46 @@ import { CATEGORY_COLUMNS } from "@/app/(dashboard)/admin/(content)/inventory/pr
 import { useInView } from "react-intersection-observer";
 import { useCategory } from "@/app/(dashboard)/admin/(content)/inventory/products/categories/hooks/useCategory";
 import { categoryColumns } from "@/app/(dashboard)/admin/(content)/inventory/products/categories/components/CategoryTable/columns/categoryColumns";
+import { keepPreviousData } from "@tanstack/react-query";
+import { categoriesService } from "@/app/shared/services/categories/categoriesService";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
-type Props = {};
+type Props = {
+  limit: number;
+};
 
-const CategoryTable = (props: Props) => {
+const CategoryTable = ({limit}: Props) => {
   const intl = useIntl();
   const { ref, inView } = useInView();
   const [selectedColumns, setSelectedColumns] = useState<{
     [key: string]: string[];
   }>({});
-  const { categories, fetchNextPage, hasNextPage, isLoading, isFetching, refetch } =
-    useCategory();
+    const {
+      data: categoriesData,
+      refetch,
+      fetchNextPage,
+      hasNextPage,
+      isLoading,
+      isFetching,
+    } = useInfiniteQuery({
+      queryKey: ["categories"],
+      queryFn: ({ pageParam = 1 }) => {
+        return categoriesService.getCategories({
+          include_image: true,
+          page: pageParam,
+          limit: limit,
+        });
+      },
+      getNextPageParam: (lastPage) =>
+        lastPage.meta.total_page > lastPage.meta.current_page
+          ? lastPage.meta.current_page + 1
+          : undefined,
+      initialPageParam: 1,
+      placeholderData: keepPreviousData,
+    });
+    const categories = useMemo(() => {
+      return categoriesData?.pages?.flatMap((page) => page.data) || [];
+    }, [categoriesData])
 
   const newCategoryColumns = useMemo(() => {
     return categoryColumns(intl)?.map((item) => ({
