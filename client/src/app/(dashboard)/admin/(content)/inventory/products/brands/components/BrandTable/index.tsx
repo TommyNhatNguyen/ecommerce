@@ -34,7 +34,7 @@ const BrandTable = ({ limit }: Props) => {
     isLoading,
     isFetching,
   } = useInfiniteQuery({
-    queryKey: ["brands"],
+    queryKey: ["infinite-brands"],
     queryFn: ({ pageParam = 1 }) => {
       return brandService.getBrands({
         page: pageParam,

@@ -37,7 +37,7 @@ const CategoryTable = ({ limit }: Props) => {
     isLoading,
     isFetching,
   } = useInfiniteQuery({
-    queryKey: ["categories"],
+    queryKey: ["infinite-categories"],
     queryFn: ({ pageParam = 1 }) => {
       return categoriesService.getCategories({
         include_image: true,

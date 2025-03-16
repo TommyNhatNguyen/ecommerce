@@ -10,7 +10,7 @@ export const useCategoryFilter = () => {
     setSearch(value);
   };
   const hasSelectedItems = useMemo(() => {
-    return search.length > 0 || limit !== 10;
+    return search?.length > 0 || limit !== 10;
   }, [search, limit]);
   const handleClearAll = () => {
     setSearch("");

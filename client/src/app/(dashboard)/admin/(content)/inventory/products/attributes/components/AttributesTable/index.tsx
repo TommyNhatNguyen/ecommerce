@@ -42,7 +42,7 @@ const AttributesTable = ({ limit }: Props) => {
     isLoading,
     isFetching,
   } = useInfiniteQuery({
-    queryKey: ["options"],
+    queryKey: ["infinite-options"],
     queryFn: ({ pageParam = 1 }) => {
       return optionService.getOptionList({
         include_option_values: true,
