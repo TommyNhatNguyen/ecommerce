@@ -91,5 +91,9 @@ export default {
     choose_brand: "Choose Brand",
     create_category: "Create Category",
     showing: "Showing {num_rows}/{num_total_rows} records",
+    add_brand_success: "Add brand success",
+    add_brand_error: "Add brand error",
+    create_brand: "Create Brand",
+    brand_name: "Brand Name",
   },
 };

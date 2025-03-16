@@ -1,27 +1,32 @@
-'use client'
-import { LIMIT_OPTIONS } from "@/app/constants/seeds";
 import FilterComponent from "@/app/shared/components/Filter";
 import Filter from "@/app/shared/components/Filter";
-import { Input, Select } from 'antd'
-import React from 'react'
-import { useIntl } from 'react-intl'
+import { LIMIT_OPTIONS } from "@/app/constants/seeds";
+import { Input, Select } from "antd";
+import React from "react";
+import { useIntl } from "react-intl";
 
 type Props = {
   limit: number;
   handleSelectLimit: (value: number) => void;
-  hasSelectedItems: boolean;  
+  hasSelectedItems: boolean;
   handleClearAll: () => void;
   handleSearch: (value: string) => void;
-}
+};
 
-const CategoryFilter = ({limit, handleSelectLimit, hasSelectedItems, handleClearAll, handleSearch}: Props) => {
+const BrandFilter = ({
+  limit,
+  handleSelectLimit,
+  hasSelectedItems,
+  handleClearAll,
+  handleSearch,
+}: Props) => {
   const intl = useIntl();
   const _onSearch = (value: string) => {
     handleSearch(value);
   };
   const _onSelectLimit = (value: string) => {
     handleSelectLimit(Number(value));
-  }
+  };
   return (
     <FilterComponent
       hasSelectedItems={hasSelectedItems}
@@ -39,7 +44,7 @@ const CategoryFilter = ({limit, handleSelectLimit, hasSelectedItems, handleClear
         <Select
           className="w-full"
           options={LIMIT_OPTIONS.map((item) => ({
-            label: `${item.label} ${intl.formatMessage({ id: "categories" })}`,
+            label: `${item.label} ${intl.formatMessage({ id: "brands" })}`,
             value: item.value,
           }))}
           value={limit.toString()}
@@ -48,6 +53,6 @@ const CategoryFilter = ({limit, handleSelectLimit, hasSelectedItems, handleClear
       </Filter.Item>
     </FilterComponent>
   );
-}
+};
 
-export default CategoryFilter
+export default BrandFilter;

@@ -12,6 +12,14 @@ export const brandService = {
     const response = await axiosInstance.post("/brands", data);
     return response.data;
   },
+  getBrands: async (
+    query?: BrandConditionDTO,
+  ): Promise<ListResponseModel<BrandModel>> => {
+    const response = await axiosInstance.get("/brands", {
+      params: query,
+    });
+    return response.data;
+  },
   getAllBrands: async (
     query?: BrandConditionDTO,
   ): Promise<{ data: BrandModel[] }> => {

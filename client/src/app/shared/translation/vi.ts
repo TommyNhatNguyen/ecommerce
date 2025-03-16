@@ -95,5 +95,9 @@ export default {
     DELETED: "Đã xóa",
     create_category: "Tạo danh mục",
     showing: "Đang hiển thị {num_rows}/{num_total_rows} bản ghi",
+    add_brand_success: "Thêm thương hiệu thành công",
+    add_brand_error: "Thêm thương hiệu thất bại",
+    create_brand: "Tạo thương hiệu",
+    brand_name: "Tên thương hiệu",
   },
 };

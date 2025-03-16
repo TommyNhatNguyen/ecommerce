@@ -6,6 +6,6 @@ export interface BrandModel {
   description: string;
   product_id: string | null;
   status: ModelStatus;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
 }
