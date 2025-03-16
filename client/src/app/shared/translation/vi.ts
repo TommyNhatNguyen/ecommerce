@@ -99,5 +99,12 @@ export default {
     add_brand_error: "Thêm thương hiệu thất bại",
     create_brand: "Tạo thương hiệu",
     brand_name: "Tên thương hiệu",
+    is_color: "Là màu sắc",
+    color: "Màu sắc",
+    yes: "Có",
+    no: "Không",
+    attribute_name: "Tên thuộc tính",
+    attribute_columns: "Cột thuộc tính",
+    attribute_values_columns: "Cột giá trị thuộc tính",
   },
 };

@@ -237,11 +237,11 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
           expandable={{
             childrenColumnName: "variant",
             expandRowByClick: true,
-            expandedRowRender: (record) => {
+            expandedRowRender: (record, index) => {
               return (
                 <>
                   <Table
-                    key={record.id}
+                    key={`${record.id}-${index}`}
                     dataSource={record.variant}
                     columns={newVariantColumns}
                     rowKey={(record) => record.id}

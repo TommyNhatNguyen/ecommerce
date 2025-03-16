@@ -95,5 +95,12 @@ export default {
     add_brand_error: "Add brand error",
     create_brand: "Create Brand",
     brand_name: "Brand Name",
+    is_color: "Is Color",
+    yes: "Yes",
+    no: "No",
+    color: "Color",
+    attribute_name: "Attribute Name",
+    attribute_columns: "Attribute Columns",
+    attribute_values_columns: "Attribute Values Columns",
   },
 };
