@@ -89,5 +89,8 @@ export default {
     warehouse: "Kho hàng",
     select_warehouse: "Chọn kho hàng",
     choose_brand: "Chọn thương hiệu",
+    ACTIVE: "Đang hoạt động",
+    INACTIVE: "Không hoạt động",
+    DELETED: "Đã xóa",
   },
 };

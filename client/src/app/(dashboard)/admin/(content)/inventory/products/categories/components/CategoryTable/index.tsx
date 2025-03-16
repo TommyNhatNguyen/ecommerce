@@ -1,0 +1,145 @@
+"use client";
+import { Table } from "antd";
+import { Checkbox, Divider, Dropdown } from "antd";
+import { AlignJustify, Download, FilePlus, Plus } from "lucide-react";
+import { cn } from "@/app/shared/utils/utils";
+import { RefreshCcw } from "lucide-react";
+import { Button } from "antd";
+import React, { useEffect, useMemo, useState } from "react";
+import { useIntl } from "react-intl";
+import { CATEGORY_COLUMNS } from "@/app/(dashboard)/admin/(content)/inventory/products/categories/components/CategoryTable/columns/columnsMenu";
+import { useInView } from "react-intersection-observer";
+import { useCategory } from "@/app/(dashboard)/admin/(content)/inventory/products/categories/hooks/useCategory";
+import { categoryColumns } from "@/app/(dashboard)/admin/(content)/inventory/products/categories/components/CategoryTable/columns/categoryColumns";
+
+type Props = {};
+
+const CategoryTable = (props: Props) => {
+  const intl = useIntl();
+  const { ref, inView } = useInView();
+  const [selectedColumns, setSelectedColumns] = useState<{
+    [key: string]: string[];
+  }>({});
+  const { categories, fetchNextPage, hasNextPage, isLoading, isFetching, refetch } =
+    useCategory();
+
+  const newCategoryColumns = useMemo(() => {
+    return categoryColumns(intl)?.map((item) => ({
+      ...item,
+      hidden: !selectedColumns["category"]?.includes(item?.key as string),
+    }));
+  }, [selectedColumns]);
+
+  const _onRefetch = () => {
+    refetch();
+  };
+  const _onSelectColumns = (id: string, keys: string[]) => {
+    setSelectedColumns((prev) => ({
+      ...prev,
+      [id]: keys,
+    }));
+  };
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView]);
+  useEffect(() => {
+    if (categories && categories.length > 0) {
+      setSelectedColumns({
+        category: [
+          ...(categoryColumns(intl) || []).map((item) => item?.key as string),
+        ],
+      });
+    }
+  }, [categories]);
+  return (
+    <div className="h-full">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        {/* Tải lại */}
+        <div className="left"></div>
+        <div className="right flex items-center gap-2">
+          <Button
+            type="primary"
+            icon={
+              <RefreshCcw
+                width={16}
+                height={16}
+                className={cn(isLoading && "animate-spin duration-300")}
+              />
+            }
+            onClick={_onRefetch}
+          />
+          <Button
+            type="primary"
+            icon={<Plus width={16} height={16} />}
+            // onClick={_onOpenModalCreateProduct}
+          >
+            {intl.formatMessage({ id: "add_new" })}
+          </Button>
+          <Button
+            type="primary"
+            disabled
+            icon={<FilePlus width={16} height={16} />}
+          >
+            <p>
+              {intl.formatMessage({ id: "import_excel" })}(
+              {intl.formatMessage({ id: "coming_soon" })})
+            </p>
+          </Button>
+          <Button
+            type="primary"
+            disabled
+            icon={<Download width={16} height={16} />}
+          >
+            <p>
+              {intl.formatMessage({ id: "export_excel" })}(
+              {intl.formatMessage({ id: "coming_soon" })})
+            </p>
+          </Button>
+          <Dropdown
+            trigger={["click"]}
+            dropdownRender={() => {
+              return (
+                <div className="min-w-[200px] max-w-[200px] rounded-sm bg-custom-white p-2">
+                  <div>
+                    <p className="text-md font-roboto-bold">
+                      {intl.formatMessage({ id: "product_columns" })}
+                    </p>
+                    <Checkbox.Group
+                      options={CATEGORY_COLUMNS.map((item) => ({
+                        label: intl.formatMessage({ id: item }),
+                        value: item,
+                      }))}
+                      value={selectedColumns["category"]}
+                      onChange={(keys) => _onSelectColumns("category", keys)}
+                      className="mt-2 flex flex-wrap gap-2"
+                    />
+                  </div>
+                </div>
+              );
+            }}
+          >
+            <Button
+              type="primary"
+              icon={<AlignJustify width={16} height={16} />}
+            />
+          </Dropdown>
+        </div>
+      </div>
+      <div>
+        <Table
+          dataSource={categories}
+          columns={newCategoryColumns}
+          rowKey={(record) => record.id}
+          pagination={false}
+          rowClassName={"bg-slate-100"}
+          loading={isFetching}
+        />
+        <div className="h-10 w-full" ref={ref}></div>
+      </div>
+    </div>
+  );
+};
+
+export default CategoryTable;
