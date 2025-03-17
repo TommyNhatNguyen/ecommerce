@@ -38,13 +38,16 @@ export const ADMIN_ROUTES = {
   products: "/admin/products",
   inventory: {
     index: "/admin/inventory",
+    warehouses: "/admin/inventory/warehouses",
+    invoices: "/admin/inventory/invoices",
+    stock: "/admin/inventory/stock",
+    checked: "/admin/inventory/checked",
     products: {
       index: "/admin/inventory/products",
       categories: "/admin/inventory/products/categories",
       brands: "/admin/inventory/products/brands",
       attributes: "/admin/inventory/products/attributes",
     },
-    checked: "/admin/inventory/checked",
     deleted: "/admin/inventory/deleted",
     settings: "/admin/inventory/settings",
   },

@@ -108,5 +108,9 @@ export default {
     option_name: "Option Name",
     option_value: "Option Value",
     add_option_value: "Add option value",
+    stock: "Stock",
+    warehouses_list: "Warehouses List",
+    invoices_in_out: "Invoices In Out",
+    check_inventory: "Check Inventory",
   },
 };

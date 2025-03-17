@@ -112,5 +112,9 @@ export default {
     value: "Giá trị",
     create_option_success: "Tạo thuộc tính thành công",
     must_have_at_least_one_option_value: "Phải có ít nhất một giá trị thuộc tính",
+    stock: "Tồn kho",
+    warehouses_list: "Danh sách kho hàng",
+    invoices_in_out: "Hoá đơn nhập/xuất",
+    check_inventory: "Kiểm kho",
   },
 };
