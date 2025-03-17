@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useIntl } from "react-intl";
 
 const EXCLUDE_ROUTES = [
+  ADMIN_ROUTES.inventory.products.index,
   ADMIN_ROUTES.inventory.products.categories,
   ADMIN_ROUTES.inventory.products.brands,
   ADMIN_ROUTES.inventory.products.attributes,

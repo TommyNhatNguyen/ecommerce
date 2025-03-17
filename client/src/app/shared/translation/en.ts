@@ -104,6 +104,7 @@ export default {
     attribute_name: "Attribute Name",
     attribute_columns: "Attribute Columns",
     attribute_values_columns: "Attribute Values Columns",
+    inventory_columns: "Inventory Columns",
     value: "Value",
     create_option_success: "Create option success",
     must_have_at_least_one_option_value: "Must have at least one option value",
@@ -119,5 +120,6 @@ export default {
     profit: "Profit",
     avg_cost: "Average Cost",
     total_stock_quantity: "Total Stock Quantity",
+    total_cost: "Total Cost",
   },
 };

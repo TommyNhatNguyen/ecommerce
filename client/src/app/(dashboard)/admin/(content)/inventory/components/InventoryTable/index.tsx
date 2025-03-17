@@ -4,12 +4,13 @@ import { Table } from "antd";
 import { AlignJustify, Download, Plus } from "lucide-react";
 import { FilePlus } from "lucide-react";
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
-import { Button, Dropdown } from "antd";
+import { Button, Checkbox, Dropdown } from "antd";
 import { RefreshCcw } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { useIntl } from "react-intl";
 import { inventoryColumns } from "@/app/(dashboard)/admin/(content)/inventory/components/InventoryTable/columns/inventoryColumns";
+import { DEFAULT_INVENTORY_COLUMNS, INVENTORY_COLUMNS_MENU } from "@/app/(dashboard)/admin/(content)/inventory/components/InventoryTable/columns/columnsMenu";
 
 type Props = {};
 
@@ -66,7 +67,7 @@ const InventoryTable = (props: Props) => {
   useEffect(() => {
     if (variants && variants.length > 0) {
       setSelectedColumns({
-        inventory: inventoryColumns(intl)?.map((item) => item?.key as string) || [],
+        inventory: DEFAULT_INVENTORY_COLUMNS,
       });
     }
   }, [variants]);
@@ -132,35 +133,20 @@ const InventoryTable = (props: Props) => {
             dropdownRender={() => {
               return (
                 <div className="min-w-[200px] max-w-[200px] rounded-sm bg-custom-white p-2">
-                  {/* <div>
+                  <div>
                     <p className="text-md font-roboto-bold">
-                      {intl.formatMessage({ id: "product_columns" })}
+                      {intl.formatMessage({ id: "inventory_columns" })}
                     </p>
                     <Checkbox.Group
-                      options={PRODUCTS_COLUMNS.map((item) => ({
+                      options={INVENTORY_COLUMNS_MENU.map((item) => ({
                         label: intl.formatMessage({ id: item }),
                         value: item,
                       }))}
-                      value={selectedColumns["product"]}
-                      onChange={(keys) => _onSelectColumns("product", keys)}
+                      value={selectedColumns["inventory"]}
+                      onChange={(keys) => _onSelectColumns("inventory", keys)}
                       className="mt-2 flex flex-wrap gap-2"
                     />
                   </div>
-                  <Divider />
-                  <div>
-                    <p className="text-md font-roboto-bold">
-                      {intl.formatMessage({ id: "variant_columns" })}
-                    </p>
-                    <Checkbox.Group
-                      options={VARIANT_COLUMNS.map((item) => ({
-                        label: intl.formatMessage({ id: item }),
-                        value: item,
-                      }))}
-                      value={selectedColumns["variant"]}
-                      onChange={(keys) => _onSelectColumns("variant", keys)}
-                      className="mt-2 flex flex-wrap gap-2"
-                    />
-                  </div> */}
                 </div>
               );
             }}
@@ -180,6 +166,7 @@ const InventoryTable = (props: Props) => {
           pagination={false}
           rowClassName={"bg-slate-100"}
           loading={isFetchingNextPage}
+          scroll={{x: '100%'}}
           expandable={{
             expandRowByClick: true,
             expandedRowRender: (record, index) => {

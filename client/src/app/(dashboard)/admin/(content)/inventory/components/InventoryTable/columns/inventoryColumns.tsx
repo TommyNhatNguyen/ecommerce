@@ -76,6 +76,15 @@ export const inventoryColumns: (
     },
   },
   {
+    key: "total_cost",
+    title: () => intl.formatMessage({ id: "total_cost" }),
+    dataIndex: "total_cost",
+    render: (_, { product_sellable }) => {
+      const total_cost = product_sellable?.inventory?.total_cost;
+      return total_cost ? formatCurrency(total_cost) : "-";
+    },
+  },
+  {
     key: "stock_status",
     title: () => intl.formatMessage({ id: "stock_status" }),
     dataIndex: "stock_status",

@@ -109,6 +109,7 @@ export default {
     attribute_name: "Tên thuộc tính",
     attribute_columns: "Cột thuộc tính",
     attribute_values_columns: "Cột giá trị thuộc tính",
+    inventory_columns: "Cột kho hàng",
     option_name: "Tên thuộc tính con",
     option_value: "Giá trị thuộc tính con",
     add_option_value: "Thêm giá trị thuộc tính",
@@ -124,5 +125,6 @@ export default {
     profit_per_product: "Lợi nhuận/sản phẩm",
     profit: "Lợi nhuận",
     avg_cost: "Giá vốn trung bình",
+    total_cost: "Tổng giá vốn",
   },
 };
