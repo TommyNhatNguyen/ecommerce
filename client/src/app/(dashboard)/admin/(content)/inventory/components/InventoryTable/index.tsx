@@ -9,6 +9,7 @@ import { RefreshCcw } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { useIntl } from "react-intl";
+import { inventoryColumns } from "@/app/(dashboard)/admin/(content)/inventory/components/InventoryTable/columns/inventoryColumns";
 
 type Props = {};
 
@@ -47,7 +48,13 @@ const InventoryTable = (props: Props) => {
   const variants = useMemo(() => {
     return variantData?.pages?.flatMap((page) => page.data) || [];
   }, [variantData]);
-  console.log("🚀 ~ variants ~ variants:", variants)
+  const newInventoryColumns = useMemo(() => {
+    return inventoryColumns(intl)?.map((item) => ({
+      ...item,
+      hidden: !selectedColumns["inventory"]?.includes(item?.key as string),
+    }));
+  }, [selectedColumns]);
+  console.log("🚀 ~ variants ~ variants:", variants);
   // Event handlers
   const _onRefetch = () => refetch();
   const _onSelectColumns = (id: string, keys: string[]) => {
@@ -56,6 +63,13 @@ const InventoryTable = (props: Props) => {
       [id]: keys,
     }));
   };
+  useEffect(() => {
+    if (variants && variants.length > 0) {
+      setSelectedColumns({
+        inventory: inventoryColumns(intl)?.map((item) => item?.key as string) || [],
+      });
+    }
+  }, [variants]);
   useEffect(() => {
     if (inView && hasNextPage) {
       fetchNextPage();
@@ -161,7 +175,7 @@ const InventoryTable = (props: Props) => {
       <div>
         <Table
           dataSource={variants}
-          // columns={newProductColumns}
+          columns={newInventoryColumns}
           rowKey={(record) => record.id}
           pagination={false}
           rowClassName={"bg-slate-100"}
