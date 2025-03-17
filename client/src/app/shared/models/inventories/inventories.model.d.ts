@@ -1,6 +1,7 @@
 import { StockStatus } from "@/app/shared/models/inventories/stock-status";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { ProductSellableModel } from "@/app/shared/models/products/products-sellable.model";
+import { WarehouseModel } from "@/app/shared/models/warehouse/warehouse.model";
 
 export type InventoryModel = {
   id: string;
@@ -16,6 +17,9 @@ export type InventoryModel = {
   updated_at?: Date;
   product_id?: string;
   product_sellable: ProductSellableModel;
+  product_sellable_id: string;
+  warehouse: WarehouseModel[];
+  warehouse_id: string;
 };
 
 export type InventoryWarehouseModel = {
