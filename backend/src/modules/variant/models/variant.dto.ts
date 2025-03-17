@@ -29,6 +29,16 @@ export const VariantConditionDTOSchema = z.object({
     .refine((value) => value === 'true' || value === 'false')
     .transform((value) => value === 'true')
     .optional(),
+  include_inventory: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  include_warehouse: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
   include_product: z
     .string()
     .refine((value) => value === 'true' || value === 'false')

@@ -27,6 +27,8 @@ export type VariantConditionDTO = {
   include_option?: boolean;
   include_product_sellable?: boolean;
   include_product?: boolean;
+  include_inventory?: boolean;
+  include_warehouse?: boolean;
   page?: number;
   limit?: number;
 };

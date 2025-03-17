@@ -34,6 +34,10 @@ import {
 import { EXCLUDE_ATTRIBUTES } from 'src/share/constants/exclude-attributes';
 import { WhereOptions } from '@sequelize/core';
 import { Transaction } from 'sequelize';
+import { inventoryModelName, InventoryPersistence, InventoryWarehousePersistence } from 'src/modules/inventory/infras/repo/postgres/dto';
+import { inventoryWarehouseModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
+import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
+import { WarehousePersistence } from 'src/modules/warehouse/infras/repo/warehouse.dto';
 
 export class PostgresVariantRepository implements IVariantRepository {
   constructor(
@@ -121,6 +125,8 @@ export class PostgresVariantRepository implements IVariantRepository {
     const include: Includeable[] = [];
     const where: WhereOptions = {};
     const optionValueInclude: Includeable[] = [];
+    const productSellableInclude: Includeable[] = [];
+    const inventoryInclude: Includeable[] = [];
     const optionValueWhere: WhereOptions = {};
     if (condition?.include_product) {
       include.push({
@@ -132,10 +138,24 @@ export class PostgresVariantRepository implements IVariantRepository {
       });
     }
     if (condition?.include_product_sellable) {
+      if (condition?.include_inventory) {
+        if (condition?.include_warehouse) {
+          inventoryInclude.push({
+            model: WarehousePersistence,
+            as: warehouseModelName.toLowerCase(),
+          });
+        }
+        productSellableInclude.push({
+          model: InventoryPersistence,
+          as: inventoryModelName.toLowerCase(),
+          include: inventoryInclude,
+        });
+      }
       include.push({
         model: ProductSellablePersistence,
         as: productSellableModelName.toLowerCase(),
         include: [
+          ...productSellableInclude,
           {
             model: ImagePersistence,
             as: imageModelName.toLowerCase(),
