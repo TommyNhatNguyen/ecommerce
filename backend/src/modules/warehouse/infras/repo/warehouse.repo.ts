@@ -1,4 +1,8 @@
 import { Includeable, Sequelize, Transaction } from 'sequelize';
+import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
+import { InventoryPersistence } from 'src/modules/inventory/infras/repo/postgres/dto';
+import { ProductSellablePersistence } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import { productSellableModelName } from 'src/modules/product_sellable/infras/repo/postgres/dto';
 import {
   WarehouseConditionDTO,
   WarehouseCreateDTO,
@@ -21,8 +25,23 @@ export class PostgresWarehouseRepository implements IWarehouseRepository {
   async getAllWarehouse(
     condition?: WarehouseConditionDTO
   ): Promise<Warehouse[]> {
+    const include: Includeable[] = [];
+    const include_inventory: Includeable[] = [];
+    if (condition?.include_product_sellable) {
+      include_inventory.push({
+        model: ProductSellablePersistence,
+        as: productSellableModelName.toLowerCase(),
+      });
+    }
+    if (condition?.include_inventory) {
+      include_inventory.push({
+        model: InventoryPersistence,
+        as: inventoryModelName.toLowerCase(),
+        include: include_inventory,
+      });
+    }
     const warehouses = await this.sequelize.models[this.modelName].findAll({
-      where: condition,
+      include,
     });
     return warehouses.map((warehouse) => warehouse.dataValues);
   }
@@ -31,14 +50,31 @@ export class PostgresWarehouseRepository implements IWarehouseRepository {
     condition?: WarehouseConditionDTO,
     t?: Transaction
   ): Promise<Warehouse> {
+    const include: Includeable[] = [];
+    const include_inventory: Includeable[] = [];
+    if (condition?.include_product_sellable) {
+      include_inventory.push({
+        model: ProductSellablePersistence,
+        as: productSellableModelName.toLowerCase(),
+      });
+    }
+    if (condition?.include_inventory) {
+      include.push({
+        model: InventoryPersistence,
+        as: inventoryModelName.toLowerCase(),
+        include: include_inventory,
+      });
+    }
     if (t) {
       const warehouse = await this.sequelize.models[this.modelName].findByPk(
         id,
-        { transaction: t }
+        { transaction: t, include }
       );
       return warehouse?.dataValues;
     }
-    const warehouse = await this.sequelize.models[this.modelName].findByPk(id);
+    const warehouse = await this.sequelize.models[this.modelName].findByPk(id, {
+      include,
+    });
     return warehouse?.dataValues;
   }
   async getWarehouseList(
@@ -49,14 +85,28 @@ export class PostgresWarehouseRepository implements IWarehouseRepository {
     const order = condition?.order || BaseOrder.DESC;
     const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
     const include: Includeable[] = [];
+    const include_inventory: Includeable[] = [];
+    if (condition?.include_product_sellable) {
+      include_inventory.push({
+        model: ProductSellablePersistence,
+        as: productSellableModelName.toLowerCase(),
+      });
+    }
+    if (condition?.include_inventory) {
+      include.push({
+        model: InventoryPersistence,
+        as: inventoryModelName.toLowerCase(),
+        include: include_inventory,
+      });
+    }
     const { rows, count } = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({
-      where: condition,
       order: [[sortBy, order]],
       limit,
       offset: (page - 1) * limit,
       include,
+      distinct: true,
     });
     return {
       data: rows.map((row) => row.dataValues),

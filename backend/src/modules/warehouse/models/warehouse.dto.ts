@@ -34,6 +34,16 @@ export const WarehouseConditionDTOSchema = z.object({
   updated_at: z.date().optional(),
   sortBy: z.nativeEnum(BaseSortBy).optional(),
   order: z.nativeEnum(BaseOrder).optional(),
+  include_inventory: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  include_product_sellable: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
 });
 
 export type WarehouseCreateDTO = z.infer<typeof WarehouseCreateDTOSchema>;

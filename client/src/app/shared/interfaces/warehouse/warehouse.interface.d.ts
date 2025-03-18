@@ -11,6 +11,8 @@ export interface WarehouseConditionDTO {
   sortBy?: BaseSortBy;
   page?: number;
   limit?: number;
+  include_inventory?: boolean;
+  include_product_sellable?: boolean;
 }
 
 export interface WarehouseCreateDTO {

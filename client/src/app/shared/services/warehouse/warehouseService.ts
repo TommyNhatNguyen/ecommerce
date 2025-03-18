@@ -1,6 +1,6 @@
-import { WarehouseConditionDTO } from './../../../../../../backend/src/modules/warehouse/models/warehouse.dto';
+
 import { axiosInstance } from '../../utils/axiosInstance';
-import { WarehouseCreateDTO, WarehouseUpdateDTO } from '@/app/shared/interfaces/warehouse/warehouse.interface';
+import { WarehouseConditionDTO, WarehouseCreateDTO, WarehouseUpdateDTO } from '@/app/shared/interfaces/warehouse/warehouse.interface';
 import { WarehouseModel } from '@/app/shared/models/warehouse/warehouse.model';
 import { ListResponseModel } from '@/app/shared/models/others/list-response.model';
 

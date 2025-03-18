@@ -14,7 +14,7 @@ export class WarehouseHttpService {
       success,
       data: condition,
       error,
-    } = WarehouseConditionDTOSchema.safeParse(req.body);
+    } = WarehouseConditionDTOSchema.safeParse(req.query);
     if (!success) {
       res.status(400).json({ message: error.message });
       return;
@@ -35,7 +35,7 @@ export class WarehouseHttpService {
       success,
       data: condition,
       error,
-    } = WarehouseConditionDTOSchema.safeParse(req.body);
+    } = WarehouseConditionDTOSchema.safeParse(req.query);
     if (!success) {
       res.status(400).json({ message: error.message });
       return;
@@ -56,7 +56,7 @@ export class WarehouseHttpService {
       success,
       data: condition,
       error,
-    } = WarehouseConditionDTOSchema.safeParse(req.body);
+    } = WarehouseConditionDTOSchema.safeParse(req.query);
     const {
       success: successPaging,
       data: paging,
@@ -73,6 +73,10 @@ export class WarehouseHttpService {
       );
       res.json({ message: 'Success', ...warehouseList });
     } catch (error) {
+      console.log(
+        '🚀 ~ WarehouseHttpService ~ getAllWarehouse ~ error:',
+        error
+      );
       res.status(500).json({ message: 'Internal server error' });
       return;
     }

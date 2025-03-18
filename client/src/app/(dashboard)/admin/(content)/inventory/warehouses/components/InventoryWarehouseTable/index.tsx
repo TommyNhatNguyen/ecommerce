@@ -31,6 +31,7 @@ const InventoryWarehouseTable = (props: Props) => {
       return warehouseService.getList({
         page: pageParam,
         limit: 10,
+        include_inventory: true,
       });
     },
     getNextPageParam: (lastPage) => {
