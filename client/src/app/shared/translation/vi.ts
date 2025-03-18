@@ -28,6 +28,10 @@ export default {
     number_of_variants: "Số lượng biến thể",
     status: "Trạng thái",
     stock_status: "Trạng thái kho",
+    account_for_percentage_of_total_quantity_all_warehouse:
+      "Chiếm {percentage}% tổng số lượng tất cả kho",
+    account_for_percentage_of_total_cost_all_warehouse:
+      "Chiếm {percentage}% tổng giá trị tất cả kho",
     select_stock_status: "Chọn trạng thái kho",
     is_selling: "Đang bán",
     is_discountinued: "Đã ngừng bán",

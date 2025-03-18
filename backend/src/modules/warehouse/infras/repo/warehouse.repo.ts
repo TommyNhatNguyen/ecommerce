@@ -3,6 +3,7 @@ import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/d
 import { InventoryPersistence } from 'src/modules/inventory/infras/repo/postgres/dto';
 import { ProductSellablePersistence } from 'src/modules/product_sellable/infras/repo/postgres/dto';
 import { productSellableModelName } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import { variantModelName, VariantPersistence } from 'src/modules/variant/infras/repo/postgres/dto';
 import {
   WarehouseConditionDTO,
   WarehouseCreateDTO,
@@ -31,6 +32,11 @@ export class PostgresWarehouseRepository implements IWarehouseRepository {
       include_inventory.push({
         model: ProductSellablePersistence,
         as: productSellableModelName.toLowerCase(),
+        include: [{
+            model: VariantPersistence,
+            as: variantModelName.toLowerCase(),
+          },
+        ],
       });
     }
     if (condition?.include_inventory) {
@@ -56,6 +62,12 @@ export class PostgresWarehouseRepository implements IWarehouseRepository {
       include_inventory.push({
         model: ProductSellablePersistence,
         as: productSellableModelName.toLowerCase(),
+        include: [
+          {
+            model: VariantPersistence,
+            as: variantModelName.toLowerCase(),
+          },
+        ],
       });
     }
     if (condition?.include_inventory) {
@@ -90,6 +102,11 @@ export class PostgresWarehouseRepository implements IWarehouseRepository {
       include_inventory.push({
         model: ProductSellablePersistence,
         as: productSellableModelName.toLowerCase(),
+        include: [{
+            model: VariantPersistence,
+            as: variantModelName.toLowerCase(),
+          },
+        ],
       });
     }
     if (condition?.include_inventory) {

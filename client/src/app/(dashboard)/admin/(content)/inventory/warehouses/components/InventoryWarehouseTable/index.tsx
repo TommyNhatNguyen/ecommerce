@@ -2,13 +2,13 @@ import { warehouseService } from '@/app/shared/services/warehouse/warehouseServi
 import { cn } from '@/app/shared/utils/utils';
 import { AlignJustify, Download, FilePlus, Plus } from 'lucide-react';
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
-import { Button, Checkbox, Dropdown, Table } from 'antd';
+import { Button, Checkbox, Divider, Dropdown, Table } from 'antd';
 import { RefreshCcw } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react'
 import { useInView } from 'react-intersection-observer';
 import { useIntl } from 'react-intl';
-import { WAREHOUSE_COLUMNS_MENU } from '@/app/(dashboard)/admin/(content)/inventory/warehouses/components/InventoryWarehouseTable/columns/columnsMenu';
-import { warehouseColumns } from '@/app/(dashboard)/admin/(content)/inventory/warehouses/components/InventoryWarehouseTable/columns/inventoryWarehouseColumns';
+import { INVENTORY_WAREHOUSE_COLUMNS_MENU, WAREHOUSE_COLUMNS_MENU } from '@/app/(dashboard)/admin/(content)/inventory/warehouses/components/InventoryWarehouseTable/columns/columnsMenu';
+import { inventoryWarehouseColumns, warehouseColumns } from '@/app/(dashboard)/admin/(content)/inventory/warehouses/components/InventoryWarehouseTable/columns/inventoryWarehouseColumns';
 
 type Props = {}
 
@@ -32,6 +32,7 @@ const InventoryWarehouseTable = (props: Props) => {
         page: pageParam,
         limit: 10,
         include_inventory: true,
+        include_product_sellable: true,
       });
     },
     getNextPageParam: (lastPage) => {
@@ -51,6 +52,12 @@ const InventoryWarehouseTable = (props: Props) => {
       hidden: !selectedColumns["warehouse"]?.includes(item?.key as string),
     }));
   }, [selectedColumns]);
+  const newInventoryColumns = useMemo(() => {
+    return inventoryWarehouseColumns(intl)?.map((item) => ({
+      ...item,
+      hidden: !selectedColumns["inventory"]?.includes(item?.key as string),
+    }));
+  }, [selectedColumns]);
   // Event handlers
   const _onRefetch = () => refetch();
   const _onSelectColumns = (id: string, keys: string[]) => {
@@ -63,6 +70,7 @@ const InventoryWarehouseTable = (props: Props) => {
     if (warehouses && warehouses.length > 0) {
       setSelectedColumns({
         warehouse: WAREHOUSE_COLUMNS_MENU,
+        inventory: INVENTORY_WAREHOUSE_COLUMNS_MENU,
       });
     }
   }, [warehouses]);
@@ -141,6 +149,19 @@ const InventoryWarehouseTable = (props: Props) => {
                       onChange={(keys) => _onSelectColumns("warehouse", keys)}
                       className="mt-2 flex flex-wrap gap-2"
                     />
+                    <Divider />
+                    <p className="text-md font-roboto-bold">
+                      {intl.formatMessage({ id: "inventory_columns" })}
+                    </p>
+                    <Checkbox.Group
+                      options={INVENTORY_WAREHOUSE_COLUMNS_MENU.map((item) => ({
+                        label: intl.formatMessage({ id: item }),
+                        value: item,
+                      }))}
+                      value={selectedColumns["inventory"]}
+                      onChange={(keys) => _onSelectColumns("inventory", keys)}
+                      className="mt-2 flex flex-wrap gap-2"
+                    />
                   </div>
                 </div>
               );
@@ -162,29 +183,29 @@ const InventoryWarehouseTable = (props: Props) => {
           rowClassName={"bg-slate-100"}
           loading={isFetchingNextPage}
           scroll={{ x: "100%" }}
-          // expandable={{
-          //   expandRowByClick: true,
-          //   expandedRowRender: (record, index) => {
-          //     return (
-          //       <>
-          //         <Table
-          //           key={`${record.id}-${index}`}
-          //           // dataSource={record.variant}
-          //           // columns={newVariantColumns}
-          //           rowKey={(record) => record.id}
-          //           // onRow={(record) => {
-          //           //   return {
-          //           //     onClick: () => {
-          //           //       setProductDetail(record);
-          //           //     },
-          //           //   };
-          //           // }}
-          //           pagination={false}
-          //         />
-          //       </>
-          //     );
-          //   },
-          // }}
+          expandable={{
+            expandRowByClick: true,
+            expandedRowRender: (record, index) => {
+              return (
+                <>
+                  <Table
+                    key={`${record.id}-${index}`}
+                    dataSource={record.inventory}
+                    columns={newInventoryColumns}
+                    rowKey={(record) => record.id}
+                    // onRow={(record) => {
+                    //   return {
+                    //     onClick: () => {
+                    //       setProductDetail(record);
+                    //     },
+                    //   };
+                    // }}
+                    pagination={false}
+                  />
+                </>
+              );
+            },
+          }}
         />
         <div className="h-10 w-full" ref={ref}></div>
       </div>

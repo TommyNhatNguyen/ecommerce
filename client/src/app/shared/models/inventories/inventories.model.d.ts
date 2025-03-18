@@ -20,6 +20,7 @@ export type InventoryModel = {
   product_sellable_id: string;
   warehouse: WarehouseModel[];
   warehouse_id: string;
+  inventory_warehouse: InventoryWarehouseModel;
 };
 
 export type InventoryWarehouseModel = {
