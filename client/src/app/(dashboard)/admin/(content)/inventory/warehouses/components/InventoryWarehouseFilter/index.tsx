@@ -4,7 +4,9 @@ type Props = {}
 
 const InventoryWarehouseFilter = (props: Props) => {
   return (
-    <div>InventoryWarehouseFilter</div>
+    <div>
+      
+    </div>
   )
 }
 

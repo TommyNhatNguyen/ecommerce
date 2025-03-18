@@ -69,6 +69,8 @@ export default {
     total_quantity_in_warehouse: "Total Quantity in Warehouse",
     total_cost_in_warehouse: "Total Cost in Warehouse",
     address: "Address",
+    empty_warehouse: "Empty Warehouse",
+    count_by_stock_status: "Count by Stock Status",
     create_product: "Create Product",
     product_information: "Product Information",
     product_name: "Product Name",

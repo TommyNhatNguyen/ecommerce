@@ -35,6 +35,8 @@ export default {
     select_stock_status: "Chọn trạng thái kho",
     is_selling: "Đang bán",
     is_discountinued: "Đã ngừng bán",
+    count_by_stock_status: "Đếm theo trạng thái tồn kho",
+    empty_warehouse: "Kho trống",
     actions: "Hành động",
     number_of_discount_campaign: "Số lượng chiến dịch giảm giá",
     number_of_discount_campaign_active:
