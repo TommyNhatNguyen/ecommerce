@@ -42,7 +42,7 @@ export const useProductFilter = () => {
     fetchNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    queryKey: ["discounts"],
+    queryKey: ["discounts-infinite"],
     queryFn: (p) =>
       discountsService.getDiscounts({
         scope: DISCOUNT_SCOPE.PRODUCT,

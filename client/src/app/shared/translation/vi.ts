@@ -12,7 +12,7 @@ export default {
     permissions: "Phân quyền",
     website: "Cài đặt website",
     coming_soon: "Sắp ra mắt",
-    inventory: "Kho hàng",
+    inventory: "Tồn kho",
     products: "Sản phẩm",
     checked: "Đã kiểm tra",
     deleted: "Đã xóa",

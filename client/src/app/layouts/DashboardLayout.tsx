@@ -103,14 +103,14 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
       icon: <House size={16} />,
       children: [
         {
-          key: ADMIN_ROUTES.inventory.index,
-          label: intl.formatMessage({ id: "inventory" }),
-          icon: <NotebookPenIcon size={16} />,
-        },
-        {
           key: ADMIN_ROUTES.inventory.products.index,
           label: intl.formatMessage({ id: "products" }),
           icon: <Package size={16} />,
+        },
+        {
+          key: ADMIN_ROUTES.inventory.warehouses,
+          label: intl.formatMessage({ id: "inventory" }),
+          icon: <NotebookPenIcon size={16} />,
         },
         {
           key: ADMIN_ROUTES.inventory.settings,
@@ -192,7 +192,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
     if (inventoryLowInventory?.created_at) {
       notificationApi.success({
         message: `Inventory Is Low`,
-        description: `${inventoryLowInventory.product_sellable.variant?.name} is running out of stock: ${inventoryLowInventory.quantity} left`,
+        description: `${inventoryLowInventory.product_sellable.variant?.name} is running out of stock: ${inventoryLowInventory.inventory_warehouse.quantity} left`,
       });
     }
   }, [orderCreated, inventoryLowInventory]);
