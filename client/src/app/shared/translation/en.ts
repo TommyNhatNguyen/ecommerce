@@ -148,5 +148,6 @@ export default {
     create_update_cost_invoice: "Create Update Cost Invoice",
     create_transfer_invoice: "Create Transfer Invoice",
     create_invoice: "Create Invoice",
+    warehouse_name: "Warehouse Name",
   },
 };

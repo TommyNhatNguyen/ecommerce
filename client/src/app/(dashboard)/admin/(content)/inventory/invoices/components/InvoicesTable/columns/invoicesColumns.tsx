@@ -45,6 +45,23 @@ export const invoicesColumns: (
     },
   },
   {
+    key: "product_name",
+    title: intl.formatMessage({ id: "product_name" }),
+    dataIndex: "product_name",
+    render: (_, { inventory }) => {
+      const productName = inventory?.product_sellable?.variant?.name || "";
+      return productName;
+    },
+  },
+  {
+    key: "warehouse_name",
+    title: intl.formatMessage({ id: "warehouse_name" }),
+    dataIndex: "warehouse_name",
+    render: (_, { warehouse }) => {
+      return warehouse?.name || "";
+    },
+  },
+  {
     key: "note",
     title: intl.formatMessage({ id: "note" }),
     dataIndex: "note",

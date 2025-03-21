@@ -159,5 +159,6 @@ export default {
     create_update_cost_invoice: "Tạo hoá đơn cập nhật giá vốn",
     create_transfer_invoice: "Tạo hoá đơn chuyển kho",
     create_invoice: "Tạo hoá đơn",
+    warehouse_name: "Tên kho hàng",
   },
 };

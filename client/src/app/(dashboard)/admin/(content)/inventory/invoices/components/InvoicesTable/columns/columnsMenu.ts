@@ -4,6 +4,8 @@ export const INVOICES_COLUMNS_MENU = [
   "quantity",
   "cost",
   "total_amount",
+  "product_name",
+  "warehouse_name",
   "note",
   "status",
   "created_at",
