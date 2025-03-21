@@ -1,3 +1,5 @@
+import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
+import { InventorySchema } from 'src/modules/inventory/models/inventory.model';
 import { ModelStatus } from 'src/share/models/base-model';
 import z from 'zod';
 
@@ -23,6 +25,7 @@ export const InventoryInvoiceSchema = z.object({
   status: z.nativeEnum(ModelStatus),
   created_at: z.string().datetime(),
   updated_at: z.string().datetime(),
+  [inventoryModelName]: z.array(InventorySchema).optional(),
 });
 
 export type InventoryInvoice = z.infer<typeof InventoryInvoiceSchema>;

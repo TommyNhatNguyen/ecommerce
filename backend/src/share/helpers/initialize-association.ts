@@ -452,6 +452,16 @@ export const initializeAssociation = () => {
     as: inventoryModelName.toLowerCase(),
   });
 
+  WarehousePersistence.hasMany(InventoryInvoicePersistence, {
+    foreignKey: 'warehouse_id',
+    as: inventoryInvoiceModelName.toLowerCase(),
+  });
+
+  InventoryInvoicePersistence.belongsTo(WarehousePersistence, {
+    foreignKey: 'warehouse_id',
+    as: warehouseModelName.toLowerCase(),
+  });
+
   ProductPersistence.hasMany(ReviewPersistence, {
     foreignKey: 'product_id',
     as: reviewModelName.toLowerCase(),

@@ -1,6 +1,15 @@
 import { Table } from "antd";
 import { Checkbox, Dropdown } from "antd";
-import { AlignJustify, Download, FilePlus, LucidePackage, LucidePackageMinus, LucidePackagePlus, LucidePackageX, Truck } from "lucide-react";
+import {
+  AlignJustify,
+  Download,
+  FilePlus,
+  LucidePackage,
+  LucidePackageMinus,
+  LucidePackagePlus,
+  LucidePackageX,
+  Truck,
+} from "lucide-react";
 import { Plus } from "lucide-react";
 import { cn } from "@/app/shared/utils/utils";
 import { Button } from "antd";
@@ -35,6 +44,9 @@ const InvoicesTable = (props: Props) => {
       return invoicesService.getList({
         page: pageParam,
         limit: 10,
+        include_inventory: true,
+        include_warehouse: true,
+        include_product: true,
       });
     },
     getNextPageParam: (lastPage) => {

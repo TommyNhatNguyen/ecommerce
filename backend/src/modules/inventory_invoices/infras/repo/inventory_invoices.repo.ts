@@ -1,4 +1,6 @@
-import { Sequelize, Transaction } from 'sequelize';
+import { Includeable, QueryTypes, Sequelize, Transaction } from 'sequelize';
+import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
+import { InventoryPersistence } from 'src/modules/inventory/infras/repo/postgres/dto';
 import {
   InventoryInvoiceConditionDTO,
   InventoryInvoiceCreateDTO,
@@ -6,6 +8,10 @@ import {
 } from 'src/modules/inventory_invoices/models/inventory_invoices.dto';
 import { IInventoryInvoiceRepository } from 'src/modules/inventory_invoices/models/inventory_invoices.interface';
 import { InventoryInvoice } from 'src/modules/inventory_invoices/models/inventory_invoices.model';
+import { productSellableModelName, ProductSellablePersistence } from 'src/modules/product_sellable/infras/repo/postgres/dto';
+import { variantModelName, VariantPersistence } from 'src/modules/variant/infras/repo/postgres/dto';
+import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
+import { WarehousePersistence } from 'src/modules/warehouse/infras/repo/warehouse.dto';
 import {
   BaseOrder,
   BaseSortBy,
@@ -23,10 +29,38 @@ export class InventoryInvoiceRepository implements IInventoryInvoiceRepository {
     condition?: InventoryInvoiceConditionDTO,
     t?: Transaction
   ): Promise<InventoryInvoice> {
+    const include: Includeable[] = [];
+    const inventoryInclude: Includeable[] = [];
+    if (condition?.include_product) {
+      inventoryInclude.push({
+        model: ProductSellablePersistence,
+        as: productSellableModelName,
+        include: [
+          {
+            model: VariantPersistence,
+            as: variantModelName,
+          }
+        ]
+      });
+    }
+    if (condition?.include_warehouse) {
+      include.push({
+        model: WarehousePersistence,
+        as: warehouseModelName,
+      });
+    }
+    if (condition?.include_inventory) {
+      include.push({
+        model: InventoryPersistence,
+        as: inventoryModelName,
+        include: inventoryInclude,
+      });
+    }
     const inventoryInvoice = await this.sequelize.models[
       this.modelname
     ].findByPk(id, {
       transaction: t,
+      include,
     });
     return inventoryInvoice?.dataValues;
   }
@@ -34,10 +68,38 @@ export class InventoryInvoiceRepository implements IInventoryInvoiceRepository {
     condition?: InventoryInvoiceConditionDTO,
     t?: Transaction
   ): Promise<ListResponse<InventoryInvoice[]>> {
+    const include: Includeable[] = [];
+    const inventoryInclude: Includeable[] = [];
+    if (condition?.include_product) {
+      inventoryInclude.push({
+        model: ProductSellablePersistence,
+        as: productSellableModelName,
+        include: [
+          {
+            model: VariantPersistence,
+            as: variantModelName,
+          },
+        ],
+      });
+    }
+    if (condition?.include_warehouse) {
+      include.push({
+        model: WarehousePersistence,
+        as: warehouseModelName,
+      });
+    }
+    if (condition?.include_inventory) {
+      include.push({
+        model: InventoryPersistence,
+        as: inventoryModelName,
+        include: inventoryInclude,
+      });
+    }
     const inventoryInvoices = await this.sequelize.models[
       this.modelname
     ].findAll({
       where: condition,
+      include,
       transaction: t,
     });
     return {
@@ -54,6 +116,33 @@ export class InventoryInvoiceRepository implements IInventoryInvoiceRepository {
     paging: PagingDTO,
     condition?: InventoryInvoiceConditionDTO
   ): Promise<ListResponse<InventoryInvoice[]>> {
+    const include: Includeable[] = [];
+    const inventoryInclude: Includeable[] = [];
+    if (condition?.include_product) {
+      inventoryInclude.push({
+        model: ProductSellablePersistence,
+        as: productSellableModelName,
+        include: [
+          {
+            model: VariantPersistence,
+            as: variantModelName,
+          },
+        ],
+      });
+    }
+    if (condition?.include_warehouse) {
+      include.push({
+        model: WarehousePersistence,
+        as: warehouseModelName,
+      });
+    }
+    if (condition?.include_inventory) {
+      include.push({
+        model: InventoryPersistence,
+        as: inventoryModelName,
+        include: inventoryInclude,
+      });
+    }
     const { page, limit } = paging;
     const { sortBy = BaseSortBy.CREATED_AT, orderBy = BaseOrder.DESC } =
       condition || {};
@@ -61,10 +150,11 @@ export class InventoryInvoiceRepository implements IInventoryInvoiceRepository {
     const { rows, count } = await this.sequelize.models[
       this.modelname
     ].findAndCountAll({
-      where: condition,
       offset,
       limit,
       order: [[sortBy, orderBy]],
+      include,
+      distinct: true,
     });
     return {
       data: rows.map((row) => row.dataValues),

@@ -40,6 +40,21 @@ export const InventoryInvoiceConditionDTOSchema = z.object({
   updated_at: z.string().datetime().optional(),
   sortBy: z.nativeEnum(BaseSortBy).optional(),
   orderBy: z.nativeEnum(BaseOrder).optional(),
+  include_inventory: z
+    .boolean()
+    .or(z.string().refine((value) => value === 'true' || value === 'false'))
+    .transform((value) => value === 'true')
+    .optional(),
+  include_warehouse: z
+    .boolean()
+    .or(z.string().refine((value) => value === 'true' || value === 'false'))
+    .transform((value) => value === 'true')
+    .optional(),
+  include_product: z
+    .boolean()
+    .or(z.string().refine((value) => value === 'true' || value === 'false'))
+    .transform((value) => value === 'true')
+    .optional(),
 });
 
 export type InventoryInvoiceCreateDTO = z.infer<

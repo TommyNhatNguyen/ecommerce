@@ -36,4 +36,7 @@ export interface InvoicesConditionDTO {
   updated_at?: string;
   page?: number;
   limit?: number;
+  include_inventory?: boolean;
+  include_warehouse?: boolean;
+  include_product?: boolean;
 }
