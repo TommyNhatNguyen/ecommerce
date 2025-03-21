@@ -31,12 +31,17 @@ export const useInvoicesFilter = () => {
   };
 
   const hasSelectedItems = useMemo(() => {
-    return selectedWarehouses.length > 0 || search.length > 0;
-  }, [selectedWarehouses, search]);
+    return (
+      selectedWarehouses.length > 0 ||
+      search.length > 0 ||
+      selectedInvoiceType.length > 0
+    );
+  }, [selectedWarehouses, search, selectedInvoiceType]);
 
   const handleClearAll = () => {
     setSelectedWarehouses([]);
     setSearch("");
+    setSelectedInvoiceType([]);
   };
 
   return {

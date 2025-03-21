@@ -40,12 +40,8 @@ const InventoryLayout = ({ children }: InventoryLayoutPropsType) => {
       key: ADMIN_ROUTES.inventory.index,
     },
     {
-      label: intl.formatMessage({ id: "invoices_in_out" }),
+      label: intl.formatMessage({ id: "invoices_inventory" }),
       key: ADMIN_ROUTES.inventory.invoices,
-    },
-    {
-      label: intl.formatMessage({ id: "check_inventory" }),
-      key: ADMIN_ROUTES.inventory.checked,
     },
   ];
   return !EXCLUDE_ROUTES.includes(pathname) ? (
@@ -59,7 +55,7 @@ const InventoryLayout = ({ children }: InventoryLayoutPropsType) => {
       <div className="h-full bg-custom-white p-2">{children}</div>
     </div>
   ) : (
-    children 
+    children
   );
 };
 

@@ -5,8 +5,10 @@ import {
   Download,
   FilePlus,
   LucidePackage,
+  LucidePackageCheck,
   LucidePackageMinus,
   LucidePackagePlus,
+  LucidePackageSearch,
   LucidePackageX,
   Truck,
 } from "lucide-react";
@@ -115,27 +117,32 @@ const InvoicesTable = (props: Props) => {
             menu={{
               items: [
                 {
-                  key: "create_import_invoice",
-                  label: intl.formatMessage({ id: "create_import_invoice" }),
+                  key: "import_inventory",
+                  label: intl.formatMessage({ id: "import_inventory" }),
                   icon: <LucidePackagePlus width={16} height={16} />,
                 },
                 {
-                  key: "create_discard_invoice",
-                  label: intl.formatMessage({ id: "create_discard_invoice" }),
+                  key: "check_inventory",
+                  label: intl.formatMessage({ id: "check_inventory" }),
+                  icon: <LucidePackageSearch width={16} height={16} />,
+                },
+                {
+                  key: "discard_inventory",
+                  label: intl.formatMessage({ id: "discard_inventory" }),
                   icon: <LucidePackageX width={16} height={16} />,
                 },
                 {
-                  key: "create_update_cost_invoice",
-                  label: intl.formatMessage({
-                    id: "create_update_cost_invoice",
-                  }),
-                  icon: <LucidePackage width={16} height={16} />,
-                },
-                {
-                  key: "create_transfer_invoice",
-                  label: intl.formatMessage({ id: "create_transfer_invoice" }),
+                  key: "transfer_inventory",
+                  label: intl.formatMessage({ id: "transfer_inventory" }),
                   icon: <Truck width={16} height={16} />,
                   disabled: true,
+                },
+                {
+                  key: "update_cost_inventory",
+                  label: intl.formatMessage({
+                    id: "update_cost_inventory",
+                  }),
+                  icon: <LucidePackage width={16} height={16} />,
                 },
               ],
             }}
@@ -203,29 +210,6 @@ const InvoicesTable = (props: Props) => {
           rowClassName={"bg-slate-100"}
           loading={isFetchingNextPage}
           scroll={{ x: "100%" }}
-          expandable={{
-            expandRowByClick: true,
-            expandedRowRender: (record, index) => {
-              return (
-                <>
-                  <Table
-                    key={`${record.id}-${index}`}
-                    // dataSource={record.variant}
-                    // columns={newVariantColumns}
-                    rowKey={(record) => record.id}
-                    // onRow={(record) => {
-                    //   return {
-                    //     onClick: () => {
-                    //       setProductDetail(record);
-                    //     },
-                    //   };
-                    // }}
-                    pagination={false}
-                  />
-                </>
-              );
-            },
-          }}
         />
         <div className="h-10 w-full" ref={ref}></div>
       </div>

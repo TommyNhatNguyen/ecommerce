@@ -21,6 +21,23 @@ export const invoicesColumns: (
     },
   },
   {
+    key: "product_name",
+    title: intl.formatMessage({ id: "product_name" }),
+    dataIndex: "product_name",
+    render: (_, { inventory }) => {
+      const productName = inventory?.product_sellable?.variant?.name || "";
+      return productName;
+    },
+  },
+  {
+    key: "warehouse_name",
+    title: intl.formatMessage({ id: "warehouse_name" }),
+    dataIndex: "warehouse_name",
+    render: (_, { warehouse }) => {
+      return warehouse?.name || "";
+    },
+  },
+  {
     key: "quantity",
     title: intl.formatMessage({ id: "quantity" }),
     dataIndex: "quantity",
@@ -42,23 +59,6 @@ export const invoicesColumns: (
     dataIndex: "total_amount",
     render: (_, { amount }) => {
       return formatCurrency(amount);
-    },
-  },
-  {
-    key: "product_name",
-    title: intl.formatMessage({ id: "product_name" }),
-    dataIndex: "product_name",
-    render: (_, { inventory }) => {
-      const productName = inventory?.product_sellable?.variant?.name || "";
-      return productName;
-    },
-  },
-  {
-    key: "warehouse_name",
-    title: intl.formatMessage({ id: "warehouse_name" }),
-    dataIndex: "warehouse_name",
-    render: (_, { warehouse }) => {
-      return warehouse?.name || "";
     },
   },
   {

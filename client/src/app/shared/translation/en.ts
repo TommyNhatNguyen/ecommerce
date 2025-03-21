@@ -150,5 +150,11 @@ export default {
     create_invoice: "Create Invoice",
     warehouse_name: "Warehouse Name",
     select_invoice_type: "Select Invoice Type",
+    invoices_inventory: "Invoices Inventory",
+    create_check_inventory_invoice: "Create Check Inventory Invoice",
+    import_inventory: "Import Inventory",
+    discard_inventory: "Discard Inventory",
+    update_cost_inventory: "Update Cost Inventory",
+    transfer_inventory: "Transfer Inventory",
   },
 };
