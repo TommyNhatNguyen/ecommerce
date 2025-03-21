@@ -1,4 +1,4 @@
-import { LIMIT_OPTIONS } from "@/app/constants/seeds";
+import { INVOICE_TYPE_OPTIONS, LIMIT_OPTIONS } from "@/app/constants/seeds";
 import Filter from "@/app/shared/components/Filter";
 import FilterComponent from "@/app/shared/components/Filter";
 import { WarehouseModel } from "@/app/shared/models/warehouse/warehouse.model";
@@ -16,6 +16,8 @@ type Props = {
   warehouses: WarehouseModel[] | undefined;
   selectedWarehouses: string[];
   handleSelectWarehouse: (value: string[]) => void;
+  selectedInvoiceType: string[];
+  handleSelectInvoiceType: (value: string[]) => void;
 };
 
 const InvoicesFilter = ({
@@ -27,6 +29,8 @@ const InvoicesFilter = ({
   warehouses,
   selectedWarehouses,
   handleSelectWarehouse,
+  selectedInvoiceType,
+  handleSelectInvoiceType,
 }: Props) => {
   const intl = useIntl();
   const _onSearch = (value: string) => {
@@ -37,6 +41,9 @@ const InvoicesFilter = ({
   };
   const _onSelectLimit = (value: number) => {
     handleSelectLimit(value);
+  };
+  const _onSelectInvoiceType = (value: string[]) => {
+    handleSelectInvoiceType(value);
   };
   const _onAdvancedFilter = () => {
     console.log("advanced filter");
@@ -69,6 +76,23 @@ const InvoicesFilter = ({
           }))}
           value={selectedWarehouses}
           onChange={_onSelectWarehouse}
+        />
+      </Filter.Item>
+      {/* Loại hoá đơn (select multiple) */}
+      <Filter.Item
+        name="invoice_type"
+        label={intl.formatMessage({ id: "invoice_type" })}
+      >
+        <Select
+          className="w-full"
+          options={INVOICE_TYPE_OPTIONS.map((item) => ({
+            label: intl.formatMessage({ id: item.label }),
+            value: item.value,
+          }))}
+          value={selectedInvoiceType}
+          onChange={_onSelectInvoiceType}
+          mode="multiple"
+          placeholder={intl.formatMessage({ id: "select_invoice_type" })}
         />
       </Filter.Item>
       {/* Số lượng bản ghi (select) */}

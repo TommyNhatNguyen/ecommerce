@@ -160,5 +160,6 @@ export default {
     create_transfer_invoice: "Tạo hoá đơn chuyển kho",
     create_invoice: "Tạo hoá đơn",
     warehouse_name: "Tên kho hàng",
+    select_invoice_type: "Chọn loại hoá đơn",
   },
 };

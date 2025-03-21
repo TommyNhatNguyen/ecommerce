@@ -6,7 +6,7 @@ export const useInvoicesFilter = () => {
   const [limit, setLimit] = useState<number>(10);
   const [search, setSearch] = useState<string>("");
   const [selectedWarehouses, setSelectedWarehouses] = useState<string[]>([]);
-
+  const [selectedInvoiceType, setSelectedInvoiceType] = useState<string[]>([]);
   const { data: warehouses } = useQuery({
     queryKey: ["warehouses"],
     queryFn: () => {
@@ -16,6 +16,10 @@ export const useInvoicesFilter = () => {
 
   const handleSelectWarehouse = (value: string[]) => {
     setSelectedWarehouses(value);
+  };
+
+  const handleSelectInvoiceType = (value: string[]) => {
+    setSelectedInvoiceType(value);
   };
 
   const handleSearch = (value: string) => {
@@ -45,5 +49,7 @@ export const useInvoicesFilter = () => {
     handleSelectLimit,
     hasSelectedItems,
     handleClearAll,
+    selectedInvoiceType,
+    handleSelectInvoiceType,
   };
 };
