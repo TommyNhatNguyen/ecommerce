@@ -4,20 +4,25 @@ import { AlignJustify, Download, FilePlus, Plus } from 'lucide-react';
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import { Button, Checkbox, Divider, Dropdown, Table } from 'antd';
 import { RefreshCcw } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useInView } from 'react-intersection-observer';
 import { useIntl } from 'react-intl';
 import { INVENTORY_WAREHOUSE_COLUMNS_MENU, WAREHOUSE_COLUMNS_MENU } from '@/app/(dashboard)/admin/(content)/inventory/warehouses/components/InventoryWarehouseTable/columns/columnsMenu';
 import { inventoryWarehouseColumns, warehouseColumns } from '@/app/(dashboard)/admin/(content)/inventory/warehouses/components/InventoryWarehouseTable/columns/inventoryWarehouseColumns';
+import ModelCreateWarehouse from '@/app/shared/components/GeneralModal/components/ModelCreateWarehouse';
+import { useWarehouseTable } from '@/app/(dashboard)/admin/(content)/inventory/warehouses/hooks/useWarehouseTable';
+import { ModalRefType } from '@/app/shared/components/GeneralModal';
 
 type Props = {}
 
 const InventoryWarehouseTable = (props: Props) => {
   const { ref, inView } = useInView();
+  const warehouseModalRef = useRef<ModalRefType>(null);
   const intl = useIntl();
   const [selectedColumns, setSelectedColumns] = useState<{
     [key: string]: string[];
   }>({});
+  const { loading, handleCreateWarehouse } = useWarehouseTable();
   const {
     data: warehouseData,
     fetchNextPage,
@@ -66,6 +71,9 @@ const InventoryWarehouseTable = (props: Props) => {
       [id]: keys,
     }));
   };
+  const _onOpenModalCreateWarehouse = () => {
+    warehouseModalRef.current?.handleOpenModal();
+  };
   useEffect(() => {
     if (warehouses && warehouses.length > 0) {
       setSelectedColumns({
@@ -107,7 +115,7 @@ const InventoryWarehouseTable = (props: Props) => {
           <Button
             type="primary"
             icon={<Plus width={16} height={16} />}
-            // onClick={_onOpenModalCreateProduct}
+            onClick={_onOpenModalCreateWarehouse}
           >
             {intl.formatMessage({ id: "add_new" })}
           </Button>
@@ -209,8 +217,14 @@ const InventoryWarehouseTable = (props: Props) => {
         />
         <div className="h-10 w-full" ref={ref}></div>
       </div>
+      <ModelCreateWarehouse
+        handleCreateWarehouse={handleCreateWarehouse}
+        loading={loading}
+        refetch={_onRefetch}
+        ref={warehouseModalRef}
+      />
     </div>
   );
-}
+};
 
 export default InventoryWarehouseTable;

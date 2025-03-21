@@ -135,7 +135,11 @@ const ModalCreateOptions = (
     _resetData();
   }, [watch("is_color")]);
   const _renderTitle = () => {
-    return <h1 className="text-2xl font-bold">Create options</h1>;
+    return (
+      <h1 className="text-2xl font-bold">
+        {intl.formatMessage({ id: "create_options" })}
+      </h1>
+    );
   };
   const _renderContent = () => {
     return (

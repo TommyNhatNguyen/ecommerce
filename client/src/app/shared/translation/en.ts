@@ -156,5 +156,6 @@ export default {
     discard_inventory: "Discard Inventory",
     update_cost_inventory: "Update Cost Inventory",
     transfer_inventory: "Transfer Inventory",
+    create_warehouse: "Create Warehouse",
   },
 };

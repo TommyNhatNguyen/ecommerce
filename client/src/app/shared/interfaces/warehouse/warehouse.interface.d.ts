@@ -1,3 +1,5 @@
+import { ModelStatus } from "@/app/shared/models/others/status.model";
+
 export interface WarehouseConditionDTO {
   name?: string;
   description?: string;
@@ -19,10 +21,12 @@ export interface WarehouseCreateDTO {
   name: string;
   description: string;
   address: string;
+  status?: ModelStatus;
 }
 
 export interface WarehouseUpdateDTO {
   name?: string;
   description?: string;
   address?: string;
+  status?: ModelStatus;
 }

@@ -168,5 +168,7 @@ export default {
     update_cost_inventory: "Cập nhật giá vốn",
     transfer_inventory: "Chuyển kho",
     invoices: "Hoá đơn",
+    create_options: "Tạo thuộc tính",
+    create_warehouse: "Tạo kho hàng",
   },
 };
