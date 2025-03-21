@@ -154,5 +154,10 @@ export default {
     invoice_type: "Loại hoá đơn",
     invoice_code: "Mã hoá đơn",
     invoices_columns: "Cột hoá đơn",
+    create_import_invoice: "Tạo hoá đơn nhập kho",
+    create_discard_invoice: "Tạo hoá đơn huỷ hàng",
+    create_update_cost_invoice: "Tạo hoá đơn cập nhật giá vốn",
+    create_transfer_invoice: "Tạo hoá đơn chuyển kho",
+    create_invoice: "Tạo hoá đơn",
   },
 };

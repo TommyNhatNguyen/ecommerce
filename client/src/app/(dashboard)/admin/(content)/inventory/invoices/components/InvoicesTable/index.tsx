@@ -1,6 +1,6 @@
 import { Table } from "antd";
 import { Checkbox, Dropdown } from "antd";
-import { AlignJustify, Download, FilePlus } from "lucide-react";
+import { AlignJustify, Download, FilePlus, LucidePackage, LucidePackageMinus, LucidePackagePlus, LucidePackageX, Truck } from "lucide-react";
 import { Plus } from "lucide-react";
 import { cn } from "@/app/shared/utils/utils";
 import { Button } from "antd";
@@ -99,13 +99,39 @@ const InvoicesTable = (props: Props) => {
             }
             onClick={_onRefetch}
           />
-          <Button
-            type="primary"
-            icon={<Plus width={16} height={16} />}
-            // onClick={_onOpenModalCreateProduct}
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: "create_import_invoice",
+                  label: intl.formatMessage({ id: "create_import_invoice" }),
+                  icon: <LucidePackagePlus width={16} height={16} />,
+                },
+                {
+                  key: "create_discard_invoice",
+                  label: intl.formatMessage({ id: "create_discard_invoice" }),
+                  icon: <LucidePackageX width={16} height={16} />,
+                },
+                {
+                  key: "create_update_cost_invoice",
+                  label: intl.formatMessage({
+                    id: "create_update_cost_invoice",
+                  }),
+                  icon: <LucidePackage width={16} height={16} />,
+                },
+                {
+                  key: "create_transfer_invoice",
+                  label: intl.formatMessage({ id: "create_transfer_invoice" }),
+                  icon: <Truck width={16} height={16} />,
+                  disabled: true,
+                },
+              ],
+            }}
           >
-            {intl.formatMessage({ id: "add_new" })}
-          </Button>
+            <Button type="primary" icon={<Plus width={16} height={16} />}>
+              {intl.formatMessage({ id: "create_invoice" })}
+            </Button>
+          </Dropdown>
           <Button
             type="primary"
             disabled

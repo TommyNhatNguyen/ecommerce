@@ -143,5 +143,10 @@ export default {
     invoice_type: "Invoice Type",
     invoice_code: "Invoice Code",
     invoices_columns: "Invoices Columns",
+    create_import_invoice: "Create Import Invoice",
+    create_discard_invoice: "Create Discard Invoice",
+    create_update_cost_invoice: "Create Update Cost Invoice",
+    create_transfer_invoice: "Create Transfer Invoice",
+    create_invoice: "Create Invoice",
   },
 };
