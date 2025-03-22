@@ -62,6 +62,7 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
         includeVariantOption: true,
         includeVariantOptionType: true,
         includeVariantImage: true,
+        includeCategory: true,
         limit: limit,
         page: pageParam,
       });

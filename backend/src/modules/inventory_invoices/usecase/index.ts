@@ -306,6 +306,8 @@ export class InventoryInvoiceUseCase implements IInventoryInvoiceUseCase {
             },
             t
           );
+        } else if (data.type == InventoryInvoiceType.TRANSFER_INVOICE) {
+          
         }
         return inventoryInvoice;
       });

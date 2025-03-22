@@ -26,6 +26,16 @@ export const productColumns: (
     dataIndex: "name",
   },
   {
+    key: "category",
+    title: () => intl.formatMessage({ id: "category" }),
+    dataIndex: "category",
+    render: (_, { category }) => {
+      return category?.map((item) => {
+        return <Tag className="w-full" key={item.id}>{item.name}</Tag>;
+      });
+    },
+  },
+  {
     key: "short_description",
     title: () => intl.formatMessage({ id: "short_description" }),
     dataIndex: "short_description",
