@@ -1,4 +1,5 @@
 import { Transaction } from 'sequelize';
+import { IProductSellableUseCase } from 'src/modules/product_sellable/models/product-sellable.interface';
 import {
   VariantCreateDTO,
   VariantUpdateDTO,
@@ -16,7 +17,8 @@ import { PagingDTO } from 'src/share/models/paging';
 export class VariantUseCase implements IVariantUseCase {
   constructor(
     private readonly variantRepository: IVariantRepository,
-    private readonly variantOptionValueRepository: IVariantRepository
+    private readonly variantOptionValueRepository: IVariantRepository,
+    private readonly productSellableUseCase: IProductSellableUseCase
   ) {}
   addOptionValue(data: VariantOptionValueCreateDTO[]): Promise<boolean> {
     return this.variantOptionValueRepository.addOptionValue(data);
@@ -32,7 +34,6 @@ export class VariantUseCase implements IVariantUseCase {
     t?: Transaction
   ): Promise<Variant> {
     const variant = await this.variantRepository.insert(data, t);
-    console.log("🚀 ~ VariantUseCase ~ variant:", variant)
     await this.variantOptionValueRepository.addOptionValue(
       data.options_value_ids.map((optionValueId) => ({
         variant_id: variant.id,
@@ -40,6 +41,17 @@ export class VariantUseCase implements IVariantUseCase {
       })),
       t
     );
+    if (this.productSellableUseCase) {
+      const productSellable =
+      await this.productSellableUseCase.createNewProductSellable(
+        {
+          ...data.product_sellables,
+          variant_id: variant.id, 
+        },
+        t
+      );
+      console.log("🚀 ~ VariantUseCase ~ productSellable:", productSellable, variant.id, data)
+    }
     return variant;
   }
   updateVariant(id: string, data: VariantUpdateDTO): Promise<Variant> {

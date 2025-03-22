@@ -23,7 +23,9 @@ import { useQuery } from "@tanstack/react-query";
 import { STATUS_OPTIONS } from "@/app/constants/seeds";
 import { ERROR_MESSAGE } from "@/app/constants/errors";
 import InputAdmin from "@/app/shared/components/InputAdmin";
-import GeneralModal, { ModalRefType } from "@/app/shared/components/GeneralModal";
+import GeneralModal, {
+  ModalRefType,
+} from "@/app/shared/components/GeneralModal";
 import LoadingComponent from "@/app/shared/components/LoadingComponent";
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { discountsService } from "@/app/shared/services/discounts/discountsService";
@@ -43,8 +45,6 @@ import CustomCheckboxGroup from "@/app/shared/components/CustomCheckbox";
 import { useIntl } from "react-intl";
 import { warehouseService } from "@/app/shared/services/warehouse/warehouseService";
 import { brandService } from "@/app/shared/services/brands/brandService";
-
-
 
 type PropsType = {
   refetch?: () => void;
@@ -231,10 +231,12 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
     };
     const imageIds = (await _onSubmitFileList()) || [];
     payload.variants = payload.variants.map((variant, index) => ({
-      ...variant,
-      product_sellables: {
-        ...variant.product_sellables,
-        imageIds: Object.values(imageIds?.[index] || {}).flat() as string[],
+      variant_data: {
+        ...variant.variant_data,
+        product_sellables: {
+          ...variant.variant_data.product_sellables,
+          imageIds: Object.values(imageIds?.[index] || {}).flat() as string[],
+        },
       },
     }));
     console.log("🚀 ~ ModalCreateProduct ~ payload:", payload);
@@ -627,7 +629,7 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                           {/* Price */}
                           <Controller
                             control={control}
-                            name={`variants.${index}.product_sellables.price`}
+                            name={`variants.${index}.variant_data.product_sellables.price`}
                             rules={{
                               required: {
                                 value: true,
@@ -643,8 +645,8 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                                 })}
                                 required={true}
                                 error={
-                                  errors?.variants?.[index]?.product_sellables
-                                    ?.price?.message || ""
+                                  errors?.variants?.[index]?.variant_data
+                                    ?.product_sellables?.price?.message || ""
                                 }
                                 {...field}
                                 customComponent={(props, ref: any) => (
@@ -678,7 +680,7 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                                   className="w-full"
                                   onChange={(warehouseIds) => {
                                     setValue(
-                                      `variants.${index}.product_sellables.inventory_quantity_by_warehouse`,
+                                      `variants.${index}.variant_data.product_sellables.inventory_quantity_by_warehouse`,
                                       warehouseIds.map(
                                         (warehouseId: string) => ({
                                           warehouse_id: warehouseId,
@@ -723,7 +725,7 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                                       {/* Inventory quantity */}
                                       <Controller
                                         control={control}
-                                        name={`variants.${index}.product_sellables.inventory_quantity_by_warehouse.${warehouseIndex}.quantity`}
+                                        name={`variants.${index}.variant_data.product_sellables.inventory_quantity_by_warehouse.${warehouseIndex}.quantity`}
                                         rules={{
                                           required: {
                                             value: true,
@@ -741,6 +743,7 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                                             required={true}
                                             error={
                                               errors?.variants?.[index]
+                                                ?.variant_data
                                                 ?.product_sellables
                                                 ?.inventory_quantity_by_warehouse?.[
                                                 warehouseIndex
@@ -766,7 +769,7 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                                       {/* Cost */}
                                       <Controller
                                         control={control}
-                                        name={`variants.${index}.product_sellables.inventory_quantity_by_warehouse.${warehouseIndex}.cost`}
+                                        name={`variants.${index}.variant_data.product_sellables.inventory_quantity_by_warehouse.${warehouseIndex}.cost`}
                                         rules={{
                                           required: {
                                             value: true,
@@ -784,6 +787,7 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                                             required={true}
                                             error={
                                               errors?.variants?.[index]
+                                                ?.variant_data
                                                 ?.product_sellables
                                                 ?.inventory_quantity_by_warehouse?.[
                                                 warehouseIndex
@@ -814,7 +818,7 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                             {/* Low stock threshold */}
                             <Controller
                               control={control}
-                              name={`variants.${index}.product_sellables.low_stock_threshold`}
+                              name={`variants.${index}.variant_data.product_sellables.low_stock_threshold`}
                               rules={{
                                 required: {
                                   value: true,
@@ -831,8 +835,9 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                                   })}
                                   required={true}
                                   error={
-                                    errors?.variants?.[index]?.product_sellables
-                                      ?.low_stock_threshold?.message || ""
+                                    errors?.variants?.[index]?.variant_data
+                                      ?.product_sellables?.low_stock_threshold
+                                      ?.message || ""
                                   }
                                   {...field}
                                   customComponent={(props, ref: any) => (
@@ -851,7 +856,7 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                             {/* High stock threshold */}
                             <Controller
                               control={control}
-                              name={`variants.${index}.product_sellables.high_stock_threshold`}
+                              name={`variants.${index}.variant_data.product_sellables.high_stock_threshold`}
                               rules={{
                                 required: {
                                   value: true,
@@ -868,8 +873,9 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                                   })}
                                   required={true}
                                   error={
-                                    errors?.variants?.[index]?.product_sellables
-                                      ?.high_stock_threshold?.message || ""
+                                    errors?.variants?.[index]?.variant_data
+                                      ?.product_sellables?.high_stock_threshold
+                                      ?.message || ""
                                   }
                                   {...field}
                                   customComponent={(props, ref: any) => (
@@ -889,7 +895,7 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                           {/* Discounts */}
                           <Controller
                             control={control}
-                            name={`variants.${index}.product_sellables.discountIds`}
+                            name={`variants.${index}.variant_data.product_sellables.discountIds`}
                             render={({ field }) => (
                               <InputAdmin
                                 label={intl.formatMessage({
@@ -921,7 +927,7 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
                           {/* Status */}
                           <Controller
                             control={control}
-                            name={`variants.${index}.product_sellables.status`}
+                            name={`variants.${index}.variant_data.product_sellables.status`}
                             render={({ field }) => (
                               <InputAdmin
                                 label={intl.formatMessage({ id: "status" })}

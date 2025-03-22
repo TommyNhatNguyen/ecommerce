@@ -1,3 +1,4 @@
+import { ProductSellableCreateDTOSchema } from 'src/modules/product_sellable/models/product-sellable.dto';
 import {
   BaseOrder,
   BaseSortBy,
@@ -51,6 +52,7 @@ export const VariantCreateDTOSchema = z.object({
   options_value_ids: z.array(z.string()),
   product_id: z.string().uuid().optional(),
   sku: z.string(),
+  product_sellables: ProductSellableCreateDTOSchema,
 });
 
 export const VariantUpdateDTOSchema = z.object({
@@ -59,7 +61,8 @@ export const VariantUpdateDTOSchema = z.object({
   options_value_ids: z.array(z.string()).optional(),
   product_id: z.string().uuid().optional(),
   sku: z.string().optional(),
-});
+  product_sellables: ProductSellableCreateDTOSchema.optional(),
+}); 
 
 export const VariantOptionValueCreateDTOSchema = z.object({
   variant_id: z.string(),

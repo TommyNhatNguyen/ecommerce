@@ -45,7 +45,6 @@ export type CreateProductDTOV2 = {
   categoryIds: string[];
   variants: {
     variant_data: CreateVariantDTOV2;
-    product_sellables: CreateProductSellableDTO;
   }[];
 };
 
@@ -57,7 +56,6 @@ export type UpdateProductDTO = {
   categoryIds: string[];
   variants: {
     variant_data: CreateVariantDTOV2;
-    product_sellables: CreateProductSellableDTO;
   }[];
 };
 

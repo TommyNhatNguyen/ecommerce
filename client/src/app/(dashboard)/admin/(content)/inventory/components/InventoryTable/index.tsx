@@ -10,7 +10,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { useIntl } from "react-intl";
 import { inventoryColumns } from "@/app/(dashboard)/admin/(content)/inventory/components/InventoryTable/columns/inventoryColumns";
-import { DEFAULT_INVENTORY_COLUMNS, INVENTORY_COLUMNS_MENU } from "@/app/(dashboard)/admin/(content)/inventory/components/InventoryTable/columns/columnsMenu";
+import {
+  DEFAULT_INVENTORY_COLUMNS,
+  INVENTORY_COLUMNS_MENU,
+} from "@/app/(dashboard)/admin/(content)/inventory/components/InventoryTable/columns/columnsMenu";
+import ModalCreateVariant from "@/app/shared/components/GeneralModal/components/ModalCreateVariant";
 
 type Props = {};
 
@@ -166,33 +170,11 @@ const InventoryTable = (props: Props) => {
           pagination={false}
           rowClassName={"bg-slate-100"}
           loading={isFetchingNextPage}
-          scroll={{x: '100%'}}
-          expandable={{
-            expandRowByClick: true,
-            expandedRowRender: (record, index) => {
-              return (
-                <>
-                  <Table
-                    key={`${record.id}-${index}`}
-                    // dataSource={record.variant}
-                    // columns={newVariantColumns}
-                    rowKey={(record) => record.id}
-                    // onRow={(record) => {
-                    //   return {
-                    //     onClick: () => {
-                    //       setProductDetail(record);
-                    //     },
-                    //   };
-                    // }}
-                    pagination={false}
-                  />
-                </>
-              );
-            },
-          }}
+          scroll={{ x: "100%" }}
         />
         <div className="h-10 w-full" ref={ref}></div>
       </div>
+      <ModalCreateVariant handleCreateVariant={() => {}}   />
     </div>
   );
 };

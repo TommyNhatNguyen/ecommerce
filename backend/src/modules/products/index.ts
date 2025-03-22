@@ -60,10 +60,7 @@ export const setupProductRouter = (sequelize: Sequelize) => {
     sequelize,
     variantOptionValueModelName
   );
-  const variantUseCase = new VariantUseCase(
-    variantRepository,
-    variantOptionValueRepository
-  );
+
   const productSellableRepository = new PostgresProductSellableRepository(
     sequelize,
     productSellableModelName
@@ -127,6 +124,11 @@ export const setupProductRouter = (sequelize: Sequelize) => {
   const brandRepository = new PostgresBrandRepository(
     sequelize,
     brandModelName
+  );
+  const variantUseCase = new VariantUseCase(
+    variantRepository,
+    variantOptionValueRepository,
+    productSellableUseCase
   );
   const brandUseCase = new BrandUseCase(brandRepository);
   const useCase = new ProductUseCase(

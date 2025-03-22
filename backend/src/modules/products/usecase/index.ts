@@ -87,19 +87,6 @@ export class ProductUseCase implements IProductUseCase {
               },
               t
             );
-            console.log(
-              '🚀 ~ ProductUseCase ~ variant processing ~ variantData:',
-              variantData
-            );
-
-            const productSellableData =
-              await this.productSellableUseCase.createNewProductSellable(
-                {
-                  ...variant.product_sellables,
-                  variant_id: variantData.id,
-                },
-                t
-              );
           }
         }
         return product;

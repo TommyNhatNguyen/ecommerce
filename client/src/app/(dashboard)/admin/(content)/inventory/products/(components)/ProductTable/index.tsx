@@ -265,7 +265,7 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
         open={!!productDetail}
         onCancel={handleCancelModalProductDetail}
       />
-      <ModalCreateProduct ref={modalCreateProductRef} />
+      <ModalCreateProduct ref={modalCreateProductRef} refetch={_onRefetch} />
     </div>
   );
 };

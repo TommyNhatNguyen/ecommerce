@@ -80,9 +80,9 @@ const ModelCreateWarehouse = (
           }}
           render={({ field, formState: { errors } }) => (
             <InputAdmin
-              label={intl.formatMessage({ id: "name" })}
+              label={intl.formatMessage({ id: "warehouse_name" })}
               required={true}
-              placeholder={intl.formatMessage({ id: "name" })}
+              placeholder={intl.formatMessage({ id: "warehouse_name" })}
               error={errors.name?.message as string}
               {...field}
             />

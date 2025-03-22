@@ -1,3 +1,4 @@
+import { CreateProductSellableDTO } from "@/app/shared/interfaces/products/product-sellable.dto";
 import {
   BaseOrder,
   BaseSortBy,
@@ -45,6 +46,7 @@ export type CreateVariantDTOV2 = {
   name: string;
   sku?: string;
   options_value_ids: string[];
+  product_sellables: CreateProductSellableDTO;
 };
 
 export type OptionCreateDTO = {

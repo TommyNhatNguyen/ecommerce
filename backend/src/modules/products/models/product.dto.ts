@@ -24,7 +24,7 @@ export const ProductCreateDTOSchema = z.object({
     .array(
       z.object({
         variant_data: VariantCreateDTOSchema,
-        product_sellables: ProductSellableCreateDTOSchema,
+        // product_sellables: ProductSellableCreateDTOSchema,
       })
     )
     .optional(),
