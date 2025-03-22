@@ -164,5 +164,13 @@ export default {
     create_invoices_error: "Create invoices error",
     overall_stock_status: "Overall Stock Status",
     inventory_info_by_warehouse: "Inventory info by warehouse of {product_name} in {warehouse_name}",
+    select_warehouse_from: "Select Warehouse From",
+    select_warehouse_to: "Select Warehouse To",
+    warehouse_from: "Warehouse From",
+    warehouse_to: "Warehouse To",
+    create_transfer_invoice_success: "Create transfer invoice successfully",
+    create_transfer_invoice_error: "Create transfer invoice error",
+    inventory_at_warehouse_from: "Inventory at warehouse from",
+    inventory_at_warehouse_to: "Inventory at warehouse to",
   },
 };

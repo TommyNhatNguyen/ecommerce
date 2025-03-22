@@ -15,10 +15,20 @@ export interface InvoicesCreateDTO {
   quantity: number;
   amount: number;
   cost: number;
-  note: string;
+  note?: string;
   code: string;
   inventory_id: string;
   warehouse_id: string;
+  status?: ModelStatus;
+}
+
+export interface TransferInvoicesCreateDTO {
+  inventory_id: string;
+  warehouse_id_from: string;
+  warehouse_id_to: string;
+  quantity: number;
+  code: string;
+  note?: string;
   status?: ModelStatus;
 }
 

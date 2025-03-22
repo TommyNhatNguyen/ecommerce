@@ -19,7 +19,7 @@ export class InventoryHttpService {
     }
     try {
       const result = await this.inventoryUseCase.getInventoryById(id, data);
-      res.json({ message: 'Success', data: result });
+      res.json({ message: 'Success', ...result });
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
       return;

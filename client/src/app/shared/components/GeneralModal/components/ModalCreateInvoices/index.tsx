@@ -5,7 +5,7 @@ import GeneralModal, {
   ModalRefType,
 } from "@/app/shared/components/GeneralModal";
 import ProductInventoryTable from "@/app/shared/components/GeneralModal/components/ModalCreateInvoices/components/ProductInventoryTable";
-import { useCreateInvoices } from "@/app/shared/components/GeneralModal/hooks/useCreateInvoices";
+import { useCreateInvoices } from "@/app/shared/components/GeneralModal/components/ModalCreateInvoices/hooks/useCreateInvoices";
 import InputAdmin from "@/app/shared/components/InputAdmin";
 import {
   InventoryInvoiceType,
@@ -41,6 +41,7 @@ export type ModalCreateInvoicesRefType = {
 } & ModalRefType;
 
 const ModalCreateInvoices = ({ refetch }: Props, ref: any) => {
+  const [open, setOpen] = useState<InventoryInvoiceType | null>(null);
   const [selectedInventory, setSelectedInventory] =
     useState<InventoryModel | null>(null);
   console.log(
@@ -79,7 +80,6 @@ const ModalCreateInvoices = ({ refetch }: Props, ref: any) => {
   const inventories = useMemo(() => {
     return inventoriesData?.pages?.flatMap((page) => page.data);
   }, [inventoriesData]);
-  const [open, setOpen] = useState<InventoryInvoiceType | null>(null);
   const handleOpenModal = (type: InventoryInvoiceType) => {
     setOpen(type);
   };

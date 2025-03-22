@@ -15,4 +15,8 @@ export const inventoryService = {
     const response = await axiosInstance.get("/inventories", { params: condition });
     return response.data;
   },
+  getInventoryById: async (id: string, condition?: InventoryConditionDTO): Promise<InventoryModel> => {
+    const response = await axiosInstance.get(`/inventories/${id}`, { params: condition });
+    return response.data;
+  },
 };

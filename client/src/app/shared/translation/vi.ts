@@ -179,5 +179,13 @@ export default {
     warehouse_total_quantity: "Tổng số lượng của kho {warehouse_name}",
     warehouse_total_cost: "Tổng giá trị của kho {warehouse_name}",
     inventory_info_by_warehouse: "Thông tin tồn kho của {product_name} trong kho {warehouse_name}",
+    select_warehouse_from: "Chọn kho xuất",
+    select_warehouse_to: "Chọn kho nhận",
+    warehouse_from: "Kho xuất",
+    warehouse_to: "Kho nhận",
+    create_transfer_invoice_success: "Tạo hoá đơn chuyển kho thành công",
+    create_transfer_invoice_error: "Tạo hoá đơn chuyển kho thất bại",
+    inventory_at_warehouse_from: "Tồn kho ở kho xuất",
+    inventory_at_warehouse_to: "Tồn kho ở kho nhận",
   },
 };

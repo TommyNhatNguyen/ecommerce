@@ -155,10 +155,27 @@ export class PostgresInventoryRepository implements IInventoryRepository {
     t?: Transaction
   ): Promise<Inventory> {
     const include: Includeable[] = [];
+    const whereWarehouse: WhereOptions = {};
+    if (condition?.warehouse_id) {
+      whereWarehouse.id = condition.warehouse_id;
+    }
+    if (condition?.include_product_sellable) {
+      include.push({
+        model: ProductSellablePersistence,
+        as: productSellableModelName.toLowerCase(),
+        include: [
+          {
+            model: VariantPersistence,
+            as: variantModelName.toLowerCase(),
+          },
+        ],
+      });
+    }
     if (condition?.include_inventory_warehouse) {
       include.push({
         model: WarehousePersistence,
         as: warehouseModelName.toLowerCase(),
+        where: whereWarehouse,
       });
     }
     const inventory = await this.sequelize.models[this.modelName].findByPk(id, {

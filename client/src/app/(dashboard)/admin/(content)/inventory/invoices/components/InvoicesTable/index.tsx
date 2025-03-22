@@ -26,7 +26,10 @@ import { invoicesColumns } from "@/app/(dashboard)/admin/(content)/inventory/inv
 import { INVOICES_COLUMNS_MENU } from "@/app/(dashboard)/admin/(content)/inventory/invoices/components/InvoicesTable/columns/columnsMenu";
 import { ModalRefType } from "@/app/shared/components/GeneralModal";
 import { InventoryInvoiceType } from "@/app/shared/interfaces/invoices/invoices.dto";
-import ModalCreateInvoices, { ModalCreateInvoicesRefType } from "@/app/shared/components/GeneralModal/components/ModalCreateInvoices";
+import ModalCreateInvoices, {
+  ModalCreateInvoicesRefType,
+} from "@/app/shared/components/GeneralModal/components/ModalCreateInvoices";
+import ModalCreateTransferInvoices from "@/app/shared/components/GeneralModal/components/ModalCreateTransferInvoices";
 
 type Props = {};
 
@@ -34,6 +37,7 @@ const InvoicesTable = (props: Props) => {
   const { ref, inView } = useInView();
   const intl = useIntl();
   const modalCreateInvoicesRef = useRef<ModalCreateInvoicesRefType>();
+  const modalCreateTransferInvoicesRef = useRef<ModalRefType>();
   const [selectedColumns, setSelectedColumns] = useState<{
     [key: string]: string[];
   }>({});
@@ -75,6 +79,9 @@ const InvoicesTable = (props: Props) => {
   // Event handlers
   const _onOpenModalCreateInvoices = (type: InventoryInvoiceType) => {
     modalCreateInvoicesRef.current?.handleOpenModal(type);
+  };
+  const _onOpenModalCreateTransferInvoices = () => {
+    modalCreateTransferInvoicesRef.current?.handleOpenModal();
   };
   const _onRefetch = () => refetch();
   const _onSelectColumns = (id: string, keys: string[]) => {
@@ -133,16 +140,6 @@ const InvoicesTable = (props: Props) => {
                     ),
                 },
                 {
-                  key: "check_inventory",
-                  label: intl.formatMessage({ id: "check_inventory" }),
-                  icon: <LucidePackageSearch width={16} height={16} />,
-                  disabled: true,
-                  onClick: () =>
-                    _onOpenModalCreateInvoices(
-                      "CHECK_INVENTORY" as InventoryInvoiceType,
-                    ),
-                },
-                {
                   key: "discard_inventory",
                   label: intl.formatMessage({ id: "discard_inventory" }),
                   icon: <LucidePackageX width={16} height={16} />,
@@ -150,17 +147,13 @@ const InvoicesTable = (props: Props) => {
                     _onOpenModalCreateInvoices(
                       "DISCARD_INVOICE" as InventoryInvoiceType,
                     ),
-                },
-                {
-                  key: "transfer_inventory",
-                  label: intl.formatMessage({ id: "transfer_inventory" }),
-                  icon: <Truck width={16} height={16} />,
-                  disabled: true,
-                  onClick: () =>
-                    _onOpenModalCreateInvoices(
-                      "TRANSFER_INVOICE" as InventoryInvoiceType,
-                    ),
-                },
+                  },
+                  {
+                    key: "transfer_inventory",
+                    label: intl.formatMessage({ id: "transfer_inventory" }),
+                    icon: <Truck width={16} height={16} />,
+                    onClick: () => _onOpenModalCreateTransferInvoices(),
+                  },
                 {
                   key: "update_cost_inventory",
                   label: intl.formatMessage({
@@ -171,8 +164,18 @@ const InvoicesTable = (props: Props) => {
                     _onOpenModalCreateInvoices(
                       "UPDATE_COST_INVOICE" as InventoryInvoiceType,
                     ),
-                },
-              ],
+                  },
+                  {
+                    key: "check_inventory",
+                    label: intl.formatMessage({ id: "check_inventory" }),
+                    icon: <LucidePackageSearch width={16} height={16} />,
+                    disabled: true,
+                    onClick: () =>
+                      _onOpenModalCreateInvoices(
+                        "CHECK_INVENTORY" as InventoryInvoiceType,
+                      ),
+                  },
+                ],
             }}
           >
             <Button type="primary" icon={<Plus width={16} height={16} />}>
@@ -242,6 +245,10 @@ const InvoicesTable = (props: Props) => {
         <div className="h-10 w-full" ref={ref}></div>
       </div>
       <ModalCreateInvoices ref={modalCreateInvoicesRef} refetch={_onRefetch} />
+      <ModalCreateTransferInvoices
+        ref={modalCreateTransferInvoicesRef}
+        refetch={_onRefetch}
+      />
     </div>
   );
 };
