@@ -24,11 +24,9 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { invoicesService } from "@/app/shared/services/invoices/invoicesService";
 import { invoicesColumns } from "@/app/(dashboard)/admin/(content)/inventory/invoices/components/InvoicesTable/columns/invoicesColumns";
 import { INVOICES_COLUMNS_MENU } from "@/app/(dashboard)/admin/(content)/inventory/invoices/components/InvoicesTable/columns/columnsMenu";
-import ModalCreateInvoices, {
-  ModalCreateInvoicesRefType,
-} from "@/app/shared/components/GeneralModal/components/ModalCreateInvoices";
 import { ModalRefType } from "@/app/shared/components/GeneralModal";
 import { InventoryInvoiceType } from "@/app/shared/interfaces/invoices/invoices.dto";
+import ModalCreateInvoices, { ModalCreateInvoicesRefType } from "@/app/shared/components/GeneralModal/components/ModalCreateInvoices";
 
 type Props = {};
 
@@ -243,7 +241,7 @@ const InvoicesTable = (props: Props) => {
         />
         <div className="h-10 w-full" ref={ref}></div>
       </div>
-      <ModalCreateInvoices ref={modalCreateInvoicesRef} />
+      <ModalCreateInvoices ref={modalCreateInvoicesRef} refetch={_onRefetch} />
     </div>
   );
 };

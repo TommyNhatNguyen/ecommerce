@@ -57,6 +57,7 @@ export const InventoryUpdateDTOSchema = z.object({
 });
 
 export const InventoryConditionDTOSchema = z.object({
+  warehouse_id: z.string().uuid().optional(),
   product_sellable_id: z.string().uuid().optional(),
   total_quantity: z.number().min(0).optional(),
   total_cost: z.number().min(0).optional(),
@@ -66,7 +67,11 @@ export const InventoryConditionDTOSchema = z.object({
   low_stock_threshold: z.number().min(0).optional(),
   high_stock_threshold: z.number().min(0).optional(),
   note: z.string().optional(),
-  include_all: z.boolean().optional(),
+  include_all: z
+    .boolean()
+    .or(z.string().refine((value) => value === 'true' || value === 'false'))
+    .transform((value) => value === 'true')
+    .optional(),
   include_product_sellable: z
     .boolean()
     .or(z.string().refine((value) => value === 'true' || value === 'false'))

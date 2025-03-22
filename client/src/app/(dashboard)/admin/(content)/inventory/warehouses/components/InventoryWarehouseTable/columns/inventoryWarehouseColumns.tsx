@@ -39,67 +39,70 @@ export const warehouseColumns: (
     key: "description",
     title: intl.formatMessage({ id: "description" }),
     dataIndex: "description",
-  },
-  {
-    key: "count_by_stock_status",
-    title: intl.formatMessage({ id: "count_by_stock_status" }),
-    dataIndex: "count_by_stock_status",
-    render: (_, { inventory, total_quantity }) => {
-      const isEmptyWarehouse = total_quantity === 0;
-      const renderCountByStockStatus: Record<StockStatus, number> = {
-        OUT_OF_STOCK: 0,
-        LOW_STOCK: 0,
-        IN_STOCK: 0,
-        OVER_STOCK: 0,
-      };
-      inventory.forEach((item) => {
-        const { stock_status } = item;
-        if (renderCountByStockStatus[stock_status ?? "OUT_OF_STOCK"]) {
-          renderCountByStockStatus[stock_status ?? "OUT_OF_STOCK"]++;
-        } else {
-          renderCountByStockStatus[stock_status ?? "OUT_OF_STOCK"] = 1;
-        }
-      });
-      const stock_status_color: Record<StockStatus, string> = {
-        LOW_STOCK: "orange",
-        OVER_STOCK: "blue",
-        IN_STOCK: "green",
-        OUT_OF_STOCK: "red",
-      };
-      const stock_status_text: Record<StockStatus, string> = {
-        LOW_STOCK: intl.formatMessage({ id: "low_stock" }),
-        OVER_STOCK: intl.formatMessage({ id: "over_stock" }),
-        IN_STOCK: intl.formatMessage({ id: "in_stock" }),
-        OUT_OF_STOCK: intl.formatMessage({ id: "out_of_stock" }),
-      };
-      return (
-        <div className="flex flex-col gap-1">
-          {isEmptyWarehouse ? (
-            <Tag color="default">
-              {intl.formatMessage({ id: "empty_warehouse" })}
-            </Tag>
-          ) : (
-            <>
-              {Object.entries(renderCountByStockStatus).map(
-                ([stock_status, count]) => (
-                  count > 0 && (
-                    <div key={stock_status} className="w-full">
-                      <Tag
-                        className="w-full"
-                        color={stock_status_color[stock_status as StockStatus]}
-                      >
-                        {count} {stock_status_text[stock_status as StockStatus]}
-                      </Tag>
-                    </div>
-                  )
-                ),
-              )}
-            </>
-          )}
-        </div>
-      );
+    render: (_, { description }) => {
+      return <div dangerouslySetInnerHTML={{ __html: description }}></div>;
     },
   },
+  // {
+  //   key: "count_by_stock_status",
+  //   title: intl.formatMessage({ id: "count_by_stock_status" }),
+  //   dataIndex: "count_by_stock_status",
+  //   render: (_, { inventory, total_quantity }) => {
+  //     const isEmptyWarehouse = total_quantity === 0;
+  //     const renderCountByStockStatus: Record<StockStatus, number> = {
+  //       OUT_OF_STOCK: 0,
+  //       LOW_STOCK: 0,
+  //       IN_STOCK: 0,
+  //       OVER_STOCK: 0,
+  //     };
+  //     inventory.forEach((item) => {
+  //       const { stock_status } = item;
+  //       if (renderCountByStockStatus[stock_status ?? "OUT_OF_STOCK"]) {
+  //         renderCountByStockStatus[stock_status ?? "OUT_OF_STOCK"]++;
+  //       } else {
+  //         renderCountByStockStatus[stock_status ?? "OUT_OF_STOCK"] = 1;
+  //       }
+  //     });
+  //     const stock_status_color: Record<StockStatus, string> = {
+  //       LOW_STOCK: "orange",
+  //       OVER_STOCK: "blue",
+  //       IN_STOCK: "green",
+  //       OUT_OF_STOCK: "red",
+  //     };
+  //     const stock_status_text: Record<StockStatus, string> = {
+  //       LOW_STOCK: intl.formatMessage({ id: "low_stock" }),
+  //       OVER_STOCK: intl.formatMessage({ id: "over_stock" }),
+  //       IN_STOCK: intl.formatMessage({ id: "in_stock" }),
+  //       OUT_OF_STOCK: intl.formatMessage({ id: "out_of_stock" }),
+  //     };
+  //     return (
+  //       <div className="flex flex-col gap-1">
+  //         {isEmptyWarehouse ? (
+  //           <Tag color="default">
+  //             {intl.formatMessage({ id: "empty_warehouse" })}
+  //           </Tag>
+  //         ) : (
+  //           <>
+  //             {Object.entries(renderCountByStockStatus).map(
+  //               ([stock_status, count]) => (
+  //                 count > 0 && (
+  //                   <div key={stock_status} className="w-full">
+  //                     <Tag
+  //                       className="w-full"
+  //                       color={stock_status_color[stock_status as StockStatus]}
+  //                     >
+  //                       {count} {stock_status_text[stock_status as StockStatus]}
+  //                     </Tag>
+  //                   </div>
+  //                 )
+  //               ),
+  //             )}
+  //           </>
+  //         )}
+  //       </div>
+  //     );
+  //   },
+  // },
   {
     key: "status",
     title: () => intl.formatMessage({ id: "status" }),
@@ -188,9 +191,9 @@ export const inventoryWarehouseColumns: (
     },
   },
   {
-    key: "stock_status",
-    title: () => intl.formatMessage({ id: "stock_status" }),
-    dataIndex: "stock_status",
+    key: "overall_stock_status",
+    title: () => intl.formatMessage({ id: "overall_stock_status" }),
+    dataIndex: "overall_stock_status",
     render: (
       _,
       { stock_status, high_stock_threshold, low_stock_threshold },

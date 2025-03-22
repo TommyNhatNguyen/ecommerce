@@ -35,7 +35,8 @@ export default {
     select_stock_status: "Chọn trạng thái kho",
     is_selling: "Đang bán",
     is_discountinued: "Đã ngừng bán",
-    count_by_stock_status: "Đếm theo trạng thái tồn kho",
+    count_by_stock_status: "Đếm sản phẩm theo trạng thái tồn kho",
+    overall_stock_status: "Trạng thái tồn kho tất cả kho",
     empty_warehouse: "Kho trống",
     actions: "Hành động",
     number_of_discount_campaign: "Số lượng chiến dịch giảm giá",
@@ -175,5 +176,8 @@ export default {
     announcement: "Thông báo",
     create_invoices_success: "Tạo hoá đơn thành công",
     create_invoices_error: "Tạo hoá đơn thất bại",
+    warehouse_total_quantity: "Tổng số lượng của kho {warehouse_name}",
+    warehouse_total_cost: "Tổng giá trị của kho {warehouse_name}",
+    inventory_info_by_warehouse: "Thông tin tồn kho của {product_name} trong kho {warehouse_name}",
   },
 };

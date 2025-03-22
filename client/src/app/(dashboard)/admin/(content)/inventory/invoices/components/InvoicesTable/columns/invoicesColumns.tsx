@@ -65,6 +65,9 @@ export const invoicesColumns: (
     key: "note",
     title: intl.formatMessage({ id: "note" }),
     dataIndex: "note",
+    render: (_, { note }) => {
+      return <div dangerouslySetInnerHTML={{ __html: note }}></div>;
+    },
   },
   {
     key: "status",

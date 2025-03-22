@@ -1,4 +1,4 @@
-import { Includeable, Sequelize } from 'sequelize';
+import { Includeable, Sequelize, WhereOptions } from 'sequelize';
 import { IInventoryRepository } from 'src/modules/inventory/models/inventory.interface';
 import {
   BaseOrder,
@@ -178,6 +178,10 @@ export class PostgresInventoryRepository implements IInventoryRepository {
     const order = condition?.order || BaseOrder.DESC;
     const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
     const include: Includeable[] = [];
+    const whereWarehouse: WhereOptions = {};
+    if (condition?.warehouse_id) {
+      whereWarehouse.id = condition.warehouse_id;
+    }
     if (condition?.include_product_sellable) {
       include.push({
         model: ProductSellablePersistence,
@@ -194,6 +198,7 @@ export class PostgresInventoryRepository implements IInventoryRepository {
       include.push({
         model: WarehousePersistence,
         as: warehouseModelName.toLowerCase(),
+        where: whereWarehouse,
       });
     }
     if (condition.include_all) {

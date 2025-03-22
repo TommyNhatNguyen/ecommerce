@@ -162,5 +162,7 @@ export default {
     announcement: "Announcement",
     create_invoices_success: "Create invoices successfully",
     create_invoices_error: "Create invoices error",
+    overall_stock_status: "Overall Stock Status",
+    inventory_info_by_warehouse: "Inventory info by warehouse of {product_name} in {warehouse_name}",
   },
 };

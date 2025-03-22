@@ -17,6 +17,7 @@ export type InventoryWarehouseCreateDTO = {
 }
 
 export type InventoryConditionDTO = {
+  warehouse_id?: string;
   product_sellable_id?: string;
   total_quantity?: number;
   total_cost?: number;

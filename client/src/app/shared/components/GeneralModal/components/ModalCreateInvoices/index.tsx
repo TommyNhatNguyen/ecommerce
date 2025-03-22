@@ -4,21 +4,23 @@ import CustomEditor from "@/app/shared/components/CustomEditor";
 import GeneralModal, {
   ModalRefType,
 } from "@/app/shared/components/GeneralModal";
+import ProductInventoryTable from "@/app/shared/components/GeneralModal/components/ModalCreateInvoices/components/ProductInventoryTable";
 import { useCreateInvoices } from "@/app/shared/components/GeneralModal/hooks/useCreateInvoices";
 import InputAdmin from "@/app/shared/components/InputAdmin";
 import {
   InventoryInvoiceType,
   InvoicesCreateDTO,
 } from "@/app/shared/interfaces/invoices/invoices.dto";
+import { InventoryModel } from "@/app/shared/models/inventories/inventories.model";
 import { inventoryService } from "@/app/shared/services/inventory/inventoryService";
 import { warehouseService } from "@/app/shared/services/warehouse/warehouseService";
-import { formatCurrency } from "@/app/shared/utils/utils";
+import { formatCurrency, formatNumber } from "@/app/shared/utils/utils";
 import {
   keepPreviousData,
   useInfiniteQuery,
   useQuery,
 } from "@tanstack/react-query";
-import { Button, InputNumber, Select } from "antd";
+import { Button, InputNumber, Select, Table } from "antd";
 import { Editor } from "ckeditor5";
 import React, {
   forwardRef,
@@ -29,36 +31,50 @@ import React, {
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useIntl } from "react-intl";
 
-type Props = {};
+type Props = {
+  refetch: () => void;
+};
 
 export type ModalCreateInvoicesRefType = {
   handleOpenModal: (type: InventoryInvoiceType) => void;
   handleCloseModal: () => void;
 } & ModalRefType;
 
-const ModalCreateInvoices = ({}, ref: any) => {
+const ModalCreateInvoices = ({ refetch }: Props, ref: any) => {
+  const [selectedInventory, setSelectedInventory] =
+    useState<InventoryModel | null>(null);
+  console.log(
+    "🚀 ~ ModalCreateInvoices ~ selectedInventory:",
+    selectedInventory,
+  );
   const intl = useIntl();
-  const { control, handleSubmit, reset, setValue } =
+  const { control, handleSubmit, reset, setValue, watch } =
     useForm<InvoicesCreateDTO>();
   const { isCreateLoading, handleCreateInvoices } = useCreateInvoices();
   const { data: warehouses } = useQuery({
     queryKey: ["warehouses"],
     queryFn: () => warehouseService.getAll(),
   });
-  const { data: inventoriesData } = useInfiniteQuery({
-    queryKey: ["inventories-infinite"],
+  const {
+    data: inventoriesData,
+    isFetching,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ["inventories-infinite", watch("warehouse_id")],
     queryFn: ({ pageParam = 1 }) =>
       inventoryService.list({
         include_product_sellable: true,
+        include_inventory_warehouse: true,
         page: pageParam,
-        limit: 10,
+        limit: 100,
+        warehouse_id: watch("warehouse_id"),
       }),
     getNextPageParam: (lastPage) =>
       lastPage?.meta?.total_page > lastPage?.meta?.current_page
         ? lastPage?.meta?.current_page + 1
         : undefined,
     initialPageParam: 1,
-    placeholderData: keepPreviousData,
+    enabled: !!watch("warehouse_id"),
   });
   const inventories = useMemo(() => {
     return inventoriesData?.pages?.flatMap((page) => page.data);
@@ -84,6 +100,7 @@ const ModalCreateInvoices = ({}, ref: any) => {
     reset();
     setValue("note", "");
     _onCloseModal();
+    refetch();
   };
   const _renderTitle = () => {
     return (
@@ -169,66 +186,96 @@ const ModalCreateInvoices = ({}, ref: any) => {
                     value: inventory?.id,
                   }))}
                   {...props}
+                  onChange={(value) => {
+                    setSelectedInventory(
+                      inventories?.find(
+                        (inventory) => inventory.id === value,
+                      ) || null,
+                    );
+                    field.onChange(value);
+                  }}
                   ref={ref}
                 />
               )}
             />
           )}
         />
+        <div className="my-2">
+          <p className="mb-1 text-sm font-bold">
+            {intl.formatMessage(
+              {
+                id: "inventory_info_by_warehouse",
+              },
+              {
+                product_name:
+                  selectedInventory?.product_sellable?.variant?.name,
+                warehouse_name: selectedInventory?.warehouse[0].name,
+              },
+            )}
+          </p>
+          <ProductInventoryTable
+            data={selectedInventory?.warehouse || []}
+            loading={isLoading}
+          />
+        </div>
         {/* Nhập quantity */}
-        <Controller
-          control={control}
-          name="quantity"
-          rules={{
-            required: {
-              value: true,
-              message: ERROR_MESSAGE.REQUIRED,
-            },
-          }}
-          render={({ field, formState: { errors } }) => (
-            <InputAdmin
-              label={intl.formatMessage({ id: "quantity" })}
-              placeholder={intl.formatMessage({ id: "quantity" })}
-              error={errors.quantity?.message as string}
-              required={true}
-              {...field}
-              customComponent={(props: any, ref: any) => (
-                <InputNumber
-                  {...props}
-                  ref={ref}
-                  formatter={(value) => formatCurrency(Number(value))}
-                />
-              )}
-            />
-          )}
-        />
+        {open != "UPDATE_COST_INVOICE" && (
+          <Controller
+            control={control}
+            name="quantity"
+            rules={{
+              required: {
+                value: true,
+                message: ERROR_MESSAGE.REQUIRED,
+              },
+            }}
+            render={({ field, formState: { errors } }) => (
+              <InputAdmin
+                label={intl.formatMessage({ id: "quantity" })}
+                placeholder={intl.formatMessage({ id: "quantity" })}
+                error={errors.quantity?.message as string}
+                required={true}
+                {...field}
+                customComponent={(props: any, ref: any) => (
+                  <InputNumber
+                    {...props}
+                    ref={ref}
+                    formatter={(value) => formatNumber(Number(value))}
+                  />
+                )}
+              />
+            )}
+          />
+        )}
         {/* Nhập cost  */}
-        <Controller
-          control={control}
-          name="cost"
-          rules={{
-            required: {
-              value: true,
-              message: ERROR_MESSAGE.REQUIRED,
-            },
-          }}
-          render={({ field, formState: { errors } }) => (
-            <InputAdmin
-              label={intl.formatMessage({ id: "cost" })}
-              placeholder={intl.formatMessage({ id: "cost" })}
-              error={errors.cost?.message as string}
-              required={true}
-              {...field}
-              customComponent={(props: any, ref: any) => (
-                <InputNumber
-                  {...props}
-                  ref={ref}
-                  formatter={(value) => formatCurrency(Number(value))}
-                />
-              )}
-            />
-          )}
-        />
+        {open != "DISCARD_INVOICE" && (
+          <Controller
+            control={control}
+            name="cost"
+            rules={{
+              required: {
+                value: true,
+                message: ERROR_MESSAGE.REQUIRED,
+              },
+            }}
+            render={({ field, formState: { errors } }) => (
+              <InputAdmin
+                label={intl.formatMessage({ id: "cost" })}
+                placeholder={intl.formatMessage({ id: "cost" })}
+                error={errors.cost?.message as string}
+                required={true}
+                {...field}
+                customComponent={(props: any, ref: any) => (
+                  <InputNumber
+                    {...props}
+                    ref={ref}
+                    formatter={(value) => formatCurrency(Number(value))}
+                  />
+                )}
+              />
+            )}
+          />
+        )}
         {/* Nhập note */}
         <Controller
           control={control}

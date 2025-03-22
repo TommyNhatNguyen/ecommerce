@@ -12,6 +12,6 @@ export type WarehouseModel = {
   status: ModelStatus;
   created_at: string;
   updated_at: string;
-  inventory_warehouse: InventoryWarehouseModel[];
+  inventory_warehouse: InventoryWarehouseModel;
   inventory: InventoryModel[];
 };
