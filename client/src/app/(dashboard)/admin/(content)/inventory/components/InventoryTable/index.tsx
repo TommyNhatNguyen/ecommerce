@@ -6,7 +6,7 @@ import { FilePlus } from "lucide-react";
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { Button, Checkbox, Dropdown } from "antd";
 import { RefreshCcw } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { useIntl } from "react-intl";
 import { inventoryColumns } from "@/app/(dashboard)/admin/(content)/inventory/components/InventoryTable/columns/inventoryColumns";
@@ -15,12 +15,14 @@ import {
   INVENTORY_COLUMNS_MENU,
 } from "@/app/(dashboard)/admin/(content)/inventory/components/InventoryTable/columns/columnsMenu";
 import ModalCreateVariant from "@/app/shared/components/GeneralModal/components/ModalCreateVariant";
+import { ModalRefType } from "@/app/shared/components/GeneralModal";
 
 type Props = {};
 
 const InventoryTable = (props: Props) => {
   const { ref, inView } = useInView();
   const intl = useIntl();
+  const modelCreateVariantRef = useRef<ModalRefType>(null);
   const [selectedColumns, setSelectedColumns] = useState<{
     [key: string]: string[];
   }>({});
@@ -59,7 +61,6 @@ const InventoryTable = (props: Props) => {
       hidden: !selectedColumns["inventory"]?.includes(item?.key as string),
     }));
   }, [selectedColumns]);
-  console.log("🚀 ~ variants ~ variants:", variants);
   // Event handlers
   const _onRefetch = () => refetch();
   const _onSelectColumns = (id: string, keys: string[]) => {
@@ -67,6 +68,9 @@ const InventoryTable = (props: Props) => {
       ...prev,
       [id]: keys,
     }));
+  };
+  const _onOpenModalCreateProduct = () => {
+    modelCreateVariantRef.current?.handleOpenModal();
   };
   useEffect(() => {
     if (variants && variants.length > 0) {
@@ -108,7 +112,7 @@ const InventoryTable = (props: Props) => {
           <Button
             type="primary"
             icon={<Plus width={16} height={16} />}
-            // onClick={_onOpenModalCreateProduct}
+            onClick={_onOpenModalCreateProduct}
           >
             {intl.formatMessage({ id: "add_new" })}
           </Button>
@@ -174,7 +178,7 @@ const InventoryTable = (props: Props) => {
         />
         <div className="h-10 w-full" ref={ref}></div>
       </div>
-      <ModalCreateVariant handleCreateVariant={() => {}}   />
+      <ModalCreateVariant refetch={refetch} ref={modelCreateVariantRef} />
     </div>
   );
 };

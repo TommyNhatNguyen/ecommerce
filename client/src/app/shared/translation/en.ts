@@ -157,5 +157,7 @@ export default {
     update_cost_inventory: "Update Cost Inventory",
     transfer_inventory: "Transfer Inventory",
     create_warehouse: "Create Warehouse",
+    select_product: "Select Product",
+    create_variant_for_product: "Create Variant for Existed Product",
   },
 };

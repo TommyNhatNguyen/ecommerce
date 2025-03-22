@@ -38,7 +38,7 @@ type Props = {
 
 const ModalCreateVariant = ({ loading = false, refetch }: Props, ref: any) => {
   const intl = useIntl();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [variantImageFileList, setVariantImageFileList] = useState<{
     [key: number]: UploadFile[];
   }>({});
@@ -246,7 +246,7 @@ const ModalCreateVariant = ({ loading = false, refetch }: Props, ref: any) => {
   const _renderTitle = () => {
     return (
       <h1 className="text-2xl font-bold">
-        {intl.formatMessage({ id: "create_warehouse" })}
+        {intl.formatMessage({ id: "create_variant_for_product" })}
       </h1>
     );
   };
@@ -259,11 +259,19 @@ const ModalCreateVariant = ({ loading = false, refetch }: Props, ref: any) => {
           <Controller
             name="product_id"
             control={control}
+            rules={{
+              required: {
+                value: true,
+                message: ERROR_MESSAGE.REQUIRED,
+              },
+            }}
             render={({ field }) => (
               <InputAdmin
                 {...field}
+                label={intl.formatMessage({ id: "select_product" })}
                 placeholder={intl.formatMessage({ id: "select_product" })}
                 error={errors.product_id?.message}
+                required={true}
                 customComponent={(props, ref: any) => {
                   return (
                     <Select

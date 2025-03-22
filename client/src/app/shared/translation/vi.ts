@@ -170,5 +170,7 @@ export default {
     invoices: "Hoá đơn",
     create_options: "Tạo thuộc tính",
     create_warehouse: "Tạo kho hàng",
+    select_product: "Chọn sản phẩm",
+    create_variant_for_product: "Tạo biến thể cho sản phẩm đã có",
   },
 };
