@@ -47,6 +47,7 @@ export type CreateVariantDTOV2 = {
   sku?: string;
   options_value_ids: string[];
   product_sellables: CreateProductSellableDTO;
+  product_id?: string;
 };
 
 export type OptionCreateDTO = {

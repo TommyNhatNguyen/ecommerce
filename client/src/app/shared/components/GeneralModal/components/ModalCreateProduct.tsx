@@ -126,6 +126,10 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
 
   const _onClearAllFormData = () => {
     reset();
+    setSelectedOptions([]);
+    setSelectedOptionValues({});
+    setSelectedWarehouse({});
+    setVariantImageFileList({});
     _onClearAllImages();
   };
 
@@ -241,7 +245,6 @@ const ModalCreateProduct = ({ refetch }: PropsType, ref: any) => {
     }));
     console.log("🚀 ~ ModalCreateProduct ~ payload:", payload);
     await hanldeCreateProduct(payload);
-    _onClearAllFormData();
     refetch && refetch();
     _onCloseModal();
   };

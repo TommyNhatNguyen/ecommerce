@@ -1,6 +1,7 @@
-import {  VariantProductModel } from "./../../models/variant/variant.model.d";
+import { VariantProductModel } from "./../../models/variant/variant.model.d";
 import { ListResponseModel } from "./../../models/others/list-response.model.d";
 import {
+  CreateVariantDTOV2,
   VariantConditionDTO,
   VariantCreateDTO,
 } from "../../interfaces/variant/variant.interface";
@@ -8,7 +9,7 @@ import { axiosInstance } from "../../utils/axiosInstance";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 
 export const variantServices = {
-  create: async (data: VariantCreateDTO): Promise<VariantProductModel> => {
+  create: async (data: CreateVariantDTOV2): Promise<VariantProductModel> => {
     const response = await axiosInstance.post("/variants", data);
     return response.data;
   },
@@ -20,7 +21,10 @@ export const variantServices = {
     });
     return response.data;
   },
-  getVariantById: async (id: string, condition?: VariantConditionDTO): Promise<VariantProductModel> => {
+  getVariantById: async (
+    id: string,
+    condition?: VariantConditionDTO,
+  ): Promise<VariantProductModel> => {
     const response = await axiosInstance.get(`/variants/${id}`, {
       params: condition,
     });
