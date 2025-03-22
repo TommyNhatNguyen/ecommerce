@@ -225,6 +225,7 @@ export class PostgresProductRepository implements IProductRepository {
         as: categoryModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
+        required: false,
         where: categoryWhere,
       });
     }
@@ -309,7 +310,7 @@ export class PostgresProductRepository implements IProductRepository {
           attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
           include: variantInfoInclude,
           where: productSellableWhere,
-          required: true,
+          required: false,
           duplicating: true,
         });
       }

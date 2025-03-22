@@ -1,6 +1,7 @@
 import { Transaction } from 'sequelize';
 import {
   InventoryInvoiceCreateDTO,
+  InventoryInvoiceCreateTransferDTO,
   InventoryInvoiceUpdateDTO,
 } from 'src/modules/inventory_invoices/models/inventory_invoices.dto';
 
@@ -27,6 +28,10 @@ export interface IInventoryInvoiceUseCase {
     data: InventoryInvoiceCreateDTO,
     t?: Transaction
   ): Promise<InventoryInvoice | null>;
+  createTransferInvoice(
+    data: InventoryInvoiceCreateTransferDTO,
+    t?: Transaction
+  ): Promise<InventoryInvoice | null>;
   update(
     id: string,
     data: InventoryInvoiceUpdateDTO,
@@ -37,7 +42,12 @@ export interface IInventoryInvoiceUseCase {
 
 export interface IInventoryInvoiceRepository
   extends IQueryRepository,
-    ICommandRepository {}
+    ICommandRepository {
+  createTransferInvoice(
+    data: InventoryInvoiceCreateTransferDTO,
+    t?: Transaction
+  ): Promise<InventoryInvoice | null>;
+}
 
 export interface IQueryRepository {
   getById(

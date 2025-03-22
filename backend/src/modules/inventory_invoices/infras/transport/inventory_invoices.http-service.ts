@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express';
 import {
   InventoryInvoiceConditionDTOSchema,
   InventoryInvoiceCreateDTOSchema,
+  InventoryInvoiceCreateTransferDTOSchema,
   InventoryInvoiceUpdateDTOSchema,
 } from 'src/modules/inventory_invoices/models/inventory_invoices.dto';
 import { InventoryInvoiceUseCase } from 'src/modules/inventory_invoices/usecase';
@@ -11,6 +12,36 @@ export class InventoryInvoiceHttpService {
   constructor(
     private readonly inventoryInvoiceUseCase: InventoryInvoiceUseCase
   ) {}
+
+  async createTransferInvoice(req: Request, res: Response) {
+    const { success, data, error } =
+      InventoryInvoiceCreateTransferDTOSchema.safeParse(req.body);
+    if (!success) {
+      res.status(400).json({ error: error.message });
+      return;
+    }
+    try {
+      const inventoryInvoice =
+        await this.inventoryInvoiceUseCase.createTransferInvoice(data);
+      if (!inventoryInvoice) {
+        res.status(400).json({ error: 'Failed to create inventory invoice' });
+        return;
+      }
+      res.status(200).json({
+        message: 'Inventory invoice created successfully',
+        ...inventoryInvoice,
+      });
+      return;
+    } catch (error: any) {
+      console.log(
+        '🚀 ~ InventoryInvoiceHttpService ~ createTransferInvoice ~ error:',
+        error
+      );
+      res.status(400).json({ error: error.message });
+      return;
+    }
+  }
+
   async create(req: Request, res: Response) {
     const { success, data, error } = InventoryInvoiceCreateDTOSchema.safeParse(
       req.body
@@ -31,7 +62,7 @@ export class InventoryInvoiceHttpService {
       });
       return;
     } catch (error: any) {
-      console.log("🚀 ~ InventoryInvoiceHttpService ~ create ~ error:", error)
+      console.log('🚀 ~ InventoryInvoiceHttpService ~ create ~ error:', error);
       res.status(400).json({ error: error.message });
       return;
     }

@@ -4,6 +4,7 @@ import { InventoryPersistence } from 'src/modules/inventory/infras/repo/postgres
 import {
   InventoryInvoiceConditionDTO,
   InventoryInvoiceCreateDTO,
+  InventoryInvoiceCreateTransferDTO,
   InventoryInvoiceUpdateDTO,
 } from 'src/modules/inventory_invoices/models/inventory_invoices.dto';
 import { IInventoryInvoiceRepository } from 'src/modules/inventory_invoices/models/inventory_invoices.interface';
@@ -24,6 +25,15 @@ export class InventoryInvoiceRepository implements IInventoryInvoiceRepository {
     private readonly sequelize: Sequelize,
     private readonly modelname: string
   ) {}
+
+  async createTransferInvoice(
+    data: InventoryInvoiceCreateTransferDTO,
+    t?: Transaction
+  ): Promise<InventoryInvoice | null> {
+    const inventoryInvoice = await this.sequelize.models[this.modelname].create(data, { transaction: t });
+    return inventoryInvoice.dataValues;
+  }
+
   async getById(
     id: string,
     condition?: InventoryInvoiceConditionDTO,

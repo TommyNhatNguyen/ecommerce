@@ -4,6 +4,7 @@ import { IInventoryUseCase } from 'src/modules/inventory/models/inventory.interf
 import {
   InventoryInvoiceConditionDTO,
   InventoryInvoiceCreateDTO,
+  InventoryInvoiceCreateTransferDTO,
   InventoryInvoiceUpdateDTO,
 } from 'src/modules/inventory_invoices/models/inventory_invoices.dto';
 import { INVENTORY_INVOICE_NOT_FOUND } from 'src/modules/inventory_invoices/models/inventory_invoices.errors';
@@ -26,6 +27,198 @@ export class InventoryInvoiceUseCase implements IInventoryInvoiceUseCase {
     private readonly warehouseUseCase?: IWarehouseUsecase,
     private readonly sequelize?: Sequelize
   ) {}
+
+  async createTransferInvoice(
+    data: InventoryInvoiceCreateTransferDTO,
+    t?: Transaction
+  ): Promise<InventoryInvoice | null> {
+    try {
+      const result = await this.sequelize?.transaction(async (t) => {
+        let inventoryInvoice;
+        let inventory_id = data?.inventory_id || '';
+        let warehouse_id_from = data?.warehouse_id_from || '';
+        let warehouse_id_to = data?.warehouse_id_to || '';
+        let quantity = data?.quantity || 0;
+        if (quantity <= 0) {
+          throw new Error('Quantity must be greater than 0');
+        }
+        let code =
+          data?.code ||
+          `TRANSFER-INV-${Math.random().toString(36).substring(2, 15)}`;
+        // 1. Lấy data: cập nhật cái gì, ở kho nào, số lượng bao nhiêu, note là gì
+        const inventoryWarehouseFrom =
+          await this.inventoryUseCase?.getInventoryByInventoryIdAndWarehouseId(
+            inventory_id,
+            warehouse_id_from,
+            t
+          );
+        const inventoryWarehouseTo =
+          await this.inventoryUseCase?.getInventoryByInventoryIdAndWarehouseId(
+            inventory_id,
+            warehouse_id_to,
+            t
+          );
+        const warehouseFrom = await this.warehouseUseCase?.getWarehouseById(
+          warehouse_id_from,
+          {},
+          t
+        );
+        const warehouseTo = await this.warehouseUseCase?.getWarehouseById(
+          warehouse_id_to,
+          {},
+          t
+        );
+        // 3. Cập nhật total_quantity và total_cost của warehouse
+        const warehouseFromUpdatedTotalQuantity =
+          (warehouseFrom?.total_quantity || 0) - quantity;
+        const warehouseFromUpdatedTotalCost =
+          (warehouseFrom?.total_cost || 0) -
+          (data?.quantity || 0) * (inventoryWarehouseFrom?.cost || 0);
+        const warehouseToUpdatedTotalQuantity =
+          (warehouseTo?.total_quantity || 0) + quantity;
+        const warehouseToUpdatedTotalCost =
+          (warehouseTo?.total_cost || 0) +
+          (data?.quantity || 0) *
+            (inventoryWarehouseTo?.cost || inventoryWarehouseFrom?.cost || 0);
+        console.log(
+          '🚀 ~ InventoryInvoiceUseCase ~ result ~ warehouseFromUpdatedTotalCost:',
+          inventoryWarehouseFrom,
+          inventoryWarehouseTo,
+        );
+        const warehouseUpdatedList = await Promise.all([
+          this.warehouseUseCase?.updateWarehouse(
+            warehouse_id_from,
+            {
+              total_quantity: warehouseFromUpdatedTotalQuantity,
+              total_cost: warehouseFromUpdatedTotalCost,
+            },
+            t
+          ),
+          this.warehouseUseCase?.updateWarehouse(
+            warehouse_id_to,
+            {
+              total_quantity: warehouseToUpdatedTotalQuantity,
+              total_cost: warehouseToUpdatedTotalCost,
+            },
+            t
+          ),
+        ]);
+        // 2. Cập nhật inventory warehouse từ kho này sang kho khác
+        let diffQuantityInventoryWarehouseFrom =
+          (inventoryWarehouseFrom?.quantity || 0) - (data?.quantity || 0);
+        let diffQuantityInventoryWarehouseTo =
+          (inventoryWarehouseTo?.quantity || 0) + (data?.quantity || 0);
+        let diffTotalCostInventoryWarehouseFrom =
+          (inventoryWarehouseFrom?.total_cost || 0) -
+          (data?.quantity || 0) * (inventoryWarehouseFrom?.cost || 0);
+        let diffTotalCostInventoryWarehouseTo =
+          (inventoryWarehouseTo?.total_cost || 0) +
+          (data?.quantity || 0) * (inventoryWarehouseTo?.cost || 0);
+        let updatedInventoryWarehouseFromCost =
+          diffTotalCostInventoryWarehouseFrom /
+          diffQuantityInventoryWarehouseFrom;
+        let updatedInventoryWarehouseToCost =
+          diffTotalCostInventoryWarehouseTo / diffQuantityInventoryWarehouseTo;
+        if (!inventoryWarehouseTo) {
+          await this.inventoryUseCase?.addInventoryWarehouse(
+            [
+              {
+                inventory_id: inventory_id,
+                warehouse_id: warehouse_id_to,
+                quantity: diffQuantityInventoryWarehouseTo,
+                total_cost: diffTotalCostInventoryWarehouseTo,
+                cost: inventoryWarehouseFrom?.cost || 0,
+              },
+            ],
+            t
+          );
+          if (diffQuantityInventoryWarehouseFrom <= 0) {
+            await this.inventoryUseCase?.deleteInventoryWarehouse(
+              inventory_id,
+              warehouse_id_from,
+              t
+            );
+          } else {
+            await this.inventoryUseCase?.updateInventoryWarehouse(
+              [
+                {
+                  inventory_id: inventory_id,
+                  warehouse_id: warehouse_id_from,
+                  quantity: diffQuantityInventoryWarehouseFrom,
+                  total_cost: diffTotalCostInventoryWarehouseFrom,
+                  cost: updatedInventoryWarehouseFromCost || 0,
+                },
+              ],
+              t
+            );
+          }
+        } else {
+          if (diffQuantityInventoryWarehouseFrom <= 0) {
+            await this.inventoryUseCase?.deleteInventoryWarehouse(
+              inventory_id,
+              warehouse_id_from,
+              t
+            );
+            await this.inventoryUseCase?.updateInventoryWarehouse(
+              [
+                {
+                  inventory_id: inventory_id,
+                  warehouse_id: warehouse_id_to,
+                  quantity: diffQuantityInventoryWarehouseTo,
+                  total_cost: diffTotalCostInventoryWarehouseTo,
+                  cost: updatedInventoryWarehouseToCost || 0,
+                },
+              ],
+              t
+            );
+          } else {
+            await this.inventoryUseCase?.updateInventoryWarehouse(
+              [
+                {
+                  inventory_id: inventory_id,
+                  warehouse_id: warehouse_id_from,
+                  quantity: diffQuantityInventoryWarehouseFrom,
+                  total_cost: diffTotalCostInventoryWarehouseFrom,
+                  cost: updatedInventoryWarehouseFromCost || 0,
+                },
+                {
+                  inventory_id: inventory_id,
+                  warehouse_id: warehouse_id_to,
+                  quantity: diffQuantityInventoryWarehouseTo,
+                  total_cost: diffTotalCostInventoryWarehouseTo,
+                  cost: updatedInventoryWarehouseToCost || 0,
+                },
+              ],
+              t
+            );
+          }
+        }
+        // 4. Tạo invoice
+        const amount = quantity * (inventoryWarehouseFrom?.cost || 0);
+        inventoryInvoice = await this.inventoryInvoiceRepository.create(
+          {
+            type: InventoryInvoiceType.TRANSFER_INVOICE,
+            inventory_id: inventory_id,
+            warehouse_id: warehouse_id_from,
+            quantity: quantity,
+            cost: inventoryWarehouseFrom?.cost || 0,
+            amount: amount,
+            code: code,
+          },
+          t
+        );
+        return inventoryInvoice;
+      });
+
+      return result || null;
+    } catch (error) {
+      console.log(
+        '🚀 ~ InventoryInvoiceUseCase ~ createTransferInvoice ~ error:',
+        error
+      );
+      throw error;
+    }
+  }
   async getById(
     id: string,
     condition?: InventoryInvoiceConditionDTO,
@@ -199,18 +392,26 @@ export class InventoryInvoiceUseCase implements IInventoryInvoiceUseCase {
           const inventoryWareHouseUpdatedCost =
             inventoryWareHouseUpdatedTotalCost /
             inventoryWareHouseUpdatedQuantity;
-          await this.inventoryUseCase?.updateInventoryWarehouse(
-            [
-              {
-                inventory_id: inventory_id,
-                warehouse_id: warehouse_id,
-                quantity: inventoryWareHouseUpdatedQuantity,
-                total_cost: inventoryWareHouseUpdatedTotalCost,
-                cost: inventoryWareHouseUpdatedCost,
-              },
-            ],
-            t
-          );
+          if (inventoryWareHouseUpdatedQuantity <= 0) {
+            await this.inventoryUseCase?.deleteInventoryWarehouse(
+              inventory_id,
+              warehouse_id,
+              t
+            );
+          } else {
+            await this.inventoryUseCase?.updateInventoryWarehouse(
+              [
+                {
+                  inventory_id: inventory_id,
+                  warehouse_id: warehouse_id,
+                  quantity: inventoryWareHouseUpdatedQuantity,
+                  total_cost: inventoryWareHouseUpdatedTotalCost,
+                  cost: inventoryWareHouseUpdatedCost,
+                },
+              ],
+              t
+            );
+          }
           // 3. Cập nhật inventory tổng
           const inventoryUpdatedTotalQuantity =
             (inventory?.total_quantity || 0) - quantity;
@@ -306,8 +507,6 @@ export class InventoryInvoiceUseCase implements IInventoryInvoiceUseCase {
             },
             t
           );
-        } else if (data.type == InventoryInvoiceType.TRANSFER_INVOICE) {
-          
         }
         return inventoryInvoice;
       });

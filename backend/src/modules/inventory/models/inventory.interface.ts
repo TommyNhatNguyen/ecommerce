@@ -46,6 +46,11 @@ export interface IInventoryUseCase {
     data: InventoryWarehouseCreateDTO[],
     t?: Transaction
   ): Promise<InventoryWarehouse[]>;
+  deleteInventoryWarehouse(
+    inventory_id: string,
+    warehouse_id: string,
+    t?: Transaction
+  ): Promise<boolean>;
 }
 
 export interface IInventoryRepository

@@ -31,6 +31,14 @@ export class InventoryUseCase implements IInventoryUseCase {
     private readonly warehouseUseCase?: IWarehouseUsecase
   ) {}
 
+  async deleteInventoryWarehouse(
+    inventory_id: string,
+    warehouse_id: string,
+    t?: Transaction
+  ): Promise<boolean> {
+    return await this.inventoryWarehouseRepository.deleteInventoryWarehouse(inventory_id, warehouse_id, t);
+  }
+
   async updateInventoryWarehouse(
     data: InventoryWarehouseUpdateDTO[],
     t?: Transaction

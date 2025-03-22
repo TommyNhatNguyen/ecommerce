@@ -14,6 +14,16 @@ export const InventoryInvoiceCreateDTOSchema = z.object({
   status: z.nativeEnum(ModelStatus).default(ModelStatus.ACTIVE).optional(),
 });
 
+export const InventoryInvoiceCreateTransferDTOSchema = z.object({
+  inventory_id: z.string().uuid().optional(),
+  warehouse_id_from: z.string().uuid().optional(),
+  warehouse_id_to: z.string().uuid().optional(),
+  quantity: z.number().optional(),
+  note: z.string().optional(),
+  code: z.string().optional(),
+  status: z.nativeEnum(ModelStatus).default(ModelStatus.ACTIVE).optional(),
+});
+
 export const InventoryInvoiceUpdateDTOSchema = z.object({
   type: z.nativeEnum(InventoryInvoiceType).optional(),
   quantity: z.number().optional(),
@@ -65,4 +75,7 @@ export type InventoryInvoiceUpdateDTO = z.infer<
 >;
 export type InventoryInvoiceConditionDTO = z.infer<
   typeof InventoryInvoiceConditionDTOSchema
+>;
+export type InventoryInvoiceCreateTransferDTO = z.infer<
+  typeof InventoryInvoiceCreateTransferDTOSchema
 >;
