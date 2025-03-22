@@ -16,7 +16,7 @@ import { Plus } from "lucide-react";
 import { cn } from "@/app/shared/utils/utils";
 import { Button } from "antd";
 import { RefreshCcw } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { useIntl } from "react-intl";
 import { keepPreviousData } from "@tanstack/react-query";
@@ -24,12 +24,18 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { invoicesService } from "@/app/shared/services/invoices/invoicesService";
 import { invoicesColumns } from "@/app/(dashboard)/admin/(content)/inventory/invoices/components/InvoicesTable/columns/invoicesColumns";
 import { INVOICES_COLUMNS_MENU } from "@/app/(dashboard)/admin/(content)/inventory/invoices/components/InvoicesTable/columns/columnsMenu";
+import ModalCreateInvoices, {
+  ModalCreateInvoicesRefType,
+} from "@/app/shared/components/GeneralModal/components/ModalCreateInvoices";
+import { ModalRefType } from "@/app/shared/components/GeneralModal";
+import { InventoryInvoiceType } from "@/app/shared/interfaces/invoices/invoices.dto";
 
 type Props = {};
 
 const InvoicesTable = (props: Props) => {
   const { ref, inView } = useInView();
   const intl = useIntl();
+  const modalCreateInvoicesRef = useRef<ModalCreateInvoicesRefType>();
   const [selectedColumns, setSelectedColumns] = useState<{
     [key: string]: string[];
   }>({});
@@ -69,6 +75,9 @@ const InvoicesTable = (props: Props) => {
     }));
   }, [selectedColumns]);
   // Event handlers
+  const _onOpenModalCreateInvoices = (type: InventoryInvoiceType) => {
+    modalCreateInvoicesRef.current?.handleOpenModal(type);
+  };
   const _onRefetch = () => refetch();
   const _onSelectColumns = (id: string, keys: string[]) => {
     setSelectedColumns((prev) => ({
@@ -120,22 +129,39 @@ const InvoicesTable = (props: Props) => {
                   key: "import_inventory",
                   label: intl.formatMessage({ id: "import_inventory" }),
                   icon: <LucidePackagePlus width={16} height={16} />,
+                  onClick: () =>
+                    _onOpenModalCreateInvoices(
+                      "IMPORT_INVOICE" as InventoryInvoiceType,
+                    ),
                 },
                 {
                   key: "check_inventory",
                   label: intl.formatMessage({ id: "check_inventory" }),
                   icon: <LucidePackageSearch width={16} height={16} />,
+                  disabled: true,
+                  onClick: () =>
+                    _onOpenModalCreateInvoices(
+                      "CHECK_INVENTORY" as InventoryInvoiceType,
+                    ),
                 },
                 {
                   key: "discard_inventory",
                   label: intl.formatMessage({ id: "discard_inventory" }),
                   icon: <LucidePackageX width={16} height={16} />,
+                  onClick: () =>
+                    _onOpenModalCreateInvoices(
+                      "DISCARD_INVOICE" as InventoryInvoiceType,
+                    ),
                 },
                 {
                   key: "transfer_inventory",
                   label: intl.formatMessage({ id: "transfer_inventory" }),
                   icon: <Truck width={16} height={16} />,
                   disabled: true,
+                  onClick: () =>
+                    _onOpenModalCreateInvoices(
+                      "TRANSFER_INVOICE" as InventoryInvoiceType,
+                    ),
                 },
                 {
                   key: "update_cost_inventory",
@@ -143,6 +169,10 @@ const InvoicesTable = (props: Props) => {
                     id: "update_cost_inventory",
                   }),
                   icon: <LucidePackage width={16} height={16} />,
+                  onClick: () =>
+                    _onOpenModalCreateInvoices(
+                      "UPDATE_COST_INVOICE" as InventoryInvoiceType,
+                    ),
                 },
               ],
             }}
@@ -213,6 +243,7 @@ const InvoicesTable = (props: Props) => {
         />
         <div className="h-10 w-full" ref={ref}></div>
       </div>
+      <ModalCreateInvoices ref={modalCreateInvoicesRef} />
     </div>
   );
 };

@@ -8,6 +8,7 @@ export enum InventoryInvoiceType {
   TRANSFER_INVOICE = "TRANSFER_INVOICE",
   RETURN_IMPORT_INVOICE = "RETURN_IMPORT_INVOICE",
   CUSTOMER_RETURN_INVOICE = "CUSTOMER_RETURN_INVOICE",
+  CHECK_INVENTORY = "CHECK_INVENTORY",
 }
 export interface InvoicesCreateDTO {
   type: InventoryInvoiceType;
