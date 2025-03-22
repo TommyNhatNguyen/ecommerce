@@ -17,6 +17,8 @@ export interface InvoicesCreateDTO {
   cost: number;
   note: string;
   code: string;
+  inventory_id: string;
+  warehouse_id: string;
   status?: ModelStatus;
 }
 

@@ -42,6 +42,10 @@ export interface IInventoryUseCase {
     data: InventoryWarehouseUpdateDTO[],
     t?: Transaction
   ): Promise<InventoryWarehouse[]>;
+  addInventoryWarehouse(
+    data: InventoryWarehouseCreateDTO[],
+    t?: Transaction
+  ): Promise<InventoryWarehouse[]>;
 }
 
 export interface IInventoryRepository

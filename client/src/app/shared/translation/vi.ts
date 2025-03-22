@@ -172,5 +172,8 @@ export default {
     create_warehouse: "Tạo kho hàng",
     select_product: "Chọn sản phẩm",
     create_variant_for_product: "Tạo biến thể cho sản phẩm đã có",
+    announcement: "Thông báo",
+    create_invoices_success: "Tạo hoá đơn thành công",
+    create_invoices_error: "Tạo hoá đơn thất bại",
   },
 };

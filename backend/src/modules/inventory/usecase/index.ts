@@ -41,6 +41,13 @@ export class InventoryUseCase implements IInventoryUseCase {
     );
   }
 
+  async addInventoryWarehouse(
+    data: InventoryWarehouseCreateDTO[],
+    t?: Transaction
+  ): Promise<InventoryWarehouse[]> {
+    return await this.inventoryWarehouseRepository.addInventoryWarehouse(data, t);
+  }
+  
   async getInventoryByInventoryIdAndWarehouseId(
     inventory_id: string,
     warehouse_id: string,

@@ -67,13 +67,21 @@ export const InventoryConditionDTOSchema = z.object({
   high_stock_threshold: z.number().min(0).optional(),
   note: z.string().optional(),
   include_all: z.boolean().optional(),
-  include_product_sellable: z.boolean().optional(),
+  include_product_sellable: z
+    .boolean()
+    .or(z.string().refine((value) => value === 'true' || value === 'false'))
+    .transform((value) => value === 'true')
+    .optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
   cost: z.number().min(0).optional(),
   sortBy: z.nativeEnum(InventorySortBy).optional(),
   order: z.nativeEnum(BaseOrder).optional(),
-  include_inventory_warehouse: z.string().optional(),
+  include_inventory_warehouse: z
+    .boolean()
+    .or(z.string().refine((value) => value === 'true' || value === 'false'))
+    .transform((value) => value === 'true')
+    .optional(),
 });
 
 export type InventoryCreateDTO = z.infer<typeof InventoryCreateDTOSchema>;

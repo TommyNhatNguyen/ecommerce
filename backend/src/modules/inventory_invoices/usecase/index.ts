@@ -109,25 +109,40 @@ export class InventoryInvoiceUseCase implements IInventoryInvoiceUseCase {
             t
           );
           // 2. Cập nhật theo inventory và warehouse: quantity, total_cost, cost (tính trung bình)
-          const inventoryWareHouseUpdatedQuantity =
-            (inventoryWarehouse?.quantity || 0) + quantity;
-          const inventoryWareHouseUpdatedTotalCost =
-            (inventoryWarehouse?.total_cost || 0) + amount;
-          const inventoryWareHouseUpdatedCost =
-            inventoryWareHouseUpdatedTotalCost /
-            inventoryWareHouseUpdatedQuantity;
-          await this.inventoryUseCase?.updateInventoryWarehouse(
-            [
-              {
-                inventory_id: inventory_id,
-                warehouse_id: warehouse_id,
-                quantity: inventoryWareHouseUpdatedQuantity,
-                total_cost: inventoryWareHouseUpdatedTotalCost,
-                cost: inventoryWareHouseUpdatedCost,
-              },
-            ],
-            t
-          );
+          if (!inventoryWarehouse) {
+            await this.inventoryUseCase?.addInventoryWarehouse(
+              [
+                {
+                  inventory_id: inventory_id,
+                  warehouse_id: warehouse_id,
+                  quantity: quantity,
+                  cost: cost,
+                  total_cost: amount,
+                },
+              ],
+              t
+            );
+          } else {
+            const inventoryWareHouseUpdatedQuantity =
+              (inventoryWarehouse?.quantity || 0) + quantity;
+            const inventoryWareHouseUpdatedTotalCost =
+              (inventoryWarehouse?.total_cost || 0) + amount;
+            const inventoryWareHouseUpdatedCost =
+              inventoryWareHouseUpdatedTotalCost /
+              inventoryWareHouseUpdatedQuantity;
+            await this.inventoryUseCase?.updateInventoryWarehouse(
+              [
+                {
+                  inventory_id: inventory_id,
+                  warehouse_id: warehouse_id,
+                  quantity: inventoryWareHouseUpdatedQuantity,
+                  total_cost: inventoryWareHouseUpdatedTotalCost,
+                  cost: inventoryWareHouseUpdatedCost,
+                },
+              ],
+              t
+            );
+          }
           // 3. Cập nhật inventory tổng
           const inventoryUpdatedTotalQuantity =
             (inventory?.total_quantity || 0) + quantity;

@@ -159,5 +159,8 @@ export default {
     create_warehouse: "Create Warehouse",
     select_product: "Select Product",
     create_variant_for_product: "Create Variant for Existed Product",
+    announcement: "Announcement",
+    create_invoices_success: "Create invoices successfully",
+    create_invoices_error: "Create invoices error",
   },
 };

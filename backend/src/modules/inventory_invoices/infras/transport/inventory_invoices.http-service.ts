@@ -31,6 +31,7 @@ export class InventoryInvoiceHttpService {
       });
       return;
     } catch (error: any) {
+      console.log("🚀 ~ InventoryInvoiceHttpService ~ create ~ error:", error)
       res.status(400).json({ error: error.message });
       return;
     }

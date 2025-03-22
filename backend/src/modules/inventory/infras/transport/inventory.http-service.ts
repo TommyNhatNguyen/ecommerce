@@ -1,7 +1,10 @@
 import { IInventoryUseCase } from 'src/modules/inventory/models/inventory.interface';
 import { Request, Response } from 'express';
 import { PagingDTOSchema } from 'src/share/models/paging';
-import { InventoryCreateDTOSchema, InventoryUpdateDTOSchema } from 'src/modules/inventory/models/inventory.dto';
+import {
+  InventoryCreateDTOSchema,
+  InventoryUpdateDTOSchema,
+} from 'src/modules/inventory/models/inventory.dto';
 import { InventoryConditionDTOSchema } from 'src/modules/inventory/models/inventory.dto';
 
 export class InventoryHttpService {
@@ -23,22 +26,33 @@ export class InventoryHttpService {
     }
   }
   async getInventoryList(req: Request, res: Response) {
-    const paging = PagingDTOSchema.safeParse(req.query);
-    const condition = InventoryConditionDTOSchema.safeParse(req.query);
-    console.log("🚀 ~ InventoryHttpService ~ getInventoryList ~ condition:", condition.success)
-    console.log("🚀 ~ InventoryHttpService ~ getInventoryList ~ condition:", paging.success)
-    if (!paging.success || !condition.success) {
-      res.status(400).json({ message: 'Invalid paging or condition' });
+    const {
+      success: pagingSuccess,
+      data: paging,
+      error: pagingError,
+    } = PagingDTOSchema.safeParse(req.query);
+    const {
+      success: conditionSuccess,
+      data: condition,
+      error: conditionError,
+    } = InventoryConditionDTOSchema.safeParse(req.query);
+    if (!pagingSuccess || !conditionSuccess) {
+      res
+        .status(400)
+        .json({ message: pagingError?.message || conditionError?.message });
       return;
     }
     try {
       const result = await this.inventoryUseCase.getInventoryList(
-        paging.data,
-        condition.data
+        paging,
+        condition
       );
-      res.json({ message: 'Success', data: result });
+      res.json({ message: 'Success', ...result });
     } catch (error) {
-      console.log("🚀 ~ InventoryHttpService ~ getInventoryList ~ error:", error)
+      console.log(
+        '🚀 ~ InventoryHttpService ~ getInventoryList ~ error:',
+        error
+      );
       res.status(500).json({ message: 'Internal server error' });
       return;
     }
@@ -53,6 +67,7 @@ export class InventoryHttpService {
       const result = await this.inventoryUseCase.createInventory(data.data);
       res.json({ message: 'Success', data: result });
     } catch (error) {
+      console.log("🚀 ~ InventoryHttpService ~ createInventory ~ error:", error)
       res.status(500).json({ message: 'Internal server error' });
       return;
     }
