@@ -1,4 +1,4 @@
-import { InvoicesConditionDTO, InvoicesCreateDTO, TransferInvoicesCreateDTO } from "@/app/shared/interfaces/invoices/invoices.dto";
+import { CheckInventoryInvoicesCreateDTO, InvoicesConditionDTO, InvoicesCreateDTO, TransferInvoicesCreateDTO } from "@/app/shared/interfaces/invoices/invoices.dto";
 import { InvoicesModel } from "@/app/shared/models/invoices/invoices.model";
 import { ListResponseModel } from "@/app/shared/models/others/list-response.model";
 import { axiosInstance } from "@/app/shared/utils/axiosInstance";
@@ -18,6 +18,10 @@ export const invoicesService = {
   },
   createTransfer: async (data: TransferInvoicesCreateDTO): Promise<InvoicesModel> => {
     const response = await axiosInstance.post("/inventory-invoices/transfer", data);
+    return response.data;
+  },
+  createCheckInventory: async (data: CheckInventoryInvoicesCreateDTO): Promise<InvoicesModel> => {
+    const response = await axiosInstance.post("/inventory-invoices/check-inventory", data);
     return response.data;
   },
 };

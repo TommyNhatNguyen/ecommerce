@@ -187,5 +187,7 @@ export default {
     create_transfer_invoice_error: "Tạo hoá đơn chuyển kho thất bại",
     inventory_at_warehouse_from: "Tồn kho ở kho xuất",
     inventory_at_warehouse_to: "Tồn kho ở kho nhận",
+    create_check_inventory_invoice_success: "Tạo hoá đơn kiểm kho thành công",
+    create_check_inventory_invoice_error: "Tạo hoá đơn kiểm kho thất bại",
   },
 };

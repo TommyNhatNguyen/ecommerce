@@ -30,6 +30,7 @@ import ModalCreateInvoices, {
   ModalCreateInvoicesRefType,
 } from "@/app/shared/components/GeneralModal/components/ModalCreateInvoices";
 import ModalCreateTransferInvoices from "@/app/shared/components/GeneralModal/components/ModalCreateTransferInvoices";
+import ModalCreateCheckInvoice from "@/app/shared/components/GeneralModal/components/ModalCreateCheckInvoice";
 
 type Props = {};
 
@@ -38,6 +39,7 @@ const InvoicesTable = (props: Props) => {
   const intl = useIntl();
   const modalCreateInvoicesRef = useRef<ModalCreateInvoicesRefType>();
   const modalCreateTransferInvoicesRef = useRef<ModalRefType>();
+  const modalCreateCheckInvoiceRef = useRef<ModalRefType>();
   const [selectedColumns, setSelectedColumns] = useState<{
     [key: string]: string[];
   }>({});
@@ -82,6 +84,9 @@ const InvoicesTable = (props: Props) => {
   };
   const _onOpenModalCreateTransferInvoices = () => {
     modalCreateTransferInvoicesRef.current?.handleOpenModal();
+  };
+  const _onOpenModalCreateCheckInvoice = () => {
+    modalCreateCheckInvoiceRef.current?.handleOpenModal();
   };
   const _onRefetch = () => refetch();
   const _onSelectColumns = (id: string, keys: string[]) => {
@@ -169,11 +174,7 @@ const InvoicesTable = (props: Props) => {
                     key: "check_inventory",
                     label: intl.formatMessage({ id: "check_inventory" }),
                     icon: <LucidePackageSearch width={16} height={16} />,
-                    disabled: true,
-                    onClick: () =>
-                      _onOpenModalCreateInvoices(
-                        "CHECK_INVENTORY" as InventoryInvoiceType,
-                      ),
+                    onClick: () => _onOpenModalCreateCheckInvoice(),
                   },
                 ],
             }}
@@ -249,6 +250,7 @@ const InvoicesTable = (props: Props) => {
         ref={modalCreateTransferInvoicesRef}
         refetch={_onRefetch}
       />
+      <ModalCreateCheckInvoice ref={modalCreateCheckInvoiceRef} />
     </div>
   );
 };

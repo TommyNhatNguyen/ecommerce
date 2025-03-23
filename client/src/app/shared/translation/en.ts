@@ -172,5 +172,7 @@ export default {
     create_transfer_invoice_error: "Create transfer invoice error",
     inventory_at_warehouse_from: "Inventory at warehouse from",
     inventory_at_warehouse_to: "Inventory at warehouse to",
+    create_check_inventory_invoice_success: "Create check inventory invoice successfully",
+    create_check_inventory_invoice_error: "Create check inventory invoice error",
   },
 };

@@ -32,6 +32,17 @@ export interface TransferInvoicesCreateDTO {
   status?: ModelStatus;
 }
 
+export interface CheckInventoryInvoicesCreateDTO {
+  warehouse_id: string;
+  inventory_data: {
+    inventory_id: string;
+    actual_quantity: number;
+  }[];
+  note?: string;
+  code: string;
+  status?: ModelStatus;
+}
+
 export interface InvoicesUpdateDTO {
   type?: InventoryInvoiceType;
   quantity?: number;
