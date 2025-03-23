@@ -1,6 +1,7 @@
 import { Request, Response, Router } from 'express';
 import {
   InventoryInvoiceConditionDTOSchema,
+  InventoryInvoiceCreateCheckInventoryDTOSchema,
   InventoryInvoiceCreateDTOSchema,
   InventoryInvoiceCreateTransferDTOSchema,
   InventoryInvoiceUpdateDTOSchema,
@@ -13,6 +14,33 @@ export class InventoryInvoiceHttpService {
     private readonly inventoryInvoiceUseCase: InventoryInvoiceUseCase
   ) {}
 
+  async createCheckInventoryInvoice(req: Request, res: Response) {
+    const { success, data, error } =
+      InventoryInvoiceCreateCheckInventoryDTOSchema.safeParse(req.body);
+    if (!success) {
+      res.status(400).json({ error: error.message });
+      return;
+    }
+    try {
+      const inventoryInvoice =
+        await this.inventoryInvoiceUseCase.createCheckInventoryInvoice(data);
+      if (!inventoryInvoice) {
+        res.status(400).json({ error: 'Failed to create inventory invoice' });
+        return;
+      }
+      res.status(200).json({
+        message: 'Inventory invoice created successfully',
+        ...inventoryInvoice,
+      });
+    } catch (error: any) {
+      console.log(
+        '🚀 ~ InventoryInvoiceHttpService ~ createCheckInventoryInvoice ~ error:',
+        error
+      );
+      res.status(400).json({ error: error.message });
+      return;
+    }
+  }
   async createTransferInvoice(req: Request, res: Response) {
     const { success, data, error } =
       InventoryInvoiceCreateTransferDTOSchema.safeParse(req.body);

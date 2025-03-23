@@ -22,6 +22,7 @@ export const setupInventoryInvoiceRouter = (sequelize: Sequelize) => {
   const inventoryInvoiceRepository = new InventoryInvoiceRepository(sequelize, inventoryInvoiceModelName);
   const inventoryInvoiceUseCase = new InventoryInvoiceUseCase(inventoryInvoiceRepository, inventoryUseCase, warehouseUseCase, sequelize);
   const inventoryInvoiceHttpService = new InventoryInvoiceHttpService(inventoryInvoiceUseCase);
+  router.post('/inventory-invoices/check-inventory', inventoryInvoiceHttpService.createCheckInventoryInvoice.bind(inventoryInvoiceHttpService));
   router.post('/inventory-invoices/transfer', inventoryInvoiceHttpService.createTransferInvoice.bind(inventoryInvoiceHttpService));
   router.get('/inventory-invoices/all', inventoryInvoiceHttpService.getAll.bind(inventoryInvoiceHttpService));
   router.post('/inventory-invoices', inventoryInvoiceHttpService.create.bind(inventoryInvoiceHttpService));
