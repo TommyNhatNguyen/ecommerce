@@ -4,7 +4,9 @@ import InventoryCheckTable from "@/app/shared/components/GeneralModal/components
 import InventoryCheckTabs from "@/app/shared/components/GeneralModal/components/ModalCreateCheckInvoice/components/InventoryCheckTabs";
 import { useCreateCheck } from "@/app/shared/components/GeneralModal/components/ModalCreateCheckInvoice/hooks/useCreateCheck";
 import InputAdmin from "@/app/shared/components/InputAdmin";
+import { inventoryService } from "@/app/shared/services/inventory/inventoryService";
 import { variantServices } from "@/app/shared/services/variant/variantService";
+import { warehouseService } from "@/app/shared/services/warehouse/warehouseService";
 import {
   keepPreviousData,
   useInfiniteQuery,
@@ -19,15 +21,19 @@ type Props = {};
 const ModalCreateCheckInvoice = (props: Props, ref: any) => {
   const intl = useIntl();
   const [open, setOpen] = useState(false);
+  const {
+    inventoryTabsProps,
+    selectedWarehouseId,
+    handleChangeWarehouse,
+    selectedInventoryIds,
+    handleChangeInventory,
+  } = useCreateCheck();
   const { data: warehouses } = useInfiniteQuery({
     queryKey: ["variant-infinite"],
     queryFn: ({ pageParam = 1 }) =>
-      variantServices.getList({
+      warehouseService.getList({
         page: pageParam,
         limit: 10,
-        include_product_sellable: true,
-        include_inventory: true,
-        include_warehouse: true,
       }),
     getNextPageParam: (lastPage) => {
       return lastPage.meta.total_page > lastPage.meta.current_page
@@ -37,8 +43,27 @@ const ModalCreateCheckInvoice = (props: Props, ref: any) => {
     initialPageParam: 1,
     placeholderData: keepPreviousData,
   });
+  const { data: inventory } = useInfiniteQuery({
+    queryKey: ["inventory-infinite", selectedWarehouseId],
+    queryFn: ({ pageParam = 1 }) =>
+      inventoryService.list({
+        page: pageParam,
+        limit: 10,
+        include_product_sellable: true,
+        include_inventory_warehouse: true,
+        warehouse_id: selectedWarehouseId,
+      }),
+    getNextPageParam: (lastPage) => {
+      return lastPage.meta.total_page > lastPage.meta.current_page
+        ? lastPage.meta.current_page + 1
+        : undefined;
+    },
+    initialPageParam: 1,
+    placeholderData: keepPreviousData,
+    enabled: !!selectedWarehouseId,
+  });
   const warehousesData = warehouses?.pages.flatMap((page) => page.data);
-  const { inventoryTabsProps } = useCreateCheck();
+  const inventoryData = inventory?.pages.flatMap((page) => page.data);
   const handleOpenModal = () => {
     setOpen(true);
   };
@@ -74,10 +99,31 @@ const ModalCreateCheckInvoice = (props: Props, ref: any) => {
                   value: warehouse.id,
                 }))}
                 {...props}
+                onChange={handleChangeWarehouse}
               />
             )}
           />
           {/* Select product based on warehouse */}
+          <InputAdmin
+            label={intl.formatMessage({ id: "select_product" })}
+            placeholder={intl.formatMessage({ id: "select_product" })}
+            customComponent={(props, ref) => (
+              <Select
+                className="w-full"
+                mode="multiple"
+                options={inventoryData?.map((inventory) => ({
+                  label: inventory.product_sellable?.variant?.name,
+                  value: inventory.id,
+                }))}
+                allowClear={true}
+                showSearch={true}
+                disabled={!selectedWarehouseId}
+                {...props}
+                value={selectedInventoryIds}
+                onChange={handleChangeInventory}
+              />
+            )}
+          />
         </div>
         {/* Content */}
         <div>
