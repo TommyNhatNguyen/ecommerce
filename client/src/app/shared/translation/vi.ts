@@ -189,5 +189,13 @@ export default {
     inventory_at_warehouse_to: "Tồn kho ở kho nhận",
     create_check_inventory_invoice_success: "Tạo hoá đơn kiểm kho thành công",
     create_check_inventory_invoice_error: "Tạo hoá đơn kiểm kho thất bại",
+    index: "STT",
+    actual_quantity: "Số lượng thực tế",
+    difference_quantity: "Số lượng chênh lệch",
+    system_quantity: "Số lượng trong hệ thống",
+    difference_amount: "Giá trị chênh lệch",
+    all_num: "Tất cả ({num})",
+    uncheck_num: "Chưa kiểm kho ({num})",
+    check_num: "Đã kiểm kho ({num})",
   },
 };

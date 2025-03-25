@@ -174,5 +174,13 @@ export default {
     inventory_at_warehouse_to: "Inventory at warehouse to",
     create_check_inventory_invoice_success: "Create check inventory invoice successfully",
     create_check_inventory_invoice_error: "Create check inventory invoice error",
+    index: "Index",
+    actual_quantity: "Actual Quantity",
+    difference_quantity: "Difference Quantity",
+    system_quantity: "System Quantity",
+    difference_amount: "Difference Amount",
+    all_num: "All ({num})",
+    uncheck_num: "Uncheck ({num})",
+    check_num: "Check ({num})",
   },
 };

@@ -49,7 +49,6 @@ const GeneralModal = ({
   };
   return (
     <Modal
-      {...props}
       centered={true}
       closable={true}
       mask={true}
@@ -57,6 +56,7 @@ const GeneralModal = ({
       footer={renderFooter && _renderFooter()}
       title={renderTitle && _renderTitle()}
       className={cn("relative min-w-[60%]", className)}
+      {...props}
     >
       {_renderContent()}
     </Modal>
