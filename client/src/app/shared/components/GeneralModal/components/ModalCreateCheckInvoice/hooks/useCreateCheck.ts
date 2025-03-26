@@ -1,18 +1,23 @@
+import { CheckInventoryInvoicesCreateDTO } from "@/app/shared/interfaces/invoices/invoices.dto";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 export const useCreateCheck = () => {
   const [selectedTab, setSelectedTab] = useState<string>("all_num");
-  const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>("");
-  const [selectedInventoryIds, setSelectedInventoryIds] = useState<string[]>([]);
-  const allNum = 0;
+  const [selectedInventoryIds, setSelectedInventoryIds] = useState<string[]>(
+    [],
+  );
+  const [checkInventoryData, setCheckInventoryData] = useState<{
+    [key: string]: number;
+  }>({});
+
+  const allNum = selectedInventoryIds.length;
   const uncheckNum = 0;
   const checkNum = 0;
-  const handleChangeWarehouse = (value: string) => {
-    setSelectedWarehouseId(value);
-  };
   const handleChangeInventory = (value: string[]) => {
     setSelectedInventoryIds(value);
   };
+
   const inventoryTabsProps = {
     selectedTab,
     setSelectedTab,
@@ -20,11 +25,16 @@ export const useCreateCheck = () => {
     uncheckNum,
     checkNum,
   };
+
+  const inventoryTableProps = {
+    checkInventoryData,
+    setCheckInventoryData,
+  };
   return {
     inventoryTabsProps,
-    selectedWarehouseId,
-    handleChangeWarehouse,
+    inventoryTableProps,
+    selectedTab,
     selectedInventoryIds,
-    handleChangeInventory,  
+    handleChangeInventory,
   };
 };
