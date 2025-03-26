@@ -46,6 +46,9 @@ const ModalCreateCheckInvoice = (props: Props, ref: any) => {
     search,
     debouncedSearch,
     inventoryCheckSummaryProps,
+    handleCreateCheckInventoryInvoice,
+    handleResetFields,
+    isCreateLoading,
   } = useCreateCheck();
   const { data: warehouses } = useInfiniteQuery({
     queryKey: ["variant-infinite"],
@@ -118,13 +121,16 @@ const ModalCreateCheckInvoice = (props: Props, ref: any) => {
   };
   const _onCloseModal = () => {
     setOpen(false);
+    handleResetFields();
+    reset();
   };
   useImperativeHandle(ref, () => ({
     handleOpenModal,
     handleCloseModal: _onCloseModal,
   }));
   const _onConfirmCreateInvoices = (data: CheckInventoryInvoicesCreateDTO) => {
-    console.log("🚀 ~ const_onConfirmCreateInvoices= ~ data:", data);
+    handleCreateCheckInventoryInvoice(data);
+    _onCloseModal()
   };
   const _renderTitle = () => {
     return (
@@ -244,7 +250,7 @@ const ModalCreateCheckInvoice = (props: Props, ref: any) => {
       renderTitle={_renderTitle}
       renderContent={_renderContent}
       renderFooter={_renderFooter}
-      // loading={isCreateLoading}
+      loading={isCreateLoading}
       className="min-w-[90%]"
       maskClosable={false}
     />
