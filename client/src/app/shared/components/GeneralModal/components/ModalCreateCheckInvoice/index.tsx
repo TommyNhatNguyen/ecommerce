@@ -35,12 +35,17 @@ const ModalCreateCheckInvoice = (props: Props, ref: any) => {
     control,
     setValue,
     watch,
+    reset,
   } = useForm<CheckInventoryInvoicesCreateDTO>();
   const {
     inventoryTabsProps,
     selectedInventoryIds,
     handleChangeInventory,
     inventoryTableProps,
+    handleSearch,
+    search,
+    debouncedSearch,
+    inventoryCheckSummaryProps,
   } = useCreateCheck();
   const { data: warehouses } = useInfiniteQuery({
     queryKey: ["variant-infinite"],
@@ -86,9 +91,9 @@ const ModalCreateCheckInvoice = (props: Props, ref: any) => {
   );
   const checkInventoryData = useMemo(
     () =>
-      inventoryData?.filter((inventory) =>
-        selectedInventoryIds.includes(inventory.id),
-      ),
+      selectedInventoryIds?.map((id) =>
+        inventoryData?.find((inventory) => inventory.id === id),
+      ) || [],
     [inventoryData, selectedInventoryIds],
   );
   const _onChangeInventory = (value: string[]) => {
@@ -102,6 +107,11 @@ const ModalCreateCheckInvoice = (props: Props, ref: any) => {
       })),
     );
     handleChangeInventory(value);
+  };
+  const _onChangeWarehouse = (value: string) => {
+    setValue("warehouse_id", value);
+    setValue("inventory_data", []);
+    _onChangeInventory([]);
   };
   const handleOpenModal = () => {
     setOpen(true);
@@ -137,7 +147,7 @@ const ModalCreateCheckInvoice = (props: Props, ref: any) => {
               <Controller
                 control={control}
                 name="warehouse_id"
-                render={({ field }) => (
+                render={({ field: { onChange, ...field } }) => (
                   <Select
                     placeholder={intl.formatMessage({ id: "select_warehouse" })}
                     className="w-full"
@@ -147,6 +157,7 @@ const ModalCreateCheckInvoice = (props: Props, ref: any) => {
                     }))}
                     {...field}
                     {...props}
+                    onChange={_onChangeWarehouse}
                   />
                 )}
               />
@@ -178,6 +189,8 @@ const ModalCreateCheckInvoice = (props: Props, ref: any) => {
           <Input.Search
             placeholder={intl.formatMessage({ id: "search" })}
             className="mb-2 w-full"
+            onChange={(e) => handleSearch(e.target.value)}
+            value={search}
           />
         </div>
         {/* Content */}
@@ -191,13 +204,18 @@ const ModalCreateCheckInvoice = (props: Props, ref: any) => {
               errors={errors}
               control={control}
               setValue={setValue}
-              data={checkInventoryData}
+              watch={watch}
+              data={checkInventoryData || []}
               loading={false}
               {...inventoryTableProps}
             />
           </div>
           {/* Summary table */}
-          <InventoryCheckSummary />
+          <InventoryCheckSummary
+            control={control}
+            errors={errors}
+            {...inventoryCheckSummaryProps}
+          />
         </div>
       </div>
     );

@@ -182,5 +182,8 @@ export default {
     all_num: "All ({num})",
     uncheck_num: "Uncheck ({num})",
     check_num: "Check ({num})",
+    total_actual_quantity: "Total Actual Quantity",
+    total_difference_quantity: "Total Difference Quantity",
+    total_difference_amount: "Total Difference Amount",
   },
 };

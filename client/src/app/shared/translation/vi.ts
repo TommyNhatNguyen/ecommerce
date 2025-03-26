@@ -178,7 +178,8 @@ export default {
     create_invoices_error: "Tạo hoá đơn thất bại",
     warehouse_total_quantity: "Tổng số lượng của kho {warehouse_name}",
     warehouse_total_cost: "Tổng giá trị của kho {warehouse_name}",
-    inventory_info_by_warehouse: "Thông tin tồn kho của {product_name} trong kho {warehouse_name}",
+    inventory_info_by_warehouse:
+      "Thông tin tồn kho của {product_name} trong kho {warehouse_name}",
     select_warehouse_from: "Chọn kho xuất",
     select_warehouse_to: "Chọn kho nhận",
     warehouse_from: "Kho xuất",
@@ -197,5 +198,8 @@ export default {
     all_num: "Tất cả ({num})",
     uncheck_num: "Chưa kiểm kho ({num})",
     check_num: "Đã kiểm kho ({num})",
+    total_actual_quantity: "Tổng số lượng thực tế",
+    total_difference_quantity: "Tổng số lượng chênh lệch",
+    total_difference_amount: "Tổng giá trị chênh lệch",
   },
 };
