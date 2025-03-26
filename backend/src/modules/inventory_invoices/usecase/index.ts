@@ -248,7 +248,8 @@ export class InventoryInvoiceUseCase implements IInventoryInvoiceUseCase {
                 inventory_id: inventory_id,
                 warehouse_id: warehouse_id_to,
                 quantity: diffQuantityInventoryWarehouseTo,
-                total_cost: diffTotalCostInventoryWarehouseTo,
+                total_cost:
+                  (data?.quantity || 0) * (inventoryWarehouseFrom?.cost || 0),
                 cost: inventoryWarehouseFrom?.cost || 0,
               },
             ],

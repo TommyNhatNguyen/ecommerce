@@ -185,5 +185,6 @@ export default {
     total_actual_quantity: "Total Actual Quantity",
     total_difference_quantity: "Total Difference Quantity",
     total_difference_amount: "Total Difference Amount",
+    check_inventory_invoice: "Check Inventory Invoice",
   },
 };

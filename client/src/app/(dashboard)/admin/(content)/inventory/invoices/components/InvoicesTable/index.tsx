@@ -152,13 +152,13 @@ const InvoicesTable = (props: Props) => {
                     _onOpenModalCreateInvoices(
                       "DISCARD_INVOICE" as InventoryInvoiceType,
                     ),
-                  },
-                  {
-                    key: "transfer_inventory",
-                    label: intl.formatMessage({ id: "transfer_inventory" }),
-                    icon: <Truck width={16} height={16} />,
-                    onClick: () => _onOpenModalCreateTransferInvoices(),
-                  },
+                },
+                {
+                  key: "transfer_inventory",
+                  label: intl.formatMessage({ id: "transfer_inventory" }),
+                  icon: <Truck width={16} height={16} />,
+                  onClick: () => _onOpenModalCreateTransferInvoices(),
+                },
                 {
                   key: "update_cost_inventory",
                   label: intl.formatMessage({
@@ -169,14 +169,14 @@ const InvoicesTable = (props: Props) => {
                     _onOpenModalCreateInvoices(
                       "UPDATE_COST_INVOICE" as InventoryInvoiceType,
                     ),
-                  },
-                  {
-                    key: "check_inventory",
-                    label: intl.formatMessage({ id: "check_inventory" }),
-                    icon: <LucidePackageSearch width={16} height={16} />,
-                    onClick: () => _onOpenModalCreateCheckInvoice(),
-                  },
-                ],
+                },
+                {
+                  key: "check_inventory",
+                  label: intl.formatMessage({ id: "check_inventory" }),
+                  icon: <LucidePackageSearch width={16} height={16} />,
+                  onClick: () => _onOpenModalCreateCheckInvoice(),
+                },
+              ],
             }}
           >
             <Button type="primary" icon={<Plus width={16} height={16} />}>
@@ -250,7 +250,10 @@ const InvoicesTable = (props: Props) => {
         ref={modalCreateTransferInvoicesRef}
         refetch={_onRefetch}
       />
-      <ModalCreateCheckInvoice ref={modalCreateCheckInvoiceRef} />
+      <ModalCreateCheckInvoice
+        ref={modalCreateCheckInvoiceRef}
+        refetch={_onRefetch}
+      />
     </div>
   );
 };

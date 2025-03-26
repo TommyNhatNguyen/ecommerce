@@ -23,9 +23,11 @@ import React, {
 import { Controller, useForm } from "react-hook-form";
 import { useIntl } from "react-intl";
 
-type Props = {};
+type Props = {
+  refetch: () => void;
+};
 
-const ModalCreateCheckInvoice = (props: Props, ref: any) => {
+const ModalCreateCheckInvoice = ({ refetch }: Props, ref: any) => {
   const intl = useIntl();
   const [open, setOpen] = useState(false);
   const {
@@ -128,9 +130,12 @@ const ModalCreateCheckInvoice = (props: Props, ref: any) => {
     handleOpenModal,
     handleCloseModal: _onCloseModal,
   }));
-  const _onConfirmCreateInvoices = (data: CheckInventoryInvoicesCreateDTO) => {
-    handleCreateCheckInventoryInvoice(data);
-    _onCloseModal()
+  const _onConfirmCreateInvoices = async (
+    data: CheckInventoryInvoicesCreateDTO,
+  ) => {
+    await handleCreateCheckInventoryInvoice(data);
+    _onCloseModal();
+    refetch();
   };
   const _renderTitle = () => {
     return (

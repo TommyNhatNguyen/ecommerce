@@ -106,14 +106,14 @@ const ModalCreateTransferInvoices = ({ refetch }: Props, ref: any) => {
     handleOpenModal,
     handleCloseModal: _onCloseModal,
   }));
-  const _onConfirmCreateInvoices: SubmitHandler<TransferInvoicesCreateDTO> = (
-    data,
-  ) => {
-    handleCreateTransferInvoice(data);
+  const _onConfirmCreateInvoices: SubmitHandler<
+    TransferInvoicesCreateDTO
+  > = async (data) => {
+    await handleCreateTransferInvoice(data);
     reset();
     setValue("note", "");
-    refetch();
     _onCloseModal();
+    refetch();
   };
   const _renderTitle = () => {
     return (

@@ -201,5 +201,6 @@ export default {
     total_actual_quantity: "Tổng số lượng thực tế",
     total_difference_quantity: "Tổng số lượng chênh lệch",
     total_difference_amount: "Tổng giá trị chênh lệch",
+    check_inventory_invoice: "Hoá đơn kiểm kho",
   },
 };
