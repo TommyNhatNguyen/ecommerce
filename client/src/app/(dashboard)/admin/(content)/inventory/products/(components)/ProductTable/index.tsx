@@ -17,6 +17,7 @@ import {
   FilePlus,
   Plus,
   RefreshCcw,
+  Trash2Icon,
 } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useIntl } from "react-intl";
@@ -42,7 +43,14 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
   }>({});
   const [productDetail, setProductDetail] =
     useState<VariantProductModel | null>(null);
-
+  const {
+    selectedProducts,
+    handleSelectProducts,
+    handleBulkSoftDeleteProduct,
+    loadingSoftDelete,
+    handleDeleteVariant,
+    loadingDeleteVariant,
+  } = useProducts();
   // Fetch products data with infinite scroll
   const {
     data: productsData,
@@ -74,7 +82,14 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
     initialPageParam: 1,
     placeholderData: keepPreviousData,
   });
-
+  const loading = useMemo(() => {
+    return (
+      loadingSoftDelete ||
+      isFetchingNextPage ||
+      isLoading ||
+      loadingDeleteVariant
+    );
+  }, [loadingSoftDelete, isFetchingNextPage, isLoading, loadingDeleteVariant]);
   // Memoized values
   const products = useMemo(() => {
     return productsData?.pages?.flatMap((page) => page.data) || [];
@@ -112,6 +127,14 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
     setProductDetail(null);
   };
 
+  const _onBulkSoftDeleteProduct = () => {
+    handleBulkSoftDeleteProduct(selectedProducts, _onRefetch);
+  };
+
+  const _onDeleteVariant = () => {
+    handleDeleteVariant(selectedProducts, _onRefetch);
+  };
+
   // Side effects
   useEffect(() => {
     // Initialize selected columns when products are loaded
@@ -144,6 +167,18 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
           )}
         </div>
         <div className="right flex items-center gap-2">
+          {selectedProducts.length > 0 && (
+            <Button
+              type="primary"
+              disabled={selectedProducts.length === 0}
+              color="danger"
+              variant="solid"
+              icon={<Trash2Icon width={16} height={16} />}
+              onClick={_onDeleteVariant}
+            >
+              {intl.formatMessage({ id: "delete_products" })}
+            </Button>
+          )}
           <Button
             type="primary"
             icon={
@@ -234,13 +269,22 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
           rowKey={(record) => record.id}
           pagination={false}
           rowClassName={"bg-slate-100"}
-          loading={isFetchingNextPage}
+          loading={loading}
           expandable={{
             expandRowByClick: true,
             expandedRowRender: (record, index) => {
               return (
                 <>
                   <Table
+                    rowSelection={{
+                      selectedRowKeys: selectedProducts,
+                      onChange: (selectedRowKeys, selectedRows) => {
+                        handleSelectProducts(
+                          selectedRowKeys as string[],
+                          selectedRows,
+                        );
+                      },
+                    }}
                     key={`${record.id}-${index}`}
                     dataSource={record.variant}
                     columns={newVariantColumns}

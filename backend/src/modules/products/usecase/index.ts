@@ -24,7 +24,7 @@ import { DISCOUNT_NOT_FOUND_ERROR } from 'src/modules/products/models/errors';
 import { IInventoryUseCase } from 'src/modules/inventory/models/inventory.interface';
 import { IVariantUseCase } from 'src/modules/variant/models/variant.interface';
 import { IProductSellableUseCase } from 'src/modules/product_sellable/models/product-sellable.interface';
-import { Sequelize } from 'sequelize';
+import { Op, Sequelize, Transaction } from 'sequelize';
 import { IBrandUseCase } from 'src/modules/brand/models/brand.interface';
 
 export class ProductUseCase implements IProductUseCase {
@@ -36,6 +36,10 @@ export class ProductUseCase implements IProductUseCase {
     private readonly brandUseCase: IBrandUseCase,
     private readonly sequelize: Sequelize
   ) {}
+
+  async bulkSoftDelete(ids: string[], t?: Transaction): Promise<boolean> {
+    return await this.repository.bulkSoftDelete(ids, t);
+  }
   async countTotalProduct(): Promise<number> {
     return await this.repository.countTotalProduct();
   }

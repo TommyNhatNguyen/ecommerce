@@ -1,11 +1,32 @@
 import { Request, Response } from 'express';
-import { VariantCreateDTOSchema, VariantUpdateDTOSchema } from 'src/modules/variant/models/variant.dto';
+import {
+  VariantBulkDeleteDTOSchema,
+  VariantCreateDTOSchema,
+  VariantUpdateDTOSchema,
+} from 'src/modules/variant/models/variant.dto';
 import { VariantConditionDTOSchema } from 'src/modules/variant/models/variant.dto';
 import { IVariantUseCase } from 'src/modules/variant/models/variant.interface';
 import { PagingDTOSchema } from 'src/share/models/paging';
 
 export class VariantHttpService {
   constructor(private readonly useCase: IVariantUseCase) {}
+  async bulkDelete(req: Request, res: Response) {
+    const { success, data, error } = VariantBulkDeleteDTOSchema.safeParse(
+      req.body
+    );
+    if (!success) {
+      res.status(400).json({ message: error?.message });
+      return;
+    }
+    try {
+      await this.useCase.bulkDelete(data);
+      res.status(200).json({ message: 'Variant deleted successfully' });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: 'Failed to delete variant' });
+      return;
+    }
+  }
   async getVariantById(req: Request, res: Response) {
     const { id } = req.params;
     try {
@@ -16,7 +37,7 @@ export class VariantHttpService {
       }
       res.status(200).json({ message: 'Variant found', data: checkVariant });
     } catch (error) {
-      console.log("🚀 ~ VariantHttpService ~ getVariantById ~ error:", error)
+      console.log('🚀 ~ VariantHttpService ~ getVariantById ~ error:', error);
       res.status(500).json({ message: 'Failed to get variant' });
       return;
     }

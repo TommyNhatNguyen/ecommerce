@@ -202,5 +202,11 @@ export default {
     total_difference_quantity: "Tổng số lượng chênh lệch",
     total_difference_amount: "Tổng giá trị chênh lệch",
     check_inventory_invoice: "Hoá đơn kiểm kho",
+    delete_products: "Xóa sản phẩm",
+    delete_products_success: "Xóa sản phẩm thành công",
+    delete_products_error: "Xóa sản phẩm thất bại",
+    delete_variants: "Xóa biến thể",
+    delete_variants_success: "Xóa biến thể thành công",
+    delete_variants_error: "Xóa biến thể thất bại",
   },
 };

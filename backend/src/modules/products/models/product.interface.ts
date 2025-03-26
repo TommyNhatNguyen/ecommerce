@@ -26,6 +26,7 @@ export interface IProductUseCase {
     condition?: ProductConditionDTOSchema
   ): Promise<Product | null>;
   countTotalProduct(): Promise<number>;
+  bulkSoftDelete(ids: string[], t?: Transaction): Promise<boolean>;
 }
 
 export interface IProductRepository
@@ -33,6 +34,7 @@ export interface IProductRepository
     ICommandRepository {
   countTotalProduct(): Promise<number>;
   addCategories(data: ProductCategoryCreateDTO[], t?: Transaction): Promise<boolean>;
+  bulkSoftDelete(ids: string[], t?: Transaction): Promise<boolean>;
 }
 
 export interface IQueryRepository {

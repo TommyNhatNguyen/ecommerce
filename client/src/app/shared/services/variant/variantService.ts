@@ -2,6 +2,7 @@ import { VariantProductModel } from "./../../models/variant/variant.model.d";
 import { ListResponseModel } from "./../../models/others/list-response.model.d";
 import {
   CreateVariantDTOV2,
+  VariantBulkDeleteDTO,
   VariantConditionDTO,
   VariantCreateDTO,
 } from "../../interfaces/variant/variant.interface";
@@ -40,6 +41,12 @@ export const variantServices = {
   ): Promise<VariantProductModel> => {
     const response = await axiosInstance.put(`/variants/${id}`, {
       status,
+    });
+    return response.data;
+  },
+  bulkDelete: async (data: VariantBulkDeleteDTO): Promise<boolean> => {
+    const response = await axiosInstance.delete("/variants/delete", {
+      data,
     });
     return response.data;
   },

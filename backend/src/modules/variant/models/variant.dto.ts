@@ -6,12 +6,13 @@ import {
 } from 'src/share/models/base-model';
 import z from 'zod';
 export const VariantConditionDTOSchema = z.object({
+  ids: z.array(z.string()).optional(),
   name: z.string().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   created_at: z.date().optional(),
   updated_at: z.date().optional(),
-  order: z.string().optional().default(BaseOrder.DESC),
-  sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
+  order: z.string().default(BaseOrder.DESC).optional(),
+  sortBy: z.string().default(BaseSortBy.CREATED_AT).optional(),
   option_value_ids: z.array(z.string()).optional(),
   product_id: z.string().uuid().optional(),
   sku: z.string().optional(),
@@ -69,9 +70,14 @@ export const VariantOptionValueCreateDTOSchema = z.object({
   option_value_id: z.string(),
 });
 
+export const VariantBulkDeleteDTOSchema = z.object({
+  ids: z.array(z.string()),
+});
+
 export type VariantConditionDTO = z.infer<typeof VariantConditionDTOSchema>;
 export type VariantCreateDTO = z.infer<typeof VariantCreateDTOSchema>;
 export type VariantUpdateDTO = z.infer<typeof VariantUpdateDTOSchema>;
 export type VariantOptionValueCreateDTO = z.infer<
   typeof VariantOptionValueCreateDTOSchema
 >;
+export type VariantBulkDeleteDTO = z.infer<typeof VariantBulkDeleteDTOSchema>;

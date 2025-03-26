@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import {
+  ProductBulkSoftDeleteDTOSchema,
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
   ProductGetStatsDTOSchema,
@@ -60,6 +61,27 @@ export class ProductHttpService {
     }
   }
 
+  async bulkSoftDelete(req: Request, res: Response) {
+    const { success, data, error } = ProductBulkSoftDeleteDTOSchema.safeParse(req.body);
+    if (!success) {
+      res.status(400).json({ error: error.message });
+      return;
+    }
+    try {
+      const result = await this.productUseCase.bulkSoftDelete(data.ids);
+      if (result) {
+        res.status(200).json({
+          message: "Products deleted successfully",
+          data: result,
+        });
+      } else {
+        res.status(400).json({ error: "Failed to delete products" });
+      }
+    } catch (error) {
+      res.status(500).json({ error: (error as Error).message });
+      return;
+    }
+  }
   async deleteProduct(req: Request, res: Response) {
     const { id } = req.params;
     console.log(id);

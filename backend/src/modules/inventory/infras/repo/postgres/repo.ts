@@ -136,15 +136,9 @@ export class PostgresInventoryRepository implements IInventoryRepository {
     warehouse_id: string,
     t?: Transaction
   ): Promise<boolean> {
-    if (t) {
-      await this.sequelize.models[this.modelName].destroy({
-        where: { inventory_id, warehouse_id },
-        transaction: t,
-      });
-      return true;
-    }
     await this.sequelize.models[this.modelName].destroy({
       where: { inventory_id, warehouse_id },
+      transaction: t,
     });
     return true;
   }
@@ -182,10 +176,7 @@ export class PostgresInventoryRepository implements IInventoryRepository {
       include,
       transaction: t,
     });
-    if (!inventory) {
-      throw new Error('Inventory not found');
-    }
-    return inventory.dataValues;
+    return inventory?.dataValues;
   }
   async list(
     paging: PagingDTO,

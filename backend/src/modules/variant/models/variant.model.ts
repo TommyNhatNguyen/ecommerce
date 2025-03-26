@@ -1,3 +1,5 @@
+import { inventoryModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
+import { InventorySchema } from 'src/modules/inventory/models/inventory.model';
 import { productSellableModelName } from 'src/modules/product_sellable/infras/repo/postgres/dto';
 import { ProductSellableSchema } from 'src/modules/product_sellable/models/product-sellable.model';
 import { ModelStatus } from 'src/share/models/base-model';

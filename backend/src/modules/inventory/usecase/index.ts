@@ -36,7 +36,11 @@ export class InventoryUseCase implements IInventoryUseCase {
     warehouse_id: string,
     t?: Transaction
   ): Promise<boolean> {
-    return await this.inventoryWarehouseRepository.deleteInventoryWarehouse(inventory_id, warehouse_id, t);
+    return await this.inventoryWarehouseRepository.deleteInventoryWarehouse(
+      inventory_id,
+      warehouse_id,
+      t
+    );
   }
 
   async updateInventoryWarehouse(
@@ -53,9 +57,12 @@ export class InventoryUseCase implements IInventoryUseCase {
     data: InventoryWarehouseCreateDTO[],
     t?: Transaction
   ): Promise<InventoryWarehouse[]> {
-    return await this.inventoryWarehouseRepository.addInventoryWarehouse(data, t);
+    return await this.inventoryWarehouseRepository.addInventoryWarehouse(
+      data,
+      t
+    );
   }
-  
+
   async getInventoryByInventoryIdAndWarehouseId(
     inventory_id: string,
     warehouse_id: string,
@@ -178,13 +185,14 @@ export class InventoryUseCase implements IInventoryUseCase {
     data: InventoryUpdateDTO,
     t?: Transaction
   ): Promise<Inventory> {
-    const inventory = await this.getInventoryById(id, {}, t);
+    const inventory = await this.inventoryRepository.get(id, {}, t);
     const payload: InventoryUpdateDTO = { ...data };
+    console.log('🚀 ~ InventoryUseCase ~ inventory:', inventory);
     if (data.total_quantity) {
       payload.stock_status = this.determineStockStatus(
-        data.total_quantity,
-        inventory.low_stock_threshold ?? 0,
-        inventory.high_stock_threshold ?? 9999999
+        data?.total_quantity,
+        inventory?.low_stock_threshold ?? 0,
+        inventory?.high_stock_threshold ?? 9999999
       );
     }
     const updatedInventory = await this.inventoryRepository.update(

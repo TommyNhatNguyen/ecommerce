@@ -63,6 +63,14 @@ export class PostgresProductRepository implements IProductRepository {
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+
+  async bulkSoftDelete(ids: string[], t?: Transaction): Promise<boolean> {
+    await this.sequelize.models[this.modelName].update(
+      { status: ModelStatus.DELETED },
+      { where: { id: { [Op.in]: ids } }, transaction: t }
+    );
+    return true;
+  }
   async addCategories(
     data: ProductCategoryCreateDTO[],
     t?: Transaction

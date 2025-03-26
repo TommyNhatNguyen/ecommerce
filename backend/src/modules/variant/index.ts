@@ -107,10 +107,16 @@ export function setupVariantRouter(sequelize: Sequelize) {
   const variantUseCase = new VariantUseCase(
     variantRepository,
     variantOptionValueRepository,
-    productSellableUseCase
+    productSellableUseCase,
+    inventoryUseCase,
+    warehouseUseCase
   );
   const variantHttpService = new VariantHttpService(variantUseCase);
   const router = Router();
+  router.delete(
+    '/variants/delete',
+    variantHttpService.bulkDelete.bind(variantHttpService)
+  );
   router.get(
     '/variants/:id',
     variantHttpService.getVariantById.bind(variantHttpService)

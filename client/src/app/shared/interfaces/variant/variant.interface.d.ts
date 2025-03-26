@@ -100,3 +100,8 @@ export type OptionConditionDTO = {
   page?: number;
   limit?: number;
 };
+
+export type VariantBulkDeleteDTO = {
+  ids: string[];
+};
+  

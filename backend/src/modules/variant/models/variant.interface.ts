@@ -1,5 +1,5 @@
 import { Variant } from 'src/modules/variant/models/variant.model';
-import { VariantConditionDTO, VariantCreateDTO, VariantOptionValueCreateDTO, VariantUpdateDTO } from './variant.dto';
+import { VariantBulkDeleteDTO, VariantConditionDTO, VariantCreateDTO, VariantOptionValueCreateDTO, VariantUpdateDTO } from './variant.dto';
 import { ListResponse } from 'src/share/models/base-model';
 import { PagingDTO } from 'src/share/models/paging';
 import { Transaction } from 'sequelize';
@@ -17,6 +17,8 @@ export interface IVariantUseCase {
     data: VariantOptionValueCreateDTO[],
     t?: Transaction
   ): Promise<boolean>;
+  bulkDelete(data: VariantBulkDeleteDTO, t?: Transaction): Promise<boolean>;
+  getAll(data?: VariantConditionDTO, t?: Transaction): Promise<Variant[]>;
 }
 
 export interface IVariantRepository
@@ -26,6 +28,8 @@ export interface IVariantRepository
     data: VariantOptionValueCreateDTO[],
     t?: Transaction
   ): Promise<boolean>;
+  bulkDelete(data: VariantBulkDeleteDTO, t?: Transaction): Promise<boolean>;
+  getAll(data?: VariantConditionDTO, t?: Transaction): Promise<Variant[]>;
 }
 
 export interface IQueryRepository {

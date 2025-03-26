@@ -13,6 +13,8 @@ import { variantModelName } from 'src/modules/variant/infras/repo/postgres/dto';
 import { VariantSchema } from 'src/modules/variant/models/variant.model';
 import { ModelStatus } from 'src/share/models/base-model';
 import { z } from 'zod';
+import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
+import { WarehouseSchema } from 'src/modules/warehouse/models/warehouse.model';
 
 export const ProductSellableSchema = z.object({
   id: z.string().uuid(),
@@ -37,6 +39,7 @@ export const ProductSellableSchema = z.object({
       low_stock_threshold: z.number().min(0),
       high_stock_threshold: z.number().min(0),
       avg_cost: z.number().min(0),
+      [warehouseModelName]: z.array(WarehouseSchema).optional(),
     })
     .optional(),
   [cartProductModelName]: z

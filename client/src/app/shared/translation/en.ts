@@ -186,5 +186,11 @@ export default {
     total_difference_quantity: "Total Difference Quantity",
     total_difference_amount: "Total Difference Amount",
     check_inventory_invoice: "Check Inventory Invoice",
+    delete_products: "Delete Products",
+    delete_products_success: "Delete products successfully",
+    delete_products_error: "Delete products error",
+    delete_variants: "Delete Variants",
+    delete_variants_success: "Delete variants successfully",
+    delete_variants_error: "Delete variants error",
   },
 };

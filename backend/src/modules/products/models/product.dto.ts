@@ -45,6 +45,10 @@ export const ProductUpdateDTOSchema = z.object({
   categoryIds: z.array(z.string().uuid()).optional(),
 });
 
+export const ProductBulkSoftDeleteDTOSchema = z.object({
+  ids: z.array(z.string().uuid()),
+});
+
 export enum ProductStatsSortBy {
   ASC = 'ASC',
   DESC = 'DESC',
@@ -137,4 +141,7 @@ export type ProductConditionDTOSchema = z.infer<
 export type ProductGetStatsDTO = z.infer<typeof ProductGetStatsDTOSchema>;
 export type ProductCategoryCreateDTO = z.infer<
   typeof ProductCategoryCreateDTOSchema
+>;
+export type ProductBulkSoftDeleteDTO = z.infer<
+  typeof ProductBulkSoftDeleteDTOSchema
 >;

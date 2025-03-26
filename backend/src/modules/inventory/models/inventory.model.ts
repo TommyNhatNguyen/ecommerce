@@ -10,6 +10,7 @@ import { variantModelName } from 'src/modules/variant/infras/repo/postgres/dto';
 import { ModelStatus } from 'src/share/models/base-model';
 import z from 'zod';
 import { ImageSchema } from 'src/modules/image/models/image.model';
+import { WarehouseSchema } from 'src/modules/warehouse/models/warehouse.model';
 
 export enum StockStatus {
   IN_STOCK = 'IN_STOCK',
@@ -41,6 +42,8 @@ export const InventorySchema = z.object({
   low_stock_threshold: z.number().min(0),
   high_stock_threshold: z.number().min(0),
   note: z.string().optional(),
+  warehouse: WarehouseSchema.optional(),
+  warehouse_id: z.string().uuid().optional(),
   [productSellableModelName]: z.object({
     id: z.string().uuid(),
     price: z.number().nonnegative().min(0),
