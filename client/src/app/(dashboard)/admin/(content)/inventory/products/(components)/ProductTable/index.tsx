@@ -54,6 +54,7 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
     selectedVariants,
     handleSelectVariants,
     handleChangeStatus,
+    handleChangeVariantStatus,
   } = useProducts();
   // Fetch products data with infinite scroll
   const {
@@ -90,6 +91,10 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
     await handleChangeStatus(id, status);
     refetch();
   };
+  const _onChangeVariantStatus = async (id: string, status: ModelStatus) => {
+    await handleChangeVariantStatus(id, status);
+    refetch();
+  };
   const loading = useMemo(() => {
     return (
       isFetchingNextPage || isLoading || loadingDeleteVariant || loadingDelete
@@ -108,7 +113,7 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
   }, [selectedColumns]);
 
   const newVariantColumns = useMemo(() => {
-    return variantColumns(intl)?.map((item) => ({
+    return variantColumns(intl, _onChangeVariantStatus)?.map((item) => ({
       ...item,
       hidden: !selectedColumns["variant"]?.includes(item?.key as string),
     }));
@@ -149,7 +154,10 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
           productColumns(intl, _onChangeStatus)?.map(
             (item) => item?.key as string,
           ) || [],
-        variant: variantColumns(intl)?.map((item) => item?.key as string) || [],
+        variant:
+          variantColumns(intl, _onChangeVariantStatus)?.map(
+            (item) => item?.key as string,
+          ) || [],
       });
     }
   }, [products]);
@@ -315,13 +323,13 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
                     dataSource={record.variant}
                     columns={newVariantColumns}
                     rowKey={(record) => record.id}
-                    onRow={(record) => {
-                      return {
-                        onClick: () => {
-                          setProductDetail(record);
-                        },
-                      };
-                    }}
+                    // onRow={(record) => {
+                    //   return {
+                    //     onClick: () => {
+                    //       setProductDetail(record);
+                    //     },
+                    //   };
+                    // }}
                     pagination={false}
                   />
                 </>

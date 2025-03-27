@@ -5,6 +5,7 @@ import {
   VariantBulkDeleteDTO,
   VariantConditionDTO,
   VariantCreateDTO,
+  VariantUpdateDTO,
 } from "../../interfaces/variant/variant.interface";
 import { axiosInstance } from "../../utils/axiosInstance";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
@@ -35,13 +36,11 @@ export const variantServices = {
     const response = await axiosInstance.delete(`/variants/${id}`);
     return response.data;
   },
-  updateStatus: async (
+  update: async (
     id: string,
-    status: ModelStatus,
+    data: VariantUpdateDTO,
   ): Promise<VariantProductModel> => {
-    const response = await axiosInstance.put(`/variants/${id}`, {
-      status,
-    });
+    const response = await axiosInstance.put(`/variants/${id}`, data);
     return response.data;
   },
   bulkDelete: async (data: VariantBulkDeleteDTO): Promise<boolean> => {

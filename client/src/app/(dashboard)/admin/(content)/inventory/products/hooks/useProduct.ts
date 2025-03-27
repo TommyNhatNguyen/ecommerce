@@ -107,6 +107,22 @@ export function useProducts() {
       });
     }
   };
+  const handleChangeVariantStatus = async (id: string, status: ModelStatus) => {
+    try {
+      const response = await variantServices.update(id, { status });
+      if (response) {
+        notificationApi.success({
+          message: intl.formatMessage({ id: "change_status_success" }),
+          description: intl.formatMessage({ id: "change_status_success" }),
+        });
+      }
+    } catch (error) {
+      notificationApi.error({
+        message: intl.formatMessage({ id: "change_status_error" }),
+        description: intl.formatMessage({ id: "change_status_error" }),
+      });
+    }
+  };
 
   return {
     handleDeleteProduct,
@@ -120,5 +136,6 @@ export function useProducts() {
     handleSelectVariants,
     loadingDeleteVariant,
     handleChangeStatus,
+    handleChangeVariantStatus,
   };
 }

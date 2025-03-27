@@ -1,9 +1,5 @@
 import { CreateProductSellableDTO } from "@/app/shared/interfaces/products/product-sellable.dto";
-import {
-  BaseOrder,
-  BaseSortBy,
-  ModelStatus,
-} from "../../models/others/status.model";
+import { BaseOrder, BaseSortBy, ModelStatus } from "../../models/others/status.model";
 
 export type VariantCreateDTO = {
   type: string;
@@ -104,4 +100,3 @@ export type OptionConditionDTO = {
 export type VariantBulkDeleteDTO = {
   ids: string[];
 };
-  

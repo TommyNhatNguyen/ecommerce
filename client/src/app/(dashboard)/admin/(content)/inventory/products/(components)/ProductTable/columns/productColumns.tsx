@@ -5,6 +5,7 @@ import { IntlShape } from "react-intl";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { formatCurrency, formatNumber } from "@/app/shared/utils/utils";
 import { STATUS_OPTIONS } from "@/app/constants/seeds";
+import SelectStatusAdmin from "@/app/shared/components/SelectStatusAdmin";
 
 export const productColumns: (
   intl: IntlShape,
@@ -70,31 +71,10 @@ export const productColumns: (
     dataIndex: "status",
     render: (_, { id, status }) => {
       return (
-        <Select
-          options={STATUS_OPTIONS}
-          value={status}
-          onChange={(value) => handleChangeStatus(id, value as ModelStatus)}
-          className="w-full"
-          optionRender={(props) => {
-            const color = props.value === "ACTIVE" ? "green" : "red";
-            const label =
-              props.value === "ACTIVE" ? "is_selling" : "is_discountinued";
-            return (
-              <p className="text-sm"  style={{color}}>
-                {intl.formatMessage({ id: label })}
-              </p>
-            );
-          }}
-          labelRender={(props) => {
-            const color = props.value === "ACTIVE" ? "green" : "red";
-            const label =
-              props.value === "ACTIVE" ? "is_selling" : "is_discountinued";
-            return (
-              <p className="text-sm"  style={{ color }}>
-                {intl.formatMessage({ id: label })}
-              </p>
-            );
-          }}
+        <SelectStatusAdmin
+          handleChangeStatus={handleChangeStatus}
+          status={status}
+          id={id}
         />
       );
     },
@@ -103,7 +83,11 @@ export const productColumns: (
 
 export const variantColumns: (
   intl: IntlShape,
-) => TableProps<VariantProductModel>["columns"] = (intl: IntlShape) => [
+  handleChangeVariantStatus: (id: string, status: ModelStatus) => void,
+) => TableProps<VariantProductModel>["columns"] = (
+  intl,
+  handleChangeVariantStatus,
+) => [
   {
     key: "image",
     title: () => intl.formatMessage({ id: "thumbnail" }),
@@ -166,17 +150,13 @@ export const variantColumns: (
     key: "status",
     title: () => intl.formatMessage({ id: "status" }),
     dataIndex: "status",
-    render: (_, { status }) => {
+    render: (_, { status, id }) => {
       return (
-        <div>
-          {status === "ACTIVE" ? (
-            <Tag color="green">{intl.formatMessage({ id: "is_selling" })}</Tag>
-          ) : (
-            <Tag color="red">
-              {intl.formatMessage({ id: "is_discountinued" })}
-            </Tag>
-          )}
-        </div>
+        <SelectStatusAdmin
+          handleChangeStatus={handleChangeVariantStatus}
+          status={status}
+          id={id || ""}
+        />
       );
     },
   },
