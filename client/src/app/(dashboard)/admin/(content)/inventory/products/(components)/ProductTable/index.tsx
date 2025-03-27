@@ -31,9 +31,10 @@ import { ModelStatus } from "@/app/shared/models/others/status.model";
 type Props = {
   selectedCategories: string[];
   limit: number;
+  isApplyFilters?: boolean;
 };
 
-const ProductTable = ({ selectedCategories, limit }: Props) => {
+const ProductTable = ({ selectedCategories, limit, isApplyFilters }: Props) => {
   const intl = useIntl();
 
   // Refs and state management
@@ -65,7 +66,7 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
     refetch,
     isLoading,
   } = useInfiniteQuery({
-    queryKey: ["products", selectedCategories, limit],
+    queryKey: ["products", limit isApplyFilters],
     queryFn: ({ pageParam = 1 }) => {
       return productService.getProducts({
         includeDiscount: true,

@@ -49,6 +49,8 @@ type Props = {
   hasSelectedItems: boolean;
   limit: number;
   handleSelectLimit: (value: number) => void;
+  handleApplyFilters: () => void;
+  isApplyFilters: boolean;
 };
 
 const ProductFilter = ({
@@ -74,6 +76,8 @@ const ProductFilter = ({
   handleSearchDiscount,
   handleClearAll,
   handleSelectLimit,
+  handleApplyFilters,
+  isApplyFilters,
 }: Props) => {
   const intl = useIntl();
   const _onSearch = (value: string) => {
@@ -142,6 +146,7 @@ const ProductFilter = ({
     <FilterComponent
       hasSelectedItems={hasSelectedItems}
       clearAll={handleClearAll}
+      applyFilters={handleApplyFilters}
     >
       <Filter.Item name="search" label={intl.formatMessage({ id: "search" })}>
         <Input.Search

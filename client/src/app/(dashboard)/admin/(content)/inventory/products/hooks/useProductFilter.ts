@@ -8,6 +8,7 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
 export const useProductFilter = () => {
+  const [isApplyFilters, setIsApplyFilters] = useState<boolean>(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [search, setSearch] = useState<string>("");
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -102,6 +103,15 @@ export const useProductFilter = () => {
     setSelectedDiscounts([]);
     setSearch("");
   };
+  const handleApplyFilters = () => {
+    try {
+      setIsApplyFilters(true);
+    } catch (error) {
+      
+    } finally {
+      setIsApplyFilters(false);
+    }
+  };
   return {
     categories: categories?.data,
     options: options?.data,
@@ -126,5 +136,7 @@ export const useProductFilter = () => {
     handleClearAll,
     limit,
     handleSelectLimit,
+    handleApplyFilters,
+    isApplyFilters,
   };
 };

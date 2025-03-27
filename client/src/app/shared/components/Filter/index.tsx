@@ -10,6 +10,7 @@ type Props = {
   children: React.ReactNode;
   clearAll?: () => void;
   hasSelectedItems?: boolean;
+  applyFilters?: () => void;
 } & React.RefAttributes<HTMLDivElement>;
 
 type FilterItemProps = {
@@ -27,21 +28,32 @@ interface FilterComponent extends React.ForwardRefExoticComponent<Props> {
 }
 
 const Filter = (
-  { children, hasSelectedItems, clearAll, ...props }: Props,
+  { children, hasSelectedItems, clearAll, applyFilters, ...props }: Props,
   ref?: React.Ref<HTMLDivElement>,
 ) => {
   const intl = useIntl();
   return (
-    <div className="sticky top-10 max-h-[800px] overflow-y-auto px-4" ref={ref}>
-      {hasSelectedItems && (
-        <Button
-          type="primary"
-          className="mb-2 w-fit"
-          onClick={clearAll}
-        >
-          {intl.formatMessage({ id: "clear_all_filters" })}
-        </Button>
-      )}
+    <div
+      className="sticky top-10 max-h-[800px] flex-shrink-0 overflow-y-auto px-4"
+      ref={ref}
+    >
+      <div className="mb-2 flex flex-col items-center justify-center gap-2">
+        {hasSelectedItems && (
+          <Button
+            type="primary"
+            variant="filled"
+            className="w-full"
+            onClick={applyFilters}
+          >
+            {intl.formatMessage({ id: "apply_filters" })}
+          </Button>
+        )}
+        {hasSelectedItems && (
+          <Button variant="outlined" className="w-full" onClick={clearAll}>
+            {intl.formatMessage({ id: "clear_all_filters" })}
+          </Button>
+        )}
+      </div>
       {children}
     </div>
   );
@@ -68,7 +80,7 @@ FilterComponent.Item = ({
   return (
     <div
       className={cn(
-        "mb-4 max-h-[200px] overflow-y-auto rounded-sm border border-solid border-neutral-100 bg-neutral-50 p-2 transition-all duration-300",
+        "mb-4 rounded-sm border border-solid border-neutral-100 bg-neutral-50 p-2 transition-all duration-300",
         isOpen && "max-h-[48px] overflow-hidden",
         wrapperClassName,
       )}
@@ -85,7 +97,7 @@ FilterComponent.Item = ({
           />
         </div>
       )}
-      {children}
+      <div className="max-h-[200px] overflow-y-auto">{children}</div>
       <div ref={ref} className="h-2"></div>
     </div>
   );
