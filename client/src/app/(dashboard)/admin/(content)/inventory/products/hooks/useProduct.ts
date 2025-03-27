@@ -6,6 +6,7 @@ import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { useProductFilter } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useProductFilter";
 import { useIntl } from "react-intl";
 import { variantServices } from "@/app/shared/services/variant/variantService";
+import { ModelStatus } from "@/app/shared/models/others/status.model";
 export function useProducts() {
   const intl = useIntl();
   const [loadingDeleteVariant, setLoadingDeleteVariant] = useState(false);
@@ -34,10 +35,7 @@ export function useProducts() {
       setLoadingDelete(false);
     }
   };
-  const handleDeleteProducts = async (
-    ids: string[],
-    callback?: () => void,
-  ) => {
+  const handleDeleteProducts = async (ids: string[], callback?: () => void) => {
     setLoadingDelete(true);
     try {
       const response = await productService.bulkDelete(ids);
@@ -85,12 +83,29 @@ export function useProducts() {
   ) => {
     setSelectedProducts(selectedRowKeys);
   };
-
   const handleSelectVariants = (
     selectedRowKeys: string[],
     selectedRows: any[],
   ) => {
     setSelectedVariants(selectedRowKeys);
+  };
+  const handleChangeStatus = async (id: string, status: ModelStatus) => {
+    try {
+      const response = await productService.update(id, {
+        status,
+      });
+      if (response) {
+        notificationApi.success({
+          message: intl.formatMessage({ id: "change_status_success" }),
+          description: intl.formatMessage({ id: "change_status_success" }),
+        });
+      }
+    } catch (error) {
+      notificationApi.error({
+        message: intl.formatMessage({ id: "change_status_error" }),
+        description: intl.formatMessage({ id: "change_status_error" }),
+      });
+    }
   };
 
   return {
@@ -104,5 +119,6 @@ export function useProducts() {
     selectedVariants,
     handleSelectVariants,
     loadingDeleteVariant,
+    handleChangeStatus,
   };
 }

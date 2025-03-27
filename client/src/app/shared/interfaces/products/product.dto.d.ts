@@ -49,12 +49,12 @@ export type CreateProductDTOV2 = {
 };
 
 export type UpdateProductDTO = {
-  name: string;
+  name?: string;
   description?: string;
   short_description?: string;
-  status: "ACTIVE" | "INACTIVE" | "DELETED";
-  categoryIds: string[];
-  variants: {
+  status?: "ACTIVE" | "INACTIVE" | "DELETED";
+  categoryIds?: string[];
+  variants?: {
     variant_data: CreateVariantDTOV2;
   }[];
 };

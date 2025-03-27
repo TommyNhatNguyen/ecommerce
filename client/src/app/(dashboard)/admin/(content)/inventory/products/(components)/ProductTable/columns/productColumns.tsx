@@ -1,13 +1,18 @@
 import { ProductModel } from "@/app/shared/models/products/products.model";
 import { VariantProductModel } from "@/app/shared/models/variant/variant.model";
-import { Image, TableProps, Tag } from "antd";
+import { Image, Select, TableProps, Tag } from "antd";
 import { IntlShape } from "react-intl";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { formatCurrency, formatNumber } from "@/app/shared/utils/utils";
+import { STATUS_OPTIONS } from "@/app/constants/seeds";
 
 export const productColumns: (
   intl: IntlShape,
-) => TableProps<ProductModel>["columns"] = (intl: IntlShape) => [
+  handleChangeStatus: (id: string, status: ModelStatus) => void,
+) => TableProps<ProductModel>["columns"] = (
+  intl: IntlShape,
+  handleChangeStatus: (id: string, status: ModelStatus) => void,
+) => [
   // {
   //   key: "image",
   //   title: () => intl.formatMessage({ id: "thumbnail" }),
@@ -31,7 +36,11 @@ export const productColumns: (
     dataIndex: "category",
     render: (_, { category }) => {
       return category?.map((item) => {
-        return <Tag className="w-full" key={item.id}>{item.name}</Tag>;
+        return (
+          <Tag className="w-full" key={item.id}>
+            {item.name}
+          </Tag>
+        );
       });
     },
   },
@@ -59,17 +68,34 @@ export const productColumns: (
     key: "status",
     title: () => intl.formatMessage({ id: "status" }),
     dataIndex: "status",
-    render: (_, { status }) => {
+    render: (_, { id, status }) => {
       return (
-        <div>
-          {status === "ACTIVE" ? (
-            <Tag color="green">{intl.formatMessage({ id: "is_selling" })}</Tag>
-          ) : (
-            <Tag color="red">
-              {intl.formatMessage({ id: "is_discountinued" })}
-            </Tag>
-          )}
-        </div>
+        <Select
+          options={STATUS_OPTIONS}
+          value={status}
+          onChange={(value) => handleChangeStatus(id, value as ModelStatus)}
+          className="w-full"
+          optionRender={(props) => {
+            const color = props.value === "ACTIVE" ? "green" : "red";
+            const label =
+              props.value === "ACTIVE" ? "is_selling" : "is_discountinued";
+            return (
+              <p className="text-sm"  style={{color}}>
+                {intl.formatMessage({ id: label })}
+              </p>
+            );
+          }}
+          labelRender={(props) => {
+            const color = props.value === "ACTIVE" ? "green" : "red";
+            const label =
+              props.value === "ACTIVE" ? "is_selling" : "is_discountinued";
+            return (
+              <p className="text-sm"  style={{ color }}>
+                {intl.formatMessage({ id: label })}
+              </p>
+            );
+          }}
+        />
       );
     },
   },

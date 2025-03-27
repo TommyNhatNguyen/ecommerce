@@ -26,6 +26,7 @@ import ModalCreateProduct from "@/app/shared/components/GeneralModal/components/
 import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
 import { productService } from "@/app/shared/services/products/productService";
 import { ModalRefType } from "@/app/shared/components/GeneralModal";
+import { ModelStatus } from "@/app/shared/models/others/status.model";
 
 type Props = {
   selectedCategories: string[];
@@ -52,6 +53,7 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
     loadingDeleteVariant,
     selectedVariants,
     handleSelectVariants,
+    handleChangeStatus,
   } = useProducts();
   // Fetch products data with infinite scroll
   const {
@@ -84,6 +86,10 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
     initialPageParam: 1,
     placeholderData: keepPreviousData,
   });
+  const _onChangeStatus = async (id: string, status: ModelStatus) => {
+    await handleChangeStatus(id, status);
+    refetch();
+  };
   const loading = useMemo(() => {
     return (
       isFetchingNextPage || isLoading || loadingDeleteVariant || loadingDelete
@@ -95,7 +101,7 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
   }, [productsData]);
 
   const newProductColumns = useMemo(() => {
-    return productColumns(intl)?.map((item) => ({
+    return productColumns(intl, _onChangeStatus)?.map((item) => ({
       ...item,
       hidden: !selectedColumns["product"]?.includes(item?.key as string),
     }));
@@ -139,7 +145,10 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
     // Initialize selected columns when products are loaded
     if (products && products.length > 0) {
       setSelectedColumns({
-        product: productColumns(intl)?.map((item) => item?.key as string) || [],
+        product:
+          productColumns(intl, _onChangeStatus)?.map(
+            (item) => item?.key as string,
+          ) || [],
         variant: variantColumns(intl)?.map((item) => item?.key as string) || [],
       });
     }

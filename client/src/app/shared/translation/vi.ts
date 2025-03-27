@@ -208,5 +208,7 @@ export default {
     delete_variants: "Xóa biến thể",
     delete_variants_success: "Xóa biến thể thành công",
     delete_variants_error: "Xóa biến thể thất bại",
+    change_status_success: "Thay đổi trạng thái thành công",
+    change_status_error: "Thay đổi trạng thái thất bại",
   },
 };

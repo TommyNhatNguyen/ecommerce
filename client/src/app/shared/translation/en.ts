@@ -192,5 +192,7 @@ export default {
     delete_variants: "Delete Variants",
     delete_variants_success: "Delete variants successfully",
     delete_variants_error: "Delete variants error",
+    change_status_success: "Change status successfully",
+    change_status_error: "Change status error",
   },
 };

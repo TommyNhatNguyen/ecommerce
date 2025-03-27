@@ -50,7 +50,7 @@ export const productService = {
     });
     return response.data;
   },
-  updateProduct: async (
+  update: async (
     id: string,
     data: UpdateProductDTO,
   ): Promise<ProductModel> => {
