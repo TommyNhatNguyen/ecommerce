@@ -18,6 +18,12 @@ class PostgresBrandRepository implements IBrandRepository {
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+
+  async deleteBulk(ids: string[]): Promise<boolean> {
+    await this.sequelize.models[this.modelName].destroy({ where: { id: ids } });
+    return true;
+  }
+
   async getAll(condition?: BrandConditionDTO): Promise<Brand[]> {
     const brands = await this.sequelize.models[this.modelName].findAll({
       where: condition,

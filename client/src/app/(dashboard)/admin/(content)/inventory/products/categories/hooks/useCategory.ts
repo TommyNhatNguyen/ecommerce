@@ -88,6 +88,7 @@ export const useCategory = () => {
       setErrorDeleteCategory(error.message);
     } finally {
       setLoadingDeleteCategory(false);
+      setSelectedCategory([]);
     }
   };
   return {

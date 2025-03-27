@@ -198,5 +198,8 @@ export default {
     delete_categories: "Delete Categories",
     delete_categories_success: "Delete categories successfully",
     delete_categories_error: "Delete categories error",
+    delete_brands: "Delete Brands",
+    delete_brand_success: "Delete brand successfully",
+    delete_brand_error: "Delete brand error",
   },
 };

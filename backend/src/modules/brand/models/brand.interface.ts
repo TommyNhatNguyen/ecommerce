@@ -13,6 +13,7 @@ export interface IBrandUseCase {
     condition?: BrandConditionDTO
   ): Promise<ListResponse<Brand[]>>;
   getAllBrand(condition?: BrandConditionDTO): Promise<Brand[]>;
+  deleteBulk(ids: string[]): Promise<boolean>;
 }
 
 export interface IBrandRepository
@@ -32,4 +33,5 @@ export interface ICommandRepository {
   insert(data: BrandCreateDTO): Promise<Brand>;
   update(id: string, data: BrandUpdateDTO): Promise<Brand>;
   delete(id: string): Promise<boolean>;
+  deleteBulk(ids: string[]): Promise<boolean>;
 }

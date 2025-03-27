@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import {
   BrandConditionDTOSchema,
   BrandCreateDTOSchema,
+  BrandDeleteDTOSchema,
   BrandUpdateDTOSchema,
 } from 'src/modules/brand/models/brand.dto';
 import { IBrandUseCase } from 'src/modules/brand/models/brand.interface';
@@ -10,6 +11,21 @@ import { PagingDTOSchema } from 'src/share/models/paging';
 export class BrandHttpService {
   constructor(private readonly brandUseCase: IBrandUseCase) {}
 
+  async deleteBulkBrand(req: Request, res: Response) {
+    const { success, data, error } = BrandDeleteDTOSchema.safeParse(req.body);
+    if (!success) {
+      res.status(400).json({ message: error?.message });
+      return;
+    }
+    try {
+      const result = await this.brandUseCase.deleteBulk(data.ids);
+      res.status(200).json({ message: 'Brand deleted successfully', result });
+      return;
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to delete brand' });
+      return;
+    }
+  }
   async createBrand(req: Request, res: Response) {
     const { success, data, error } = BrandCreateDTOSchema.safeParse(req.body);
     if (!success) {

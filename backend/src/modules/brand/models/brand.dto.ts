@@ -34,6 +34,11 @@ export const BrandConditionDTOSchema = z.object({
   order: z.nativeEnum(BaseOrder).optional(),
 });
 
+export const BrandDeleteDTOSchema = z.object({
+  ids: z.array(z.string()),
+});
+
 export type BrandCreateDTO = z.infer<typeof BrandCreateDTOSchema>;
 export type BrandUpdateDTO = z.infer<typeof BrandUpdateDTOSchema>;
 export type BrandConditionDTO = z.infer<typeof BrandConditionDTOSchema>;
+export type BrandDeleteDTO = z.infer<typeof BrandDeleteDTOSchema>;

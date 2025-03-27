@@ -3,7 +3,13 @@ import { ModalRefType } from "@/app/shared/components/GeneralModal";
 import { brandService } from "@/app/shared/services/brands/brandService";
 import { cn } from "@/app/shared/utils/utils";
 import { keepPreviousData } from "@tanstack/react-query";
-import { AlignJustify, Download, FilePlus, Plus } from "lucide-react";
+import {
+  AlignJustify,
+  Download,
+  FilePlus,
+  Plus,
+  Trash2Icon,
+} from "lucide-react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { RefreshCcw } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -13,6 +19,7 @@ import { Button, Checkbox, Dropdown, Table } from "antd";
 import { BRAND_COLUMNS } from "@/app/(dashboard)/admin/(content)/inventory/products/brands/components/BrandTable/columns/columnsMenu";
 import { useBrand } from "@/app/(dashboard)/admin/(content)/inventory/products/brands/hooks/useBrand";
 import ModalCreateBrand from "@/app/shared/components/GeneralModal/components/ModalCreateBrand";
+import { ModelStatus } from "@/app/shared/models/others/status.model";
 
 type Props = {
   limit: number;
@@ -22,9 +29,17 @@ const BrandTable = ({ limit }: Props) => {
   const [selectedColumns, setSelectedColumns] = useState<{
     [key: string]: string[];
   }>({});
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const intl = useIntl();
   const { ref, inView } = useInView();
-  const { handleCreateBrand, loadingCreateBrand } = useBrand();
+  const {
+    handleCreateBrand,
+    loadingCreateBrand,
+    handleUpdateBrand,
+    loadingUpdateBrand,
+    handleDeleteBrand,
+    loadingDeleteBrand,
+  } = useBrand();
   const modalCreateBrandRef = useRef<ModalRefType>(null);
   const {
     data: brandsData,
@@ -48,42 +63,73 @@ const BrandTable = ({ limit }: Props) => {
     initialPageParam: 1,
     placeholderData: keepPreviousData,
   });
+  const _onChangeStatus = async (id: string, status: ModelStatus) => {
+    await handleUpdateBrand(id, { status });
+    refetch();
+  };
+  const loading = useMemo(() => {
+    return (
+      loadingCreateBrand ||
+      loadingUpdateBrand ||
+      loadingDeleteBrand ||
+      isLoading ||
+      isFetching
+    );
+  }, [loadingCreateBrand, loadingUpdateBrand, loadingDeleteBrand, isLoading, isFetching]);
   const brands = useMemo(() => {
     return brandsData?.pages?.flatMap((page) => page.data) || [];
   }, [brandsData]);
 
   const newBrandsColumn = useMemo(() => {
-    return brandColumns(intl)?.map((item) => ({
+    return brandColumns(intl, _onChangeStatus)?.map((item) => ({
       ...item,
       hidden: !selectedColumns["brand"]?.includes(item?.key as string),
     }));
   }, [selectedColumns]);
+
   const _onOpenModalCreateBrand = () => {
     modalCreateBrandRef.current?.handleOpenModal();
   };
+
   const _onRefetch = () => {
     refetch();
   };
+
   const _onSelectColumns = (id: string, keys: string[]) => {
     setSelectedColumns((prev) => ({
       ...prev,
       [id]: keys,
     }));
   };
+
+  const _onSelectBrands = (selectedRowKeys: string[], selectedRows: any[]) => {
+    setSelectedBrands(selectedRowKeys);
+  };
+
+  const _onDeleteBrands = async () => {
+    await handleDeleteBrand(selectedBrands);
+    setSelectedBrands([]);
+    refetch();
+  };
+
   useEffect(() => {
     if (inView && hasNextPage) {
       fetchNextPage();
     }
   }, [inView]);
+
   useEffect(() => {
     if (brands && brands?.length > 0) {
       setSelectedColumns({
         brand: [
-          ...(brandColumns(intl) || []).map((item) => item?.key as string),
+          ...(brandColumns(intl, _onChangeStatus) || []).map(
+            (item) => item?.key as string,
+          ),
         ],
       });
     }
   }, [brands]);
+
   return (
     <div className="h-full">
       <div className="mb-2 flex items-center justify-between gap-2">
@@ -98,6 +144,18 @@ const BrandTable = ({ limit }: Props) => {
           )}
         </div>
         <div className="right flex items-center gap-2">
+          {selectedBrands.length > 0 && (
+            <Button
+              type="primary"
+              disabled={selectedBrands.length === 0}
+              color="danger"
+              variant="solid"
+              icon={<Trash2Icon width={16} height={16} />}
+              onClick={_onDeleteBrands}
+            >
+              {intl.formatMessage({ id: "delete_brands" })}
+            </Button>
+          )}
           <Button
             type="primary"
             icon={
@@ -168,12 +226,18 @@ const BrandTable = ({ limit }: Props) => {
       </div>
       <div>
         <Table
+          rowSelection={{
+            selectedRowKeys: selectedBrands,
+            onChange: (selectedRowKeys, selectedRows) => {
+              _onSelectBrands(selectedRowKeys as string[], selectedRows);
+            },
+          }}
           dataSource={brands}
           columns={newBrandsColumn}
           rowKey={(record) => record.id}
           pagination={false}
           rowClassName={"bg-slate-100"}
-          loading={isFetching}
+          loading={loading}
         />
         <div className="h-10 w-full" ref={ref}></div>
       </div>

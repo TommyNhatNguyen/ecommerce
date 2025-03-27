@@ -48,4 +48,10 @@ export const brandService = {
     const response = await axiosInstance.delete(`/brands/${id}`);
     return response.data;
   },
+  deleteBulkBrand: async (ids: string[]): Promise<BrandModel> => {
+    const response = await axiosInstance.delete(`/brands/delete`, {
+      data: { ids },
+    });
+    return response.data;
+  },
 };

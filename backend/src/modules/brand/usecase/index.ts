@@ -12,6 +12,9 @@ import { PagingDTO } from 'src/share/models/paging';
 
 export class BrandUseCase implements IBrandUseCase {
   constructor(private readonly brandRepository: IBrandRepository) {}
+  async deleteBulk(ids: string[]): Promise<boolean> {
+    return await this.brandRepository.deleteBulk(ids);
+  }
   async createBrand(data: BrandCreateDTO): Promise<Brand> {
     return await this.brandRepository.insert(data);
   }

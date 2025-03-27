@@ -16,6 +16,10 @@ function setupBrandRouter(sequelize: Sequelize) {
   );
   const brandUseCase = new BrandUseCase(brandRepository);
   const brandHttpService = new BrandHttpService(brandUseCase);
+  router.delete(
+    '/brands/delete',
+    brandHttpService.deleteBulkBrand.bind(brandHttpService)
+  );
   router.get(
     '/brands/all',
     brandHttpService.getAllBrand.bind(brandHttpService)

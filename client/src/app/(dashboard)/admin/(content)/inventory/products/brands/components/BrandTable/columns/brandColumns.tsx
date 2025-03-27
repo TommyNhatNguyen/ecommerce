@@ -1,10 +1,13 @@
 import { IntlShape } from "react-intl";
-import { Image, TableProps, Tag } from "antd";
+import { Image, TableProps } from "antd";
 import { BrandModel } from "@/app/shared/models/brands/brands.model";
+import SelectStatusAdmin from "@/app/shared/components/SelectStatusAdmin";
+import { ModelStatus } from "@/app/shared/models/others/status.model";
 
 export const brandColumns: (
   intl: IntlShape,
-) => TableProps<BrandModel>["columns"] = (intl: IntlShape) => [
+  onChangeStatus: (id: string, status: ModelStatus) => void,
+) => TableProps<BrandModel>["columns"] = (intl, onChangeStatus) => [
   {
     key: "name",
     title: () => intl.formatMessage({ id: "name" }),
@@ -27,15 +30,13 @@ export const brandColumns: (
     key: "status",
     title: () => intl.formatMessage({ id: "status" }),
     dataIndex: "status",
-    render: (_, { status }) => {
+    render: (_, { status, id }) => {
       return (
-        <div>
-          {status === "ACTIVE" ? (
-            <Tag color="green">{intl.formatMessage({ id: status })}</Tag>
-          ) : (
-            <Tag color="red">{intl.formatMessage({ id: status })}</Tag>
-          )}
-        </div>
+        <SelectStatusAdmin
+          status={status}
+          handleChangeStatus={onChangeStatus}
+          id={id || ""}
+        />
       );
     },
   },

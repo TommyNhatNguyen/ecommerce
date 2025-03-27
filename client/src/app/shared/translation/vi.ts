@@ -214,5 +214,8 @@ export default {
     delete_categories: "Xóa nhóm sản phẩm",
     delete_categories_success: "Xóa nhóm sản phẩm thành công",
     delete_categories_error: "Xóa nhóm sản phẩm thất bại",
+    delete_brands: "Xóa thương hiệu",
+    delete_brand_success: "Xóa thương hiệu thành công",
+    delete_brand_error: "Xóa thương hiệu thất bại",
   },
 };
