@@ -211,5 +211,8 @@ export default {
     change_status_success: "Thay đổi trạng thái thành công",
     change_status_error: "Thay đổi trạng thái thất bại",
     apply_filters: "Lọc",
+    delete_categories: "Xóa nhóm sản phẩm",
+    delete_categories_success: "Xóa nhóm sản phẩm thành công",
+    delete_categories_error: "Xóa nhóm sản phẩm thất bại",
   },
 };

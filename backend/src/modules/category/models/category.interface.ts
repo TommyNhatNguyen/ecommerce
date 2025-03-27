@@ -16,6 +16,7 @@ export interface ICategoryUseCase {
     paging: PagingDTO,
     condition: CategoryConditionDTOSchema
   ): Promise<ListResponse<Category[]>>;
+  bulkDelete(ids: string[]): Promise<boolean>;  
 }
 
 export interface ICategoryRepository
@@ -31,10 +32,12 @@ export interface IQueryRepository {
     paging: PagingDTO,
     condition: CategoryConditionDTOSchema
   ): Promise<ListResponse<Category[]>>;
+
 }
 
 export interface ICommandRepository {
   insert(data: CategoryCreateDTOSchema): Promise<Category>;
   update(id: string, data: CategoryUpdateDTOSchema): Promise<Category>;
   delete(id: string): Promise<boolean>;
+  bulkDelete(ids: string[]): Promise<boolean>;
 }

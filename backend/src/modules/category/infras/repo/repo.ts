@@ -25,6 +25,10 @@ class PostgresCategoryRepository implements ICategoryRepository {
     private readonly sequelize: Sequelize,
     private readonly modelName: string
   ) {}
+  async bulkDelete(ids: string[]): Promise<boolean> {
+    await this.sequelize.models[this.modelName].destroy({ where: { id: ids } });
+    return true;
+  }
   async get(
     id: string,
     condition: CategoryConditionDTOSchema

@@ -40,4 +40,10 @@ export const categoriesService = {
     const response = await axiosInstance.delete(`/categories/${id}`);
     return response.data;
   },
+  bulkDeleteCategory: async (ids: string[]): Promise<boolean> => {
+    const response = await axiosInstance.delete(`/categories/delete`, {
+      data: { ids },
+    });
+    return response.data;
+  },
 };

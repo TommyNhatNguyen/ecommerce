@@ -302,6 +302,7 @@ export const initializeAssociation = () => {
     foreignKey: 'category_id',
     otherKey: 'product_id',
     as: productModelName.toLowerCase(),
+    onDelete: 'NO ACTION',
   });
 
   BrandPersistence.hasOne(ProductPersistence, {

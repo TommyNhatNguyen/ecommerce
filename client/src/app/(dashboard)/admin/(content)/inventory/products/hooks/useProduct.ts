@@ -15,26 +15,6 @@ export function useProducts() {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [selectedVariants, setSelectedVariants] = useState<string[]>([]);
   const { notificationApi } = useNotification();
-  const handleDeleteProduct = async (id: string) => {
-    setLoadingDelete(true);
-    try {
-      const response = await productService.deleteProduct(id);
-      if (response) {
-        notificationApi.success({
-          message: "Delete product success",
-          description: "Product deleted successfully",
-        });
-      }
-    } catch (error: any) {
-      notificationApi.error({
-        message: "Delete product failed",
-        description: "Please try again",
-      });
-      setErrorDelete(error.message);
-    } finally {
-      setLoadingDelete(false);
-    }
-  };
   const handleDeleteProducts = async (ids: string[], callback?: () => void) => {
     setLoadingDelete(true);
     try {
@@ -125,7 +105,6 @@ export function useProducts() {
   };
 
   return {
-    handleDeleteProduct,
     loadingDelete,
     errorDelete,
     selectedProducts,

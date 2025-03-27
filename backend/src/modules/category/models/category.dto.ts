@@ -44,8 +44,15 @@ export const CategoryConditionDTOSchema = z.object({
   updated_at: z.string().optional(),
 });
 
+export const CategoryBulkDeleteDTOSchema = z.object({
+  ids: z.array(z.string().uuid()),
+});
+
 export type CategoryCreateDTOSchema = z.infer<typeof CategoryCreateDTOSchema>;
 export type CategoryUpdateDTOSchema = z.infer<typeof CategoryUpdateDTOSchema>;
 export type CategoryConditionDTOSchema = z.infer<
   typeof CategoryConditionDTOSchema
+>;
+export type CategoryBulkDeleteDTOSchema = z.infer<
+  typeof CategoryBulkDeleteDTOSchema
 >;

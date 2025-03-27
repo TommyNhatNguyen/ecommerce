@@ -16,6 +16,9 @@ export class CategoryUseCase implements ICategoryUseCase {
     private readonly repository: ICategoryRepository,
     private readonly cloudinaryImageRepository: IImageCloudinaryRepository
   ) {}
+  async bulkDelete(ids: string[]): Promise<boolean> {
+    return await this.repository.bulkDelete(ids);
+  }
   async updateCategory(
     id: string,
     data: CategoryUpdateDTOSchema

@@ -437,8 +437,7 @@ export class PostgresProductRepository implements IProductRepository {
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
         where: categoryWhere,
-        required: true,
-        
+        required: categoryWhere.id ? true : false,
       });
     }
     if (condition.includeBrand) {
@@ -447,7 +446,7 @@ export class PostgresProductRepository implements IProductRepository {
         as: brandModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         where: brandWhere,
-        required: true,
+        required: brandWhere.id ? true : false,
       });
     }
     if (condition.includeReview) {
@@ -495,8 +494,8 @@ export class PostgresProductRepository implements IProductRepository {
             model: DiscountPersistence,
             as: discountModelName,
             attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
-            required: true,
             where: discountWhere,
+            required: discountWhere.id ? true : false,
           });
         }
         if (condition.includeVariantOption) {
@@ -514,7 +513,7 @@ export class PostgresProductRepository implements IProductRepository {
             through: { attributes: [] },
             include: optionValueInclude,
             where: optionValueWhere,
-            required: true,
+            required: optionValueWhere.id ? true : false,
           });
         }
         variantInclude.push({

@@ -195,5 +195,8 @@ export default {
     change_status_success: "Change status successfully",
     change_status_error: "Change status error",
     apply_filters: "Apply Filters",
+    delete_categories: "Delete Categories",
+    delete_categories_success: "Delete categories successfully",
+    delete_categories_error: "Delete categories error",
   },
 };

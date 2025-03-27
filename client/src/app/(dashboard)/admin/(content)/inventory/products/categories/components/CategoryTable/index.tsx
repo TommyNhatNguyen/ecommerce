@@ -1,7 +1,7 @@
 "use client";
 import { Table } from "antd";
 import { Checkbox, Divider, Dropdown } from "antd";
-import { AlignJustify, Download, FilePlus, Plus } from "lucide-react";
+import { AlignJustify, Download, FilePlus, Plus, Trash2Icon } from "lucide-react";
 import { cn } from "@/app/shared/utils/utils";
 import { RefreshCcw } from "lucide-react";
 import { Button } from "antd";
@@ -16,6 +16,7 @@ import { categoriesService } from "@/app/shared/services/categories/categoriesSe
 import { useInfiniteQuery } from "@tanstack/react-query";
 import ModalCreateCategory from "@/app/shared/components/GeneralModal/components/ModalCreateCategory";
 import { ModalRefType } from "@/app/shared/components/GeneralModal";
+import { ModelStatus } from "@/app/shared/models/others/status.model";
 
 type Props = {
   limit: number;
@@ -27,7 +28,15 @@ const CategoryTable = ({ limit }: Props) => {
   }>({});
   const intl = useIntl();
   const { ref, inView } = useInView();
-  const { handleCreateCategory, loadingCreateCategory } = useCategory();
+  const {
+    handleCreateCategory,
+    loadingCreateCategory,
+    selectedCategory,
+    handleSelectCategory,
+    handleUpdateCategory,
+    loadingUpdateCategory,
+    handleDeleteCategories,
+  } = useCategory();
   const modalCreateCategoryRef = useRef<ModalRefType>(null);
   const {
     data: categoriesData,
@@ -52,12 +61,16 @@ const CategoryTable = ({ limit }: Props) => {
     initialPageParam: 1,
     placeholderData: keepPreviousData,
   });
+  const _onChangeStatus = async (id: string, status: ModelStatus) => {
+    await handleUpdateCategory(id, { status });
+    refetch();
+  };
   const categories = useMemo(() => {
     return categoriesData?.pages?.flatMap((page) => page.data) || [];
   }, [categoriesData]);
 
   const newCategoryColumns = useMemo(() => {
-    return categoryColumns(intl)?.map((item) => ({
+    return categoryColumns(intl, _onChangeStatus)?.map((item) => ({
       ...item,
       hidden: !selectedColumns["category"]?.includes(item?.key as string),
     }));
@@ -74,6 +87,10 @@ const CategoryTable = ({ limit }: Props) => {
       [id]: keys,
     }));
   };
+  const _onDeleteCategories = async () => {
+    await handleDeleteCategories(selectedCategory);
+    refetch();
+  };
   useEffect(() => {
     if (inView && hasNextPage) {
       fetchNextPage();
@@ -83,7 +100,9 @@ const CategoryTable = ({ limit }: Props) => {
     if (categories && categories?.length > 0) {
       setSelectedColumns({
         category: [
-          ...(categoryColumns(intl) || []).map((item) => item?.key as string),
+          ...(categoryColumns(intl, _onChangeStatus) || []).map(
+            (item) => item?.key as string,
+          ),
         ],
       });
     }
@@ -102,6 +121,18 @@ const CategoryTable = ({ limit }: Props) => {
           )}
         </div>
         <div className="right flex items-center gap-2">
+          {selectedCategory.length > 0 && (
+            <Button
+              type="primary"
+              disabled={selectedCategory.length === 0}
+              color="danger"
+              variant="solid"
+              icon={<Trash2Icon width={16} height={16} />}
+              onClick={_onDeleteCategories}
+            >
+              {intl.formatMessage({ id: "delete_categories" })}
+            </Button>
+          )}
           <Button
             type="primary"
             icon={
@@ -172,6 +203,12 @@ const CategoryTable = ({ limit }: Props) => {
       </div>
       <div>
         <Table
+          rowSelection={{
+            selectedRowKeys: selectedCategory,
+            onChange: (selectedRowKeys, selectedRows) => {
+              handleSelectCategory(selectedRowKeys as string[], selectedRows);
+            },
+          }}
           dataSource={categories}
           columns={newCategoryColumns}
           rowKey={(record) => record.id}

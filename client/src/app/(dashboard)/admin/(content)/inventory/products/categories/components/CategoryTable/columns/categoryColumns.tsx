@@ -1,10 +1,13 @@
 import { IntlShape } from "react-intl";
 import { Image, TableProps, Tag } from "antd";
 import { CategoryModel } from "@/app/shared/models/categories/categories.model";
+import { ModelStatus } from "@/app/shared/models/others/status.model";
+import SelectStatusAdmin from "@/app/shared/components/SelectStatusAdmin";
 
 export const categoryColumns: (
   intl: IntlShape,
-) => TableProps<CategoryModel>["columns"] = (intl: IntlShape) => [
+  onChangeStatus: (id: string, status: ModelStatus) => void,
+) => TableProps<CategoryModel>["columns"] = (intl, onChangeStatus) => [
   {
     key: "image",
     title: () => intl.formatMessage({ id: "thumbnail" }),
@@ -24,7 +27,10 @@ export const categoryColumns: (
     dataIndex: "description",
     render: (_, { description }) => {
       return (
-        <div className="max-h-[100px] overflow-y-auto" dangerouslySetInnerHTML={{ __html: description || "" }}></div>
+        <div
+          className="max-h-[100px] overflow-y-auto"
+          dangerouslySetInnerHTML={{ __html: description || "" }}
+        ></div>
       );
     },
   },
@@ -32,15 +38,13 @@ export const categoryColumns: (
     key: "status",
     title: () => intl.formatMessage({ id: "status" }),
     dataIndex: "status",
-    render: (_, { status }) => {
+    render: (_, { status, id }) => {
       return (
-        <div>
-          {status === "ACTIVE" ? (
-            <Tag color="green">{intl.formatMessage({ id: status })}</Tag>
-          ) : (
-            <Tag color="red">{intl.formatMessage({ id: status })}</Tag>
-          )}
-        </div>
+        <SelectStatusAdmin
+          handleChangeStatus={onChangeStatus}
+          status={status}
+          id={id || ""}
+        />
       );
     },
   },

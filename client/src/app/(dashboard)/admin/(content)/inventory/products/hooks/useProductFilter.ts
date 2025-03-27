@@ -95,7 +95,14 @@ export const useProductFilter = () => {
       selectedDiscounts.length > 0 ||
       search.length > 0
     );
-  }, [selectedCategories, selectedOptions, selectedBrands, selectedStatuses, selectedDiscounts, search]);
+  }, [
+    selectedCategories,
+    selectedOptions,
+    selectedBrands,
+    selectedStatuses,
+    selectedDiscounts,
+    search,
+  ]);
   const handleClearAll = () => {
     setSelectedCategories([]);
     setSelectedOptions([]);
@@ -103,10 +110,10 @@ export const useProductFilter = () => {
     setSelectedStatuses([]);
     setSelectedDiscounts([]);
     setSearch("");
+    setIsApplyFilters((prev) => !prev);
   };
   const handleApplyFilters = () => {
     setIsApplyFilters((prev) => !prev);
-      console.log("🚀 ~ handleApplyFilters ~ selectedCategories:", selectedCategories)
   };
   return {
     categories: categories?.data,
@@ -129,7 +136,7 @@ export const useProductFilter = () => {
     handleLoadMoreDiscount,
     handleSearchDiscount,
     hasSelectedItems,
-    handleClearAll, 
+    handleClearAll,
     limit,
     handleSelectLimit,
     handleApplyFilters,

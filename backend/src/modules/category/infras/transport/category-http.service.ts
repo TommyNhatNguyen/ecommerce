@@ -1,11 +1,32 @@
 import { Request, Response } from 'express';
 import { PagingDTOSchema } from 'src/share/models/paging';
 import { ICategoryUseCase } from 'src/modules/category/models/category.interface';
-import { CategoryConditionDTOSchema, CategoryUpdateDTOSchema } from 'src/modules/category/models/category.dto';
+import {
+  CategoryBulkDeleteDTOSchema,
+  CategoryConditionDTOSchema,
+  CategoryUpdateDTOSchema,
+} from 'src/modules/category/models/category.dto';
 import { CategoryCreateDTOSchema } from 'src/modules/category/models/category.dto';
 
 export class CategoryHttpService {
   constructor(private readonly useCase: ICategoryUseCase) {}
+
+  async bulkDeleteCategory(req: Request, res: Response) {
+    const { success, data, error } = CategoryBulkDeleteDTOSchema.safeParse(
+      req.body
+    );
+    if (!success) {
+      res.status(400).json({ message: error?.message });
+      return;
+    }
+    try {
+      const result = await this.useCase.bulkDelete(data.ids);
+      res.status(200).json({ message: 'Categories deleted successfully' });
+    } catch (error) {
+      res.status(500).json({ message: 'Failed to delete categories' });
+      return;
+    }
+  }
 
   async createNewCategory(req: Request, res: Response) {
     const { success, data, error } = CategoryCreateDTOSchema.safeParse(

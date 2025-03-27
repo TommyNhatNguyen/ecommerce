@@ -23,6 +23,10 @@ function setupCategoryRouter(sequelize: Sequelize) {
     cloudinaryImageRepository
   );
   const categoryHttpService = new CategoryHttpService(categoryUseCase);
+  router.delete(
+    '/categories/delete',
+    categoryHttpService.bulkDeleteCategory.bind(categoryHttpService)
+  );
   router.get(
     '/categories',
     categoryHttpService.listCategory.bind(categoryHttpService)
