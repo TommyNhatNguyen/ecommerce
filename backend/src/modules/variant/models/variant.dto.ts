@@ -57,6 +57,7 @@ export const VariantCreateDTOSchema = z.object({
 });
 
 export const VariantUpdateDTOSchema = z.object({
+  ids: z.array(z.string()).optional(),
   name: z.string().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   options_value_ids: z.array(z.string()).optional(),

@@ -67,6 +67,20 @@ export class ProductUseCase implements IProductUseCase {
     id: string,
     data: ProductUpdateDTOSchema
   ): Promise<Product> {
+    const variants = await this.variantUseCase.getAll({
+      product_id: id,
+    });
+
+    if (data.status) {
+      Promise.all(
+        variants.map(async (variant) => {
+          await this.variantUseCase.updateVariant(variant.id, {
+            status: data.status,
+          });
+        })
+      );
+    }
+
     return await this.repository.update(id, data);
   }
   async deleteProduct(id: string): Promise<boolean> {
