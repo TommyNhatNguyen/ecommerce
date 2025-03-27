@@ -7,16 +7,17 @@ import { useProductFilter } from "@/app/(dashboard)/admin/(content)/inventory/pr
 import { useIntl } from "react-intl";
 import { variantServices } from "@/app/shared/services/variant/variantService";
 export function useProducts() {
-  const intl = useIntl()
+  const intl = useIntl();
   const [loadingDeleteVariant, setLoadingDeleteVariant] = useState(false);
-  const [loadingSoftDelete, setLoadingSoftDelete] = useState(false);
-  const [errorSoftDelete, setErrorSoftDelete] = useState<string>("");
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [errorDelete, setErrorDelete] = useState<string>("");
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [selectedVariants, setSelectedVariants] = useState<string[]>([]);
   const { notificationApi } = useNotification();
-  const handleSoftDeleteProduct = async (id: string) => {
-    setLoadingSoftDelete(true);
+  const handleDeleteProduct = async (id: string) => {
+    setLoadingDelete(true);
     try {
-      const response = await productService.softDeleteProduct(id);
+      const response = await productService.deleteProduct(id);
       if (response) {
         notificationApi.success({
           message: "Delete product success",
@@ -28,15 +29,18 @@ export function useProducts() {
         message: "Delete product failed",
         description: "Please try again",
       });
-      setErrorSoftDelete(error.message);
+      setErrorDelete(error.message);
     } finally {
-      setLoadingSoftDelete(false);
+      setLoadingDelete(false);
     }
   };
-  const handleBulkSoftDeleteProduct = async (ids: string[], callback?: () => void) => {
-    setLoadingSoftDelete(true);
+  const handleDeleteProducts = async (
+    ids: string[],
+    callback?: () => void,
+  ) => {
+    setLoadingDelete(true);
     try {
-      const response = await productService.bulkSoftDeleteProduct(ids);
+      const response = await productService.bulkDelete(ids);
       if (response) {
         notificationApi.success({
           message: intl.formatMessage({ id: "delete_products_success" }),
@@ -49,7 +53,7 @@ export function useProducts() {
         description: intl.formatMessage({ id: "delete_products_error" }),
       });
     } finally {
-      setLoadingSoftDelete(false);
+      setLoadingDelete(false);
       setSelectedProducts([]);
       callback?.();
     }
@@ -71,6 +75,7 @@ export function useProducts() {
       });
     } finally {
       setLoadingDeleteVariant(false);
+      setSelectedVariants([]);
       callback?.();
     }
   };
@@ -81,14 +86,23 @@ export function useProducts() {
     setSelectedProducts(selectedRowKeys);
   };
 
+  const handleSelectVariants = (
+    selectedRowKeys: string[],
+    selectedRows: any[],
+  ) => {
+    setSelectedVariants(selectedRowKeys);
+  };
+
   return {
-    handleSoftDeleteProduct,
-    loadingSoftDelete,
-    errorSoftDelete,
+    handleDeleteProduct,
+    loadingDelete,
+    errorDelete,
     selectedProducts,
     handleSelectProducts,
-    handleBulkSoftDeleteProduct,
+    handleDeleteProducts,
     handleDeleteVariant,
+    selectedVariants,
+    handleSelectVariants,
     loadingDeleteVariant,
   };
 }

@@ -44,6 +44,12 @@ export const productService = {
     });
     return response.data;
   },
+  bulkDelete: async (ids: string[]): Promise<ProductModel[]> => {
+    const response = await axiosInstance.delete("/products/delete", {
+      data: { ids },
+    });
+    return response.data;
+  },
   bulkSoftDeleteProduct: async (ids: string[]): Promise<ProductModel[]> => {
     const response = await axiosInstance.patch("/products/delete", {
       ids,

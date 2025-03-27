@@ -46,10 +46,12 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
   const {
     selectedProducts,
     handleSelectProducts,
-    handleBulkSoftDeleteProduct,
-    loadingSoftDelete,
+    handleDeleteProducts,
+    loadingDelete,
     handleDeleteVariant,
     loadingDeleteVariant,
+    selectedVariants,
+    handleSelectVariants,
   } = useProducts();
   // Fetch products data with infinite scroll
   const {
@@ -84,12 +86,9 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
   });
   const loading = useMemo(() => {
     return (
-      loadingSoftDelete ||
-      isFetchingNextPage ||
-      isLoading ||
-      loadingDeleteVariant
+      isFetchingNextPage || isLoading || loadingDeleteVariant || loadingDelete
     );
-  }, [loadingSoftDelete, isFetchingNextPage, isLoading, loadingDeleteVariant]);
+  }, [isFetchingNextPage, isLoading, loadingDeleteVariant, loadingDelete]);
   // Memoized values
   const products = useMemo(() => {
     return productsData?.pages?.flatMap((page) => page.data) || [];
@@ -127,12 +126,12 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
     setProductDetail(null);
   };
 
-  const _onBulkSoftDeleteProduct = () => {
-    handleBulkSoftDeleteProduct(selectedProducts, _onRefetch);
+  const _onDeleteProducts = () => {
+    handleDeleteProducts(selectedProducts, _onRefetch);
   };
 
   const _onDeleteVariant = () => {
-    handleDeleteVariant(selectedProducts, _onRefetch);
+    handleDeleteVariant(selectedVariants, _onRefetch);
   };
 
   // Side effects
@@ -174,9 +173,21 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
               color="danger"
               variant="solid"
               icon={<Trash2Icon width={16} height={16} />}
-              onClick={_onDeleteVariant}
+              onClick={_onDeleteProducts}
             >
               {intl.formatMessage({ id: "delete_products" })}
+            </Button>
+          )}
+          {selectedVariants.length > 0 && (
+            <Button
+              type="primary"
+              disabled={selectedVariants.length === 0}
+              color="danger"
+              variant="solid"
+              icon={<Trash2Icon width={16} height={16} />}
+              onClick={_onDeleteVariant}
+            >
+              {intl.formatMessage({ id: "delete_variants" })}
             </Button>
           )}
           <Button
@@ -264,6 +275,12 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
       </div>
       <div>
         <Table
+          rowSelection={{
+            selectedRowKeys: selectedProducts,
+            onChange: (selectedRowKeys, selectedRows) => {
+              handleSelectProducts(selectedRowKeys as string[], selectedRows);
+            },
+          }}
           dataSource={products}
           columns={newProductColumns}
           rowKey={(record) => record.id}
@@ -277,9 +294,9 @@ const ProductTable = ({ selectedCategories, limit }: Props) => {
                 <>
                   <Table
                     rowSelection={{
-                      selectedRowKeys: selectedProducts,
+                      selectedRowKeys: selectedVariants,
                       onChange: (selectedRowKeys, selectedRows) => {
-                        handleSelectProducts(
+                        handleSelectVariants(
                           selectedRowKeys as string[],
                           selectedRows,
                         );
