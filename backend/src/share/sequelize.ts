@@ -10,10 +10,10 @@ export const sequelize = new Sequelize({
   database: process.env.DB_NAME,
   minifyAliases: true,
   logging: false,
-  // pool: {
-  //   max: 20,
-  //   min: 2,
-  //   acquire: 30000,
-  //   idle: 60000,
-  // },
+  pool: {
+    max: 20,
+    min: 2,
+    acquire: 30000,
+    idle: 60000,
+  },
 });

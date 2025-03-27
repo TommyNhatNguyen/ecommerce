@@ -29,12 +29,27 @@ import { ModalRefType } from "@/app/shared/components/GeneralModal";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 
 type Props = {
+  search: string;
   selectedCategories: string[];
+  selectedOptions: string[];
+  selectedBrands: string[];
+  selectedStatuses: ModelStatus[];
+  selectedDiscounts: string[];
   limit: number;
   isApplyFilters?: boolean;
 };
 
-const ProductTable = ({ selectedCategories, limit, isApplyFilters }: Props) => {
+const ProductTable = ({
+  search,
+  selectedCategories,
+  selectedOptions,
+  selectedBrands,
+  selectedStatuses,
+  selectedDiscounts,
+  limit,
+  isApplyFilters,
+}: Props) => {
+  console.log("🚀 ~ isApplyFilters:", isApplyFilters)
   const intl = useIntl();
 
   // Refs and state management
@@ -66,7 +81,7 @@ const ProductTable = ({ selectedCategories, limit, isApplyFilters }: Props) => {
     refetch,
     isLoading,
   } = useInfiniteQuery({
-    queryKey: ["products", limit isApplyFilters],
+    queryKey: ["products", limit],
     queryFn: ({ pageParam = 1 }) => {
       return productService.getProducts({
         includeDiscount: true,
@@ -77,8 +92,15 @@ const ProductTable = ({ selectedCategories, limit, isApplyFilters }: Props) => {
         includeVariantOptionType: true,
         includeVariantImage: true,
         includeCategory: true,
+        includeBrand: true,
         limit: limit,
         page: pageParam,
+        statuses: selectedStatuses,
+        categoryIds: selectedCategories,
+        optionValueIds: selectedOptions,
+        brandIds: selectedBrands,
+        discountIds: selectedDiscounts,
+        search: search,
       });
     },
     getNextPageParam: (lastPage) =>
@@ -169,6 +191,10 @@ const ProductTable = ({ selectedCategories, limit, isApplyFilters }: Props) => {
       fetchNextPage();
     }
   }, [inView]);
+
+  useEffect(() => {
+    refetch();
+  }, [isApplyFilters]);
 
   return (
     <div className="h-full">

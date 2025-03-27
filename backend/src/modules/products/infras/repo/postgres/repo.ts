@@ -57,6 +57,8 @@ import {
   OptionValuePersistence,
 } from 'src/modules/options/infras/repo/postgres/dto';
 import { Transaction } from 'sequelize';
+import { brandModelName } from 'src/modules/brand/infras/repo/brand.dto';
+import { BrandPersistence } from 'src/modules/brand/infras/repo/brand.dto';
 
 export class PostgresProductRepository implements IProductRepository {
   constructor(
@@ -347,12 +349,39 @@ export class PostgresProductRepository implements IProductRepository {
     const where: WhereOptions = {
       status: { [Op.not]: ModelStatus.DELETED },
     };
+
     const categoryWhere: WhereOptions = {};
+    const brandWhere: WhereOptions = {};
+    const discountWhere: WhereOptions = {
+      start_date: {
+        [Op.lte]: new Date(),
+      },
+      end_date: {
+        [Op.gte]: new Date(),
+      },
+      status: {
+        [Op.eq]: ModelStatus.ACTIVE,
+      },
+    };
+    const optionValueWhere: WhereOptions = {};
     const productSellableWhere: WhereOptions = {};
     const order = condition?.order || BaseOrder.DESC;
     let sortBy: any = condition?.sortBy || BaseSortBy.CREATED_AT;
     let customOrder: any = '';
 
+    const include: Includeable[] = [];
+    const variantInclude: Includeable[] = [];
+    const variantInfoInclude: Includeable[] = [];
+    const optionValueInclude: Includeable[] = [];
+
+    if (condition.statuses && condition.statuses.length > 0) {
+      where.status = {
+        [Op.and]: {
+          [Op.in]: condition.statuses,
+          [Op.not]: ModelStatus.DELETED,
+        },
+      };
+    }
     if (condition.name) where.name = { [Op.iLike]: condition.name };
     if (condition.status) where.status = condition.status;
     if (condition.status === ModelStatus.DELETED) {
@@ -383,18 +412,42 @@ export class PostgresProductRepository implements IProductRepository {
       };
     }
 
-    const include: Includeable[] = [];
-    const variantInclude: Includeable[] = [];
-    const variantInfoInclude: Includeable[] = [];
-    const optionValueInclude: Includeable[] = [];
+    if (condition?.brandIds && condition.brandIds.length > 0) {
+      brandWhere.id = {
+        [Op.in]: condition.brandIds,
+      };
+    }
+
+    if (condition?.discountIds && condition.discountIds.length > 0) {
+      discountWhere.id = {
+        [Op.in]: condition.discountIds,
+      };
+    }
+
+    if (condition?.optionValueIds && condition.optionValueIds.length > 0) {
+      optionValueWhere.id = {
+        [Op.in]: condition.optionValueIds,
+      };
+    }
+
     if (condition.includeCategory) {
       include.push({
         model: CategoryPersistence,
         as: categoryModelName,
         attributes: { exclude: EXCLUDE_ATTRIBUTES },
         through: { attributes: [] },
-        required: false,
         where: categoryWhere,
+        required: true,
+        
+      });
+    }
+    if (condition.includeBrand) {
+      include.push({
+        model: BrandPersistence,
+        as: brandModelName,
+        attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        where: brandWhere,
+        required: true,
       });
     }
     if (condition.includeReview) {
@@ -442,18 +495,8 @@ export class PostgresProductRepository implements IProductRepository {
             model: DiscountPersistence,
             as: discountModelName,
             attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
-            required: false,
-            where: {
-              start_date: {
-                [Op.lte]: new Date(),
-              },
-              end_date: {
-                [Op.gte]: new Date(),
-              },
-              status: {
-                [Op.eq]: ModelStatus.ACTIVE,
-              },
-            },
+            required: true,
+            where: discountWhere,
           });
         }
         if (condition.includeVariantOption) {
@@ -470,6 +513,8 @@ export class PostgresProductRepository implements IProductRepository {
             attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
             through: { attributes: [] },
             include: optionValueInclude,
+            where: optionValueWhere,
+            required: true,
           });
         }
         variantInclude.push({

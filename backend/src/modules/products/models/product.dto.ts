@@ -58,7 +58,6 @@ export const ProductConditionDTOSchema = z.object({
   ids: z.array(z.string().uuid()).optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   name: z.string().optional(),
-  categoryIds: z.array(z.string().uuid()).optional(),
   sku: z.string().optional(),
   priceRange: z
     .object({
@@ -120,6 +119,17 @@ export const ProductConditionDTOSchema = z.object({
     .refine((value) => value === 'true' || value === 'false')
     .transform((value) => value === 'true')
     .optional(),
+  includeBrand: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  categoryIds: z.array(z.string().uuid()).optional(),
+  optionValueIds: z.array(z.string().uuid()).optional(),
+  brandIds: z.array(z.string().uuid()).optional(),
+  discountIds: z.array(z.string().uuid()).optional(),
+  statuses: z.array(z.nativeEnum(ModelStatus)).optional(),
+  search: z.string().optional(),
 });
 
 export enum ProductStatsType {

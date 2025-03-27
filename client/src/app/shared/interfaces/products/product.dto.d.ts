@@ -90,6 +90,13 @@ export type ProductConditionDTO = {
   includeVariantOption?: boolean;
   includeVariantOptionType?: boolean;
   includeVariantImage?: boolean;
+  includeBrand?: boolean;
+  categoryIds?: string[];
+  optionValueIds?: string[];
+  brandIds?: string[];
+  discountIds?: string[];
+  statuses?: ModelStatus[];
+  search?: string;
 };
 
 export enum ProductStatsType {

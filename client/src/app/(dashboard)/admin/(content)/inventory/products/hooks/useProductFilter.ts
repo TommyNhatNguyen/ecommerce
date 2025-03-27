@@ -1,5 +1,6 @@
 import { DISCOUNT_SCOPE } from "@/app/constants/enum";
 import { useDebounce } from "@/app/shared/hooks/useDebounce";
+import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { brandService } from "@/app/shared/services/brands/brandService";
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { discountsService } from "@/app/shared/services/discounts/discountsService";
@@ -13,7 +14,7 @@ export const useProductFilter = () => {
   const [search, setSearch] = useState<string>("");
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [selectedStatuses, setSelectedStatuses] = useState<ModelStatus[]>([]);
   const [selectedDiscounts, setSelectedDiscounts] = useState<string[]>([]);
   const [limit, setLimit] = useState<number>(10);
   const { data: categories } = useQuery({
@@ -70,7 +71,7 @@ export const useProductFilter = () => {
   const handleSelectBrand = (value: string[]) => {
     setSelectedBrands(value);
   };
-  const handleSelectStatus = (value: string[]) => {
+  const handleSelectStatus = (value: ModelStatus[]) => {
     setSelectedStatuses(value);
   };
   const handleSelectDiscount = (value: string[]) => {
@@ -104,21 +105,16 @@ export const useProductFilter = () => {
     setSearch("");
   };
   const handleApplyFilters = () => {
-    try {
-      setIsApplyFilters(true);
-    } catch (error) {
-      
-    } finally {
-      setIsApplyFilters(false);
-    }
+    setIsApplyFilters((prev) => !prev);
+      console.log("🚀 ~ handleApplyFilters ~ selectedCategories:", selectedCategories)
   };
   return {
     categories: categories?.data,
     options: options?.data,
     brands: brands?.data,
     discounts: discounts?.pages?.flatMap((page) => page.data),
-    selectedCategories,
     search,
+    selectedCategories,
     selectedOptions,
     selectedBrands,
     selectedStatuses,
@@ -133,7 +129,7 @@ export const useProductFilter = () => {
     handleLoadMoreDiscount,
     handleSearchDiscount,
     hasSelectedItems,
-    handleClearAll,
+    handleClearAll, 
     limit,
     handleSelectLimit,
     handleApplyFilters,

@@ -7,6 +7,7 @@ import FilterComponent from "@/app/shared/components/Filter";
 import { BrandModel } from "@/app/shared/models/brands/brands.model";
 import { CategoryModel } from "@/app/shared/models/categories/categories.model";
 import { DiscountModel } from "@/app/shared/models/discounts/discounts.model";
+import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { OptionModel } from "@/app/shared/models/variant/variant.model";
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { useQuery } from "@tanstack/react-query";
@@ -37,8 +38,8 @@ type Props = {
   brands: BrandModel[] | undefined;
   handleSelectBrand: (value: string[]) => void;
   selectedBrands: string[];
-  selectedStatuses: string[];
-  handleSelectStatus: (value: string[]) => void;
+  selectedStatuses: ModelStatus[];
+  handleSelectStatus: (value: ModelStatus[]) => void;
   discounts: DiscountModel[] | undefined;
   selectedDiscounts: string[];
   handleSelectDiscount: (value: string[]) => void;
@@ -92,7 +93,7 @@ const ProductFilter = ({
   const _onSelectOption = (value: string[]) => {
     handleSelectOption(value);
   };
-  const _onSelectStatus = (value: string[]) => {
+  const _onSelectStatus = (value: ModelStatus[]) => {
     handleSelectStatus(value);
   };
   const _onSelectDiscount = (value: string[]) => {
@@ -202,7 +203,9 @@ const ProductFilter = ({
             value: item.value,
           }))}
           selectedData={selectedStatuses}
-          onSelect={_onSelectStatus}
+          onSelect={(value) => {
+            _onSelectStatus(value as ModelStatus[]);
+          }}
         />
       </Filter.Item>
       <Filter.Item

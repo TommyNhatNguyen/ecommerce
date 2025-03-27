@@ -8,14 +8,11 @@ import React from "react";
 type ProductPagePropsType = {};
 
 const ProductPage = ({}: ProductPagePropsType) => {
-  const { selectedCategories, categories, search, limit, isApplyFilters, ...rest } =
-    useProductFilter();
+  const { categories, limit, isApplyFilters, ...rest } = useProductFilter();
   return (
     <div className="relative grid h-full grid-cols-12 gap-2 overflow-y-auto px-4">
       <div className="col-span-2">
         <ProductFilter
-          selectedCategories={selectedCategories}
-          search={search}
           categories={categories || []}
           limit={limit}
           isApplyFilters={isApplyFilters}
@@ -23,11 +20,7 @@ const ProductPage = ({}: ProductPagePropsType) => {
         />
       </div>
       <div className="col-span-10">
-        <ProductTable
-          isApplyFilters={isApplyFilters}
-          selectedCategories={selectedCategories}
-          limit={limit}
-        />
+        <ProductTable {...rest} isApplyFilters={isApplyFilters} limit={limit} />
       </div>
     </div>
   );
