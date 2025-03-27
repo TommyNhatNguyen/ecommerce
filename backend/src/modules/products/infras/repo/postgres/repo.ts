@@ -64,11 +64,171 @@ export class PostgresProductRepository implements IProductRepository {
     private readonly modelName: string
   ) {}
 
-  async bulkSoftDelete(ids: string[], t?: Transaction): Promise<boolean> {
-    await this.sequelize.models[this.modelName].update(
-      { status: ModelStatus.DELETED },
-      { where: { id: { [Op.in]: ids } }, transaction: t }
-    );
+  async getAll(
+    condition?: ProductConditionDTOSchema,
+    t?: Transaction
+  ): Promise<Product[]> {
+    const where: WhereOptions = {
+      status: { [Op.not]: ModelStatus.DELETED },
+    };
+    const categoryWhere: WhereOptions = {};
+    const productSellableWhere: WhereOptions = {};
+    const order = condition?.order || BaseOrder.DESC;
+    let sortBy: any = condition?.sortBy || BaseSortBy.CREATED_AT;
+    let customOrder: any = '';
+
+    if (condition?.name) where.name = { [Op.iLike]: condition.name };
+    if (condition?.status) where.status = condition.status;
+    if (condition?.status === ModelStatus.DELETED) {
+      where.status = { [Op.eq]: ModelStatus.DELETED };
+    }
+    if (condition?.ids) {
+      where.id = { [Op.in]: condition.ids };
+    }
+    if (condition?.fromCreatedAt && condition?.toCreatedAt) {
+      where.created_at = {
+        [Op.between]: [
+          new Date(condition.fromCreatedAt),
+          new Date(condition.toCreatedAt),
+        ],
+      };
+    } else {
+      if (condition?.fromCreatedAt) {
+        where.created_at = { [Op.gte]: new Date(condition.fromCreatedAt) };
+      }
+      if (condition?.toCreatedAt) {
+        where.created_at = { [Op.lte]: new Date(condition.toCreatedAt) };
+      }
+    }
+
+    if (condition?.categoryIds && condition.categoryIds.length > 0) {
+      categoryWhere.id = {
+        [Op.in]: condition.categoryIds,
+      };
+    }
+
+    const include: Includeable[] = [];
+    const variantInclude: Includeable[] = [];
+    const variantInfoInclude: Includeable[] = [];
+    const optionValueInclude: Includeable[] = [];
+    if (condition?.includeCategory) {
+      include.push({
+        model: CategoryPersistence,
+        as: categoryModelName,
+        attributes: { exclude: EXCLUDE_ATTRIBUTES },
+        through: { attributes: [] },
+        required: false,
+        where: categoryWhere,
+      });
+    }
+    if (condition?.includeReview) {
+      include.push({
+        model: ReviewPersistence,
+        as: reviewModelName,
+        attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+      });
+    }
+    if (condition?.includeImage) {
+      include.push({
+        model: ImagePersistence,
+        as: imageModelName,
+        attributes: { exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'] },
+        through: { attributes: [] },
+      });
+    }
+    if (condition?.includeVariant) {
+      if (condition?.priceRange) {
+        productSellableWhere.price = {
+          [Op.between]: [
+            Number(condition.priceRange.from),
+            Number(condition.priceRange.to),
+          ],
+        };
+      }
+      if (condition?.includeVariantInfo) {
+        if (condition?.includeVariantInventory) {
+          variantInfoInclude.push({
+            model: InventoryPersistence,
+            as: inventoryModelName,
+            attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+          });
+        }
+        if (condition?.includeVariantImage) {
+          variantInfoInclude.push({
+            model: ImagePersistence,
+            as: imageModelName,
+            attributes: {
+              exclude: [...EXCLUDE_ATTRIBUTES, 'cloudinary_id'],
+            },
+            through: { attributes: [] },
+          });
+        }
+        if (condition?.includeDiscount) {
+          variantInfoInclude.push({
+            model: DiscountPersistence,
+            as: discountModelName,
+            attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+            required: false,
+            where: {
+              start_date: {
+                [Op.lte]: new Date(),
+              },
+              end_date: {
+                [Op.gte]: new Date(),
+              },
+              status: {
+                [Op.eq]: ModelStatus.ACTIVE,
+              },
+            },
+          });
+        }
+        if (condition?.includeVariantOption) {
+          if (condition?.includeVariantOptionType) {
+            optionValueInclude.push({
+              model: OptionsPersistence,
+              as: optionsModelName,
+              attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+            });
+          }
+          variantInclude.push({
+            model: OptionValuePersistence,
+            as: optionValueModelName,
+            attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+            through: { attributes: [] },
+            include: optionValueInclude,
+          });
+        }
+        variantInclude.push({
+          model: ProductSellablePersistence,
+          as: productSellableModelName,
+          attributes: { exclude: [...EXCLUDE_ATTRIBUTES] },
+          include: variantInfoInclude,
+          where: productSellableWhere,
+          required: false,
+          duplicating: true,
+        });
+      }
+      include.push({
+        model: VariantPersistence,
+        as: variantModelName,
+        include: variantInclude,
+      });
+    }
+
+    const products = await this.sequelize.models[this.modelName].findAll({
+      include,
+      where: where,
+      transaction: t,
+      order: customOrder ? customOrder : [[sortBy, order]],
+    });
+    return products.map((product) => product.dataValues);
+  }
+
+  async bulkDelete(ids: string[], t?: Transaction): Promise<boolean> {
+    await this.sequelize.models[this.modelName].destroy({
+      where: { id: { [Op.in]: ids } },
+      transaction: t,
+    });
     return true;
   }
   async addCategories(

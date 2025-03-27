@@ -61,14 +61,14 @@ export class ProductHttpService {
     }
   }
 
-  async bulkSoftDelete(req: Request, res: Response) {
+  async bulkDelete(req: Request, res: Response) {
     const { success, data, error } = ProductBulkSoftDeleteDTOSchema.safeParse(req.body);
     if (!success) {
       res.status(400).json({ error: error.message });
       return;
     }
     try {
-      const result = await this.productUseCase.bulkSoftDelete(data.ids);
+      const result = await this.productUseCase.bulkDelete(data.ids);
       if (result) {
         res.status(200).json({
           message: "Products deleted successfully",

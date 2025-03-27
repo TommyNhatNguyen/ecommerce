@@ -37,8 +37,28 @@ export class ProductUseCase implements IProductUseCase {
     private readonly sequelize: Sequelize
   ) {}
 
-  async bulkSoftDelete(ids: string[], t?: Transaction): Promise<boolean> {
-    return await this.repository.bulkSoftDelete(ids, t);
+  async getAll(
+    condition?: ProductConditionDTOSchema,
+    t?: Transaction
+  ): Promise<Product[]> {
+    return await this.repository.getAll(condition, t);
+  }
+
+  async bulkDelete(ids: string[], t?: Transaction): Promise<boolean> {
+    const deletedProducts = await this.repository.getAll(
+      {
+        ids,
+        includeVariant: true,
+      },
+      t
+    );
+    if (deletedProducts) {
+      for (const product of deletedProducts) {
+        const variantIds = product?.variant?.map((variant) => variant.id) || [];
+        await this.variantUseCase.bulkDelete({ ids: variantIds }, t);
+      }
+    }
+    return await this.repository.bulkDelete(ids, t);
   }
   async countTotalProduct(): Promise<number> {
     return await this.repository.countTotalProduct();

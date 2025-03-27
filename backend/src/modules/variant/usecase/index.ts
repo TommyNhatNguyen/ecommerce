@@ -61,10 +61,6 @@ export class VariantUseCase implements IVariantUseCase {
             t
           );
 
-        if (!inventoryWarehouse) {
-          throw new Error('InventoryWarehouse not found');
-        }
-
         const warehouse = await this.warehouseUseCase?.getWarehouseById(
           warehouseId,
           {},

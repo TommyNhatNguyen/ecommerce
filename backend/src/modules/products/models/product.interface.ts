@@ -1,18 +1,18 @@
-import { Transaction } from "sequelize";
+import { Transaction } from 'sequelize';
 import {
   ProductCategoryCreateDTO,
   ProductConditionDTOSchema,
   ProductCreateDTOSchema,
   ProductUpdateDTOSchema,
-} from "./product.dto";
-import { Product } from "./product.model";
-import { ListResponse } from "src/share/models/base-model";
-import { Meta, PagingDTO } from "src/share/models/paging";
+} from './product.dto';
+import { Product } from './product.model';
+import { ListResponse } from 'src/share/models/base-model';
+import { Meta, PagingDTO } from 'src/share/models/paging';
 export interface IProductUseCase {
   createNewProduct(
     data: Omit<
       ProductCreateDTOSchema,
-      "total_discounts" | "price_after_discounts"
+      'total_discounts' | 'price_after_discounts'
     >
   ): Promise<Product>;
   updateProduct(id: string, data: ProductUpdateDTOSchema): Promise<Product>;
@@ -26,15 +26,26 @@ export interface IProductUseCase {
     condition?: ProductConditionDTOSchema
   ): Promise<Product | null>;
   countTotalProduct(): Promise<number>;
-  bulkSoftDelete(ids: string[], t?: Transaction): Promise<boolean>;
+  bulkDelete(ids: string[], t?: Transaction): Promise<boolean>;
+  getAll(
+    condition?: ProductConditionDTOSchema,
+    t?: Transaction
+  ): Promise<Product[]>;
 }
 
 export interface IProductRepository
   extends IQueryRepository,
     ICommandRepository {
+  getAll(
+    condition?: ProductConditionDTOSchema,
+    t?: Transaction
+  ): Promise<Product[]>;
   countTotalProduct(): Promise<number>;
-  addCategories(data: ProductCategoryCreateDTO[], t?: Transaction): Promise<boolean>;
-  bulkSoftDelete(ids: string[], t?: Transaction): Promise<boolean>;
+  addCategories(
+    data: ProductCategoryCreateDTO[],
+    t?: Transaction
+  ): Promise<boolean>;
+  bulkDelete(ids: string[], t?: Transaction): Promise<boolean>;
 }
 
 export interface IQueryRepository {

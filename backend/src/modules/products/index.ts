@@ -129,7 +129,6 @@ export const setupProductRouter = (sequelize: Sequelize) => {
     variantRepository,
     variantOptionValueRepository,
     productSellableUseCase
-    
   );
   const brandUseCase = new BrandUseCase(brandRepository);
   const useCase = new ProductUseCase(
@@ -142,7 +141,7 @@ export const setupProductRouter = (sequelize: Sequelize) => {
   );
   const httpService = new ProductHttpService(useCase);
   const router = Router();
-  router.patch('/products/delete', httpService.bulkSoftDelete.bind(httpService));
+  router.delete('/products/delete', httpService.bulkDelete.bind(httpService));
   router.get('/products', httpService.getProducts.bind(httpService));
   router.get('/products/:id', httpService.getProductById.bind(httpService));
   router.post('/products', httpService.createNewProduct.bind(httpService));

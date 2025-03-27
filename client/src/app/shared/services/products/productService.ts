@@ -50,12 +50,6 @@ export const productService = {
     });
     return response.data;
   },
-  bulkSoftDeleteProduct: async (ids: string[]): Promise<ProductModel[]> => {
-    const response = await axiosInstance.patch("/products/delete", {
-      ids,
-    });
-    return response.data;
-  },
   updateProduct: async (
     id: string,
     data: UpdateProductDTO,
