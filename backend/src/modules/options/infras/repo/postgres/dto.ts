@@ -23,7 +23,8 @@ export const optionsInit = (sequelize: Sequelize) => {
         allowNull: false,
         defaultValue: () => uuidv7(),
       },
-      name: { type: DataTypes.STRING, allowNull: false },
+      name: { type: DataTypes.STRING, allowNull: false, unique: true },
+      label: { type: DataTypes.STRING, allowNull: false },
       created_at: {
         type: DataTypes.DATE,
         allowNull: false,

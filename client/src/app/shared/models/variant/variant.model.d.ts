@@ -31,6 +31,7 @@ export type OptionValueModel = {
 export type OptionModel = {
   id: string;
   name: string;
+  label: string;
   is_color: boolean;
   status: ModelStatus;
   created_at: string;

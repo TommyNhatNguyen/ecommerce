@@ -1,4 +1,5 @@
 import { useNotification } from "@/app/contexts/NotificationContext";
+import { OptionCreateDTO } from "@/app/shared/interfaces/variant/variant.interface";
 import { optionService } from "@/app/shared/services/variant/optionService";
 import { useState } from "react";
 
@@ -7,7 +8,7 @@ export const useCreateOptionModal = () => {
   const [isCreateErrror, setIsCreateError] = useState<any>("");
   const { notificationApi } = useNotification();
   const handleCreateOption = async (
-    data: any,
+    data: OptionCreateDTO,
     callback?: () => void,
   ) => {
     try {

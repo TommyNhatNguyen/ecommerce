@@ -14,7 +14,9 @@ class RabbitMQ {
   private async getConnection(): Promise<Connection> {
     if (!this.connection) {
       try {
-        this.connection = await amqp.connect('amqp://localhost');
+        this.connection = await amqp.connect(
+          `amqp://${process.env.RABBITMQ_DEFAULT_USER}:${process.env.RABBITMQ_DEFAULT_PASS}@${process.env.RABBITMQ_HOST}:${process.env.RABBITMQ_PORT}`
+        );
         console.log('✅ RabbitMQ Connected.');
         return this.connection;
       } catch (error) {

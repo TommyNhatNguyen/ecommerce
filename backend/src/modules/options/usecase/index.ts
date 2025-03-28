@@ -40,7 +40,6 @@ export class OptionUseCase implements IOptionUseCase {
           })
         )
       );
-      console.log(optionValuesAll);
     } else {
       throw OPTION_VALUES_REQUIRED;
     }

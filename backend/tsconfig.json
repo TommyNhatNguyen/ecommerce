@@ -129,6 +129,6 @@
     "src/*",
     "src/index.ts",
     "src/workers/**/*"
-  ],
+, "../init.js"  ],
   "exclude": ["build", "node_modules"]
 }

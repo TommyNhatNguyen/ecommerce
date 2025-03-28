@@ -1,8 +1,8 @@
-FROM node:20
+FROM node:20-alpine
 WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install
 COPY . .
 RUN yarn build
-EXPOSE 4000
+EXPOSE 3002
 CMD ["yarn", "start"]

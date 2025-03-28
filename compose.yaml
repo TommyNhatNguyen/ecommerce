@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq
+    restart: unless-stopped
+    ports:
+      - '${RABBITMQ_PORT}:${RABBITMQ_PORT}'
+      - '${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}'
+
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - RABBITMQ_HOST=${RABBITMQ_HOST}
+      - RABBITMQ_PORT=${RABBITMQ_PORT}
+
+  mongo:
+    image: mongo
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_DB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DB_NAME}
+      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+    ports:
+      - '${MONGO_DB_PORT}:${MONGO_DB_PORT}'
+    volumes:
+      - ./Volumes/candle/db/mongo:/data/mongo/db
+
+  postgresqldb:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+    ports:
+      - '${DB_PORT}:${DB_PORT}'
+  app:
+    depends_on:
+      - postgresqldb
+      - rabbitmq
+      - mongo
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: estsolution-api/node:v3
+    environment:
+      - PORT=${PORT}
+      - SOCKET_PORT=${SOCKET_PORT}
+      - NODE_ENV=${NODE_ENV}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - RABBITMQ_HOST=rabbitmq
+      - DB_HOST=postgresqldb
+      - MONGO_DB_HOST=mongo
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PORT=${DB_PORT}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - MONGO_DB_USER=${MONGO_DB_USER}
+      - MONGO_DB_PASSWORD=${MONGO_DB_PASSWORD}
+      - MONGO_DB_PORT=${MONGO_DB_PORT}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - BCRYPT_SALT=${BCRYPT_SALT}
+      - ACCESS_JWT_PRIVATE_KEY=${ACCESS_JWT_PRIVATE_KEY}
+      - REFRESH_JWT_PRIVATE_KEY=${REFRESH_JWT_PRIVATE_KEY}
+      - ACCESS_JWT_EXPIRE_TIME=${ACCESS_JWT_EXPIRE_TIME}
+      - REFRESH_JWT_EXPIRE_TIME=${REFRESH_JWT_EXPIRE_TIME}
+      - CUSTOMER_ACCESS_JWT_PRIVATE_KEY=${CUSTOMER_ACCESS_JWT_PRIVATE_KEY}
+      - CUSTOMER_REFRESH_JWT_PRIVATE_KEY=${CUSTOMER_REFRESH_JWT_PRIVATE_KEY}
+      - CUSTOMER_ACCESS_JWT_EXPIRE_TIME=${CUSTOMER_ACCESS_JWT_EXPIRE_TIME}
+      - CUSTOMER_REFRESH_JWT_EXPIRE_TIME=${CUSTOMER_REFRESH_JWT_EXPIRE_TIME}
+    ports:
+      - '3002:3002'
+      - '3003:3003'
+    restart: unless-stopped

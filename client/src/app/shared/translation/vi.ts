@@ -217,5 +217,8 @@ export default {
     delete_brands: "Xóa thương hiệu",
     delete_brand_success: "Xóa thương hiệu thành công",
     delete_brand_error: "Xóa thương hiệu thất bại",
+    update_brand_success: "Cập nhật thương hiệu thành công",
+    update_brand_error: "Cập nhật thương hiệu thất bại",
+    attribute_label: "Tên hiển thị của thuộc tính"
   },
 };

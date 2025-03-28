@@ -41,6 +41,7 @@ const ModalCreateOptions = (
   } = useForm<OptionCreateDTO>({
     defaultValues: {
       name: "",
+      label: "",
       is_color: false,
       option_values: [
         {
@@ -61,6 +62,7 @@ const ModalCreateOptions = (
   const _resetData = () => {
     reset({
       name: getValues("name"),
+      label: getValues("label"),
       is_color: getValues("is_color"),
       option_values: [
         {
@@ -160,6 +162,26 @@ const ModalCreateOptions = (
                 label={intl.formatMessage({ id: "attribute_name" })}
                 placeholder={intl.formatMessage({ id: "attribute_name" })}
                 error={errors.name?.message as string}
+                required={true}
+                {...field}
+              />
+            )}
+          />
+          {/* Label */}
+          <Controller
+            control={control}
+            name="label"
+            rules={{
+              required: {
+                value: true,
+                message: ERROR_MESSAGE.REQUIRED,
+              },
+            }}
+            render={({ field }) => (
+              <InputAdmin
+                label={intl.formatMessage({ id: "attribute_label" })}
+                placeholder={intl.formatMessage({ id: "attribute_label" })}
+                error={errors.label?.message as string}
                 required={true}
                 {...field}
               />

@@ -14,6 +14,7 @@ export const OptionValueSchema = z.object({
 export const OptionSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
+  label: z.string(),
   is_color: z.boolean(),
   created_at: z.date(),
   updated_at: z.date(),

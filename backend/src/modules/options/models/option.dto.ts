@@ -60,6 +60,7 @@ export const OptionConditionDTOSchema = z.object({
 
 export const OptionCreateDTOSchema = z.object({
   name: z.string(),
+  label: z.string(),
   is_color: z.boolean().optional(),
   option_values: z.array(
     OptionValueCreateDTOSchema.partial({
@@ -70,6 +71,7 @@ export const OptionCreateDTOSchema = z.object({
 
 export const OptionUpdateDTOSchema = z.object({
   name: z.string().optional(),
+  label: z.string().optional(),
   status: z.nativeEnum(ModelStatus).optional(),
   is_color: z.boolean().optional(),
   option_values: z.array(

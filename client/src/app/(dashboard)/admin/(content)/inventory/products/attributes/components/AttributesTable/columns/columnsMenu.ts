@@ -1,5 +1,6 @@
 export const OPTION_COLUMNS = [
   "name",
+  "attribute_label",
   "is_color",
   "status",
   "created_at",

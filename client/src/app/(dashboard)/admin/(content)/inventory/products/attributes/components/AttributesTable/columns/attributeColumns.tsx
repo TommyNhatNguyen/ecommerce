@@ -14,6 +14,11 @@ export const optionsColumns: (
     dataIndex: "name",
   },
   {
+    key: "label",
+    title: () => intl.formatMessage({ id: "attribute_label" }),
+    dataIndex: "label",
+  },
+  {
     key: "is_color",
     title: () => intl.formatMessage({ id: "color" }),
     dataIndex: "color",

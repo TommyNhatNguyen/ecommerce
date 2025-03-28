@@ -5,7 +5,7 @@ import React from "react";
 import { useIntl } from "react-intl";
 
 type Props = {
-  handleChangeStatus?: (id: string, status: ModelStatus) => void;
+  handleChangeStatus: (id: string, status: ModelStatus) => void;
   status: ModelStatus;
   id: string;
 };
@@ -16,7 +16,7 @@ const SelectStatusAdmin = ({ handleChangeStatus, status, id }: Props) => {
     <Select
       options={STATUS_OPTIONS}
       value={status}
-      onChange={(value) => handleChangeStatus?.(id, value as ModelStatus)}
+      onChange={(value) => handleChangeStatus(id, value as ModelStatus)}
       className="w-full"
       optionRender={(props) => {
         const color = props.value === "ACTIVE" ? "green" : "red";

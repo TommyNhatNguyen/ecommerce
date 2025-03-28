@@ -201,5 +201,8 @@ export default {
     delete_brands: "Delete Brands",
     delete_brand_success: "Delete brand successfully",
     delete_brand_error: "Delete brand error",
+    update_brand_success: "Update brand successfully",
+    update_brand_error: "Update brand error",
+    attribute_label: "Attribute Label",
   },
 };

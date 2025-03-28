@@ -48,12 +48,14 @@ export type CreateVariantDTOV2 = {
 
 export type OptionCreateDTO = {
   name: string;
+  label?: string;
   is_color?: boolean;
   option_values: OptionValueCreateDTO[];
 };
 
 export type OptionUpdateDTO = {
   name?: string;
+  label?: string;
   is_color?: boolean;
   option_values: OptionValueUpdateDTO[];
 };
