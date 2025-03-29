@@ -146,7 +146,7 @@ export class ChatHttpService {
         ...conversationList,
       });
     } catch (error) {
-      console.log(error);
+      console.log("🚀 ~ ChatHttpService ~ getConversationList ~ error:", error)
       res
         .status(500)
         .json({ success: false, message: 'Internal server error' });

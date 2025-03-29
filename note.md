@@ -5,3 +5,15 @@
 - Thêm nhanh trong lúc tạo (bình thường)
 - - Thanh action follow theo bên góc phải nếu không còn trong view của user nữa (bình thường);
 - Lưu nháp (không quan trọng)s
+
+mongosh -u admin
+
+use candle
+
+db.createUser({
+  user:"admin",
+  pwd:"nhatvai123",
+  roles: ["readWrite"]
+})
+
+db.createCollection("Initialize")

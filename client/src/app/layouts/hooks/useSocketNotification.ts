@@ -44,6 +44,7 @@ export const useSocketNotifications = (
     [SOCKET_EVENTS_ENDPOINT.CHAT_ADMIN_NOTIFY],
     (data: string) => {
       const parsedData = JSON.parse(data);
+      console.log("🚀 ~ parsedData:", parsedData)
       if (!pathname.includes(ADMIN_ROUTES.chat)) {
         notificationApi.info({
           message: "New message from customer",
