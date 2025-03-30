@@ -208,5 +208,7 @@ export default {
     delete_warehouse: "Delete Warehouse",
     delete_warehouse_success: "Delete warehouse successfully",
     delete_warehouse_error: "Delete warehouse error",
+    update: "Update",
+    update_category: "Update Category",
   },
 };

@@ -1,7 +1,7 @@
 import DataCard from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/DataCard";
 import { useCategory } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useCategory";
 import ModalCreateCategory from "@/app/shared/components/GeneralModal/components/ModalCreateCategory";
-import UpdateCategoryModal from "@/app/shared/components/GeneralModal/components/UpdateCategoryModal";
+import UpdateCategoryModal from "@/app/shared/components/GeneralModal/components/ModalUpdateCategory";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import {
   CreateCategoryDTO,

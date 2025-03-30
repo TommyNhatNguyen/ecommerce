@@ -1,53 +1,50 @@
 import { ERROR_MESSAGE } from "@/app/constants/errors";
 import InputAdmin from "@/app/shared/components/InputAdmin";
-import GeneralModal from "@/app/shared/components/GeneralModal";
+import GeneralModal, {
+  ModalRefType,
+} from "@/app/shared/components/GeneralModal";
 import { CategoryModel } from "@/app/shared/models/categories/categories.model";
 import { categoriesService } from "@/app/shared/services/categories/categoriesService";
 import { useQuery } from "@tanstack/react-query";
-import { Button, Image, Input, Select, Upload, UploadFile } from "antd";
-import React, { useEffect, useState } from "react";
-import {
-  Controller,
-  ControllerProps,
-  ControllerRenderProps,
-  useForm,
-} from "react-hook-form";
+import { Button, Select, Upload, UploadFile } from "antd";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
+import { Controller, useForm } from "react-hook-form";
 import { STATUS_OPTIONS } from "@/app/constants/seeds";
-import withDeleteConfirmPopover from "@/app/shared/components/Popover";
-import { FileDiff, PlusIcon, Trash2Icon } from "lucide-react";
-import { defaultImage } from "@/app/shared/resources/images/default-image";
-import LoadingComponent from "@/app/shared/components/LoadingComponent";
+import { PlusIcon } from "lucide-react";
 import { UpdateCategoryDTO } from "@/app/shared/interfaces/categories/category.dto";
 import { useUpdateCategories } from "@/app/shared/components/GeneralModal/hooks/useUpdateCategories";
 import CustomEditor from "@/app/shared/components/CustomEditor";
 import { Editor } from "ckeditor5";
+import { useIntl } from "react-intl";
 
-const ButtonDeleteImageWithPopover = withDeleteConfirmPopover(
-  <Button type="text" className="aspect-square rounded-full p-0">
-    <Trash2Icon className="h-4 w-4 text-white" />
-  </Button>,
-);
-
-type UpdateCategoryModalPropsType = {
-  isModalUpdateCategoryOpen: boolean;
-  handleCloseModalUpdateCategory: () => void;
+type ModalUpdateCategoryPropsType = {
   updateCategoryId: string;
   refetch?: () => void;
+  loading?: boolean;
 };
 
-const UpdateCategoryModal = ({
-  isModalUpdateCategoryOpen,
-  handleCloseModalUpdateCategory,
-  updateCategoryId,
-  refetch,
-}: UpdateCategoryModalPropsType) => {
+const ModalUpdateCategory = (
+  {
+    updateCategoryId,
+    refetch,
+    loading = false,
+  }: ModalUpdateCategoryPropsType,
+  ref: any,
+) => {
+  const [open, setOpen] = useState(false);
+  const intl = useIntl();
   const { data: category, isLoading: isLoadingCategory } = useQuery({
-    queryKey: ["category", updateCategoryId, isModalUpdateCategoryOpen],
+    queryKey: ["category", updateCategoryId, open],
     queryFn: () =>
       categoriesService.getCategoryById(updateCategoryId, {
         include_image: true,
       }),
-    enabled: !!updateCategoryId && !!isModalUpdateCategoryOpen,
+    enabled: !!updateCategoryId && !!open,
   });
   const { control, handleSubmit, reset, getValues } = useForm<CategoryModel>({
     defaultValues: category,
@@ -63,12 +60,16 @@ const UpdateCategoryModal = ({
       reset(category);
     }
   }, [category]);
-  const loading =
-    uploadImageLoading || isLoadingCategory || updateCategoryLoading;
-  const _onCloseModalUpdateCategory = () => {
-    handleCloseModalUpdateCategory();
-    reset();
-  };
+  const finalLoading =
+    uploadImageLoading || isLoadingCategory || updateCategoryLoading || loading;
+      const handleOpenModal = () => {
+        setOpen(true);
+      };
+      const _onCloseModal = () => {
+        setOpen(false);
+        reset();
+      };
+
   const _onConfirmUpdateCategory = async (data: CategoryModel) => {
     const payload: UpdateCategoryDTO = {
       name: data.name,
@@ -83,10 +84,15 @@ const UpdateCategoryModal = ({
     }
     await handleUpdateCategory(updateCategoryId, payload);
     refetch?.();
-    _onCloseModalUpdateCategory();
+    _onCloseModal();
   };
+
+  useImperativeHandle<ModalRefType, ModalRefType>(ref, () => ({
+    handleOpenModal,
+    handleCloseModal: _onCloseModal,
+  }));
   const _renderTitleModalUpdateCategory = () => {
-    return <h1 className="text-2xl font-bold">Update Category</h1>;
+    return <h1 className="text-2xl font-bold">{intl.formatMessage({ id: "update_category" })}</h1>;
   };
   const _renderContentModalUpdateCategory = () => {
     return (
@@ -103,9 +109,9 @@ const UpdateCategoryModal = ({
             }}
             render={({ field, formState: { errors } }) => (
               <InputAdmin
-                label="Name"
+                label={intl.formatMessage({ id: "name" })}
                 required={true}
-                placeholder="Name"
+                placeholder={intl.formatMessage({ id: "name" })}
                 error={errors.name?.message as string}
                 {...field}
               />
@@ -116,8 +122,8 @@ const UpdateCategoryModal = ({
             name="description"
             render={({ field }) => (
               <InputAdmin
-                label="Description"
-                placeholder="Description"
+                label={intl.formatMessage({ id: "description" })}
+                placeholder={intl.formatMessage({ id: "description" })}
                 {...field}
                 value={field.value || ""}
                 customComponent={({ onChange, props }: any, ref: any) => (
@@ -136,8 +142,8 @@ const UpdateCategoryModal = ({
             )}
           />
           <InputAdmin
-            label="Status"
-            placeholder="Status"
+            label={intl.formatMessage({ id: "status" })}
+            placeholder={intl.formatMessage({ id: "status" })}
             required={true}
             customComponent={(props: any, ref: any) => (
               <Controller
@@ -145,8 +151,11 @@ const UpdateCategoryModal = ({
                 name="status"
                 render={({ field }) => (
                   <Select
-                    options={STATUS_OPTIONS}
-                    placeholder="Select Status"
+                    options={STATUS_OPTIONS.map((item) => ({
+                      label: intl.formatMessage({ id: item.label }),
+                      value: item.value,
+                    }))}
+                    placeholder={intl.formatMessage({ id: "select_status" })}
                     value={field.value}
                     onChange={field.onChange}
                     {...props}
@@ -165,9 +174,9 @@ const UpdateCategoryModal = ({
               return (
                 // @ts-ignore
                 <InputAdmin
-                  label="Add New Product Image"
+                  label={intl.formatMessage({ id: "image" })}
                   required={true}
-                  placeholder="Add New Product Image"
+                  placeholder={intl.formatMessage({ id: "image" })}
                   {...field}
                   error={errors.image_id?.message as string}
                   customComponent={({ value, onChange, ...props }, ref) => (
@@ -199,7 +208,6 @@ const UpdateCategoryModal = ({
               );
             }}
           />
-          ;
         </div>
       </>
     );
@@ -207,15 +215,15 @@ const UpdateCategoryModal = ({
   const _renderFooterModalUpdateCategory = () => {
     return (
       <div className="flex items-center justify-end gap-2">
-        <Button type="default" onClick={_onCloseModalUpdateCategory}>
-          Cancel
+        <Button type="default" onClick={_onCloseModal}>
+          {intl.formatMessage({ id: "close" })}
         </Button>
         <Button
           type="primary"
           htmlType="submit"
           onClick={handleSubmit(_onConfirmUpdateCategory)}
         >
-          Update
+          {intl.formatMessage({ id: "update" })}
         </Button>
       </div>
     );
@@ -223,14 +231,14 @@ const UpdateCategoryModal = ({
 
   return (
     <GeneralModal
-      open={isModalUpdateCategoryOpen}
+      open={open}
       renderTitle={_renderTitleModalUpdateCategory}
       renderContent={_renderContentModalUpdateCategory}
       renderFooter={_renderFooterModalUpdateCategory}
-      onCancel={handleCloseModalUpdateCategory}
-      loading={loading}
+      onCancel={_onCloseModal}
+      loading={finalLoading}
     />
   );
 };
 
-export default UpdateCategoryModal;
+export default React.memo(forwardRef(ModalUpdateCategory));

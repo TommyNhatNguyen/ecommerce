@@ -224,5 +224,7 @@ export default {
     delete_warehouse: "Xóa kho hàng",
     delete_warehouse_success: "Xóa kho hàng thành công",
     delete_warehouse_error: "Xóa kho hàng thất bại",
+    update: "Cập nhật",
+    update_category: "Cập nhật nhóm sản phẩm",
   },
 };

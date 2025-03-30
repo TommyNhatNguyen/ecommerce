@@ -17,6 +17,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import ModalCreateCategory from "@/app/shared/components/GeneralModal/components/ModalCreateCategory";
 import { ModalRefType } from "@/app/shared/components/GeneralModal";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
+import ModalUpdateCategory from "@/app/shared/components/GeneralModal/components/ModalUpdateCategory";
 
 type Props = {
   limit: number;
@@ -36,8 +37,11 @@ const CategoryTable = ({ limit }: Props) => {
     handleUpdateCategory,
     loadingUpdateCategory,
     handleDeleteCategories,
+    selectedUpdateItem,
+    handleSelectUpdateItem,
   } = useCategory();
   const modalCreateCategoryRef = useRef<ModalRefType>(null);
+  const modalUpdateCategoryRef = useRef<ModalRefType>(null);
   const {
     data: categoriesData,
     refetch,
@@ -65,19 +69,24 @@ const CategoryTable = ({ limit }: Props) => {
     await handleUpdateCategory(id, { status });
     refetch();
   };
+  const _onOpenModalCreateCategory = () => {
+    modalCreateCategoryRef.current?.handleOpenModal();
+  };
+  const _onOpenModalUpdateCategory = (id: string) => {
+    modalUpdateCategoryRef.current?.handleOpenModal();
+    handleSelectUpdateItem(id);
+  };
   const categories = useMemo(() => {
     return categoriesData?.pages?.flatMap((page) => page.data) || [];
   }, [categoriesData]);
 
   const newCategoryColumns = useMemo(() => {
-    return categoryColumns(intl, _onChangeStatus)?.map((item) => ({
+    return categoryColumns(intl, _onChangeStatus, _onOpenModalUpdateCategory)?.map((item) => ({
       ...item,
       hidden: !selectedColumns["category"]?.includes(item?.key as string),
     }));
   }, [selectedColumns]);
-  const _onOpenModalCreateCategory = () => {
-    modalCreateCategoryRef.current?.handleOpenModal();
-  };
+  
   const _onRefetch = () => {
     refetch();
   };
@@ -100,7 +109,7 @@ const CategoryTable = ({ limit }: Props) => {
     if (categories && categories?.length > 0) {
       setSelectedColumns({
         category: [
-          ...(categoryColumns(intl, _onChangeStatus) || []).map(
+          ...(categoryColumns(intl, _onChangeStatus, _onOpenModalUpdateCategory) || []).map(
             (item) => item?.key as string,
           ),
         ],
@@ -224,6 +233,12 @@ const CategoryTable = ({ limit }: Props) => {
         }
         ref={modalCreateCategoryRef}
         loading={loadingCreateCategory}
+      />
+      <ModalUpdateCategory
+        ref={modalUpdateCategoryRef}
+        loading={loadingUpdateCategory}
+        updateCategoryId={selectedUpdateItem}
+        refetch={_onRefetch}
       />
     </div>
   );

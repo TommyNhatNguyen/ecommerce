@@ -1,13 +1,19 @@
 import { IntlShape } from "react-intl";
-import { Image, TableProps, Tag } from "antd";
+import { Button, Image, TableProps, Tag } from "antd";
 import { CategoryModel } from "@/app/shared/models/categories/categories.model";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import SelectStatusAdmin from "@/app/shared/components/SelectStatusAdmin";
+import { Pencil } from "lucide-react";
 
 export const categoryColumns: (
   intl: IntlShape,
   onChangeStatus: (id: string, status: ModelStatus) => void,
-) => TableProps<CategoryModel>["columns"] = (intl, onChangeStatus) => [
+  handleSelectUpdateItem: (id: string) => void,
+) => TableProps<CategoryModel>["columns"] = (
+  intl,
+  onChangeStatus,
+  handleSelectUpdateItem,
+) => [
   {
     key: "image",
     title: () => intl.formatMessage({ id: "thumbnail" }),
@@ -62,6 +68,23 @@ export const categoryColumns: (
     dataIndex: "updated_at",
     render: (_, { updated_at }) => {
       return <span>{updated_at}</span>;
+    },
+  },
+  {
+    key: "action",
+    title: () => intl.formatMessage({ id: "actions" }),
+    dataIndex: "action",
+    render: (_, { id }) => {
+      return (
+        <Button
+          type="link"
+          variant="link"
+          color="primary"
+          icon={<Pencil width={16} height={16} />}
+          onClick={() => handleSelectUpdateItem(id)}
+        >
+        </Button>
+      );
     },
   },
 ];

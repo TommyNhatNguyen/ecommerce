@@ -350,13 +350,6 @@ const ProductTable = ({
                     dataSource={record.variant}
                     columns={newVariantColumns}
                     rowKey={(record) => record.id}
-                    // onRow={(record) => {
-                    //   return {
-                    //     onClick: () => {
-                    //       setProductDetail(record);
-                    //     },
-                    //   };
-                    // }}
                     pagination={false}
                   />
                 </>

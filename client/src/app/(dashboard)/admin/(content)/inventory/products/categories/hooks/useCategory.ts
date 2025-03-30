@@ -18,6 +18,7 @@ export const useCategory = () => {
   const [loadingDeleteCategory, setLoadingDeleteCategory] = useState(false);
   const [errorDeleteCategory, setErrorDeleteCategory] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
+  const [selectedUpdateItem, setSelectedUpdateItem] = useState<string>("");
   const { notificationApi } = useNotification();
   const handleCreateCategory = async (
     data: CreateCategoryDTO,
@@ -91,6 +92,9 @@ export const useCategory = () => {
       setSelectedCategory([]);
     }
   };
+  const handleSelectUpdateItem = (id: string) => {
+    setSelectedUpdateItem(id);
+  };
   return {
     loadingCreateCategory,
     errorCreateCategory,
@@ -103,5 +107,7 @@ export const useCategory = () => {
     loadingDeleteCategory,
     errorDeleteCategory,
     handleDeleteCategories,
+    selectedUpdateItem,
+    handleSelectUpdateItem,
   };
 };
