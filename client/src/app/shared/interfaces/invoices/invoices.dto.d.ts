@@ -63,4 +63,6 @@ export interface InvoicesConditionDTO {
   include_inventory?: boolean;
   include_warehouse?: boolean;
   include_product?: boolean;
+  warehouse_ids?: string[];
+  invoices_types?: string[];
 }

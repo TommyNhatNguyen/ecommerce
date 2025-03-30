@@ -18,6 +18,8 @@ type Props = {
   handleSelectWarehouse: (value: string[]) => void;
   selectedInvoiceType: string[];
   handleSelectInvoiceType: (value: string[]) => void;
+  isApplyFilter: boolean;
+  handleApplyFilter: () => void;
 };
 
 const InvoicesFilter = ({
@@ -31,6 +33,8 @@ const InvoicesFilter = ({
   handleSelectWarehouse,
   selectedInvoiceType,
   handleSelectInvoiceType,
+  isApplyFilter,
+  handleApplyFilter,
 }: Props) => {
   const intl = useIntl();
   const _onSearch = (value: string) => {
@@ -52,6 +56,7 @@ const InvoicesFilter = ({
     <FilterComponent
       hasSelectedItems={hasSelectedItems}
       clearAll={handleClearAll}
+      applyFilters={handleApplyFilter}
     >
       {/* Tên sản phẩm (search) */}
       <Filter.Item name="search" label={intl.formatMessage({ id: "search" })}>

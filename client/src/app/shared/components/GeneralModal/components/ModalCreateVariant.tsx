@@ -59,6 +59,7 @@ const ModalCreateVariant = ({ loading = false, refetch }: Props, ref: any) => {
     reset,
     getValues,
     setValue,
+    watch,
   } = useForm<{
     product_id: string;
     variants: CreateVariantDTOV2[];
@@ -83,6 +84,18 @@ const ModalCreateVariant = ({ loading = false, refetch }: Props, ref: any) => {
         : undefined;
     },
     initialPageParam: 1,
+  });
+  const { data: productDetailData } = useQuery({
+    queryKey: ["product-detail", watch("product_id")],
+    queryFn: () =>
+      productService.getProductById(watch("product_id"), {
+        includeVariant: true,
+        includeVariantInfo: true,
+        includeVariantInventory: true,
+        includeVariantOption: true,
+        includeVariantOptionType: true,
+      }),
+    enabled: !!watch("product_id"),
   });
   const { data: options } = useQuery({
     queryKey: ["options", open],

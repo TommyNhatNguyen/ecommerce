@@ -11,14 +11,14 @@ type Props = {}
 // Xóa hoá đơn
 
 const InvoicesPage = (props: Props) => {
-  const { ...rest } = useInvoicesFilter();
+  const {isApplyFilter, ...rest } = useInvoicesFilter();
   return (
     <div className="relative grid h-full grid-cols-12 gap-2 overflow-y-auto px-4">
       <div className="col-span-2">
-        <InvoicesFilter {...rest} />
+        <InvoicesFilter isApplyFilter={isApplyFilter} {...rest} />
       </div>
       <div className="col-span-10">
-        <InvoicesTable/>
+        <InvoicesTable isApplyFilter={isApplyFilter} {...rest}/>
       </div>
     </div>
   )

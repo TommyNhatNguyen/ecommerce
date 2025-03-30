@@ -32,9 +32,21 @@ import ModalCreateInvoices, {
 import ModalCreateTransferInvoices from "@/app/shared/components/GeneralModal/components/ModalCreateTransferInvoices";
 import ModalCreateCheckInvoice from "@/app/shared/components/GeneralModal/components/ModalCreateCheckInvoice";
 
-type Props = {};
+type Props = {
+  search?: string;
+  limit?: number;
+  isApplyFilter?: boolean;
+  selectedWarehouses?: string[];
+  selectedInvoiceType?: string[];
+};
 
-const InvoicesTable = (props: Props) => {
+const InvoicesTable = ({
+  search = "",
+  limit = 10,
+  isApplyFilter = false,
+  selectedWarehouses = [],
+  selectedInvoiceType = [],
+}: Props) => {
   const { ref, inView } = useInView();
   const intl = useIntl();
   const modalCreateInvoicesRef = useRef<ModalCreateInvoicesRefType>();
@@ -55,10 +67,12 @@ const InvoicesTable = (props: Props) => {
     queryFn: ({ pageParam = 1 }) => {
       return invoicesService.getList({
         page: pageParam,
-        limit: 10,
+        limit: limit,
         include_inventory: true,
         include_warehouse: true,
         include_product: true,
+        warehouse_ids: selectedWarehouses,
+        invoices_types: selectedInvoiceType,
       });
     },
     getNextPageParam: (lastPage) => {
@@ -107,6 +121,9 @@ const InvoicesTable = (props: Props) => {
       fetchNextPage();
     }
   }, [inView]);
+  useEffect(() => {
+    refetch();
+  }, [isApplyFilter]);
   return (
     <div className="h-full">
       <div className="mb-2 flex items-center justify-between gap-2">

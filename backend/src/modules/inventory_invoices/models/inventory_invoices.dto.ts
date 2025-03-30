@@ -78,6 +78,8 @@ export const InventoryInvoiceConditionDTOSchema = z.object({
     .or(z.string().refine((value) => value === 'true' || value === 'false'))
     .transform((value) => value === 'true')
     .optional(),
+  warehouse_ids: z.array(z.string().uuid()).optional(),
+  invoices_types: z.array(z.nativeEnum(InventoryInvoiceType)).optional(),
 });
 
 export type InventoryInvoiceCreateDTO = z.infer<

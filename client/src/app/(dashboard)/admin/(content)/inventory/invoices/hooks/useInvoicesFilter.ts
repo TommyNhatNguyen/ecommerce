@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
 export const useInvoicesFilter = () => {
+  const [isApplyFilter, setIsApplyFilter] = useState<boolean>(false);
   const [limit, setLimit] = useState<number>(10);
   const [search, setSearch] = useState<string>("");
   const [selectedWarehouses, setSelectedWarehouses] = useState<string[]>([]);
@@ -42,6 +43,11 @@ export const useInvoicesFilter = () => {
     setSelectedWarehouses([]);
     setSearch("");
     setSelectedInvoiceType([]);
+    setIsApplyFilter(prev => !prev);
+  };
+
+  const handleApplyFilter = () => {
+    setIsApplyFilter(prev => !prev);
   };
 
   return {
@@ -56,5 +62,7 @@ export const useInvoicesFilter = () => {
     handleClearAll,
     selectedInvoiceType,
     handleSelectInvoiceType,
+    isApplyFilter,
+    handleApplyFilter,
   };
 };
