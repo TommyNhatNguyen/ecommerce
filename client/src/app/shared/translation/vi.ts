@@ -235,5 +235,9 @@ export default {
     delete_category_success: "Xóa nhóm sản phẩm thành công",
     delete_category_failed: "Xóa nhóm sản phẩm thất bại",
     update_brand: "Cập nhật thương hiệu",
+    update_option_success: "Cập nhật thuộc tính thành công",
+    update_option_error: "Cập nhật thuộc tính thất bại",
+    update_option_success_description: "Thuộc tính đã được cập nhật thành công",
+    update_option_error_description: "Không thể cập nhật thuộc tính",
   },
 };

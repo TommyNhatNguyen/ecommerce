@@ -1,10 +1,12 @@
 import { useNotification } from "@/app/contexts/NotificationContext";
 import { OptionUpdateDTO } from "@/app/shared/interfaces/variant/variant.interface";
 import { optionService } from "@/app/shared/services/variant/optionService";
+import { useIntl } from "react-intl";
 import { useState } from "react";
 
 export const useUpdateOptionModal = () => {
   const { notificationApi } = useNotification();
+  const intl = useIntl();
   const [isUpdateLoading, setIsUpdateLoading] = useState(false);
   const [updateOptionError, setUpdateOptionError] = useState<string>("");
 
@@ -13,18 +15,33 @@ export const useUpdateOptionModal = () => {
     data: OptionUpdateDTO,
     onSuccess?: () => void,
   ) => {
-    console.log("🚀 ~ useUpdateOptionModal ~ data:", data)
     try {
       setIsUpdateLoading(true);
       const response = await optionService.updateOption(id, data);
       if (response) {
+        notificationApi.success({
+          message: intl.formatMessage({ id: "update_option_success" }),
+          description: intl.formatMessage({
+            id: "update_option_success_description",
+          }),
+        });
         onSuccess?.();
         return response;
+      } else {
+        notificationApi.error({
+          message: intl.formatMessage({ id: "update_option_error" }),
+          description: intl.formatMessage({
+            id: "update_option_error_description",
+          }),
+        });
+        throw new Error("Failed to update option");
       }
     } catch (error: any) {
       notificationApi.error({
-        message: error?.message || "Failed to update option",
-        description: error?.message || "Failed to update option",
+        message: intl.formatMessage({ id: "update_option_error" }),
+        description: intl.formatMessage({
+          id: "update_option_error_description",
+        }),
       });
       setUpdateOptionError(error?.message || "Failed to update option");
     } finally {

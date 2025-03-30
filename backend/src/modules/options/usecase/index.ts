@@ -51,19 +51,25 @@ export class OptionUseCase implements IOptionUseCase {
       include_option_values: true,
     });
     if (selectedOption) {
-      const optionValuesUpdated = await Promise.all(
-        option_values.map((optionValue) =>
-          this.optionValueUseCase.updateOptionValue(
-            selectedOption.option_values.find(
-              (optionValue) => optionValue.name === optionValue.name
-            )?.id || '',
-            {
-              name: optionValue.name,
-              value: optionValue.value,
-            }
-          )
-        )
-      );
+      for (const optionValue of option_values) {
+        const currentUpdatedOptionValue = selectedOption.option_values.find(
+          (value) => value.name === optionValue.name
+        );
+        const optionValueId = currentUpdatedOptionValue?.id || '';
+        if (optionValueId) {
+          await this.optionValueUseCase.updateOptionValue(optionValueId, {
+            name: optionValue.name,
+            value: optionValue.value,
+          });
+        } else {
+          await this.optionValueUseCase.createOptionValue({
+            ...optionValue,
+            option_id: id,
+            name: optionValue.name || '',
+            value: optionValue.value || '',
+          });
+        }
+      }
     }
     return this.optionRepository.update(id, optionData);
   }

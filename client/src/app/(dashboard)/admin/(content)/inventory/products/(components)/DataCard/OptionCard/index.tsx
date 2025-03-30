@@ -1,7 +1,7 @@
 import DataCard from "@/app/(dashboard)/admin/(content)/inventory/products/(components)/DataCard";
 import { useOptions } from "@/app/(dashboard)/admin/(content)/inventory/products/hooks/useOptions";
 import ModalCreateOptions from "@/app/shared/components/GeneralModal/components/ModalCreateOptions";
-import UpdateOptionsModal from "@/app/shared/components/GeneralModal/components/UpdateOptionsModal";
+import UpdateOptionsModal from "@/app/shared/components/GeneralModal/components/ModalUpdateOption";
 import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 import { optionService } from "@/app/shared/services/variant/optionService";
 import {

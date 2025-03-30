@@ -1,13 +1,18 @@
 import { IntlShape } from "react-intl";
-import { ColorPicker, TableProps, Tag } from "antd";
+import { ColorPicker, TableProps, Tag, Button } from "antd";
 import {
   OptionModel,
   OptionValueModel,
 } from "@/app/shared/models/variant/variant.model";
+import { Edit, Edit2Icon } from "lucide-react";
 
 export const optionsColumns: (
   intl: IntlShape,
-) => TableProps<OptionModel>["columns"] = (intl: IntlShape) => [
+  onEdit: (id: string) => void,
+) => TableProps<OptionModel>["columns"] = (
+  intl: IntlShape,
+  onEdit: (id: string) => void,
+) => [
   {
     key: "name",
     title: () => intl.formatMessage({ id: "attribute_name" }),
@@ -62,6 +67,22 @@ export const optionsColumns: (
     dataIndex: "updated_at",
     render: (_, { updated_at }) => {
       return <span>{updated_at}</span>;
+    },
+  },
+  {
+    key: "action",
+    title: () => intl.formatMessage({ id: "action" }),
+    dataIndex: "action",
+    render: (_, { id }) => {
+      return (
+        <Button
+          type="link"
+          variant="link"
+          color="yellow"
+          icon={<Edit2Icon width={16} height={16} />}
+          onClick={() => onEdit(id)}
+        />
+      );
     },
   },
 ];

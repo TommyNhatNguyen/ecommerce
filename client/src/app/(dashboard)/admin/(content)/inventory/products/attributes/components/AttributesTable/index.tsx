@@ -22,6 +22,7 @@ import {
   OPTION_VALUES_COLUMNS,
 } from "@/app/(dashboard)/admin/(content)/inventory/products/attributes/components/AttributesTable/columns/columnsMenu";
 import ModalCreateOptions from "@/app/shared/components/GeneralModal/components/ModalCreateOptions";
+import ModalUpdateOption from "@/app/shared/components/GeneralModal/components/ModalUpdateOption";
 
 type Props = {
   limit: number;
@@ -31,9 +32,11 @@ const AttributesTable = ({ limit }: Props) => {
   const [selectedColumns, setSelectedColumns] = useState<{
     [key: string]: string[];
   }>({});
+  const [selectedUpdateItem, setSelectedUpdateItem] = useState<string>("");
   const intl = useIntl();
   const { ref, inView } = useInView();
   const modalCreateOptionRef = useRef<ModalRefType>(null);
+  const modalUpdateOptionRef = useRef<ModalRefType>(null);
   const {
     data: optionData,
     refetch,
@@ -60,8 +63,12 @@ const AttributesTable = ({ limit }: Props) => {
   const options = useMemo(() => {
     return optionData?.pages?.flatMap((page) => page.data) || [];
   }, [optionData]);
+  const _onOpenModalUpdateOption = (id: string) => {
+    modalUpdateOptionRef.current?.handleOpenModal();
+    setSelectedUpdateItem(id);
+  };
   const newOptionsColumns = useMemo(() => {
-    return optionsColumns(intl)?.map((item) => ({
+    return optionsColumns(intl, _onOpenModalUpdateOption)?.map((item) => ({
       ...item,
       hidden: !selectedColumns["options"]?.includes(item?.key as string),
     }));
@@ -75,6 +82,7 @@ const AttributesTable = ({ limit }: Props) => {
   const _onOpenModalCreateOptions = () => {
     modalCreateOptionRef.current?.handleOpenModal();
   };
+
   const _onRefetch = () => {
     refetch();
   };
@@ -93,7 +101,9 @@ const AttributesTable = ({ limit }: Props) => {
     if (options && options?.length > 0) {
       setSelectedColumns({
         options: [
-          ...(optionsColumns(intl) || []).map((item) => item?.key as string),
+          ...(optionsColumns(intl, _onOpenModalUpdateOption) || []).map(
+            (item) => item?.key as string,
+          ),
         ],
         "options-values": [
           ...(optionsValuesColumns(intl) || []).map(
@@ -233,6 +243,11 @@ const AttributesTable = ({ limit }: Props) => {
         <div className="h-10 w-full" ref={ref}></div>
       </div>
       <ModalCreateOptions refetch={_onRefetch} ref={modalCreateOptionRef} />
+      <ModalUpdateOption
+        refetch={_onRefetch}
+        ref={modalUpdateOptionRef}
+        updateOptionId={selectedUpdateItem}
+      />
     </div>
   );
 };
