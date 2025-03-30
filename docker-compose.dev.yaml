@@ -7,13 +7,15 @@ services:
     ports:
       - '${RABBITMQ_PORT}:${RABBITMQ_PORT}'
       - '${RABBITMQ_MANAGEMENT_PORT}:${RABBITMQ_MANAGEMENT_PORT}'
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_log:/var/log/rabbitmq
 
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
       - RABBITMQ_HOST=${RABBITMQ_HOST}
       - RABBITMQ_PORT=${RABBITMQ_PORT}
-
   mongo:
     image: mongo
     restart: unless-stopped
@@ -26,8 +28,8 @@ services:
     ports:
       - '${MONGO_DB_PORT}:${MONGO_DB_PORT}'
     volumes:
-      - ./Volumes/candle/db/mongo:/data/mongo/db
-
+      - mongo_data:/data/db
+      - mongo_config:/data/configdb
   postgresqldb:
     image: postgres:17
     restart: unless-stopped
@@ -39,7 +41,9 @@ services:
       - DB_PORT=${DB_PORT}
     ports:
       - '${DB_PORT}:${DB_PORT}'
-  app:
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  backend:
     depends_on:
       - postgresqldb
       - rabbitmq
@@ -47,7 +51,10 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: 'yarn dev'
+      target: development
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     develop:
       watch:
         - action: sync
@@ -55,7 +62,6 @@ services:
           target: './app/src'
         - action: rebuild
           path: ./backend/package.json
-
     image: estsolution-api/node:v3
     environment:
       - PORT=${PORT}
@@ -90,3 +96,23 @@ services:
       - '3002:3002'
       - '3003:3003'
     restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '--no-verbose',
+          '--tries=1',
+          '--spider',
+          'http://localhost:3002/health',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  mongo_data:
+  mongo_config:
+  postgres_data:
+  rabbitmq_data:
+  rabbitmq_log:

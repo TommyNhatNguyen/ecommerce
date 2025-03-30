@@ -126,7 +126,6 @@ export class ProductHttpService {
         .json({ error: pagingError?.message || conditionError?.message });
       return;
     }
-    console.log('doraemon');
     try {
       const result = await this.productUseCase.getProducts(condition, paging);
       res.status(200).json({

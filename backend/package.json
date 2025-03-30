@@ -8,7 +8,7 @@
     "build": "yarn tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
     "start": "node build/index.js",
     "test": "jest --watchAll  --detectOpenHandles",
-    "start:dev": "docker compose --env-file ./.env.dev up --build --watch",
+    "start:dev": "docker compose -f ../docker-compose.dev.yaml --env-file ./.env.dev up --build --watch",
     "start:prod": "docker compose --env-file ./.env.prod up"
   },
   "dependencies": {
