@@ -1,7 +1,13 @@
 "use client";
 import { Table } from "antd";
 import { Checkbox, Divider, Dropdown } from "antd";
-import { AlignJustify, Download, FilePlus, Plus, Trash2Icon } from "lucide-react";
+import {
+  AlignJustify,
+  Download,
+  FilePlus,
+  Plus,
+  Trash2Icon,
+} from "lucide-react";
 import { cn } from "@/app/shared/utils/utils";
 import { RefreshCcw } from "lucide-react";
 import { Button } from "antd";
@@ -18,6 +24,7 @@ import ModalCreateCategory from "@/app/shared/components/GeneralModal/components
 import { ModalRefType } from "@/app/shared/components/GeneralModal";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import ModalUpdateCategory from "@/app/shared/components/GeneralModal/components/ModalUpdateCategory";
+import withDeleteConfirmPopover from "@/app/shared/components/Popover";
 
 type Props = {
   limit: number;
@@ -39,6 +46,7 @@ const CategoryTable = ({ limit }: Props) => {
     handleDeleteCategories,
     selectedUpdateItem,
     handleSelectUpdateItem,
+    handleDeleteCategory,
   } = useCategory();
   const modalCreateCategoryRef = useRef<ModalRefType>(null);
   const modalUpdateCategoryRef = useRef<ModalRefType>(null);
@@ -65,6 +73,9 @@ const CategoryTable = ({ limit }: Props) => {
     initialPageParam: 1,
     placeholderData: keepPreviousData,
   });
+  const _onRefetch = () => {
+    refetch();
+  };
   const _onChangeStatus = async (id: string, status: ModelStatus) => {
     await handleUpdateCategory(id, { status });
     refetch();
@@ -76,20 +87,25 @@ const CategoryTable = ({ limit }: Props) => {
     modalUpdateCategoryRef.current?.handleOpenModal();
     handleSelectUpdateItem(id);
   };
+  const _onDeleteCategory = (id: string) => {
+    handleDeleteCategory(id, _onRefetch);
+  };
   const categories = useMemo(() => {
     return categoriesData?.pages?.flatMap((page) => page.data) || [];
   }, [categoriesData]);
 
   const newCategoryColumns = useMemo(() => {
-    return categoryColumns(intl, _onChangeStatus, _onOpenModalUpdateCategory)?.map((item) => ({
+    return categoryColumns(
+      intl,
+      _onChangeStatus,
+      _onOpenModalUpdateCategory,
+      _onDeleteCategory,
+    )?.map((item) => ({
       ...item,
       hidden: !selectedColumns["category"]?.includes(item?.key as string),
     }));
   }, [selectedColumns]);
-  
-  const _onRefetch = () => {
-    refetch();
-  };
+
   const _onSelectColumns = (id: string, keys: string[]) => {
     setSelectedColumns((prev) => ({
       ...prev,
@@ -109,9 +125,14 @@ const CategoryTable = ({ limit }: Props) => {
     if (categories && categories?.length > 0) {
       setSelectedColumns({
         category: [
-          ...(categoryColumns(intl, _onChangeStatus, _onOpenModalUpdateCategory) || []).map(
-            (item) => item?.key as string,
-          ),
+          ...(
+            categoryColumns(
+              intl,
+              _onChangeStatus,
+              _onOpenModalUpdateCategory,
+              _onDeleteCategory,
+            ) || []
+          ).map((item) => item?.key as string),
         ],
       });
     }

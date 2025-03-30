@@ -19,6 +19,7 @@ export const useCategory = () => {
   const [errorDeleteCategory, setErrorDeleteCategory] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
   const [selectedUpdateItem, setSelectedUpdateItem] = useState<string>("");
+  const [selectedDeleteItem, setSelectedDeleteItem] = useState<string>("");
   const { notificationApi } = useNotification();
   const handleCreateCategory = async (
     data: CreateCategoryDTO,
@@ -92,6 +93,24 @@ export const useCategory = () => {
       setSelectedCategory([]);
     }
   };
+  const handleDeleteCategory = async (id: string, callback?: () => void) => {
+    try {
+      setLoadingDeleteCategory(true);
+      const response = await categoriesService.deleteCategory(id);
+      if (response) {
+        notificationApi.success({
+          message: intl.formatMessage({ id: "delete_categories_success" }),
+          description: intl.formatMessage({ id: "delete_categories_success" }),
+        });
+      }
+    } catch (error: any) {
+      setErrorDeleteCategory(error.message);
+    } finally {
+      setLoadingDeleteCategory(false);
+      setSelectedDeleteItem("");
+      callback?.();
+    }
+  };
   const handleSelectUpdateItem = (id: string) => {
     setSelectedUpdateItem(id);
   };
@@ -109,5 +128,6 @@ export const useCategory = () => {
     handleDeleteCategories,
     selectedUpdateItem,
     handleSelectUpdateItem,
+    handleDeleteCategory,
   };
 };

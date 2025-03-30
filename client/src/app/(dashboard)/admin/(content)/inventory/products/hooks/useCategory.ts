@@ -4,8 +4,10 @@ import { CreateCategoryDTO, GetCategoriesBodyDTO } from "@/app/shared/interfaces
 import { useState } from "react";
 import { AxiosError } from "axios";
 import { useNotification } from "@/app/contexts/NotificationContext";
+import { useIntl } from "react-intl";
 
 export const useCategory = () => {
+  const intl = useIntl();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [loadingDelete, setLoadingDelete] = useState(false);
@@ -17,15 +19,15 @@ export const useCategory = () => {
       const response = await categoriesService.createCategory(data);
       if (response) {
         notificationApi.success({
-          message: "Create category success",
-          description: "Category created successfully",
+          message: intl.formatMessage({ id: "create_category_success" }),
+          description: intl.formatMessage({ id: "create_category_success" }),
         });
         return response;
       }
     } catch (error: any) {
       notificationApi.error({
-        message: "Create category failed",
-        description: "Please try again",
+        message: intl.formatMessage({ id: "create_category_failed" }),
+        description: intl.formatMessage({ id: "create_category_failed" }),
       });
       setError(error.message);
     } finally {
@@ -38,15 +40,15 @@ export const useCategory = () => {
       const response = await categoriesService.deleteCategory(id);
       if (response) {
         notificationApi.success({
-          message: "Delete category success",
-          description: "Category deleted successfully",
+          message: intl.formatMessage({ id: "delete_category_success" }),
+          description: intl.formatMessage({ id: "delete_category_success" }),
         });
         return response;
       }
     } catch (error: any) {
       notificationApi.error({
-        message: "Delete category failed",
-        description: "Please try again",
+        message: intl.formatMessage({ id: "delete_category_failed" }),
+        description: intl.formatMessage({ id: "delete_category_failed" }),
       });
       setErrorDelete(error.message);
     } finally {

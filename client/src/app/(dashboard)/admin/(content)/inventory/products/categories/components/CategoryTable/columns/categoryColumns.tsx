@@ -3,16 +3,28 @@ import { Button, Image, TableProps, Tag } from "antd";
 import { CategoryModel } from "@/app/shared/models/categories/categories.model";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import SelectStatusAdmin from "@/app/shared/components/SelectStatusAdmin";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2Icon } from "lucide-react";
+import withDeleteConfirmPopover from "@/app/shared/components/Popover";
+
+const ButtonDeleteWithPopover = withDeleteConfirmPopover(
+  <Button
+    icon={<Trash2Icon width={16} height={16} />}
+    type="link"
+    variant="link"
+    color="danger"
+  ></Button>,
+);
 
 export const categoryColumns: (
   intl: IntlShape,
   onChangeStatus: (id: string, status: ModelStatus) => void,
   handleSelectUpdateItem: (id: string) => void,
+  handleDelete: (id: string) => void,
 ) => TableProps<CategoryModel>["columns"] = (
   intl,
   onChangeStatus,
   handleSelectUpdateItem,
+  handleDelete,
 ) => [
   {
     key: "image",
@@ -74,16 +86,24 @@ export const categoryColumns: (
     key: "action",
     title: () => intl.formatMessage({ id: "actions" }),
     dataIndex: "action",
-    render: (_, { id }) => {
+    render: (_, { id}) => {
       return (
-        <Button
-          type="link"
-          variant="link"
-          color="primary"
-          icon={<Pencil width={16} height={16} />}
-          onClick={() => handleSelectUpdateItem(id)}
-        >
-        </Button>
+        <div className="flex items-center gap-2">
+          <ButtonDeleteWithPopover
+            trigger={"click"}
+            handleDelete={() => {
+              handleDelete(id);
+            }}
+            isWithDeleteConfirmPopover={false}
+          />
+          <Button
+            type="link"
+            variant="link"
+            color="primary"
+            icon={<Pencil width={16} height={16} />}
+            onClick={() => handleSelectUpdateItem(id)}
+          ></Button>
+        </div>
       );
     },
   },

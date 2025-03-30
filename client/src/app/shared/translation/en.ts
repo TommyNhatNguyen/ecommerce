@@ -163,7 +163,8 @@ export default {
     create_invoices_success: "Create invoices successfully",
     create_invoices_error: "Create invoices error",
     overall_stock_status: "Overall Stock Status",
-    inventory_info_by_warehouse: "Inventory info by warehouse of {product_name} in {warehouse_name}",
+    inventory_info_by_warehouse:
+      "Inventory info by warehouse of {product_name} in {warehouse_name}",
     select_warehouse_from: "Select Warehouse From",
     select_warehouse_to: "Select Warehouse To",
     warehouse_from: "Warehouse From",
@@ -172,8 +173,10 @@ export default {
     create_transfer_invoice_error: "Create transfer invoice error",
     inventory_at_warehouse_from: "Inventory at warehouse from",
     inventory_at_warehouse_to: "Inventory at warehouse to",
-    create_check_inventory_invoice_success: "Create check inventory invoice successfully",
-    create_check_inventory_invoice_error: "Create check inventory invoice error",
+    create_check_inventory_invoice_success:
+      "Create check inventory invoice successfully",
+    create_check_inventory_invoice_error:
+      "Create check inventory invoice error",
     index: "Index",
     actual_quantity: "Actual Quantity",
     difference_quantity: "Difference Quantity",
@@ -210,5 +213,11 @@ export default {
     delete_warehouse_error: "Delete warehouse error",
     update: "Update",
     update_category: "Update Category",
+    are_you_sure_you_want_to_delete_this_item:
+      "Are you sure you want to delete this item?",
+    create_category_success: "Create category successfully",
+    create_category_failed: "Create category failed",
+    delete_category_success: "Delete category successfully",
+    delete_category_failed: "Delete category failed",
   },
 };

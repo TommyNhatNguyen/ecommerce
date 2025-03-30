@@ -226,5 +226,11 @@ export default {
     delete_warehouse_error: "Xóa kho hàng thất bại",
     update: "Cập nhật",
     update_category: "Cập nhật nhóm sản phẩm",
+    are_you_sure_you_want_to_delete_this_item:
+      "Bạn có chắc chắn muốn xóa đối tượng này?",
+    create_category_success: "Tạo nhóm sản phẩm thành công",
+    create_category_failed: "Tạo nhóm sản phẩm thất bại",
+    delete_category_success: "Xóa nhóm sản phẩm thành công",
+    delete_category_failed: "Xóa nhóm sản phẩm thất bại",
   },
 };

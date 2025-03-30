@@ -3,10 +3,12 @@
 import { Button, Popover, PopoverProps } from "antd";
 import { Trash2Icon, XIcon } from "lucide-react";
 import React, { useState } from "react";
+import { useIntl } from "react-intl";
 
 type WithDeleteConfirmPopoverProps = {
   handleDelete: () => void;
   isWithDeleteConfirmPopover?: boolean;
+  title?: string;
 } & PopoverProps;
 
 const withDeleteConfirmPopover = (Component: React.ReactNode) => {
@@ -16,6 +18,7 @@ const withDeleteConfirmPopover = (Component: React.ReactNode) => {
     isWithDeleteConfirmPopover = true,
     ...props
   }: WithDeleteConfirmPopoverProps) {
+    const intl = useIntl();
     const [open, setOpen] = useState(false);
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
     const _toggleOpenDeleteConfirm = () => {
@@ -32,7 +35,7 @@ const withDeleteConfirmPopover = (Component: React.ReactNode) => {
         <div className="flex justify-end gap-2">
           <Button type="default" onClick={_toggleOpen}>
             <XIcon className="h-4 w-4" />
-            Cancel
+            {intl.formatMessage({ id: "close" })}
           </Button>
           {isWithDeleteConfirmPopover ? (
             <Popover
@@ -45,25 +48,25 @@ const withDeleteConfirmPopover = (Component: React.ReactNode) => {
                 <div className="flex justify-end gap-2">
                   <Button type="default" onClick={_toggleOpenDeleteConfirm}>
                     <XIcon className="h-4 w-4" />
-                    Cancel
+                    {intl.formatMessage({ id: "close" })}
                   </Button>
                   <Button type="primary" onClick={_onDelete}>
                     <Trash2Icon className="h-4 w-4" />
-                    Delete
+                    {intl.formatMessage({ id: "delete" })}
                   </Button>
                 </div>
               }
-              title="Are you sure you want to delete this item?"
+              title={title || intl.formatMessage({ id: "are_you_sure_you_want_to_delete_this_item" })}
             >
               <Button type="primary">
                 <Trash2Icon className="h-4 w-4" />
-                Delete
+                {intl.formatMessage({ id: "delete" })}
               </Button>
             </Popover>
           ) : (
             <Button type="primary" onClick={_onDelete}>
               <Trash2Icon className="h-4 w-4" />
-              Delete
+              {intl.formatMessage({ id: "delete" })}
             </Button>
           )}
         </div>
