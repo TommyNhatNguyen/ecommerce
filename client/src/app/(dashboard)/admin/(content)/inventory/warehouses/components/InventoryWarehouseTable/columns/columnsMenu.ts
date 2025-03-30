@@ -8,6 +8,7 @@ export const WAREHOUSE_COLUMNS_MENU = [
   "status",
   "created_at",
   "updated_at",
+  // "action",
 ];
 
 export const INVENTORY_WAREHOUSE_COLUMNS_MENU = [

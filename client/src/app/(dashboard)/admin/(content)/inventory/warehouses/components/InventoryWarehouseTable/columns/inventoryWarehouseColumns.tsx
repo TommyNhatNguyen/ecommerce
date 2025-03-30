@@ -147,8 +147,10 @@ export const warehouseColumns: (
     render: (_, { id }) => {
       return (
         <Button
+          type="link"
+          variant="link"
           color="danger"
-          icon={<Trash2 />}
+          icon={<Trash2 width={16} height={16} />}
           onClick={() => handleDelete(id)}
         >
           {intl.formatMessage({ id: "delete" })}
@@ -298,5 +300,4 @@ export const inventoryWarehouseColumns: (
     title: intl.formatMessage({ id: "updated_at" }),
     dataIndex: "updated_at",
   },
-
 ];

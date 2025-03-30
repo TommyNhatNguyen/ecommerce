@@ -191,12 +191,12 @@ const InventoryWarehouseTable = (props: Props) => {
       </div>
       <div>
         <Table
-          rowSelection={{
-            selectedRowKeys: selectedWarehouse,
-            onChange: (selectedRowKeys, selectedRows) => {
-              handleSelectWarehouse(selectedRowKeys as string[], selectedRows);
-            },
-          }}
+          // rowSelection={{
+          //   selectedRowKeys: selectedWarehouse,
+          //   onChange: (selectedRowKeys, selectedRows) => {
+          //     handleSelectWarehouse(selectedRowKeys as string[], selectedRows);
+          //   },
+          // }}
           dataSource={warehouses}
           columns={newWarehouseColumns}
           rowKey={(record) => record.id}
