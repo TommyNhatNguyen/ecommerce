@@ -222,5 +222,12 @@ export default {
     delete_category_success: "Delete category successfully",
     delete_category_failed: "Delete category failed",
     update_brand: "Update Brand",
+    action: "Action",
+    create_options: "Create Options",
+    update_option: "Update Option",
+    update_option_success: "Update option successfully",
+    update_option_error: "Update option error",
+    update_option_success_description: "Option has been updated successfully",
+    update_option_error_description: "Failed to update option",
   },
 };

@@ -188,7 +188,7 @@ const ModalUpdateOption = (
                 {...field}
                 error={errors?.is_color?.message as string}
                 customComponent={(props, ref: any) => (
-                  <Checkbox {...props} ref={ref} checked={value} value={value}>
+                  <Checkbox {...props} ref={ref} checked={value} value={value} disabled>
                     {value
                       ? intl.formatMessage({ id: "yes" })
                       : intl.formatMessage({ id: "no" })}
