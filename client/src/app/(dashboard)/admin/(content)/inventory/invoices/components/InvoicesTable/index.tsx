@@ -31,6 +31,7 @@ import ModalCreateInvoices, {
 } from "@/app/shared/components/GeneralModal/components/ModalCreateInvoices";
 import ModalCreateTransferInvoices from "@/app/shared/components/GeneralModal/components/ModalCreateTransferInvoices";
 import ModalCreateCheckInvoice from "@/app/shared/components/GeneralModal/components/ModalCreateCheckInvoice";
+import { useInvoices } from "@/app/(dashboard)/admin/(content)/inventory/invoices/hooks/useInvoices";
 
 type Props = {
   search?: string;
@@ -83,11 +84,16 @@ const InvoicesTable = ({
     initialPageParam: 1,
     placeholderData: keepPreviousData,
   });
+  const _onRefetch = () => refetch();
+  const { handleDeleteInvoices } = useInvoices();
+  const _onDeleteInvoices = (id: string) => {
+    handleDeleteInvoices(id, _onRefetch);
+  };
   const invoices = useMemo(() => {
     return invoicesData?.pages?.flatMap((page) => page.data) || [];
   }, [invoicesData]);
   const newInvoicesColumns = useMemo(() => {
-    return invoicesColumns(intl)?.map((item) => ({
+    return invoicesColumns(intl, _onDeleteInvoices)?.map((item) => ({
       ...item,
       hidden: !selectedColumns["invoices"]?.includes(item?.key as string),
     }));
@@ -102,7 +108,6 @@ const InvoicesTable = ({
   const _onOpenModalCreateCheckInvoice = () => {
     modalCreateCheckInvoiceRef.current?.handleOpenModal();
   };
-  const _onRefetch = () => refetch();
   const _onSelectColumns = (id: string, keys: string[]) => {
     setSelectedColumns((prev) => ({
       ...prev,

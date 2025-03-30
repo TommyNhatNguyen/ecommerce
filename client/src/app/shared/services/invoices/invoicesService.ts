@@ -24,4 +24,8 @@ export const invoicesService = {
     const response = await axiosInstance.post("/inventory-invoices/check-inventory", data);
     return response.data;
   },
+  delete: async (id: string): Promise<boolean> => {
+    const response = await axiosInstance.delete(`/inventory-invoices/${id}`);
+    return response.data;
+  },
 };

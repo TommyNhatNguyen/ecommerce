@@ -1,12 +1,20 @@
+import { ButtonDeleteWithPopover } from "@/app/shared/components/Button";
 import { InvoicesModel } from "@/app/shared/models/invoices/invoices.model";
 import { formatNumber } from "@/app/shared/utils/utils";
 import { formatCurrency } from "@/app/shared/utils/utils";
-import { TableProps, Tag } from "antd";
+import { Button, TableProps, Tag } from "antd";
+import { Edit2Icon } from "lucide-react";
 import { IntlShape } from "react-intl";
 
 export const invoicesColumns: (
   intl: IntlShape,
-) => TableProps<InvoicesModel>["columns"] = (intl: IntlShape) => [
+  // onOpenModalUpdateInvoices: (id: string) => void,
+  onDeleteInvoices: (id: string) => void,
+) => TableProps<InvoicesModel>["columns"] = (
+  intl,
+  // onOpenModalUpdateInvoices,
+  onDeleteInvoices,
+) => [
   {
     key: "code",
     title: intl.formatMessage({ id: "invoice_code" }),
@@ -94,5 +102,28 @@ export const invoicesColumns: (
     key: "updated_at",
     title: () => intl.formatMessage({ id: "updated_at" }),
     dataIndex: "updated_at",
+  },
+  {
+    key: "actions",
+    title: () => intl.formatMessage({ id: "actions" }),
+    dataIndex: "actions",
+    render: (_, { id }) => {
+      return (
+        <div className="flex items-center gap-2">
+          {/* <Button
+            type="link"
+            variant="link"
+            color="yellow"
+            icon={<Edit2Icon width={16} height={16} />}
+            onClick={() => onOpenModalUpdateInvoices(id)}
+          /> */}
+          <ButtonDeleteWithPopover
+            trigger={"click"}
+            handleDelete={() => onDeleteInvoices(id)}
+            isWithDeleteConfirmPopover={false}
+          />
+        </div>
+      );
+    },
   },
 ];
