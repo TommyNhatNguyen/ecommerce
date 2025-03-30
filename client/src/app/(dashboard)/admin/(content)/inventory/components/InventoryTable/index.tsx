@@ -16,10 +16,30 @@ import {
 } from "@/app/(dashboard)/admin/(content)/inventory/components/InventoryTable/columns/columnsMenu";
 import ModalCreateVariant from "@/app/shared/components/GeneralModal/components/ModalCreateVariant";
 import { ModalRefType } from "@/app/shared/components/GeneralModal";
+import { ModelStatus } from "@/app/shared/models/others/status.model";
+import { StockStatus } from "@/app/shared/models/inventories/stock-status";
 
-type Props = {};
+type Props = {
+  search?: string;
+  selectedWarehouses?: string[];
+  selectedBrands?: string[];
+  selectedProducts?: string[];
+  selectedStatuses?: ModelStatus[];
+  selectedStockStatuses?: string[];
+  limit?: number;
+  isApplyFilters?: boolean;
+};
 
-const InventoryTable = (props: Props) => {
+const InventoryTable = ({
+  search,
+  selectedWarehouses,
+  selectedBrands,
+  selectedProducts,
+  selectedStatuses,
+  selectedStockStatuses,
+  limit,
+  isApplyFilters,
+}: Props) => {
   const { ref, inView } = useInView();
   const intl = useIntl();
   const modelCreateVariantRef = useRef<ModalRefType>(null);
@@ -34,14 +54,20 @@ const InventoryTable = (props: Props) => {
     refetch,
     isLoading,
   } = useInfiniteQuery({
-    queryKey: ["variant_with_inventory"],
+    queryKey: ["variant_with_inventory", limit],
     queryFn: ({ pageParam = 1 }) => {
       return variantServices.getList({
         page: pageParam,
-        limit: 10,
+        limit: limit || 10,
         include_product_sellable: true,
-        include_inventory: true,
         include_warehouse: true,
+        // include_inventory: true,
+        include_brand: true,
+        warehouseIds: selectedWarehouses,
+        brandIds: selectedBrands,
+        productIds: selectedProducts,
+        statuses: selectedStatuses,
+        stock_statuses: selectedStockStatuses,
       });
     },
     getNextPageParam: (lastPage) => {
@@ -84,6 +110,9 @@ const InventoryTable = (props: Props) => {
       fetchNextPage();
     }
   }, [inView]);
+  useEffect(() => {
+    refetch();
+  }, [isApplyFilters]);
   return (
     <div className="h-full">
       <div className="mb-2 flex items-center justify-between gap-2">

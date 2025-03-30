@@ -29,6 +29,8 @@ type Props = {
   brands: BrandModel[] | undefined;
   selectedBrands: string[];
   handleSelectBrand: (value: string[]) => void;
+  isApplyFilters: boolean;
+  handleApplyFilters: () => void;
 };
 
 const InventoryFilter = ({
@@ -48,6 +50,8 @@ const InventoryFilter = ({
   handleSelectCategory,
   handleSelectStockStatus,
   handleSelectBrand,
+  isApplyFilters,
+  handleApplyFilters,
 }: Props) => {
   const intl = useIntl();
   const _onSearch = (value: string) => {
@@ -75,6 +79,7 @@ const InventoryFilter = ({
     <FilterComponent
       hasSelectedItems={hasSelectedItems}
       clearAll={handleClearAll}
+      applyFilters={handleApplyFilters}
     >
       {/* Tên sản phẩm (search) */}
       <Filter.Item name="search" label={intl.formatMessage({ id: "search" })}>

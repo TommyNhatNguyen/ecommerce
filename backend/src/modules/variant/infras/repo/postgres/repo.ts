@@ -43,6 +43,10 @@ import {
 import { inventoryWarehouseModelName } from 'src/modules/inventory/infras/repo/postgres/dto';
 import { warehouseModelName } from 'src/modules/warehouse/infras/repo/warehouse.dto';
 import { WarehousePersistence } from 'src/modules/warehouse/infras/repo/warehouse.dto';
+import {
+  brandModelName,
+  BrandPersistence,
+} from 'src/modules/brand/infras/repo/brand.dto';
 
 export class PostgresVariantRepository implements IVariantRepository {
   constructor(
@@ -59,14 +63,55 @@ export class PostgresVariantRepository implements IVariantRepository {
     const optionValueInclude: Includeable[] = [];
     const productSellableInclude: Includeable[] = [];
     const inventoryInclude: Includeable[] = [];
+    const productInclude: Includeable[] = [];
     const optionValueWhere: WhereOptions = {};
+    const inventoryWhere: WhereOptions = {};
+    const brandWhere: WhereOptions = {};
+    const warehouseWhere: WhereOptions = {};
+    const productWhere: WhereOptions = {};
+    if (condition?.stock_statuses) {
+      inventoryWhere.stock_status = {
+        [Op.in]: condition?.stock_statuses,
+      };
+    }
+    if (condition?.statuses) {
+      where.status = {
+        [Op.in]: condition?.statuses,
+      };
+    }
+    if (condition?.brandIds) {
+      brandWhere.id = {
+        [Op.in]: condition?.brandIds,
+      };
+    }
+    if (condition?.warehouseIds) {
+      warehouseWhere.id = {
+        [Op.in]: condition?.warehouseIds,
+      };
+    }
+    if (condition?.productIds) {
+      productWhere.id = {
+        [Op.in]: condition?.productIds,
+      };
+    }
     if (condition?.include_product) {
+      if (condition?.include_brand) {
+        productInclude.push({
+          model: BrandPersistence,
+          as: brandModelName.toLowerCase(),
+          where: brandWhere,
+          required: brandWhere ? true : false,
+        });
+      }
       include.push({
         model: ProductPersistence,
         as: productModelName.toLowerCase(),
         attributes: {
           exclude: [...EXCLUDE_ATTRIBUTES],
         },
+        include: productInclude,
+        where: productWhere,
+        required: productWhere ? true : false,
       });
     }
     if (condition?.include_product_sellable) {
@@ -75,12 +120,16 @@ export class PostgresVariantRepository implements IVariantRepository {
           inventoryInclude.push({
             model: WarehousePersistence,
             as: warehouseModelName.toLowerCase(),
+            where: warehouseWhere,
+            required: warehouseWhere ? true : false,
           });
         }
         productSellableInclude.push({
           model: InventoryPersistence,
           as: inventoryModelName.toLowerCase(),
           include: inventoryInclude,
+          where: inventoryWhere,
+          required: inventoryWhere ? true : false,
         });
       }
       include.push({
@@ -88,6 +137,13 @@ export class PostgresVariantRepository implements IVariantRepository {
         as: productSellableModelName.toLowerCase(),
         include: [
           ...productSellableInclude,
+          {
+            model: InventoryPersistence,
+            as: inventoryModelName.toLowerCase(),
+            include: inventoryInclude,
+            where: inventoryWhere,
+            required: inventoryWhere ? true : false,
+          },
           {
             model: ImagePersistence,
             as: imageModelName.toLowerCase(),
@@ -174,23 +230,47 @@ export class PostgresVariantRepository implements IVariantRepository {
   }
   async get(id: string, condition: VariantConditionDTO): Promise<Variant> {
     const include: Includeable[] = [];
-    const optionValueInclude: Includeable[] = [];
-    const optionValueWhere: WhereOptions = {};
     const where: WhereOptions = {};
+    const optionValueInclude: Includeable[] = [];
+    const productSellableInclude: Includeable[] = [];
+    const inventoryInclude: Includeable[] = [];
+    const productInclude: Includeable[] = [];
+    const optionValueWhere: WhereOptions = {};
     if (condition?.include_product) {
+      if (condition?.include_brand) {
+        productInclude.push({
+          model: BrandPersistence,
+          as: brandModelName.toLowerCase(),
+        });
+      }
       include.push({
         model: ProductPersistence,
         as: productModelName.toLowerCase(),
         attributes: {
           exclude: [...EXCLUDE_ATTRIBUTES],
         },
+        include: productInclude,
       });
     }
     if (condition?.include_product_sellable) {
+      if (condition?.include_inventory) {
+        if (condition?.include_warehouse) {
+          inventoryInclude.push({
+            model: WarehousePersistence,
+            as: warehouseModelName.toLowerCase(),
+          });
+        }
+        productSellableInclude.push({
+          model: InventoryPersistence,
+          as: inventoryModelName.toLowerCase(),
+          include: inventoryInclude,
+        });
+      }
       include.push({
         model: ProductSellablePersistence,
         as: productSellableModelName.toLowerCase(),
         include: [
+          ...productSellableInclude,
           {
             model: ImagePersistence,
             as: imageModelName.toLowerCase(),
@@ -203,6 +283,9 @@ export class PostgresVariantRepository implements IVariantRepository {
           },
         ],
       });
+    }
+    if (condition?.ids) {
+      where.id = { [Op.in]: condition?.ids };
     }
     if (condition?.include_options_value) {
       if (condition?.include_option) {
@@ -242,7 +325,38 @@ export class PostgresVariantRepository implements IVariantRepository {
     const optionValueInclude: Includeable[] = [];
     const productSellableInclude: Includeable[] = [];
     const inventoryInclude: Includeable[] = [];
+    const productInclude: Includeable[] = [];
     const optionValueWhere: WhereOptions = {};
+    const brandWhere: WhereOptions = {};
+    const warehouseWhere: WhereOptions = {};
+    const productWhere: WhereOptions = {};
+    const inventoryWhere: WhereOptions = {};
+    if (condition?.stock_statuses) {
+      inventoryWhere.stock_status = {
+        [Op.in]: condition?.stock_statuses,
+      };
+    }
+    if (condition?.statuses) {
+      where.status = {
+        [Op.in]: condition?.statuses,
+      };
+    }
+    if (condition?.brandIds) {
+      brandWhere.id = {
+        [Op.in]: condition?.brandIds,
+      };
+    }
+    if (condition?.warehouseIds) {
+      warehouseWhere.id = {
+        [Op.in]: condition?.warehouseIds,
+      };
+    }
+    if (condition?.productIds) {
+      productWhere.id = {
+        [Op.in]: condition?.productIds,
+      };
+    }
+
     if (condition?.include_product) {
       include.push({
         model: ProductPersistence,
@@ -250,6 +364,9 @@ export class PostgresVariantRepository implements IVariantRepository {
         attributes: {
           exclude: [...EXCLUDE_ATTRIBUTES],
         },
+        include: productInclude,
+        where: productWhere,
+        required: productWhere ? true : false,
       });
     }
     if (condition?.include_product_sellable) {
@@ -258,18 +375,29 @@ export class PostgresVariantRepository implements IVariantRepository {
           inventoryInclude.push({
             model: WarehousePersistence,
             as: warehouseModelName.toLowerCase(),
+            where: warehouseWhere,
+            required: warehouseWhere ? true : false,
           });
         }
         productSellableInclude.push({
           model: InventoryPersistence,
           as: inventoryModelName.toLowerCase(),
           include: inventoryInclude,
+          where: inventoryWhere,
+          required: inventoryWhere ? true : false,
         });
       }
       include.push({
         model: ProductSellablePersistence,
         as: productSellableModelName.toLowerCase(),
         include: [
+          {
+            model: InventoryPersistence,
+            as: inventoryModelName.toLowerCase(),
+            include: inventoryInclude,
+            where: inventoryWhere,
+            required: inventoryWhere ? true : false,
+          },
           ...productSellableInclude,
           {
             model: ImagePersistence,

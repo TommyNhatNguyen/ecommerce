@@ -13,14 +13,14 @@ type InventoryPagePropsType = {
 };
 
 const InventoryPage = ({ children }: InventoryPagePropsType) => {
-  const { ...rest } = useInventoryFilter();
+  const { isApplyFilters, ...rest } = useInventoryFilter();
   return (
     <div className="relative grid h-full grid-cols-12 gap-2 overflow-y-auto px-4">
       <div className="col-span-2">
-        <InventoryFilter {...rest} />
+        <InventoryFilter isApplyFilters={isApplyFilters} {...rest} />
       </div>
       <div className="col-span-10">
-        <InventoryTable />
+        <InventoryTable isApplyFilters={isApplyFilters} {...rest} />
       </div>
     </div>
   );

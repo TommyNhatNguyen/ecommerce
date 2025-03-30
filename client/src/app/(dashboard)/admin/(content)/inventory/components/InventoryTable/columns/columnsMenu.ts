@@ -8,7 +8,7 @@ export const INVENTORY_COLUMNS_MENU = [
   'total_stock_quantity',
   'total_cost',
   'stock_status',
-  'note',
+  // 'note',
   'warehouse',
   'status',
   'created_at',
@@ -24,6 +24,6 @@ export const DEFAULT_INVENTORY_COLUMNS = [
   'total_stock_quantity',
   'total_cost',
   'stock_status',
-  'note',
+  // 'note',
   'warehouse',
 ]

@@ -5,6 +5,7 @@ import { categoriesService } from "@/app/shared/services/categories/categoriesSe
 import { brandService } from "@/app/shared/services/brands/brandService";
 
 export const useInventoryFilter = () => {
+  const [isApplyFilters, setIsApplyFilters] = useState<boolean>(false);
   const [limit, setLimit] = useState<number>(10);
   const [search, setSearch] = useState<string>("");
   const [selectedStockStatuses, setSelectedStockStatuses] = useState<string[]>(
@@ -61,7 +62,8 @@ export const useInventoryFilter = () => {
       selectedCategories.length > 0 ||
       selectedBrands.length > 0 ||
       selectedStockStatuses.length > 0 ||
-      search.length > 0 
+      search.length > 0 ||
+      isApplyFilters
     );
   }, [
     selectedWarehouses,
@@ -77,6 +79,10 @@ export const useInventoryFilter = () => {
     setSelectedStockStatuses([]);
     setSearch("");
     setLimit(10);
+    setIsApplyFilters((prev) => !prev);
+  };
+  const handleApplyFilters = () => {
+    setIsApplyFilters((prev) => !prev);
   };
   return {
     warehouses: warehouses?.data,
@@ -88,6 +94,7 @@ export const useInventoryFilter = () => {
     selectedWarehouses,
     selectedCategories,
     selectedBrands,
+    isApplyFilters,
     hasSelectedItems,
     handleClearAll,
     handleSelectLimit,
@@ -96,5 +103,6 @@ export const useInventoryFilter = () => {
     handleSelectCategory,
     handleSelectBrand,
     handleSelectStockStatus,
+    handleApplyFilters,
   };
 };

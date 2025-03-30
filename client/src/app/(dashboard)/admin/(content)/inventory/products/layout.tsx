@@ -16,7 +16,7 @@ const InventoryProductLayout = ({
   const pathname = usePathname();
   const intl = useIntl();
   const [activeTab, setActiveTab] = useState<string>(
-    pathname || ADMIN_ROUTES.inventory.index,
+    pathname || ADMIN_ROUTES.inventory.products.index,
   );
   const router = useRouter();
   const _onChangeTab = (key: string) => {
@@ -49,9 +49,7 @@ const InventoryProductLayout = ({
         activeKey={activeTab}
         type="card"
       />
-      <div className="h-full bg-custom-white p-2">
-        {children}
-      </div>
+      <div className="h-full bg-custom-white p-2">{children}</div>
     </div>
   );
 };

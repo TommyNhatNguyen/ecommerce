@@ -49,7 +49,6 @@ const ProductTable = ({
   limit,
   isApplyFilters,
 }: Props) => {
-  console.log("🚀 ~ isApplyFilters:", isApplyFilters)
   const intl = useIntl();
 
   // Refs and state management

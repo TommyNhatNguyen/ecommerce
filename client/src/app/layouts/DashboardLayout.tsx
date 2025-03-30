@@ -108,7 +108,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
           icon: <Package size={16} />,
         },
         {
-          key: ADMIN_ROUTES.inventory.warehouses,
+          key: ADMIN_ROUTES.inventory.index,
           label: intl.formatMessage({ id: "inventory" }),
           icon: <NotebookPenIcon size={16} />,
         },

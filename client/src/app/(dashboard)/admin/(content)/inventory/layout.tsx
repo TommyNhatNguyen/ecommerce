@@ -32,12 +32,12 @@ const InventoryLayout = ({ children }: InventoryLayoutPropsType) => {
   };
   const tabs: TabsProps["items"] = [
     {
-      label: intl.formatMessage({ id: "warehouses_list" }),
-      key: ADMIN_ROUTES.inventory.warehouses,
-    },
-    {
       label: intl.formatMessage({ id: "stock" }),
       key: ADMIN_ROUTES.inventory.index,
+    },
+    {
+      label: intl.formatMessage({ id: "warehouses_list" }),
+      key: ADMIN_ROUTES.inventory.warehouses,
     },
     {
       label: intl.formatMessage({ id: "invoices_inventory" }),

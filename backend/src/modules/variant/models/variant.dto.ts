@@ -1,3 +1,4 @@
+import { StockStatus } from 'src/modules/inventory/models/inventory.model';
 import { ProductSellableCreateDTOSchema } from 'src/modules/product_sellable/models/product-sellable.dto';
 import {
   BaseOrder,
@@ -46,6 +47,16 @@ export const VariantConditionDTOSchema = z.object({
     .refine((value) => value === 'true' || value === 'false')
     .transform((value) => value === 'true')
     .optional(),
+  include_brand: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
+  stock_statuses: z.array(z.nativeEnum(StockStatus)).optional(),
+  statuses: z.array(z.nativeEnum(ModelStatus)).optional(),
+  warehouseIds: z.array(z.string()).optional(),
+  brandIds: z.array(z.string()).optional(),
+  productIds: z.array(z.string()).optional(),
 });
 
 export const VariantCreateDTOSchema = z.object({
@@ -64,7 +75,7 @@ export const VariantUpdateDTOSchema = z.object({
   product_id: z.string().uuid().optional(),
   sku: z.string().optional(),
   product_sellables: ProductSellableCreateDTOSchema.optional(),
-}); 
+});
 
 export const VariantOptionValueCreateDTOSchema = z.object({
   variant_id: z.string(),

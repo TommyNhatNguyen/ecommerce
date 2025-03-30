@@ -1,5 +1,6 @@
 import { CreateProductSellableDTO } from "@/app/shared/interfaces/products/product-sellable.dto";
 import { BaseOrder, BaseSortBy, ModelStatus } from "../../models/others/status.model";
+import { StockStatus } from "@/app/shared/models/inventories/stock-status";
 
 export type VariantCreateDTO = {
   type: string;
@@ -26,8 +27,14 @@ export type VariantConditionDTO = {
   include_product?: boolean;
   include_inventory?: boolean;
   include_warehouse?: boolean;
+  include_brand?: boolean;
   page?: number;
   limit?: number;
+  stock_statuses?: string[];
+  statuses?: ModelStatus[];
+  warehouseIds?: string[];
+  brandIds?: string[];
+  productIds?: string[];
 };
 
 export type VariantUpdateDTO = {
