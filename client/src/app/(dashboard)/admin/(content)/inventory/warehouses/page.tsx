@@ -8,9 +8,6 @@ type Props = {}
 const WarehousesPage = (props: Props) => {
   return (
     <div className="relative grid h-full grid-cols-12 gap-2 overflow-y-auto px-4">
-      {/* <div className="col-span-2">
-        <InventoryWarehouseFilter/>
-      </div> */}
       <div className="col-span-12">
         <InventoryWarehouseTable/>
       </div>

@@ -8,9 +8,21 @@ type Props = {
   handleChangeStatus: (id: string, status: ModelStatus) => void;
   status: ModelStatus;
   id: string;
+  customLabel?: {
+    active: string;
+    inactive: string;
+  };
 };
 
-const SelectStatusAdmin = ({ handleChangeStatus, status, id }: Props) => {
+const SelectStatusAdmin = ({
+  handleChangeStatus,
+  status,
+  id,
+  customLabel = {
+    active: "is_selling",
+    inactive: "is_discountinued",
+  },
+}: Props) => {
   const intl = useIntl();
   return (
     <Select
@@ -21,7 +33,7 @@ const SelectStatusAdmin = ({ handleChangeStatus, status, id }: Props) => {
       optionRender={(props) => {
         const color = props.value === "ACTIVE" ? "green" : "red";
         const label =
-          props.value === "ACTIVE" ? "is_selling" : "is_discountinued";
+          props.value === "ACTIVE" ? customLabel?.active : customLabel?.inactive;
         return (
           <p className="text-sm" style={{ color }}>
             {intl.formatMessage({ id: label })}
@@ -31,7 +43,7 @@ const SelectStatusAdmin = ({ handleChangeStatus, status, id }: Props) => {
       labelRender={(props) => {
         const color = props.value === "ACTIVE" ? "green" : "red";
         const label =
-          props.value === "ACTIVE" ? "is_selling" : "is_discountinued";
+          props.value === "ACTIVE" ? customLabel?.active : customLabel?.inactive;
         return (
           <p className="text-sm" style={{ color }}>
             {intl.formatMessage({ id: label })}

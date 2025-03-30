@@ -22,7 +22,8 @@ const InventoryWarehouseTable = (props: Props) => {
   const [selectedColumns, setSelectedColumns] = useState<{
     [key: string]: string[];
   }>({});
-  const { loading, handleCreateWarehouse } = useWarehouseTable();
+  const { loading, handleCreateWarehouse, handleChangeStatus } =
+    useWarehouseTable();
   const {
     data: warehouseData,
     fetchNextPage,
@@ -52,7 +53,7 @@ const InventoryWarehouseTable = (props: Props) => {
     return warehouseData?.pages?.flatMap((page) => page.data) || [];
   }, [warehouseData]);
   const newWarehouseColumns = useMemo(() => {
-    return warehouseColumns(intl)?.map((item) => ({
+    return warehouseColumns(intl, handleChangeStatus)?.map((item) => ({
       ...item,
       hidden: !selectedColumns["warehouse"]?.includes(item?.key as string),
     }));
@@ -192,7 +193,6 @@ const InventoryWarehouseTable = (props: Props) => {
           loading={isFetchingNextPage}
           scroll={{ x: "100%" }}
           expandable={{
-            expandRowByClick: true,
             expandedRowRender: (record, index) => {
               return (
                 <>
@@ -201,13 +201,6 @@ const InventoryWarehouseTable = (props: Props) => {
                     dataSource={record.inventory}
                     columns={newInventoryColumns}
                     rowKey={(record) => record.id}
-                    // onRow={(record) => {
-                    //   return {
-                    //     onClick: () => {
-                    //       setProductDetail(record);
-                    //     },
-                    //   };
-                    // }}
                     pagination={false}
                   />
                 </>

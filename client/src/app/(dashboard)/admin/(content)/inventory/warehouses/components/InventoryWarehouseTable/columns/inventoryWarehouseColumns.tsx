@@ -1,5 +1,7 @@
+import SelectStatusAdmin from "@/app/shared/components/SelectStatusAdmin";
 import { InventoryModel } from "@/app/shared/models/inventories/inventories.model";
 import { StockStatus } from "@/app/shared/models/inventories/stock-status";
+import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { WarehouseModel } from "@/app/shared/models/warehouse/warehouse.model";
 import { formatCurrency } from "@/app/shared/utils/utils";
 import { formatNumber } from "@/app/shared/utils/utils";
@@ -8,7 +10,8 @@ import { IntlShape } from "react-intl";
 
 export const warehouseColumns: (
   intl: IntlShape,
-) => TableProps<WarehouseModel>["columns"] = (intl: IntlShape) => [
+  handleChangeStatus: (id: string, status: ModelStatus) => void,
+) => TableProps<WarehouseModel>["columns"] = (intl, handleChangeStatus) => [
   {
     key: "name",
     title: intl.formatMessage({ id: "name" }),
@@ -107,15 +110,17 @@ export const warehouseColumns: (
     key: "status",
     title: () => intl.formatMessage({ id: "status" }),
     dataIndex: "status",
-    render: (_, { status }) => {
+    render: (_, { status, id }) => {
       return (
-        <div>
-          {status === "ACTIVE" ? (
-            <Tag color="green">{intl.formatMessage({ id: status })}</Tag>
-          ) : (
-            <Tag color="red">{intl.formatMessage({ id: status })}</Tag>
-          )}
-        </div>
+        <SelectStatusAdmin
+          handleChangeStatus={handleChangeStatus}
+          status={status}
+          id={id}
+          customLabel={{
+            active: "active",
+            inactive: "inactive",
+          }}
+        />
       );
     },
   },
@@ -177,15 +182,26 @@ export const inventoryWarehouseColumns: (
     dataIndex: "cost",
     render: (_, { inventory_warehouse, total_cost }) => {
       const { cost } = inventory_warehouse;
-      const percentage = (cost / total_cost) * 100;
+      return formatCurrency(cost);
+    },
+  },
+  {
+    key: "total_cost",
+    title: intl.formatMessage({ id: "total_cost" }),
+    dataIndex: "total_cost",
+    render: (_, { inventory_warehouse, total_cost: inventory_total_cost }) => {
+      const { total_cost } = inventory_warehouse;
+      const percentage = (total_cost / inventory_total_cost) * 100;
       return (
         <Tooltip
           title={intl.formatMessage(
             { id: "account_for_percentage_of_total_cost_all_warehouse" },
-            { percentage: percentage.toFixed(1) },
+            {
+              percentage: percentage.toFixed(1),
+            },
           )}
         >
-          {formatCurrency(cost)}
+          {formatCurrency(total_cost)}
         </Tooltip>
       );
     },
