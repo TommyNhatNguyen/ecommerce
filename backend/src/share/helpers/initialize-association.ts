@@ -456,6 +456,7 @@ export const initializeAssociation = () => {
   WarehousePersistence.hasMany(InventoryInvoicePersistence, {
     foreignKey: 'warehouse_id',
     as: inventoryInvoiceModelName.toLowerCase(),
+    onDelete: 'NO ACTION',
   });
 
   InventoryInvoicePersistence.belongsTo(WarehousePersistence, {

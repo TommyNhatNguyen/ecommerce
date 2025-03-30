@@ -204,5 +204,9 @@ export default {
     update_brand_success: "Update brand successfully",
     update_brand_error: "Update brand error",
     attribute_label: "Attribute Label",
+    delete: "Delete",
+    delete_warehouse: "Delete Warehouse",
+    delete_warehouse_success: "Delete warehouse successfully",
+    delete_warehouse_error: "Delete warehouse error",
   },
 };

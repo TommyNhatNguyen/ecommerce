@@ -7,7 +7,9 @@ import { useNotification } from "@/app/contexts/NotificationContext";
 import { useIntl } from "react-intl";
 
 export const useWarehouseTable = () => {
-  const [isCreateLoading, setIsCreateLoading] = useState(false);
+const [isCreateLoading, setIsCreateLoading] = useState(false);
+  const [selectedWarehouse, setSelectedWarehouse] = useState<string[]>([]);
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
 const { notificationApi } = useNotification();
 const intl = useIntl();
   const handleCreateWarehouse = async (data: WarehouseCreateDTO) => {
@@ -39,9 +41,36 @@ const handleChangeStatus = async (id: string, status: ModelStatus) => {
     });
   }
 };
+const handleSelectWarehouse = (selectedRowKeys: string[], selectedRows: any[]) => {
+  setSelectedWarehouse(selectedRowKeys);
+};
+const handleDeleteWarehouse = async (id: string) => {
+  try {
+    setIsDeleteLoading(true);
+    const response = await warehouseService.delete(id);
+    if (response) {
+      notificationApi.success({
+        message: intl.formatMessage({ id: "delete_warehouse_success" }),
+        description: intl.formatMessage({ id: "delete_warehouse_success" }),
+      });
+    }
+  } catch (error) {
+    notificationApi.error({
+      message: intl.formatMessage({ id: "delete_warehouse_error" }),
+      description: intl.formatMessage({ id: "delete_warehouse_error" }),
+    });
+  } finally {
+    setSelectedWarehouse([])
+    setIsDeleteLoading(false);
+  }
+};
   return {
     loading: isCreateLoading,
     handleCreateWarehouse,
     handleChangeStatus,
+    handleSelectWarehouse,
+    selectedWarehouse,
+    isDeleteLoading,
+    handleDeleteWarehouse,
   };
 };

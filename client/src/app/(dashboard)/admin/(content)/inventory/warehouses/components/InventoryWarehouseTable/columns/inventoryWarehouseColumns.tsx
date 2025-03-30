@@ -5,13 +5,19 @@ import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { WarehouseModel } from "@/app/shared/models/warehouse/warehouse.model";
 import { formatCurrency } from "@/app/shared/utils/utils";
 import { formatNumber } from "@/app/shared/utils/utils";
-import { TableProps, Tag, Tooltip } from "antd";
+import { Button, TableProps, Tag, Tooltip } from "antd";
+import { Trash2 } from "lucide-react";
 import { IntlShape } from "react-intl";
 
 export const warehouseColumns: (
   intl: IntlShape,
   handleChangeStatus: (id: string, status: ModelStatus) => void,
-) => TableProps<WarehouseModel>["columns"] = (intl, handleChangeStatus) => [
+  handleDelete: (id: string) => void,
+) => TableProps<WarehouseModel>["columns"] = (
+  intl,
+  handleChangeStatus,
+  handleDelete,
+) => [
   {
     key: "name",
     title: intl.formatMessage({ id: "name" }),
@@ -133,6 +139,22 @@ export const warehouseColumns: (
     key: "updated_at",
     title: intl.formatMessage({ id: "updated_at" }),
     dataIndex: "updated_at",
+  },
+  {
+    key: "action",
+    title: intl.formatMessage({ id: "actions" }),
+    dataIndex: "action",
+    render: (_, { id }) => {
+      return (
+        <Button
+          color="danger"
+          icon={<Trash2 />}
+          onClick={() => handleDelete(id)}
+        >
+          {intl.formatMessage({ id: "delete" })}
+        </Button>
+      );
+    },
   },
 ];
 
@@ -276,4 +298,5 @@ export const inventoryWarehouseColumns: (
     title: intl.formatMessage({ id: "updated_at" }),
     dataIndex: "updated_at",
   },
+
 ];

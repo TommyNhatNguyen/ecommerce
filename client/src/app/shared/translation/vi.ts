@@ -220,5 +220,9 @@ export default {
     update_brand_success: "Cập nhật thương hiệu thành công",
     update_brand_error: "Cập nhật thương hiệu thất bại",
     attribute_label: "Tên hiển thị của thuộc tính",
+    delete: "Xóa",
+    delete_warehouse: "Xóa kho hàng",
+    delete_warehouse_success: "Xóa kho hàng thành công",
+    delete_warehouse_error: "Xóa kho hàng thất bại",
   },
 };

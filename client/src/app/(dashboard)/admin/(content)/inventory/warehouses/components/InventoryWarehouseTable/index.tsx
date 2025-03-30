@@ -22,8 +22,14 @@ const InventoryWarehouseTable = (props: Props) => {
   const [selectedColumns, setSelectedColumns] = useState<{
     [key: string]: string[];
   }>({});
-  const { loading, handleCreateWarehouse, handleChangeStatus } =
-    useWarehouseTable();
+  const {
+    loading,
+    handleCreateWarehouse,
+    handleChangeStatus,
+    handleSelectWarehouse,
+    selectedWarehouse,
+    handleDeleteWarehouse,
+  } = useWarehouseTable();
   const {
     data: warehouseData,
     fetchNextPage,
@@ -53,7 +59,7 @@ const InventoryWarehouseTable = (props: Props) => {
     return warehouseData?.pages?.flatMap((page) => page.data) || [];
   }, [warehouseData]);
   const newWarehouseColumns = useMemo(() => {
-    return warehouseColumns(intl, handleChangeStatus)?.map((item) => ({
+    return warehouseColumns(intl, handleChangeStatus, handleDeleteWarehouse)?.map((item) => ({
       ...item,
       hidden: !selectedColumns["warehouse"]?.includes(item?.key as string),
     }));
@@ -185,6 +191,12 @@ const InventoryWarehouseTable = (props: Props) => {
       </div>
       <div>
         <Table
+          rowSelection={{
+            selectedRowKeys: selectedWarehouse,
+            onChange: (selectedRowKeys, selectedRows) => {
+              handleSelectWarehouse(selectedRowKeys as string[], selectedRows);
+            },
+          }}
           dataSource={warehouses}
           columns={newWarehouseColumns}
           rowKey={(record) => record.id}
