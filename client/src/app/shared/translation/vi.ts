@@ -219,6 +219,8 @@ export default {
     delete_brand_error: "Xóa thương hiệu thất bại",
     update_brand_success: "Cập nhật thương hiệu thành công",
     update_brand_error: "Cập nhật thương hiệu thất bại",
+    update_brand_success_description: "Thương hiệu đã được cập nhật thành công",
+    update_brand_error_description: "Không thể cập nhật thương hiệu",
     attribute_label: "Tên hiển thị của thuộc tính",
     delete: "Xóa",
     delete_warehouse: "Xóa kho hàng",
@@ -232,5 +234,6 @@ export default {
     create_category_failed: "Tạo nhóm sản phẩm thất bại",
     delete_category_success: "Xóa nhóm sản phẩm thành công",
     delete_category_failed: "Xóa nhóm sản phẩm thất bại",
+    update_brand: "Cập nhật thương hiệu",
   },
 };

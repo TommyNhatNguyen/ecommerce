@@ -20,6 +20,7 @@ import { BRAND_COLUMNS } from "@/app/(dashboard)/admin/(content)/inventory/produ
 import { useBrand } from "@/app/(dashboard)/admin/(content)/inventory/products/brands/hooks/useBrand";
 import ModalCreateBrand from "@/app/shared/components/GeneralModal/components/ModalCreateBrand";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
+import ModalUpdateBrand from "@/app/shared/components/GeneralModal/components/ModalUpdateBrand";
 
 type Props = {
   limit: number;
@@ -30,6 +31,7 @@ const BrandTable = ({ limit }: Props) => {
     [key: string]: string[];
   }>({});
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedUpdateItem, setSelectedUpdateItem] = useState<string>("");
   const intl = useIntl();
   const { ref, inView } = useInView();
   const {
@@ -41,6 +43,7 @@ const BrandTable = ({ limit }: Props) => {
     loadingDeleteBrand,
   } = useBrand();
   const modalCreateBrandRef = useRef<ModalRefType>(null);
+  const modalUpdateBrandRef = useRef<ModalRefType>(null);
   const {
     data: brandsData,
     refetch,
@@ -75,13 +78,33 @@ const BrandTable = ({ limit }: Props) => {
       isLoading ||
       isFetching
     );
-  }, [loadingCreateBrand, loadingUpdateBrand, loadingDeleteBrand, isLoading, isFetching]);
+  }, [
+    loadingCreateBrand,
+    loadingUpdateBrand,
+    loadingDeleteBrand,
+    isLoading,
+    isFetching,
+  ]);
   const brands = useMemo(() => {
     return brandsData?.pages?.flatMap((page) => page.data) || [];
   }, [brandsData]);
 
+  const _onOpenModalUpdateBrand = (id: string) => {
+    modalUpdateBrandRef.current?.handleOpenModal();
+    setSelectedUpdateItem(id);
+  };
+
+  const _onDeleteBrand = (id: string) => {
+    handleDeleteBrand([id], _onRefetch);
+  };
+
   const newBrandsColumn = useMemo(() => {
-    return brandColumns(intl, _onChangeStatus)?.map((item) => ({
+    return brandColumns(
+      intl,
+      _onChangeStatus,
+      _onOpenModalUpdateBrand,
+      _onDeleteBrand,
+    )?.map((item) => ({
       ...item,
       hidden: !selectedColumns["brand"]?.includes(item?.key as string),
     }));
@@ -122,9 +145,14 @@ const BrandTable = ({ limit }: Props) => {
     if (brands && brands?.length > 0) {
       setSelectedColumns({
         brand: [
-          ...(brandColumns(intl, _onChangeStatus) || []).map(
-            (item) => item?.key as string,
-          ),
+          ...(
+            brandColumns(
+              intl,
+              _onChangeStatus,
+              _onOpenModalUpdateBrand,
+              _onDeleteBrand,
+            ) || []
+          ).map((item) => item?.key as string),
         ],
       });
     }
@@ -245,6 +273,12 @@ const BrandTable = ({ limit }: Props) => {
         handleCreateBrand={(data) => handleCreateBrand(data, _onRefetch)}
         ref={modalCreateBrandRef}
         loading={loadingCreateBrand}
+        refetch={_onRefetch}
+      />
+      <ModalUpdateBrand
+        updateBrandId={selectedUpdateItem}
+        ref={modalUpdateBrandRef}
+        loading={loadingUpdateBrand}
         refetch={_onRefetch}
       />
     </div>

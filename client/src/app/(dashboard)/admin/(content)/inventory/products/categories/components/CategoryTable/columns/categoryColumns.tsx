@@ -89,6 +89,13 @@ export const categoryColumns: (
     render: (_, { id}) => {
       return (
         <div className="flex items-center gap-2">
+          <Button
+            type="link"
+            variant="link"
+            color="yellow"
+            icon={<Pencil width={16} height={16} />}
+            onClick={() => handleSelectUpdateItem(id)}
+          ></Button>
           <ButtonDeleteWithPopover
             trigger={"click"}
             handleDelete={() => {
@@ -96,13 +103,6 @@ export const categoryColumns: (
             }}
             isWithDeleteConfirmPopover={false}
           />
-          <Button
-            type="link"
-            variant="link"
-            color="primary"
-            icon={<Pencil width={16} height={16} />}
-            onClick={() => handleSelectUpdateItem(id)}
-          ></Button>
         </div>
       );
     },

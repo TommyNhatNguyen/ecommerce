@@ -206,6 +206,8 @@ export default {
     delete_brand_error: "Delete brand error",
     update_brand_success: "Update brand successfully",
     update_brand_error: "Update brand error",
+    update_brand_success_description: "Brand has been updated successfully",
+    update_brand_error_description: "Failed to update brand",
     attribute_label: "Attribute Label",
     delete: "Delete",
     delete_warehouse: "Delete Warehouse",
@@ -219,5 +221,6 @@ export default {
     create_category_failed: "Create category failed",
     delete_category_success: "Delete category successfully",
     delete_category_failed: "Delete category failed",
+    update_brand: "Update Brand",
   },
 };
