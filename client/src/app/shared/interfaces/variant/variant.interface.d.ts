@@ -88,6 +88,8 @@ export type OptionValueConditionDTO = {
   sortBy?: BaseSortBy;
   page?: number;
   limit?: number;
+  product_id?: string;
+  include_variant?: boolean;
 };
 
 export type OptionConditionDTO = {

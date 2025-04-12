@@ -246,12 +246,27 @@ export class PostgresOptionValueRepository implements IOptionValueRepository {
     const { page, limit } = paging;
     const order = condition?.order || BaseOrder.DESC;
     const sortBy = condition?.sortBy || BaseSortBy.CREATED_AT;
+    const whereVariant: WhereOptions = {};
+    const include: Includeable[] = [];
+    if (condition?.product_id) {
+      whereVariant.product_id = condition.product_id;
+    }
+    if (condition?.include_variant) {
+      include.push({
+        model: VariantPersistence,
+        as: variantModelName.toLowerCase(),
+        through: { attributes: [] },
+        where: whereVariant,
+        duplicating: false,
+      });
+    }
     const { rows, count } = await this.sequelize.models[
       this.modelName
     ].findAndCountAll({
       limit,
       offset: (page - 1) * limit,
       order: [[sortBy, order]],
+      include,
     });
     return {
       data: rows.map((row) => row.dataValues),

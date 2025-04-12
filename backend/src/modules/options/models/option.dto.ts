@@ -26,6 +26,12 @@ export const OptionValueConditionDTOSchema = z.object({
   updated_at: z.date().optional(),
   order: z.string().optional().default(BaseOrder.DESC),
   sortBy: z.string().optional().default(BaseSortBy.CREATED_AT),
+  product_id: z.string().optional(),
+  include_variant: z
+    .string()
+    .refine((value) => value === 'true' || value === 'false')
+    .transform((value) => value === 'true')
+    .optional(),
 });
 
 export const OptionConditionDTOSchema = z.object({

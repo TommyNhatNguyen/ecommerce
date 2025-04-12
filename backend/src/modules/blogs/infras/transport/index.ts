@@ -1,5 +1,9 @@
 import { Request, Response } from 'express';
-import { BlogsConditionDTOSchema, BlogsCreateDTOSchema, BlogsUpdateDTOSchema } from 'src/modules/blogs/models/blogs.dto';
+import {
+  BlogsConditionDTOSchema,
+  BlogsCreateDTOSchema,
+  BlogsUpdateDTOSchema,
+} from 'src/modules/blogs/models/blogs.dto';
 import { IBlogsUseCase } from 'src/modules/blogs/models/blogs.interface';
 import { PagingDTOSchema } from 'src/share/models/paging';
 
@@ -7,9 +11,7 @@ export class BlogsHttpService {
   constructor(private readonly useCase: IBlogsUseCase) {}
 
   async createNewBlogs(req: Request, res: Response) {
-    const { success, data, error } = BlogsCreateDTOSchema.safeParse(
-      req.body
-    );
+    const { success, data, error } = BlogsCreateDTOSchema.safeParse(req.body);
     if (!success) {
       res.status(400).json({ message: error?.message });
       return;
@@ -20,15 +22,13 @@ export class BlogsHttpService {
         .status(200)
         .json({ message: 'Blogs created successfully', data: blogs });
     } catch (error) {
-      console.log("🚀 ~ BlogsHttpService ~ createNewBlogs ~ error:", error)
+      console.log('🚀 ~ BlogsHttpService ~ createNewBlogs ~ error:', error);
       res.status(500).json({ message: 'Failed to create blogs' });
       return;
     }
   }
   async updateBlogs(req: Request, res: Response) {
-    const { success, data, error } = BlogsUpdateDTOSchema.safeParse(
-      req.body
-    );
+    const { success, data, error } = BlogsUpdateDTOSchema.safeParse(req.body);
     const { id } = req.params;
     if (!success) {
       res.status(400).json({ message: error?.message });
@@ -103,11 +103,7 @@ export class BlogsHttpService {
       return;
     }
     try {
-      const blogs = await this.useCase.listBlogs(
-        pagingData,
-        conditionData
-      );
-
+      const blogs = await this.useCase.listBlogs(pagingData, conditionData);
       res.status(200).json({ message: 'Blogs found', ...blogs });
     } catch (error) {
       res.status(500).json({ message: 'Failed to list blogs' });

@@ -21,6 +21,7 @@ import { Button, Divider, InputNumber, Select, Upload, UploadFile } from "antd";
 import React, {
   forwardRef,
   useCallback,
+  useEffect,
   useImperativeHandle,
   useMemo,
   useState,
@@ -43,6 +44,9 @@ const ModalCreateVariant = ({ loading = false, refetch }: Props, ref: any) => {
     [key: number]: UploadFile[];
   }>({});
   const [uploadImageLoading, setUploadImageLoading] = useState(false);
+  const [initialOptionValues, setInitialOptionValues] = useState<{
+    [key: string]: string[];
+  }>({});
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [selectedOptionValues, setSelectedOptionValues] = useState<{
     [key: string]: string[];
@@ -85,18 +89,7 @@ const ModalCreateVariant = ({ loading = false, refetch }: Props, ref: any) => {
     },
     initialPageParam: 1,
   });
-  const { data: productDetailData } = useQuery({
-    queryKey: ["product-detail", watch("product_id")],
-    queryFn: () =>
-      productService.getProductById(watch("product_id"), {
-        includeVariant: true,
-        includeVariantInfo: true,
-        includeVariantInventory: true,
-        includeVariantOption: true,
-        includeVariantOptionType: true,
-      }),
-    enabled: !!watch("product_id"),
-  });
+
   const { data: options } = useQuery({
     queryKey: ["options", open],
     queryFn: () => optionService.getOptionList({ include_option_values: true }),
@@ -117,11 +110,21 @@ const ModalCreateVariant = ({ loading = false, refetch }: Props, ref: any) => {
     return productData?.pages?.flatMap((page) => page.data) || [];
   }, [productData]);
   const createProductLoading = loading || uploadImageLoading || isCreateLoading;
+
+  const { data: productOptionValues } = useQuery({
+    queryKey: ["product-option-values", watch("product_id")],
+    queryFn: () =>
+      optionService.getOptionValuesList({
+        include_variant: true,
+        product_id: watch("product_id"),
+      }),
+    enabled: !!watch("product_id"),
+  });
   const allPairs = useMemo(
     () => generateAllPairs(selectedOptionValues),
-    [selectedOptionValues, selectedOptions],
+    [selectedOptionValues],
   );
-
+  console.log(allPairs);
   const _onClearAllImages = () => setVariantImageFileList([]);
 
   const _onClearAllFormData = () => {
@@ -255,6 +258,31 @@ const ModalCreateVariant = ({ loading = false, refetch }: Props, ref: any) => {
     reset();
     refetch?.();
   };
+  useEffect(() => {
+    const productOptionsIds = Array.from(
+      new Set(productOptionValues?.data?.map((item) => item.option_id)),
+    );
+    const productOptionsValuesIds = productOptionValues?.data?.map((item) => {
+      return {
+        id: item.id,
+        option_id: item.option_id,
+        name: item.name,
+      };
+    });
+    if (productOptionsIds.length > 0) {
+      _onChangeOption(productOptionsIds);
+      productOptionsValuesIds?.forEach((item) => {
+        setSelectedOptionValues((prev) => ({
+          ...prev,
+          [item.option_id]: [item.id],
+        }));
+        setInitialOptionValues((prev) => ({
+          ...prev,
+          [item.option_id]: [item.id],
+        }));
+      });
+    }
+  }, [productOptionValues]);
 
   const _renderTitle = () => {
     return (
@@ -314,6 +342,7 @@ const ModalCreateVariant = ({ loading = false, refetch }: Props, ref: any) => {
                     id: "select_attributes",
                   })}
                   required={true}
+                  disabled={true}
                   groupClassName="w-full"
                   className="w-full"
                   error={errors?.variants?.message || ""}
@@ -341,12 +370,20 @@ const ModalCreateVariant = ({ loading = false, refetch }: Props, ref: any) => {
                         {option?.name}
                       </p>
                       <CustomCheckboxGroup
+                        isSelectAll={false}
                         wrapperClassName="flex items-center gap-2"
                         className="flex flex-wrap gap-2"
-                        data={option?.option_values?.map((item) => ({
-                          label: item.name,
-                          value: item.id,
-                        }))}
+                        data={option?.option_values
+                          ?.filter(
+                            (item) =>
+                              !initialOptionValues[option?.id]?.includes(
+                                item.id,
+                              ),
+                          )
+                          ?.map((item) => ({
+                            label: item.name,
+                            value: item.id,
+                          }))}
                         selectedData={selectedOptionValues[option?.id]}
                         onSelect={(value) =>
                           _onChangeOptionValue(option?.id, value)

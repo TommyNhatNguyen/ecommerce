@@ -5,7 +5,7 @@ import { axiosInstance } from "@/app/shared/utils/axiosInstance";
 
 export const optionService = {
   getOptionValuesList: async (
-    condition: OptionValueConditionDTO,
+    condition?: OptionValueConditionDTO,
   ): Promise<ListResponseModel<OptionValueModel>> => {
     const response = await axiosInstance.get(`/options-values`, {
       params: condition,
