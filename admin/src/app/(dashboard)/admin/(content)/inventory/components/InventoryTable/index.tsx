@@ -61,7 +61,7 @@ const InventoryTable = ({
         limit: limit || 10,
         include_product_sellable: true,
         include_warehouse: true,
-        // include_inventory: true,
+        include_inventory: true,
         include_brand: true,
         warehouseIds: selectedWarehouses,
         brandIds: selectedBrands,

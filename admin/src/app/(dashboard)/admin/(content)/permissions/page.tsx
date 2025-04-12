@@ -26,8 +26,7 @@ export default function PermissionPage() {
         refetchPermission={() => dispatch(getUserInfo())}
       />
       <Divider />
-      {userInfo?.role?.name ===
-        process.env.NEXT_PUBLIC_SUPER_ADMIN_ROLE_NAME && <EmployeePermission />}
+      <EmployeePermission />
     </div>
   );
 }

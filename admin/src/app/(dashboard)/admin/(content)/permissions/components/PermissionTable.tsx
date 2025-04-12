@@ -7,13 +7,18 @@ import { permissionService } from "@/app/shared/services/permission/permissionSe
 import { getUserInfo } from "@/app/shared/store/reducers/auth";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "antd";
-import React, { forwardRef, useImperativeHandle, useMemo, useState } from "react";
+import React, {
+  forwardRef,
+  useImperativeHandle,
+  useMemo,
+  useState,
+} from "react";
 
 type Props = {
   userPermission: Partial<Permission>[];
   selectedRoleId: string;
   refetchPermission?: () => void;
-} ;
+};
 const PERMISSION_TYPE = {
   CREATE: "create",
   UPDATE: "update",
@@ -21,9 +26,14 @@ const PERMISSION_TYPE = {
   VIEW: "view",
 };
 
-const PermissionTable = ({ userPermission, selectedRoleId = "", refetchPermission}: Props) => {
-  const {userInfo} = useAppSelector(state => state.auth);
-  const isAllowUpdatePermission = useMemo(() => userInfo?.role?.name === process.env.NEXT_PUBLIC_SUPER_ADMIN_ROLE_NAME, [userInfo]);
+const PermissionTable = ({
+  userPermission,
+  selectedRoleId = "",
+  refetchPermission,
+}: Props) => {
+  const { userInfo } = useAppSelector((state) => state.auth);
+  // const isAllowUpdatePermission = useMemo(() => userInfo?.role?.name === process.env.NEXT_PUBLIC_SUPER_ADMIN_ROLE_NAME, [userInfo]);
+  const isAllowUpdatePermission = true;
   const [isUpdateLoading, setIsUpdateLoading] = useState(false);
   const { notificationApi } = useNotification();
   const { data: permissionsData } = useQuery({
@@ -40,7 +50,7 @@ const PermissionTable = ({ userPermission, selectedRoleId = "", refetchPermissio
       <div className="grid grid-cols-5 gap-4 text-center">
         <span></span>
         {Object.values(PERMISSION_TYPE).map((type) => (
-          <span className="capitalize font-bold" key={type}>
+          <span className="font-bold capitalize" key={type}>
             {type}
           </span>
         ))}
@@ -99,13 +109,13 @@ const PermissionTable = ({ userPermission, selectedRoleId = "", refetchPermissio
               });
             } finally {
               setIsUpdateLoading(false);
-              
+
               refetchPermission && refetchPermission();
             }
           };
           return (
             <div key={id} className="grid grid-cols-5 gap-4">
-              <span className="self-center capitalize font-bold">{type}</span>
+              <span className="self-center font-bold capitalize">{type}</span>
               {allow_create ? (
                 <Button
                   variant="outlined"

@@ -100,7 +100,7 @@ export class PostgresVariantRepository implements IVariantRepository {
           model: BrandPersistence,
           as: brandModelName.toLowerCase(),
           where: brandWhere,
-          required: brandWhere ? true : false,
+          required: false,
         });
       }
       include.push({
@@ -111,7 +111,7 @@ export class PostgresVariantRepository implements IVariantRepository {
         },
         include: productInclude,
         where: productWhere,
-        required: productWhere ? true : false,
+        required: false,
       });
     }
     if (condition?.include_product_sellable) {
@@ -121,7 +121,7 @@ export class PostgresVariantRepository implements IVariantRepository {
             model: WarehousePersistence,
             as: warehouseModelName.toLowerCase(),
             where: warehouseWhere,
-            required: warehouseWhere ? true : false,
+            required: false,
           });
         }
         productSellableInclude.push({
@@ -129,7 +129,7 @@ export class PostgresVariantRepository implements IVariantRepository {
           as: inventoryModelName.toLowerCase(),
           include: inventoryInclude,
           where: inventoryWhere,
-          required: inventoryWhere ? true : false,
+          required: false,
         });
       }
       include.push({
@@ -142,7 +142,7 @@ export class PostgresVariantRepository implements IVariantRepository {
             as: inventoryModelName.toLowerCase(),
             include: inventoryInclude,
             where: inventoryWhere,
-            required: inventoryWhere ? true : false,
+            required: false,
           },
           {
             model: ImagePersistence,
@@ -366,7 +366,7 @@ export class PostgresVariantRepository implements IVariantRepository {
         },
         include: productInclude,
         where: productWhere,
-        required: productWhere ? true : false,
+        required: false,
       });
     }
     if (condition?.include_product_sellable) {
@@ -376,7 +376,7 @@ export class PostgresVariantRepository implements IVariantRepository {
             model: WarehousePersistence,
             as: warehouseModelName.toLowerCase(),
             where: warehouseWhere,
-            required: warehouseWhere ? true : false,
+            required: false,
           });
         }
         productSellableInclude.push({
@@ -384,20 +384,13 @@ export class PostgresVariantRepository implements IVariantRepository {
           as: inventoryModelName.toLowerCase(),
           include: inventoryInclude,
           where: inventoryWhere,
-          required: inventoryWhere ? true : false,
+          required: false,
         });
       }
       include.push({
         model: ProductSellablePersistence,
         as: productSellableModelName.toLowerCase(),
         include: [
-          {
-            model: InventoryPersistence,
-            as: inventoryModelName.toLowerCase(),
-            include: inventoryInclude,
-            where: inventoryWhere,
-            required: inventoryWhere ? true : false,
-          },
           ...productSellableInclude,
           {
             model: ImagePersistence,
