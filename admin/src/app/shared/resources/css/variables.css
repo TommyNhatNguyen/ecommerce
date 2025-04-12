@@ -1,0 +1,124 @@
+:root {
+  /* Layouts */
+  --max-width-page: 120rem; /* 1920px */
+  --max-width-container: calc(var(--pd-container) * 2 104.375rem); /* 1670px */
+  --pd-container: 7.8125rem; /* 125px */
+  --pd-section: 10.625rem; /* 170px */
+  --gutter: 2.25rem; /* 36px */
+  --header-height: 6rem; /* 96px */
+  --input-height: 3.5rem; /* 56px */
+  --btn-height: 3.5rem; /* 56px */
+  --min-btn-height: 3.0rem;
+  --min-input-height: calc(var(--min-btn-height) + 10px);
+  --radius: 1rem; /* 16px */
+
+  /* Colors */
+  --blue-link: #0000ee;
+  --blue-link-200: #90D5FF;
+  --green-100: rgb(79, 99, 103);
+  --green-200: rgb(63, 78, 79);
+  --green-300: rgb(44, 54, 57);
+  --green-300-80: rgba(44, 54, 57, 0.8);
+  --pink-100: rgb(243, 209, 193);
+  --pink-200: rgb(212, 165, 165);
+  --gray-100: rgb(178, 162, 154);
+  --gray-200: rgb(138, 127, 125);
+  --gray-300: rgb(162, 123, 92);
+  --gray-400: rgb(109, 91, 59);
+  --bg-primary-color: rgb(220, 215, 201);
+  --bg-primary-color-70: rgba(220, 215, 201, 0.7);
+  --bg-primary-color-60: rgba(220, 215, 201, 0.6);
+  --bg-secondary-color: rgb(240, 226, 182);
+  --white-color: rgb(255,255,255);
+
+  /* Dashboard */
+  --bg-dashboard-color: rgb(240, 235, 220);
+  --text-dashboard-color: rgb(0, 0, 0);
+
+  /* Status Colors */
+  --error-color: rgb(179, 57, 57);
+  --warning-color: rgb(255, 191, 0);
+  --success-color: rgb(63, 78, 79);
+
+  /* Fonts */
+  --fs-h1: 4.8rem;
+  --fs-h2: 3.2rem;
+  --fs-h3: 2.4rem;
+  --fs-h4: 2rem;
+  --fs-h5: 1.8rem;
+  --fs-h6: 1.6rem;
+  --fs-body-big: 1.8rem;
+  --fs-body-text: 1.6rem;
+  --fs-body-sub: 1.4rem;
+  --fs-primary-btn: 1.8rem;
+  --fs-second-btn: 1.4rem;
+  --fs-navlink: 1.8rem;
+  --fs-footer: 1.4rem;
+  --text-spacing: 1.0rem;
+  /* Font Families */
+  --ff-pl-regular: var(--ff-pl-regular);
+  --ff-pl-medium: var(--ff-pl-medium);
+  --ff-pl-semibold: var(--ff-pl-semibold);
+  --ff-pl-bold: var(--ff-pl-bold);
+  --ff-ro-regular: var(--ff-ro-regular);
+  --ff-ro-medium: var(--ff-ro-medium);
+  --ff-ro-bold: var(--ff-ro-bold);
+  --ff-os-regular: var(--ff-os-regular);
+  --ff-os-medium: var(--ff-os-medium);
+  --ff-os-bold: var(--ff-os-bold);
+
+  /* Responsive */
+  --macbook-screen: 49.75rem; /* 796px */
+}
+
+@media (max-width: 90rem) {
+  /* 1440px */
+  :root {
+    --max-width-page: 90rem;
+    --max-width-container: calc(var(--pd-container) * 2 81.25rem); /* 1300px */
+    --pd-container: 6.25rem; /* 100px */
+    --pd-section: 8.75rem; /* 140px */
+    --gutter: 1.875rem; /* 30px */
+    --header-height: 4.5rem; /* 72px */
+    --input-height: 3rem; /* 48px */
+    --btn-height: 3rem; /* 48px */
+
+    /* Responsive font sizes */
+    --fs-h1: 4.2rem;
+    --fs-h2: 2.8rem;
+    --fs-h3: 2.2rem;
+    --fs-body-big: 1.6rem;
+    --fs-body-text: 1.4rem;
+    --fs-body-sub: 1.2rem;
+    --fs-primary-btn: 1.6rem;
+    --fs-second-btn: 1.2rem;
+    --fs-navlink: 1.6rem;
+    --fs-footer: 1.2rem;
+  }
+}
+
+@media (max-width: 40rem) {
+  /* 640px */
+  :root {
+    --max-width-page: 40rem;
+    --max-width-container: calc(var(--pd-container) * 2 31.25rem); /* 500px */
+    --pd-container: 5rem; /* 80px */
+    --pd-section: 7.5rem; /* 120px */
+    --gutter: 1.5rem; /* 24px */
+    --header-height: 4rem; /* 64px */
+    --input-height: 3rem; /* 48px */
+    --btn-height: 3rem; /* 48px */
+
+    /* Responsive font sizes */
+    --fs-h1: 3.6rem;
+    --fs-h2: 2.4rem;
+    --fs-h3: 2rem;
+    --fs-body-big: 1.4rem;
+    --fs-body-text: 1.2rem;
+    --fs-body-sub: 1rem;
+    --fs-primary-btn: 1.4rem;
+    --fs-second-btn: 1rem;
+    --fs-navlink: 1.4rem;
+    --fs-footer: 1rem;
+  }
+}

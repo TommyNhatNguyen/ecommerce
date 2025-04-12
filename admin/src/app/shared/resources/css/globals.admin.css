@@ -1,0 +1,12 @@
+@import "./variables.css";
+@import "./reset.css";
+@import "./components.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: var(--bg-dashboard);
+  color: var(--text-dashboard);
+  font-family: var(--ff-os-regular);
+}

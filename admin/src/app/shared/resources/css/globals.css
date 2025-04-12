@@ -1,0 +1,74 @@
+@import "./variables.css";
+@import "./reset.css";
+@import "./components.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+Base Colors (inspired by your current palette):
+1. #2C3639 - Deep Slate (dark neutral)
+2. #3F4E4F - Charcoal Teal (cool, muted)
+3. #A27B5C - Warm Beige (earthy, natural)
+4. #DCD7C9 - Light Taupe (soft, neutral)
+Suggested Additional Colors:
+1. #D4A5A5 - Dusty Rose (soft and feminine, balances the darker tones)
+2. #4F6367 - Muted Teal (a slightly lighter, complementary version of your teal)
+3. #F0E2B6 - Warm Butter (adds warmth and brightness to the palette)
+4. #8A7F7D - Soft Olive (earthy, adds a hint of sophistication)
+5. #F3D1C1 - Peachy Pink (light, inviting color perfect for a cozy vibe)
+6. #B2A29A - Sage Grey (neutral with a touch of green)
+7. #6D5B3B - Cocoa Brown (rich, grounded tone to balance softer hues)
+8. #E9D7B6 - Pale Gold (elegant and warm, great for highlighting accents)
+Usage Ideas:
+* Background: Use #DCD7C9 or #F0E2B6 for main background sections, creating a soft, inviting environment.
+* Text: #2C3639 works well for body text as it's dark enough for readability.
+* Buttons & CTAs: #D4A5A5 or #8A7F7D can be used for calls to action to stand out without overwhelming.
+* Accent colors: Use #4F6367, #B2A29A, and #6D5B3B for subtle design elements, icons, or borders.
+*/
+
+html {
+  font-size: 62.5%;
+
+  &.--dashboard {
+    body {
+      background: var(--bg-dashboard-color);
+      color: var(--text-dashboard-color);
+      font-family: var(--ff-os-regular);
+    }
+  }
+}
+
+body {
+  height: 100%;
+  width: 100%;
+  margin: auto;
+  background: var(--bg-primary-color);
+  color: var(--green-300);
+  font-family: var(--ff-ro-regular);
+  font-size: var(--fs-body-text);
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--gray-100);
+    border-radius: 10px;
+  }
+}
+
+.container {
+  height: 100%;
+  width: 100%;
+  max-width: var(--max-width-container);
+  padding-left: var(--pd-container);
+  padding-right: var(--pd-container);
+  margin: auto;
+}
