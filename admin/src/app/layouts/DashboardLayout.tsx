@@ -98,7 +98,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
       disabled: true,
     },
     {
-      key: ADMIN_ROUTES.inventory.index,
+      key: "ADMIN_ROUTES.inventory.index",
       label: intl.formatMessage({ id: "inventory_management" }),
       icon: <House size={16} />,
       children: [
