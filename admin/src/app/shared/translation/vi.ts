@@ -250,5 +250,14 @@ export default {
     delete_option_error: "Xóa thuộc tính thất bại",
     delete_option_success_description: "Thuộc tính đã được xóa thành công",
     delete_option_error_description: "Không thể xóa thuộc tính",
+    refresh: "Làm mới",
+    enter_low_stock_threshold: "Nhập ngưỡng tồn kho tối thiểu",
+    low_stock_threshold: "Ngưỡng tồn kho tối thiểu",
+    inventory_low_stock_threshold_settings: "Cài đặt ngưỡng tồn kho tối thiểu",
+    update_low_stock_threshold: "Cập nhật ngưỡng tồn kho tối thiểu",
+    update_low_stock_threshold_success:
+      "Cập nhật ngưỡng tồn kho tối thiểu thành công",
+    update_low_stock_threshold_error:
+      "Cập nhật ngưỡng tồn kho tối thiểu thất bại",
   },
 };

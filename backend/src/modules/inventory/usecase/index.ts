@@ -195,6 +195,20 @@ export class InventoryUseCase implements IInventoryUseCase {
         inventory?.high_stock_threshold ?? 9999999
       );
     }
+    if (data.low_stock_threshold) {
+      payload.stock_status = this.determineStockStatus(
+        inventory?.total_quantity,
+        data.low_stock_threshold ?? 0,
+        inventory?.high_stock_threshold ?? 9999999
+      );
+    }
+    if (data.high_stock_threshold) {
+      payload.stock_status = this.determineStockStatus(
+        inventory?.total_quantity,
+        inventory.low_stock_threshold ?? 0,
+        data.high_stock_threshold ?? 9999999
+      );
+    }
     const updatedInventory = await this.inventoryRepository.update(
       id,
       payload,
@@ -208,10 +222,21 @@ export class InventoryUseCase implements IInventoryUseCase {
     lowStockThreshold: number,
     highStockThreshold: number
   ): StockStatus {
-    if (quantity === 0) return StockStatus.OUT_OF_STOCK;
-    if (quantity <= lowStockThreshold) return StockStatus.LOW_STOCK;
-    if (quantity > highStockThreshold) return StockStatus.OVER_STOCK;
-    return StockStatus.IN_STOCK;
+    console.log(
+      '🚀 ~ InventoryUseCase ~ quantity:',
+      quantity,
+      lowStockThreshold,
+      highStockThreshold
+    );
+    if (quantity === 0) {
+      return StockStatus.OUT_OF_STOCK;
+    } else if (quantity <= lowStockThreshold) {
+      return StockStatus.LOW_STOCK;
+    } else if (quantity > highStockThreshold) {
+      return StockStatus.OVER_STOCK;
+    } else {
+      return StockStatus.IN_STOCK;
+    }
   }
 
   async deleteInventory(id: string): Promise<boolean> {
