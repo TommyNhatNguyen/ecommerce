@@ -126,11 +126,6 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
       disabled: true,
     },
     {
-      key: ADMIN_ROUTES.blogs.index,
-      label: intl.formatMessage({ id: "blogs" }),
-      icon: <Book size={16} />,
-    },
-    {
       key: ADMIN_ROUTES.resources,
       label: intl.formatMessage({ id: "resources" }),
       icon: <FolderOpen size={16} />,
@@ -228,13 +223,13 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
         <Layout>
           <HeaderSection />
           <Content className="mb-4 gap-4 p-2">
-            <Breadcrumb
+            {/* <Breadcrumb
               items={currentPath.slice(1).map((path) => ({
                 title: intl.formatMessage({ id: path }),
               }))}
               separator=">"
               className="mb-4"
-            />
+            /> */}
             {children}
           </Content>
           {/* <Footer className="text-center">
