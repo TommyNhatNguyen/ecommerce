@@ -4,6 +4,7 @@ import { BaseOrder, BaseSortBy, ModelStatus } from "@/app/shared/models/others/s
 export type InventoryUpdateDTO = {
   quantity?: number;
   low_stock_threshold?: number;
+  high_stock_threshold?: number;
   stock_status?: StockStatus;
   status?: ModelStatus;
   created_at?: Date;

@@ -32,8 +32,34 @@ export function useInventorySetting() {
       setUpdateThresholdLoading(false);
     }
   };
+  const handleUpdateHighStockThreshold = async (
+    id: string,
+    threshold: number,
+  ) => {
+    setUpdateThresholdLoading(true);
+    try {
+      const response = await inventoryService.updateLowStockThreshold(id, {
+        high_stock_threshold: threshold,
+      });
+      if (response) {
+        notificationApi.success({
+          message: "Update high stock threshold successfully",
+          title: "Success",
+        });
+      }
+    } catch (error) {
+      setUpdateThresholdError(error as Error);
+      notificationApi.error({
+        message: "Update high stock threshold failed",
+        title: "Error",
+      });
+    } finally {
+      setUpdateThresholdLoading(false);
+    }
+  };
   return {
     handleUpdateLowStockThreshold,
+    handleUpdateHighStockThreshold,
     updateThresholdLoading,
     updateThresholdError,
   };

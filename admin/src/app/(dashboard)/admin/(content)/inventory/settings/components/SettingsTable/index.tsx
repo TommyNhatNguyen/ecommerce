@@ -19,6 +19,7 @@ const SettingsTable = ({ limit = 10 }: Props) => {
   const { control, setValue } = useForm<{
     id: string;
     threshold: number;
+    highthreshold: number;
   }[]>();
 
   const {
@@ -47,10 +48,15 @@ const SettingsTable = ({ limit = 10 }: Props) => {
     initialPageParam: 1,
   });
 
-  const { handleUpdateLowStockThreshold } = useInventorySetting();
+  const { handleUpdateLowStockThreshold, handleUpdateHighStockThreshold } = useInventorySetting();
 
   const _onUpdateLowStockThreshold = async (id: string, threshold: number) => {
     await handleUpdateLowStockThreshold(id, threshold);
+    refetch();
+  };
+
+  const _onUpdateHighStockThreshold = async (id: string, threshold: number) => {
+    await handleUpdateHighStockThreshold(id, threshold);
     refetch();
   };
 
@@ -59,6 +65,7 @@ const SettingsTable = ({ limit = 10 }: Props) => {
     control,
     setValue,
     onUpdateThreshold: _onUpdateLowStockThreshold,
+    onUpdateHighThreshold: _onUpdateHighStockThreshold,
   });
 
   const products = useMemo(() => {

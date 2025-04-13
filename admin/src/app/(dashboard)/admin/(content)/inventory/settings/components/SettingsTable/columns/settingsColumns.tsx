@@ -10,6 +10,7 @@ export const settingsColumns = ({
   control,
   setValue,
   onUpdateThreshold,
+  onUpdateHighThreshold,
 }) => {
   const productColumns: TableProps<ProductModel>["columns"] = [
     {
@@ -124,6 +125,53 @@ export const settingsColumns = ({
                         <Button
                           type="primary"
                           onClick={() => onUpdateThreshold(id, field.value)}
+                        >
+                          Update
+                        </Button>
+                      </div>
+                    );
+                  }}
+                />
+              );
+            }}
+          />
+        );
+      },
+    },
+    {
+      title: "Update high stock threshold",
+      dataIndex: "update_high_stock_threshold",
+      key: "update_high_stock_threshold",
+      render: (_, { product_sellable }, index) => {
+        const id = product_sellable?.inventory?.id || "";
+        const threshold =
+          product_sellable?.inventory?.high_stock_threshold || 0;
+        return (
+          <Controller
+            control={control}
+            name={`${index}.highthreshold`}
+            defaultValue={threshold}
+            render={({ field }) => {
+              return (
+                <InputAdmin
+                  placeholder="Enter high stock threshold"
+                  {...field}
+                  customComponent={(props, ref: any) => {
+                    return (
+                      <div className="flex w-full items-center gap-1">
+                        <InputNumber
+                          {...props}
+                          ref={ref}
+                          className="w-full"
+                          min={0}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            setValue(`${index}.id`, id);
+                          }}
+                        />
+                        <Button
+                          type="primary"
+                          onClick={() => onUpdateHighThreshold(id, field.value)}
                         >
                           Update
                         </Button>
