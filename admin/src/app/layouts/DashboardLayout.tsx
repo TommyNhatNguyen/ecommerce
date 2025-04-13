@@ -5,7 +5,7 @@ import NotificationContextProvider, {
 } from "@/app/contexts/NotificationContext";
 import Logo from "@/app/shared/components/Logo";
 import { MenuItem } from "@/app/shared/types/antd.model";
-import { Breadcrumb, Divider, Layout, Menu } from "antd";
+import { Divider, Layout, Menu } from "antd";
 import {
   FolderOpen,
   Users,
@@ -16,7 +16,6 @@ import {
   LayoutDashboard,
   SquareChevronLeft,
   SquareChevronRight,
-  Book,
   Globe,
   MessageCircle,
   House,
@@ -36,7 +35,7 @@ import { useLanguage } from "@/app/shared/hooks/useLanguage";
 import { LOCALES } from "@/app/shared/translation/locales";
 import { HeaderSection } from "@/app/layouts/components/HeaderSection";
 
-const { Footer, Sider, Content } = Layout;
+const { Sider, Content } = Layout;
 
 type DashboardLayoutPropsType = {
   children: React.ReactNode;
@@ -47,7 +46,7 @@ export const DashboardWrapper = ({ children }: DashboardLayoutPropsType) => {
   const { messages, locale } = useLanguage();
 
   return (
-    //@ts-ignore
+    // @ts-expect-error intl error
     <IntlProvider
       messages={messages}
       locale={locale}
@@ -67,7 +66,6 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
   const dispatch = useAppDispatch();
   const pathname = usePathname();
   const router = useRouter();
-  const currentPath = pathname.split("/").slice(1);
   const intl = useIntl();
   const { notificationApi } = useNotification();
   const { orderCreated, inventoryLowInventory } = useAppSelector(
@@ -222,19 +220,7 @@ const DashboardLayout = ({ children }: DashboardLayoutPropsType) => {
         </Sider>
         <Layout>
           <HeaderSection />
-          <Content className="mb-4 gap-4 p-2">
-            {/* <Breadcrumb
-              items={currentPath.slice(1).map((path) => ({
-                title: intl.formatMessage({ id: path }),
-              }))}
-              separator=">"
-              className="mb-4"
-            /> */}
-            {children}
-          </Content>
-          {/* <Footer className="text-center">
-            @copyright 2023 Nguyen Anh Nhat
-          </Footer> */}
+          <Content className="mb-4 gap-4 p-2">{children}</Content>
         </Layout>
       </Layout>
     </>

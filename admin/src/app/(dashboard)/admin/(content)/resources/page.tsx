@@ -2,20 +2,9 @@
 import { ImageType } from "@/app/shared/interfaces/image/image.dto";
 import { IMAGE_TYPE } from "@/app/constants/imageType";
 import { imagesService } from "@/app/shared/services/images/imagesService";
-import {
-  keepPreviousData,
-  useInfiniteQuery,
-  useQuery,
-} from "@tanstack/react-query";
-import {
-  Button,
-  Card,
-  Checkbox,
-  CheckboxChangeEvent,
-  CheckboxProps,
-  Image,
-} from "antd";
-import React, { useEffect, useState } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { Button, Card, Checkbox, CheckboxChangeEvent, Image } from "antd";
+import React, { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { useResources } from "@/app/(dashboard)/admin/(content)/resources/hooks/useResources";
 import { Trash2 } from "lucide-react";
@@ -25,6 +14,7 @@ type Props = {};
 export default function ResourcesPage() {
   const { ref, inView } = useInView({
     threshold: 0,
+    rootMargin: "100px 0px",
   });
   const {
     checkedList,
@@ -46,12 +36,13 @@ export default function ResourcesPage() {
     fetchNextPage,
     hasNextPage,
     refetch,
+    isFetching,
   } = useInfiniteQuery({
     queryKey: ["images", checkedList],
     queryFn: (p) =>
       imagesService.getImages({
         page: p.pageParam,
-        limit: 3,
+        limit: 12,
         typeList: checkedList,
       }),
     getNextPageParam: (lastPage) => {
@@ -68,10 +59,21 @@ export default function ResourcesPage() {
     });
   };
   useEffect(() => {
-    if (inView && hasNextPage) {
+    if (inView && hasNextPage && !isFetching) {
       fetchNextPage();
     }
-  }, [inView, hasNextPage]);
+  }, [inView, hasNextPage, isFetching]);
+
+  useEffect(() => {
+    // Trigger initial load if there's not enough content
+    if (
+      (imageData?.pages[0]?.data.length || 0) < 12 &&
+      hasNextPage &&
+      !isFetching
+    ) {
+      fetchNextPage();
+    }
+  }, [imageData?.pages, hasNextPage, isFetching]);
   return (
     <div className="flex h-full items-start gap-2">
       <div className="flex h-full flex-col gap-1 rounded-md bg-white p-2">
@@ -95,40 +97,10 @@ export default function ResourcesPage() {
           onChange={_onChangeCheckedList}
         />
       </div>
-      <div className="grid h-full flex-1 grid-cols-3 gap-4 overflow-y-auto">
+      <div className="grid h-full flex-1 grid-cols-2 gap-4 overflow-y-auto sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {imageData?.pages.map((page) => {
           return page.data.map((image, index) => {
-            if (index === (page.data as any).length - 1) {
-              return (
-                <>
-                  <Card
-                    hoverable
-                    key={image.id}
-                    cover={
-                      <Image
-                        className="max-h-[200px] min-h-[200px] object-contain"
-                        src={image.url}
-                        alt={image.id}
-                      />
-                    }
-                    className="relative p-2"
-                  >
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-md font-medium capitalize">
-                        {image.type}
-                      </h3>
-                      <Button
-                        type="text"
-                        icon={<Trash2 className="h-4 w-4 text-red-500" />}
-                        onClick={() => _onDeleteImage(image.id)}
-                        loading={deleteImageLoading}
-                      />
-                    </div>
-                    <div ref={ref} className="absolute bottom-0 right-0"></div>
-                  </Card>
-                </>
-              );
-            }
+            const isLastItem = index === page.data.length - 1;
             return (
               <Card
                 hoverable
@@ -140,7 +112,7 @@ export default function ResourcesPage() {
                     alt={image.id}
                   />
                 }
-                className="p-2"
+                className={`p-2 ${isLastItem ? "relative" : ""}`}
               >
                 <div className="flex items-center justify-between">
                   <h3 className="text-md font-medium capitalize">
@@ -153,10 +125,21 @@ export default function ResourcesPage() {
                     loading={deleteImageLoading}
                   />
                 </div>
+                {isLastItem && (
+                  <div
+                    ref={ref}
+                    className="absolute bottom-0 right-0 h-4 w-full"
+                  ></div>
+                )}
               </Card>
             );
           });
         })}
+        {hasNextPage && (
+          <div className="col-span-full flex justify-center py-4">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+          </div>
+        )}
       </div>
     </div>
   );
