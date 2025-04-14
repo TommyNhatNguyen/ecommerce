@@ -47,6 +47,8 @@ import CreateOrderDetailModal from "@/app/shared/components/GeneralModal/compone
 import { OrderCreateDTO } from "@/app/shared/interfaces/orders/order.dto";
 import { ProductSellableDetailsInOrderModel } from "@/app/shared/models/orders/orders.model";
 import OrderExpandDetail from "@/app/(dashboard)/admin/(content)/orders/components/OrderTable/components/OrderExpandDetail";
+import { orderColumns } from "@/app/(dashboard)/admin/(content)/orders/components/OrderTable/components/columns";
+import { useIntl } from "react-intl";
 
 type OrderTablePropsType = {
   handleChangeOrderState: (order_id: string, order_state: OrderState) => void;
@@ -108,13 +110,10 @@ const OrderTable = ({
   isCreateOrderLoading,
   createOrderError,
 }: OrderTablePropsType) => {
+  const intl = useIntl();
   const [orderPage, setOrderPage] = useState(1);
   const [orderLimit, setOrderLimit] = useState(10);
-  const [filteredInfo, setFilteredInfo] = useState<Filters>({});
-  const [sortedInfo, setSortedInfo] = useState<Sorts>({});
-  const [isModalOrderDetailOpen, setIsModalOrderDetailOpen] = useState(false);
-  const [orderId, setOrderId] = useState("");
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [isOpenCreateOrderModal, setIsOpenCreateOrderModal] = useState(false);
   const { orderCreated } = useAppSelector((state) => state.socket);
   const { data: ordersDataResponse, isLoading } = useQuery(
     customQuery
@@ -162,11 +161,12 @@ const OrderTable = ({
   );
   const { meta, data: ordersData } = ordersDataResponse || {};
   const { total_count } = meta || {};
-  const _onOpenModalOrderDetail = (id: string, isEditMode = false) => {
-    setOrderId(id);
-    setIsModalOrderDetailOpen(true);
-    setIsEditMode(isEditMode);
-  };
+  /** 
+   const _onOpenModalOrderDetail = (id: string, isEditMode = false) => {
+     setOrderId(id);
+     setIsModalOrderDetailOpen(true);
+     setIsEditMode(isEditMode);
+   };
   const _onCloseModalOrderDetail = () => {
     setOrderId("");
     setIsModalOrderDetailOpen(false);
@@ -209,343 +209,7 @@ const OrderTable = ({
   ) => {
     handleChangeOrderStatus(order_id, order_status);
   };
-  const orderColumns: TableColumnType<OrderModel>[] = [
-    {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-      render: (_, { id }) => (
-        <Tooltip title={id}>
-          <Button
-            type="link"
-            className="overflow-hidden text-ellipsis break-all"
-            onClick={() => _onOpenModalOrderDetail(id)}
-          >
-            {id.substring(0, 10)}
-          </Button>
-        </Tooltip>
-      ),
-      ellipsis: true,
-    },
-    {
-      title: "Customer Name",
-      dataIndex: "customer_name",
-      key: "customer_name",
-      render: (_, { order_detail }) => {
-        const {
-          customer_address,
-          customer_email,
-          customer_phone,
-          customer_firstName,
-          customer_lastName,
-        } = order_detail || {};
-        const customer_name = `${customer_firstName} ${customer_lastName}`;
-        return (
-          <Tooltip
-            title={
-              <div className="flex flex-col gap-1">
-                <span>Address: {customer_address}</span>
-                <span>Email: {customer_email}</span>
-                <span>Phone: {customer_phone}</span>
-              </div>
-            }
-            className="text-ellipsis"
-          >
-            {customer_name}
-          </Tooltip>
-        );
-      },
-    },
-    {
-      title: "Order State",
-      dataIndex: "order_state",
-      key: "order_state",
-      className: "w-[200px]",
-      render: (_, { order_state, id }) => {
-        return (
-          <Select
-            options={Object.entries(ORDER_STATE).map(([key, value]) => ({
-              label: value,
-              value: key,
-            }))}
-            value={order_state}
-            loading={isUpdateOrderStateLoading}
-            disabled={false}
-            onSelect={(value) => {
-              _onChangeOrderState(id, value as OrderState);
-            }}
-            className="w-fit min-w-[100px]"
-            labelRender={(option) => {
-              const textColor = ORDER_STATE_COLOR[option.value];
-              return (
-                <div className={cn("font-semibold capitalize", `${textColor}`)}>
-                  {option.label}
-                </div>
-              );
-            }}
-            dropdownRender={(menu) => {
-              return (
-                <div className="min-w-fit">
-                  <div>{menu}</div>
-                </div>
-              );
-            }}
-          />
-        );
-      },
-    },
-    {
-      title: "Shipping Address",
-      dataIndex: "shipping_address",
-      key: "shipping_address",
-      render: (_, { order_detail }) => {
-        const { customer_address } = order_detail || {};
-        return (
-          <Tooltip title={customer_address}>
-            <p className="overflow-hidden text-ellipsis">{customer_address}</p>
-          </Tooltip>
-        );
-      },
-    },
-    {
-      title: "Shipping Phone",
-      dataIndex: "shipping_phone",
-      key: "shipping_phone",
-      render: (_, { order_detail }) => {
-        const { customer_phone } = order_detail || {};
-        return (
-          <Tooltip title={customer_phone}>
-            <p className="overflow-hidden text-ellipsis">{customer_phone}</p>
-          </Tooltip>
-        );
-      },
-    },
-    {
-      title: "Shipping",
-      dataIndex: "shipping_method",
-      key: "shipping_method",
-      render: (_, { order_detail }) => {
-        const { shipping } = order_detail || {};
-        return (
-          <Tooltip title={formatCurrency(shipping?.cost || 0)}>
-            <p className="overflow-hidden text-ellipsis">{shipping?.type}</p>
-          </Tooltip>
-        );
-      },
-    },
-    {
-      title: "Payment",
-      dataIndex: "payment_method",
-      key: "payment_method",
-      render: (_, { order_detail }) => {
-        const { payment } = order_detail || {};
-        return (
-          <Tooltip title={formatCurrency(payment?.payment_method?.cost || 0)}>
-            <p className="overflow-hidden text-ellipsis">
-              {payment?.payment_method?.type}
-            </p>
-          </Tooltip>
-        );
-      },
-    },
-    {
-      title: "Subtotal",
-      dataIndex: "subtotal",
-      key: "subtotal",
-      render: (_, { order_detail }) => {
-        const { subtotal } = order_detail || {};
-        return <span>{formatCurrency(subtotal)}</span>;
-      },
-    },
-    {
-      title: "Total Product Discount",
-      dataIndex: "total_product_discount",
-      key: "total_product_discount",
-      render: (_, { order_detail, id }) => {
-        const { total_product_discount } = order_detail || {};
-        return <span>{formatCurrency(total_product_discount)}</span>;
-      },
-    },
-    {
-      title: "Total Order Discount",
-      dataIndex: "total_order_discount",
-      key: "total_order_discount",
-      render: (_, { order_detail }) => {
-        const { total_order_discount, discount } = order_detail || {};
-        return (
-          <Tooltip
-            title={
-              <div className="flex flex-col gap-1">
-                {discount?.map((item) => (
-                  <span key={item.id}>
-                    <span className="font-semibold capitalize">
-                      {item.scope} -{" "}
-                    </span>
-                    {item.name} -{" "}
-                    {item.is_fixed
-                      ? formatCurrency(item.amount)
-                      : formatDiscountPercentage(item.amount)}
-                  </span>
-                ))}
-              </div>
-            }
-          >
-            <span>{formatCurrency(total_order_discount)}</span>
-          </Tooltip>
-        );
-      },
-    },
-    {
-      title: "Total Discount",
-      dataIndex: "total_discount",
-      key: "total_discount",
-      render: (_, { order_detail }) => {
-        const { total_discount } = order_detail || {};
-        return <span>{formatCurrency(total_discount)}</span>;
-      },
-    },
-    {
-      title: "Other costs",
-      dataIndex: "total_costs",
-      key: "total_costs",
-      render: (_, { order_detail }) => {
-        const { total_costs, cost } = order_detail || {};
-        return (
-          <Tooltip
-            title={
-              <div className="flex flex-col gap-1">
-                {cost?.map((item) => (
-                  <span key={item.id}>
-                    {item.name}: {formatCurrency(item.cost)}
-                  </span>
-                ))}
-              </div>
-            }
-          >
-            <span>{formatCurrency(total_costs)}</span>
-          </Tooltip>
-        );
-      },
-    },
-
-    {
-      title: "Total Shipping Fee",
-      dataIndex: "total_shipping_fee",
-      key: "total_shipping_fee",
-      render: (_, { order_detail }) => {
-        const { total_shipping_fee } = order_detail || {};
-        return (
-          <Tooltip title={formatCurrency(total_shipping_fee)}>
-            <span>{formatCurrency(total_shipping_fee)}</span>
-          </Tooltip>
-        );
-      },
-    },
-    {
-      title: "Total Payment Fee",
-      dataIndex: "total_payment_fee",
-      key: "total_payment_fee",
-      render: (_, { order_detail }) => {
-        const { total_payment_fee } = order_detail || {};
-        return (
-          <Tooltip title={formatCurrency(total_payment_fee)}>
-            <span>{formatCurrency(total_payment_fee)}</span>
-          </Tooltip>
-        );
-      },
-    },
-    {
-      title: "Total",
-      dataIndex: "total",
-      key: "total",
-      render: (_, { order_detail }) => {
-        const { total } = order_detail || {};
-        return (
-          <Tooltip title={formatCurrency(total)}>
-            <span>{formatCurrency(total)}</span>
-          </Tooltip>
-        );
-      },
-    },
-    {
-      title: "Paid Amount",
-      dataIndex: "paid_amount",
-      key: "paid_amount",
-      render: (_, { order_detail }) => {
-        const { payment } = order_detail || {};
-        return (
-          <Tooltip title={formatCurrency(payment?.paid_amount || 0)}>
-            <span>{formatCurrency(payment?.paid_amount || 0)}</span>
-          </Tooltip>
-        );
-      },
-    },
-    {
-      title: "Created At",
-      dataIndex: "created_at",
-      key: "created_at",
-      fixed: "right",
-      render: (_, { created_at }) => (
-        <Tooltip title={created_at}>
-          <span>{formatDate(created_at, "dd/MM/yyyy HH:mm")}</span>
-        </Tooltip>
-      ),
-    },
-    {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      fixed: "right",
-      render: (_, { status, id }) => {
-        return (
-          <Select
-            options={STATUS_OPTIONS}
-            value={status}
-            loading={isUpdateOrderStatusLoading}
-            disabled={false}
-            onSelect={(value) => {
-              _onChangeOrderStatus(id, value as ModelStatus);
-            }}
-            className="min-w-[120px]"
-            labelRender={(option) => {
-              const textColor =
-                option.value === "ACTIVE" ? "text-green-500" : "text-red-500";
-              return (
-                <div className={cn("font-semibold capitalize", `${textColor}`)}>
-                  {option.label}
-                </div>
-              );
-            }}
-            dropdownRender={(menu) => {
-              return (
-                <div className="min-w-fit">
-                  <div>{menu}</div>
-                </div>
-              );
-            }}
-          />
-        );
-      },
-    },
-    {
-      title: "Action",
-      dataIndex: "action",
-      key: "action",
-      fixed: "right",
-      render: (_, { id }) => (
-        <ActionGroup
-          isWithDeleteConfirmPopover={false}
-          deleteConfirmPopoverProps={{
-            title: "Are you sure you want to delete this order?",
-          }}
-          handleDelete={() => {
-            isPermanentDelete ? _onDeleteOrder(id) : _onSoftDeleteOrder(id);
-          }}
-        />
-      ),
-    },
-  ];
-  const [isOpenCreateOrderModal, setIsOpenCreateOrderModal] = useState(false);
+  */
   const _onOpenCreateOrderModal = () => {
     setIsOpenCreateOrderModal(true);
   };
@@ -570,8 +234,9 @@ const OrderTable = ({
       </div>
       <div className="mt-4">
         <Table
+          loading={isLoading}
           tableLayout="auto"
-          columns={orderColumns}
+          columns={orderColumns(intl)}
           dataSource={ordersData}
           rowClassName={"max-h-[100px] overflow-hidden"}
           expandable={{
@@ -585,19 +250,16 @@ const OrderTable = ({
                         [],
                     )
                 : [];
-              return <OrderExpandDetail dataSource={productData} />;
+              return (
+                <OrderExpandDetail
+                  dataSource={productData}
+                  user_name={`${ordersData?.[0].order_detail.customer_firstName} ${ordersData?.[0].order_detail.customer_lastName}`}
+                />
+              );
             },
           }}
-          onChange={_onChangeTable}
           scroll={{ x: "100vw" }}
           rowKey={(record) => record.id}
-          rowSelection={{
-            selectedRowKeys: selectedRows.map((item) => item.id),
-            onSelect: (record, selected, selectedRows, nativeEvent) =>
-              _onSelectRow(record, selected, selectedRows),
-            onSelectAll: (selected, selectedRows, changeRows) =>
-              _onSelectAllRow(selected, selectedRows, changeRows),
-          }}
           pagination={{
             current: orderPage,
             pageSize: orderLimit,

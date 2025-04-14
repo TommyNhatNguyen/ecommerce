@@ -229,13 +229,8 @@ export default {
     update_option_error: "Update option error",
     update_option_success_description: "Option has been updated successfully",
     update_option_error_description: "Failed to update option",
-    refresh: "Refresh",
-    enter_low_stock_threshold: "Enter low stock threshold",
-    inventory_low_stock_threshold_settings:
-      "Inventory Low Stock Threshold Settings",
-    update_low_stock_threshold: "Update Low Stock Threshold",
-    update_low_stock_threshold_success:
-      "Update low stock threshold successfully",
-    update_low_stock_threshold_error: "Update low stock threshold failed",
+    select_inventory_product: "Choose a warehouse to sell product",
+    num_item: "{num} items",
+    order_product_list: "{user_name}'s Order has {num} products",
   },
 };
