@@ -114,6 +114,7 @@ const OrderTable = ({
   const [orderPage, setOrderPage] = useState(1);
   const [orderLimit, setOrderLimit] = useState(10);
   const [isOpenCreateOrderModal, setIsOpenCreateOrderModal] = useState(false);
+  const [activeOrder, setActiveOrder] = useState<OrderModel | null>(null);
   const { orderCreated } = useAppSelector((state) => state.socket);
   const { data: ordersDataResponse, isLoading } = useQuery(
     customQuery
@@ -254,8 +255,15 @@ const OrderTable = ({
                 <OrderExpandDetail
                   dataSource={productData}
                   user_name={`${ordersData?.[0].order_detail.customer_firstName} ${ordersData?.[0].order_detail.customer_lastName}`}
+                  orderData={activeOrder}
                 />
               );
+            },
+            onExpand(expanded, record) {
+              const expandOrder = ordersData?.find(
+                (item) => item.id == record.id,
+              ) || null;
+              setActiveOrder(expandOrder);
             },
           }}
           scroll={{ x: "100vw" }}

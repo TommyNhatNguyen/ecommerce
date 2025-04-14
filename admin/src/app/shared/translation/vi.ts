@@ -253,5 +253,6 @@ export default {
     select_inventory_product: "Chọn kho xuất bán",
     num_item: "{num} cái",
     order_product_list: "Đơn của {user_name} có {num} sản phẩm",
+    order_detail: "Hoá đơn chi tiết"
   },
 };

@@ -1,16 +1,25 @@
 import { orderExpandDetailColumns } from "@/app/(dashboard)/admin/(content)/orders/components/OrderTable/components/OrderExpandDetail/columns";
 import OrderSummary from "@/app/(dashboard)/admin/(content)/orders/components/OrderTable/components/OrderExpandDetail/OrderSummary";
-import { ProductSellableDetailsInOrderModel } from "@/app/shared/models/orders/orders.model";
+import {
+  OrderModel,
+  ProductSellableDetailsInOrderModel,
+} from "@/app/shared/models/orders/orders.model";
 import { Table } from "antd";
 import React from "react";
 import { useIntl } from "react-intl";
 
 type Props = {
   dataSource: ProductSellableDetailsInOrderModel[];
+  orderData: OrderModel | null;
   user_name?: string;
 };
 
-const OrderExpandDetail = ({ dataSource, user_name, ...props }: Props) => {
+const OrderExpandDetail = ({
+  dataSource,
+  orderData,
+  user_name,
+  ...props
+}: Props) => {
   console.log("🚀 ~ OrderExpandDetail ~ dataSource:", dataSource);
   const intl = useIntl();
   const newColumns = orderExpandDetailColumns(intl);
@@ -18,7 +27,7 @@ const OrderExpandDetail = ({ dataSource, user_name, ...props }: Props) => {
     <div className="grid min-h-[792px] grid-cols-12 gap-4">
       {/* Order product table */}
       <div className="rounded-4 col-span-8 h-full w-full bg-custom-white p-4 shadow-md">
-        <h2 className="font-bold mb-4">
+        <h2 className="mb-4 font-bold">
           {intl.formatMessage(
             { id: "order_product_list" },
             {
@@ -44,7 +53,7 @@ const OrderExpandDetail = ({ dataSource, user_name, ...props }: Props) => {
         />
       </div>
       {/* Order Summary */}
-      <OrderSummary />
+      <OrderSummary orderData={orderData} />
     </div>
   );
 };

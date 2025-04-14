@@ -232,5 +232,6 @@ export default {
     select_inventory_product: "Choose a warehouse to sell product",
     num_item: "{num} items",
     order_product_list: "{user_name}'s Order has {num} products",
+    order_detail: "Order Detail",
   },
 };
