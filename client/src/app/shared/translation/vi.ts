@@ -250,5 +250,7 @@ export default {
     delete_option_error: "Xóa thuộc tính thất bại",
     delete_option_success_description: "Thuộc tính đã được xóa thành công",
     delete_option_error_description: "Không thể xóa thuộc tính",
+    select_inventory_product: "Chọn kho xuất bán",
+    num_item: "{num} cái"
   },
 };

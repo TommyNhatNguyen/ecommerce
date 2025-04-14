@@ -229,5 +229,7 @@ export default {
     update_option_error: "Update option error",
     update_option_success_description: "Option has been updated successfully",
     update_option_error_description: "Failed to update option",
+    select_inventory_product: "Choose a warehouse to sell product",
+    num_item: "{num} items",
   },
 };

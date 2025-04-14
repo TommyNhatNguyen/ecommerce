@@ -17,10 +17,8 @@ import {
 import ModalCreateVariant from "@/app/shared/components/GeneralModal/components/ModalCreateVariant";
 import { ModalRefType } from "@/app/shared/components/GeneralModal";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
-import { StockStatus } from "@/app/shared/models/inventories/stock-status";
 
 type Props = {
-  search?: string;
   selectedWarehouses?: string[];
   selectedBrands?: string[];
   selectedProducts?: string[];
@@ -31,7 +29,6 @@ type Props = {
 };
 
 const InventoryTable = ({
-  search,
   selectedWarehouses,
   selectedBrands,
   selectedProducts,

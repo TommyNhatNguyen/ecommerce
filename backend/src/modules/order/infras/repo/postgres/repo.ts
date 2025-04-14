@@ -46,7 +46,14 @@ import {
   OptionValuePersistence,
 } from 'src/modules/options/infras/repo/postgres/dto';
 import { Transaction } from 'sequelize';
-import { inventoryModelName, InventoryPersistence } from 'src/modules/inventory/infras/repo/postgres/dto';
+import {
+  inventoryModelName,
+  InventoryPersistence,
+} from 'src/modules/inventory/infras/repo/postgres/dto';
+import {
+  warehouseModelName,
+  WarehousePersistence,
+} from 'src/modules/warehouse/infras/repo/warehouse.dto';
 export class PostgresOrderRepository implements IOrderRepository {
   constructor(
     private readonly sequelize: Sequelize,
@@ -193,6 +200,7 @@ export class PostgresOrderRepository implements IOrderRepository {
       },
     };
     const orderDetailInclude: IncludeOptions[] = [];
+    const productSellableInclude: IncludeOptions[] = [];
     if (condition.includeCost) {
       orderDetailInclude.push({
         model: CostPersistence,
@@ -228,6 +236,18 @@ export class PostgresOrderRepository implements IOrderRepository {
       });
     }
     if (condition.includeProducts) {
+      if (condition.includeInventory) {
+        productSellableInclude.push({
+          model: InventoryPersistence,
+          as: inventoryModelName,
+          include: [
+            {
+              model: WarehousePersistence,
+              as: warehouseModelName.toLowerCase(),
+            },
+          ],
+        });
+      }
       orderDetailInclude.push({
         model: PostgresOrderDetailProductSellablePersistence,
         as: orderDetailProductSellableHistoryModelName.toLowerCase(),
@@ -281,6 +301,7 @@ export class PostgresOrderRepository implements IOrderRepository {
                   },
                 },
               },
+              ...productSellableInclude,
             ],
           },
         ],

@@ -56,6 +56,11 @@ export const OrderConditionDTOSchema = z.object({
     .or(z.string().refine((value) => value === 'true' || value === 'false'))
     .transform((value) => value === 'true')
     .optional(),
+  includeInventory: z
+    .boolean()
+    .or(z.string().refine((value) => value === 'true' || value === 'false'))
+    .transform((value) => value === 'true')
+    .optional(),
 });
 
 export type OrderCreateDTO = z.infer<typeof OrderCreateDTOSchema>;

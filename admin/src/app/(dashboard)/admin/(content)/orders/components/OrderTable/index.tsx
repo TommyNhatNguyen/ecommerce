@@ -35,7 +35,7 @@ import {
   TableProps,
   Tooltip,
 } from "antd";
-import { ChevronDown, Plus, Trash2Icon } from "lucide-react";
+import { Plus } from "lucide-react";
 import { formatDate } from "date-fns";
 import React, { useState } from "react";
 import OrderDetailModal from "@/app/shared/components/GeneralModal/components/OrderDetailModal";
@@ -46,6 +46,7 @@ import { ListResponseModel } from "@/app/shared/models/others/list-response.mode
 import CreateOrderDetailModal from "@/app/shared/components/GeneralModal/components/CreateOrderDetailModal";
 import { OrderCreateDTO } from "@/app/shared/interfaces/orders/order.dto";
 import { ProductSellableDetailsInOrderModel } from "@/app/shared/models/orders/orders.model";
+import OrderExpandDetail from "@/app/(dashboard)/admin/(content)/orders/components/OrderTable/components/OrderExpandDetail";
 
 type OrderTablePropsType = {
   handleChangeOrderState: (order_id: string, order_state: OrderState) => void;
@@ -153,6 +154,7 @@ const OrderTable = ({
               includeProducts: true,
               includeShipping: true,
               includePayment: true,
+              includeInventory: true,
               order_state: orderState ? orderState : undefined,
             }),
           placeholderData: keepPreviousData,
@@ -543,148 +545,6 @@ const OrderTable = ({
       ),
     },
   ];
-  const productColumns: TableColumnType<ProductSellableDetailsInOrderModel>[] =
-    [
-      {
-        title: "ID",
-        dataIndex: "id",
-        key: "id",
-        ellipsis: true,
-        width: 100,
-        render: (_, { product_sellable }) => (
-          <Tooltip title={product_sellable?.id || "Product not found"}>
-            <span>
-              {product_sellable?.id.substring(0, 10) || "Product not found"}
-            </span>
-          </Tooltip>
-        ),
-      },
-      {
-        title: null,
-        dataIndex: "images",
-        key: "images",
-        className: "max-w-[100px]",
-        width: 100,
-        render: (_, { product_sellable }) => {
-          const image = product_sellable?.image || [];
-          const imagesList =
-            image && image.length > 0
-              ? image.map((item) => item.url)
-              : [defaultImage];
-          return (
-            <Image.PreviewGroup
-              items={imagesList}
-              preview={{
-                movable: false,
-              }}
-            >
-              <Carousel autoplay dotPosition="bottom">
-                {imagesList.map((item) => (
-                  <Image
-                    key={item}
-                    src={item}
-                    alt="product"
-                    fallback={defaultImage}
-                    className="object-contain"
-                  />
-                ))}
-              </Carousel>
-            </Image.PreviewGroup>
-          );
-        },
-      },
-      {
-        title: "Name",
-        dataIndex: "name",
-        key: "name",
-        render: (_, { product_variant_name }) => (
-          <Tooltip title={product_variant_name}>
-            <span>{product_variant_name}</span>
-          </Tooltip>
-        ),
-      },
-      {
-        title: "Price",
-        dataIndex: "price",
-        key: "price",
-        render: (_, { price }) => (
-          <Tooltip title={formatCurrency(price || 0)}>
-            <span>{formatCurrency(price || 0)}</span>
-          </Tooltip>
-        ),
-      },
-      {
-        title: "Quantity",
-        dataIndex: "quantity",
-        key: "quantity",
-        render: (_, { quantity }) => (
-          <Tooltip title={formatNumber(quantity)}>
-            <span>{formatNumber(quantity)}</span>
-          </Tooltip>
-        ),
-        minWidth: 100,
-      },
-      {
-        title: "Subtotal",
-        dataIndex: "subtotal",
-        key: "subtotal",
-        render: (_, { subtotal }) => (
-          <Tooltip title={formatCurrency(subtotal)}>
-            <span>{formatCurrency(subtotal)}</span>
-          </Tooltip>
-        ),
-      },
-      {
-        title: "Discount",
-        dataIndex: "discount",
-        key: "discount",
-        render: (_, { discount_amount, product_sellable }) => {
-          const discount = product_sellable?.discount || [];
-          return (
-            <Tooltip
-              title={() => {
-                return discount?.map((item) => (
-                  <p key={item.id}>
-                    {item.name} -{" "}
-                    {item.is_fixed
-                      ? formatCurrency(item.amount)
-                      : formatDiscountPercentage(item.amount)}
-                  </p>
-                ));
-              }}
-            >
-              <span>{formatCurrency(discount_amount || 0)}</span>
-            </Tooltip>
-          );
-        },
-      },
-      {
-        title: "Total",
-        dataIndex: "total",
-        key: "total",
-        render: (_, { total }) => (
-          <Tooltip title={formatCurrency(total)}>
-            <span>{formatCurrency(total)}</span>
-          </Tooltip>
-        ),
-      },
-    ];
-  const orderExpandedRowRender = (
-    dataScource: ProductSellableDetailsInOrderModel[],
-  ) => {
-    return (
-      <Table<ProductSellableDetailsInOrderModel>
-        tableLayout="auto"
-        columns={productColumns}
-        dataSource={dataScource}
-        pagination={false}
-        size="small"
-        rowKey={(record) =>
-          `${record?.product_sellable?.id}-${record?.product_variant_name}`
-        }
-      />
-    );
-  };
   const [isOpenCreateOrderModal, setIsOpenCreateOrderModal] = useState(false);
   const _onOpenCreateOrderModal = () => {
     setIsOpenCreateOrderModal(true);
@@ -725,7 +585,7 @@ const OrderTable = ({
                         [],
                     )
                 : [];
-              return orderExpandedRowRender(productData);
+              return <OrderExpandDetail dataSource={productData} />;
             },
           }}
           onChange={_onChangeTable}
@@ -752,16 +612,6 @@ const OrderTable = ({
         />
       </div>
       {/* MODAL */}
-      {/* TODO: Fix order detail modal */}
-      {/* <OrderDetailModal
-        isModalOrderDetailOpen={isModalOrderDetailOpen}
-        handleCloseModalOrderDetail={_onCloseModalOrderDetail}
-        handleUpdateOrderDetail={_onConfirmUpdateOrderDetail}
-        isEditMode={isEditMode}
-        orderId={orderId}
-        productsData={null}
-        productsColumns={productColumns} */}
-      {/* /> */}
       {/* TODO: Fix create order modal */}
       <CreateOrderDetailModal
         isOpen={isOpenCreateOrderModal}

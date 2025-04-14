@@ -13,6 +13,7 @@ export interface OrderConditionDTO {
   includeProducts?: boolean;
   includeShipping?: boolean;
   includePayment?: boolean;
+  includeInventory?: boolean;
   limit?: number;
   page?: number;
 }

@@ -10,7 +10,6 @@ import {
 import { LucideTrash } from "lucide-react";
 import { Package } from "lucide-react";
 import { ADMIN_ROUTES } from "@/app/constants/routes";
-import { cn } from "@/app/shared/utils/utils";
 import { Tabs, TabsProps } from "antd";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
