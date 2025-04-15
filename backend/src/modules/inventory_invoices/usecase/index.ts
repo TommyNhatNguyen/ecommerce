@@ -381,6 +381,17 @@ export class InventoryInvoiceUseCase implements IInventoryInvoiceUseCase {
     data: InventoryInvoiceCreateDTO,
     t?: Transaction
   ): Promise<InventoryInvoice | null> {
+    console.log('🚀 ~ InventoryInvoiceUseCase ~ data:', data);
+    if (data.type == InventoryInvoiceType.SALE_INVOICE) {
+      console.log('🚀 ~ InventoryInvoiceUseCase ~ data:', data);
+      const inventoryInvoice = await this.inventoryInvoiceRepository.create(
+        {
+          ...data,
+        },
+        t
+      );
+      return inventoryInvoice;
+    }
     try {
       const result = await this.sequelize?.transaction(async (t) => {
         let inventoryInvoice;

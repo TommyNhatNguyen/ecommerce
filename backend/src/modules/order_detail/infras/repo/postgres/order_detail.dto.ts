@@ -163,6 +163,10 @@ export function orderDetailProductSellableInit(sequelize: Sequelize) {
         type: DataTypes.FLOAT,
         allowNull: false,
       },
+      warehouse_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
       total: {
         type: DataTypes.FLOAT,
         allowNull: false,

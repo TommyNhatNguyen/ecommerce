@@ -80,6 +80,7 @@ export const OrderDetailUpdateDTOSchema = z.object({
       id: z.string().uuid(),
       quantity: z.number().optional(),
       warehouse_id: z.string().uuid(),
+      inventory_id: z.string().uuid(),
     })
   ),
   order_discounts: z.array(z.string()).optional(),

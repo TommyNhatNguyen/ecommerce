@@ -81,6 +81,7 @@ export interface OrderUpdateDTO {
       id: string;
       quantity?: number;
       warehouse_id?: string;
+      inventory_id?: string;
     }[];
     order_discounts?: string[];
   };

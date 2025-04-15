@@ -2,8 +2,6 @@ import { OrderUpdateDTO } from "@/app/shared/interfaces/orders/order.dto";
 import { OrderModel } from "@/app/shared/models/orders/orders.model";
 import { formatCurrency } from "@/app/shared/utils/utils";
 import { Button, Tag } from "antd";
-import { Control } from "react-hook-form";
-import { UseFormSetValue } from "react-hook-form";
 import { UseFormHandleSubmit } from "react-hook-form";
 import React, { useMemo } from "react";
 import { useIntl } from "react-intl";
@@ -256,6 +254,7 @@ const OrderSummary = ({
           type="primary"
           className="mx-auto w-full"
           onClick={handleSubmit(handleConfirmOrder)}
+          disabled={orderData?.order_state !== "PENDING"}
         >
           {intl.formatMessage({ id: "confirm_order" })}
         </Button>

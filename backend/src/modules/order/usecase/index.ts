@@ -279,16 +279,25 @@ export class OrderUseCase implements IOrderUseCase {
     // Tạo 1 thẻ kho bán hàng
     for (const orderProduct of order.order_detail?.product_sellable || []) {
       const orderQuantity = orderProduct.product_details?.quantity || 0;
-      const orderAmount =
+      const orderCost =
         (orderProduct?.inventory?.avg_cost || 0) * orderQuantity;
+      const warehouseId =
+        order_detail_info?.products_detail?.find(
+          (item) => item.id == orderProduct.variant_id
+        )?.warehouse_id || '';
       const inventoryInvoicePayload: InventoryInvoiceCreateDTO = {
-        code: `BH${Math.random().toString(36).substring(2, 15).padStart(5, '2')}` || inventory_invoice_info?.code,
+        code:
+          `BH${Math.random().toString(36).substring(2, 15).padStart(5, '2')}` ||
+          inventory_invoice_info?.code,
         type: InventoryInvoiceType.SALE_INVOICE,
         note:
-          inventory_invoice_info?.note || `Đơn hàng ${order.id} đã được xác nhận`,
+          inventory_invoice_info?.note ||
+          `Đơn hàng ${order.id} đã được xác nhận`,
         quantity: orderQuantity,
-        amount: orderAmount,
+        amount: orderCost,
         inventory_id: orderProduct.inventory?.id || '',
+        warehouse_id: warehouseId,
+        cost: orderProduct?.inventory?.avg_cost || 0,
       };
       console.log(
         '🚀 ~ OrderUseCase ~ inventoryInvoicePayload:',
@@ -298,6 +307,7 @@ export class OrderUseCase implements IOrderUseCase {
         inventoryInvoicePayload,
         t
       );
+      console.log('🚀 ~ OrderUseCase ~ inventoryInvoice:', inventoryInvoice);
     }
     // Cập nhật lại kho hàng
     const { products_detail } = order_detail_info || {};
@@ -306,7 +316,8 @@ export class OrderUseCase implements IOrderUseCase {
       const productSellable = order.order_detail?.product_sellable?.find(
         (item) => item.variant_id == product.id
       );
-      const productSellableOrderQuantity = productSellable?.product_details?.quantity || 0;
+      const productSellableOrderQuantity =
+        productSellable?.product_details?.quantity || 0;
       const productSellableId = productSellable?.id || '';
       // Get current inventory info by product sellable id
       const productInventory = await this.productSellableUseCase

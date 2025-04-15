@@ -172,6 +172,10 @@ export const orderExpandDetailColumns: (
                       `order_detail_info.products_detail.${index}.id`,
                       product_sellable?.variant_id || "",
                     );
+                    setValue(
+                      `order_detail_info.products_detail.${index}.inventory_id`,
+                      inventory?.id || "",
+                    );
                   }}
                 />
               );
