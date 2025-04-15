@@ -1,5 +1,6 @@
 import { OrderModel } from "@/app/shared/models/orders/orders.model";
-import { Tag, Tooltip } from "antd";
+import { formatCurrency } from "@/app/shared/utils/utils";
+import { Tag } from "antd";
 import React, { useMemo } from "react";
 import { useIntl } from "react-intl";
 
@@ -8,7 +9,6 @@ type OrderSummaryPropType = {
 };
 
 const OrderSummary = ({ orderData }: OrderSummaryPropType) => {
-  console.log("🚀 ~ OrderSummary ~ orderData:", orderData);
   const { id, order_detail, description } = orderData || {};
   const customerName = useMemo(() => {
     return `${order_detail?.customer_firstName} ${order_detail?.customer_lastName}`;
@@ -38,45 +38,51 @@ const OrderSummary = ({ orderData }: OrderSummaryPropType) => {
       {/* Thông tin hoá đơn */}
       <div>
         {/* Mã đơn hàng */}
-        <div>
-          <h3>Mã đơn hàng: </h3>
+        <div className="flex items-start gap-2">
+          <h3 className="text-nowrap font-semibold">Mã đơn hàng: </h3>
           <span>{id}</span>
         </div>
         {/* Thông tin khách hàng */}
-        <div>
-          Tên khách hàng Số điện thoại Địa chỉ Email
-          <div>
-            <h3>Tên khách hàng: </h3>
+        <div className="mt-2 border-t border-dashed border-neutral-500 pt-2">
+          <div className="flex items-start gap-2">
+            <h3 className="text-nowrap font-semibold">Tên khách hàng: </h3>
             <span>{customerName}</span>
           </div>
-          <div>
-            <h3>Số điện thoại: </h3>
+          <div className="flex items-start gap-2">
+            <h3 className="text-nowrap font-semibold">Số điện thoại: </h3>
             <span>{customer_phone}</span>
           </div>
-          <div>
-            <h3>Email: </h3>
+          <div className="flex items-start gap-2">
+            <h3 className="text-nowrap font-semibold">Email: </h3>
             <span>{customer_email}</span>
           </div>
-          <div>
-            <h3>Địa chỉ: </h3>
+          <div className="flex items-start gap-2">
+            <h3 className="text-nowrap font-semibold">Địa chỉ: </h3>
             <span>{customer_address}</span>
           </div>
         </div>
-        <div>
-          <h3>Ghi chú đơn hàng: </h3>
-          <p>{description}</p>
+        <div className="mt-2 border-t border-dashed border-neutral-500 pt-2">
+          <div className="flex items-start gap-2">
+            <h3 className="text-nowrap font-semibold">Ghi chú đơn hàng: </h3>
+            <p>{description}</p>
+          </div>
         </div>
-        <div>
-          <div>
-            <h3>Phương thức thanh toán: </h3>
+        <div className="mt-2 border-t border-dashed border-neutral-500 pt-2">
+          <div className="flex items-start gap-2">
+            <h3 className="text-nowrap font-semibold">
+              Phương thức thanh toán:{" "}
+            </h3>
             <span>{payment?.payment_method?.type || ""}</span>
           </div>
-          <div>
-            <h3>Phương thức shipping: </h3>
+          <div className="flex items-start gap-2">
+            <h3 className="text-nowrap font-semibold">
+              Phương thức shipping:{" "}
+            </h3>
             <span>{shipping?.type || ""}</span>
           </div>
         </div>
-        <div>
+        <div className="mt-2 border-t border-dashed border-neutral-500 pt-2">
+          <h3 className="mb-2 text-nowrap font-semibold">Danh sách sản phẩm</h3>
           {order_product_sellable_histories?.map((product) => {
             const {
               product_variant_name,
@@ -88,99 +94,150 @@ const OrderSummary = ({ orderData }: OrderSummaryPropType) => {
               product_sellable_id,
             } = product || {};
             return (
-              <div key={product_sellable_id} className="flex items-start gap-2">
+              <div
+                key={product_sellable_id}
+                className="mb-2 flex items-start gap-2"
+              >
                 {/* Thông tin sản phẩm */}
-                <div>
-                  <p>{product_variant_name}</p>
-                  <p>
+                <div className="flex-1">
+                  <p className="font-semibold">{product_variant_name}</p>
+                  <p className="flex items-center gap-2">
                     Kho: <Tag>Hello</Tag>
                   </p>
                 </div>
                 {/* Tổng hợp giá trị sản phẩm */}
                 <div className="flex-1 flex-shrink-0">
-                  <div>
-                    <span>
-                      {quantity} x {price} =
+                  <div className="flex items-center gap-2">
+                    <span className="text-nowrap">
+                      {quantity} x {formatCurrency(price || 0)} =
                     </span>
-                    <span> {subtotal}</span>
+                    <span className="font-semibold text-neutral-800">
+                      {" "}
+                      {formatCurrency(subtotal || 0)}
+                    </span>
                   </div>
-                  <div>
-                    <p>Discount: {discount_amount}</p>
+                  <div className="flex items-center gap-2">
+                    <p>Discount: </p>
+                    <span className="font-semibold text-red-500">
+                      {formatCurrency(discount_amount || 0)}
+                    </span>
                   </div>
-                  <div>
-                    <p>Total: {total}</p>
+                  <div className="flex items-center gap-2">
+                    <p>Total: </p>
+                    <span className="font-semibold text-neutral-800">
+                      {formatCurrency(total || 0)}
+                    </span>
                   </div>
                 </div>
               </div>
             );
           })}
         </div>
-        <div>
-          <div>
-            <h3>Tổng tạm tính: </h3>
-            <span>{subtotal}</span>
+        <div className="mt-2 border-t border-dashed border-neutral-500 pt-2">
+          <div className="flex items-start gap-2">
+            <h3 className="text-nowrap font-semibold">Tổng tạm tính: </h3>
+            <span className="font-medium">{formatCurrency(subtotal || 0)}</span>
           </div>
-          <div>
-            <h3>Tổng giảm giá: </h3>
-            <span>{total_discount}</span>
-          </div>
-          <div>
-            <h3>Tổng chi phí khác (trong đó):</h3>
-            <span>
-              {(total_payment_fee || 0) +
-                (total_shipping_fee || 0) +
-                (total_costs || 0)}
+          <div className="flex items-start gap-2">
+            <h3 className="text-nowrap font-semibold">Tổng giảm giá: </h3>
+            <span className="font-medium text-red-500">
+              {formatCurrency(total_discount || 0)}
             </span>
-            <div>
-              <div>
-                <h4>Chi phí ship: </h4>
-                <span>{total_shipping_fee}</span>
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-start gap-2">
+              <h3 className="text-nowrap font-semibold">
+                Tổng chi phí khác (trong đó):
+              </h3>
+              <span className="font-medium">
+                {formatCurrency(
+                  (total_payment_fee || 0) +
+                    (total_shipping_fee || 0) +
+                    (total_costs || 0),
+                )}
+              </span>
+            </div>
+            <div className="pl-4">
+              <div className="flex items-start gap-2">
+                <h4 className="text-nowrap font-semibold">Chi phí ship: </h4>
+                <span className="font-medium">
+                  {formatCurrency(total_shipping_fee || 0)}
+                </span>
               </div>
-              <div>
-                <h4>Chi phí thanh toán: </h4>
-                <span>{total_payment_fee}</span>
+              <div className="flex items-start gap-2">
+                <h4 className="text-nowrap font-semibold">
+                  Chi phí thanh toán:{" "}
+                </h4>
+                <span className="font-medium">
+                  {formatCurrency(total_payment_fee || 0)}
+                </span>
               </div>
-              <div>
-                <h4>Chi phí khác: </h4>
-                <span>{total_costs}</span>
+              <div className="flex items-start gap-2">
+                <h4 className="text-nowrap font-semibold">Chi phí khác: </h4>
+                <span className="font-medium">
+                  {formatCurrency(total_costs || 0)}
+                </span>
               </div>
             </div>
           </div>
-          <div>
-            <div>
-              <h3>Tổng giảm giá (trong đó): </h3>
-              <span>{total_discount}</span>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-start gap-2">
+              <h3 className="text-nowrap font-semibold">
+                Tổng giảm giá (trong đó):{" "}
+              </h3>
+              <span className="font-medium text-red-500">
+                {formatCurrency(total_discount || 0)}
+              </span>
             </div>
-            <div>
-              <div>
-                <h4>Tổng giảm giá sản phẩm: </h4>
-                <span>{total_product_discount}</span>
+            <div className="pl-4">
+              <div className="flex items-start gap-2">
+                <h4 className="text-nowrap font-semibold">
+                  Tổng giảm giá sản phẩm:{" "}
+                </h4>
+                <span className="font-medium text-red-500">
+                  {formatCurrency(total_product_discount || 0)}
+                </span>
               </div>
-              <div>
-                <h4>Tổng giảm giá trên đơn hàng: </h4>
-                <span>{total_order_discount}</span>
+              <div className="flex items-start gap-2">
+                <h4 className="text-nowrap font-semibold">
+                  Tổng giảm giá trên đơn hàng:{" "}
+                </h4>
+                <span className="font-medium text-red-500">
+                  {formatCurrency(total_order_discount || 0)}
+                </span>
               </div>
             </div>
           </div>
-          <div>
-            <h3>Tổng giá trị đơn hàng: </h3>
-            <span>{total}</span>
+          <div className="mt-4 border-t border-neutral-300 pt-4">
+            <div className="flex items-start gap-2">
+              <h3 className="text-nowrap font-semibold">
+                Tổng giá trị đơn hàng:{" "}
+              </h3>
+              <span className="text-lg font-bold text-neutral-800">
+                {formatCurrency(total || 0)}
+              </span>
+            </div>
+            <div className="flex items-start gap-2">
+              <h3 className="text-nowrap font-semibold">
+                Khách hàng đã thanh toán:{" "}
+              </h3>
+              <span className="font-medium text-green-600">
+                {formatCurrency(payment?.paid_amount || 0)}
+              </span>
+            </div>
+            <div className="flex items-start gap-2">
+              <h3 className="text-nowrap font-semibold">Số tiền còn lại: </h3>
+              <span className="font-medium text-neutral-800">
+                {formatCurrency((total || 0) - (payment?.paid_amount || 0))}
+              </span>
+            </div>
+            <div className="flex items-start gap-2">
+              <h3 className="text-nowrap font-semibold">
+                Ngày thanh toán toàn bộ:{" "}
+              </h3>
+              <span>{payment?.paid_all_date || 0}</span>
+            </div>
           </div>
-          <div>
-            <h3>Khách hàng đã thanh toán: </h3>
-            <span>{payment?.paid_amount || 0}</span>
-          </div>
-          <div>
-            <h3>Số tiền còn lại: </h3>
-            <span>{(total || 0) - (payment?.paid_amount || 0)}</span>
-          </div>
-          <div>
-            <h3>Ngày thanh toán toàn bộ: </h3>
-            <span>{payment?.paid_all_date || 0}</span>
-          </div>
-          Tổng tạm tính Tổng giảm giá: giảm giá order, giảm giá sản phẩm Chi phí
-          thanh toán Chi phí ship Chi phí khác Tổng đơn hàng cuối cùng Số tiền
-          đã trả Ngày trả tiền hết
         </div>
       </div>
       {/*Trạng thái đơn hàng: Nhấn nút cập nhật để xác nhận đơn*/}

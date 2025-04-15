@@ -260,9 +260,8 @@ const OrderTable = ({
               );
             },
             onExpand(expanded, record) {
-              const expandOrder = ordersData?.find(
-                (item) => item.id == record.id,
-              ) || null;
+              const expandOrder =
+                ordersData?.find((item) => item.id == record.id) || null;
               setActiveOrder(expandOrder);
             },
           }}
