@@ -1,14 +1,24 @@
+import { OrderUpdateDTO } from "@/app/shared/interfaces/orders/order.dto";
 import { OrderModel } from "@/app/shared/models/orders/orders.model";
 import { formatCurrency } from "@/app/shared/utils/utils";
-import { Tag } from "antd";
+import { Button, Tag } from "antd";
+import { Control } from "react-hook-form";
+import { UseFormSetValue } from "react-hook-form";
+import { UseFormHandleSubmit } from "react-hook-form";
 import React, { useMemo } from "react";
 import { useIntl } from "react-intl";
 
 type OrderSummaryPropType = {
   orderData: OrderModel | null;
+  handleConfirmOrder: (data: OrderUpdateDTO) => void;
+  handleSubmit: UseFormHandleSubmit<OrderUpdateDTO>;
 };
 
-const OrderSummary = ({ orderData }: OrderSummaryPropType) => {
+const OrderSummary = ({
+  orderData,
+  handleConfirmOrder,
+  handleSubmit,
+}: OrderSummaryPropType) => {
   const { id, order_detail, description } = orderData || {};
   const customerName = useMemo(() => {
     return `${order_detail?.customer_firstName} ${order_detail?.customer_lastName}`;
@@ -241,7 +251,15 @@ const OrderSummary = ({ orderData }: OrderSummaryPropType) => {
         </div>
       </div>
       {/*Trạng thái đơn hàng: Nhấn nút cập nhật để xác nhận đơn*/}
-      <div></div>
+      <div className="mt-4 flex items-center justify-center border-t border-dashed border-neutral-500 pt-4">
+        <Button
+          type="primary"
+          className="mx-auto w-full"
+          onClick={handleSubmit(handleConfirmOrder)}
+        >
+          {intl.formatMessage({ id: "confirm_order" })}
+        </Button>
+      </div>
     </div>
   );
 };

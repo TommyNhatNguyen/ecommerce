@@ -262,5 +262,6 @@ export default {
     paid_amount: "Paid Amount",
     remaining_amount: "Remaining Amount",
     full_payment_date: "Full Payment Date",
+    confirm_order: "Confirm Order",
   },
 };

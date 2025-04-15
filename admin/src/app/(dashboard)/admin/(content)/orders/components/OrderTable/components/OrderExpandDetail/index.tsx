@@ -1,11 +1,15 @@
+"use client";
+import { useOrderDetail } from "@/app/(dashboard)/admin/(content)/orders/components/OrderTable/components/hooks/useOrderDetail";
 import { orderExpandDetailColumns } from "@/app/(dashboard)/admin/(content)/orders/components/OrderTable/components/OrderExpandDetail/columns";
 import OrderSummary from "@/app/(dashboard)/admin/(content)/orders/components/OrderTable/components/OrderExpandDetail/OrderSummary";
+import { OrderUpdateDTO } from "@/app/shared/interfaces/orders/order.dto";
 import {
   OrderModel,
   ProductSellableDetailsInOrderModel,
 } from "@/app/shared/models/orders/orders.model";
 import { Table } from "antd";
 import React from "react";
+import { useForm } from "react-hook-form";
 import { useIntl } from "react-intl";
 
 type Props = {
@@ -20,9 +24,19 @@ const OrderExpandDetail = ({
   user_name,
   ...props
 }: Props) => {
-  console.log("🚀 ~ OrderExpandDetail ~ dataSource:", dataSource);
+  const { handleSubmit, control, setValue } = useForm<OrderUpdateDTO>({
+    defaultValues: {
+      order_detail_info: {
+        products_detail: [],
+      },
+    },
+  });
   const intl = useIntl();
-  const newColumns = orderExpandDetailColumns(intl);
+  const newColumns = orderExpandDetailColumns(intl, setValue, control);
+  const { isConfirmOrderLoading, handleConfirmOrder } = useOrderDetail();
+  const _onConfirmOrder = (data: OrderUpdateDTO) => {
+    handleConfirmOrder(orderData?.id || "", data);
+  };
   return (
     <div className="grid min-h-[792px] grid-cols-12 gap-4">
       {/* Order product table */}
@@ -37,6 +51,7 @@ const OrderExpandDetail = ({
           )}
         </h2>
         <Table<ProductSellableDetailsInOrderModel>
+          loading={isConfirmOrderLoading}
           tableLayout="auto"
           columns={newColumns}
           dataSource={dataSource}
@@ -53,7 +68,11 @@ const OrderExpandDetail = ({
         />
       </div>
       {/* Order Summary */}
-      <OrderSummary orderData={orderData} />
+      <OrderSummary
+        orderData={orderData}
+        handleConfirmOrder={_onConfirmOrder}
+        handleSubmit={handleSubmit}
+      />
     </div>
   );
 };

@@ -1,6 +1,4 @@
 import { PaymentModel } from "@/app/shared/models/payment/payment.model";
-import { CustomerModel } from "../customers/customers.model";
-import { ProductModel } from "../products/products.model";
 import { ShippingModel } from "@/app/shared/models/shipping/shipping.model";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
 import { CostModel } from "@/app/shared/models/cost/cost.model";
@@ -30,7 +28,8 @@ export interface OrderModel {
   order_detail: OrderDetailModel;
 }
 
-export type ProductSellableDetailsInOrderModel = OrderProductSellableHistoryModel;
+export type ProductSellableDetailsInOrderModel =
+  OrderProductSellableHistoryModel;
 
 export type OrderProductSellableHistoryModel = {
   created_at: string;

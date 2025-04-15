@@ -7,10 +7,19 @@ import {
   formatDiscountPercentage,
 } from "@/app/shared/utils/utils";
 import { defaultImage } from "@/app/shared/resources/images/default-image";
+import { OrderUpdateDTO } from "@/app/shared/interfaces/orders/order.dto";
+import { Control, Controller, UseFormSetValue } from "react-hook-form";
+import { ERROR_MESSAGE } from "@/app/constants/errors";
 
 export const orderExpandDetailColumns: (
   intl: IntlShape,
-) => TableProps<ProductSellableDetailsInOrderModel>["columns"] = (intl) => [
+  setValue: UseFormSetValue<OrderUpdateDTO>,
+  control: Control<OrderUpdateDTO>,
+) => TableProps<ProductSellableDetailsInOrderModel>["columns"] = (
+  intl,
+  setValue,
+  control,
+) => [
   {
     title: null,
     dataIndex: "image",
@@ -124,26 +133,49 @@ export const orderExpandDetailColumns: (
     title: () => intl.formatMessage({ id: "select_inventory_product" }),
     dataIndex: "select_inventory_product",
     key: "select_inventory_product",
-    render: (_, { product_sellable }) => {
+    render: (_, { product_sellable }, index) => {
       const { inventory } = product_sellable || {};
-      console.log("🚀 ~ inventory:", intl);
       const warehouse = inventory?.warehouse || [];
       return (
         <div className="w-full">
-          <Select
-            placeholder={intl.formatMessage({ id: "select_inventory_product" })}
-            className="w-full"
-            options={warehouse.map((item) => ({
-              label: `${item.name} - ${intl.formatMessage(
-                {
-                  id: "num_item",
-                },
-                {
-                  num: item.inventory_warehouse.quantity || 0,
-                },
-              )}`,
-              value: item.id,
-            }))}
+          <Controller
+            name={`order_detail_info.products_detail.${index}.warehouse_id`}
+            control={control}
+            rules={{
+              required: {
+                value: true,
+                message: ERROR_MESSAGE.REQUIRED,
+              },
+            }}
+            render={({ field: { onChange, ...field } }) => {
+              return (
+                <Select
+                  {...field}
+                  placeholder={intl.formatMessage({
+                    id: "select_inventory_product",
+                  })}
+                  className="w-full"
+                  options={warehouse.map((item) => ({
+                    label: `${item.name} - ${intl.formatMessage(
+                      {
+                        id: "num_item",
+                      },
+                      {
+                        num: item.inventory_warehouse.quantity || 0,
+                      },
+                    )}`,
+                    value: item.id,
+                  }))}
+                  onChange={(value) => {
+                    onChange(value);
+                    setValue(
+                      `order_detail_info.products_detail.${index}.id`,
+                      product_sellable?.variant_id || "",
+                    );
+                  }}
+                />
+              );
+            }}
           />
         </div>
       );

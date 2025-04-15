@@ -1,7 +1,7 @@
-import { DiscountType } from "src/modules/discount/models/discount.model";
-import { OrderDetailSchema } from "src/modules/order_detail/models/order_detail.model";
-import { NumberType } from "src/share/models/base-model";
-import z from "zod";
+import { DiscountType } from 'src/modules/discount/models/discount.model';
+import { OrderDetailSchema } from 'src/modules/order_detail/models/order_detail.model';
+import { NumberType } from 'src/share/models/base-model';
+import z from 'zod';
 
 export const OrderDetailCreateDTOSchema = z.object({
   subtotal: z.number().default(0),
@@ -61,11 +61,13 @@ export const OrderDetailUpdateDTOSchema = z.object({
   total: z.number().default(0).optional(),
   shipping_method_id: z.string().uuid().optional(),
   payment_id: z.string().uuid().optional(),
-  payment_info: z.object({
-    payment_method_id: z.string().uuid().optional(),
-    paid_amount: z.number().optional(),
-    paid_all_date: z.string().datetime().optional(),
-  }).optional(),
+  payment_info: z
+    .object({
+      payment_method_id: z.string().uuid().optional(),
+      paid_amount: z.number().optional(),
+      paid_all_date: z.string().datetime().optional(),
+    })
+    .optional(),
   customer_id: z.string().uuid().optional(),
   customer_firstName: z.string().optional(),
   customer_lastName: z.string().optional(),

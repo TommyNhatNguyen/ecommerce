@@ -283,5 +283,6 @@ export default {
     paid_amount: "Đã thanh toán",
     remaining_amount: "Còn lại",
     full_payment_date: "Ngày thanh toán toàn bộ",
+    confirm_order: "Xác nhận đơn hàng",
   },
 };

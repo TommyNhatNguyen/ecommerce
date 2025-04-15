@@ -1,15 +1,24 @@
-import {
-  OrderCreateDTO,
-  OrderConditionDTO,
-} from "@/app/shared/interfaces/orders/order.dto";
 import { ListResponseModel } from "@/app/shared/models/others/list-response.model";
 import { axiosInstance } from "@/app/shared/utils/axiosInstance";
-import {
-  OrderModel,
-  OrderState,
-} from "@/app/shared/models/orders/orders.model";
 import { ModelStatus } from "@/app/shared/models/others/status.model";
+import {
+  OrderConditionDTO,
+  OrderCreateDTO,
+  OrderUpdateDTO,
+} from "@/app/shared/interfaces/orders/order.dto";
+import { OrderModel } from "@/app/shared/models/orders/orders.model.d";
 
+enum OrderState {
+  PENDING = "PENDING",
+  CONFIRMED = "CONFIRMED",
+  SHIPPED = "SHIPPED",
+  DELIVERED = "DELIVERED",
+  CANCELLED = "CANCELLED",
+  FAILED = "FAILED",
+  RETURNED = "RETURNED",
+  EXPIRED = "EXPIRED",
+  CANCELLED_BY_ADMIN = "CANCELLED_BY_ADMIN",
+}
 export const orderService = {
   async getList(
     query: OrderConditionDTO,
@@ -50,6 +59,13 @@ export const orderService = {
   },
   async createOrder(data: OrderCreateDTO): Promise<OrderModel> {
     const response = await axiosInstance.post("/order", data);
+    return response.data;
+  },
+  async confirmOrder(order_id: string, data: OrderUpdateDTO) {
+    const response = await axiosInstance.put(`/order/${order_id}`, {
+      ...data,
+      order_state: OrderState.CONFIRMED,
+    });
     return response.data;
   },
 };
