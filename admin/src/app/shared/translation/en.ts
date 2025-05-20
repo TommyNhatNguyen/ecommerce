@@ -244,10 +244,6 @@ export default {
     payment_method: "Payment Method",
     shipping_method: "Shipping Method",
     product_list: "Product List",
-    warehouse: "Warehouse",
-    quantity: "Quantity",
-    price: "Price",
-    discount: "Discount",
     total: "Total",
     order_summary: "Order Summary",
     subtotal: "Subtotal",
@@ -263,5 +259,6 @@ export default {
     remaining_amount: "Remaining Amount",
     full_payment_date: "Full Payment Date",
     confirm_order: "Confirm Order",
+    inventory_stock_threshold_settings: "Inventory Stock Threshold Settings",
   },
 };

@@ -265,10 +265,6 @@ export default {
     payment_method: "Phương thức thanh toán",
     shipping_method: "Phương thức vận chuyển",
     product_list: "Danh sách sản phẩm",
-    warehouse: "Kho",
-    quantity: "Số lượng",
-    price: "Giá",
-    discount: "Giảm giá",
     total: "Tổng cộng",
     order_summary: "Tổng hợp đơn hàng",
     subtotal: "Tổng tạm tính",
@@ -284,5 +280,6 @@ export default {
     remaining_amount: "Còn lại",
     full_payment_date: "Ngày thanh toán toàn bộ",
     confirm_order: "Xác nhận đơn hàng",
+    inventory_stock_threshold_settings: "Cài đặt ngưỡng tồn kho",
   },
 };

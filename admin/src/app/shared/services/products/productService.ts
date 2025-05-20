@@ -12,6 +12,18 @@ import {
 } from "@/app/shared/models/products/products.model";
 import { axiosInstance } from "@/app/shared/utils/axiosInstance";
 
+export const productFetcherService = {
+  getProducts: async (
+    url: string,
+    query?: ProductConditionDTO,
+  ): Promise<ListResponseModel<ProductModel>> => {
+    const response = await axiosInstance.get(url, {
+      params: query,
+    });
+    return response.data;
+  },
+};
+
 export const productService = {
   createProduct: async (data: CreateProductDTOV2): Promise<ProductModel> => {
     const response = await axiosInstance.post("/products", data);
@@ -50,10 +62,7 @@ export const productService = {
     });
     return response.data;
   },
-  update: async (
-    id: string,
-    data: UpdateProductDTO,
-  ): Promise<ProductModel> => {
+  update: async (id: string, data: UpdateProductDTO): Promise<ProductModel> => {
     const response = await axiosInstance.put(`/products/${id}`, data);
     return response.data;
   },
