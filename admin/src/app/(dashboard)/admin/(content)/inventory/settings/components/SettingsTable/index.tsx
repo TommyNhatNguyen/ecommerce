@@ -5,6 +5,9 @@ import {
   productFetcherService,
   productService,
 } from "@/app/shared/services/products/productService";
+import InventorySettingTable from "./data-table";
+import { useIntl } from "react-intl";
+import { inventorySettingColumns } from "./columns";
 
 type Props = {
   limit?: number;
@@ -12,6 +15,7 @@ type Props = {
 };
 
 const SettingsTable = ({ limit = 10, page = 1 }: Props) => {
+  const intl = useIntl();
   const { data, error, isLoading } = useSWR<
     Awaited<ReturnType<typeof productFetcherService.getProducts>>,
     Error,
@@ -32,17 +36,10 @@ const SettingsTable = ({ limit = 10, page = 1 }: Props) => {
   const { data: products, meta } = data || {};
   return (
     <div>
-      <Table>
-        <div>
-          {/* Hiển thị số lượng bản ghi */}
-          {/* Hiển thị refresh */}
-          {/* Hiển thị dropdown chọn cột hiển thị */}
-        </div>
-        <div>
-          {/* Hiển thị Nested Table gồm: Tên sản phẩm, số lượng SKU */}
-          {/* Bên trong nested Table gồm: Tên sản phẩm, số lượng trong kho, trạng thái, input cập nhật ngưỡng tồn kho tối thiểu, input cập nhật ngưỡng tồn kho tối đa */}
-        </div>
-      </Table>
+      <InventorySettingTable
+        columns={inventorySettingColumns(intl)}
+        data={products}
+      />
     </div>
   );
 };
