@@ -32,6 +32,9 @@ const SettingsTable = ({ limit = 10, page = 1 }: Props) => {
       },
     ],
     ([url, query]) => productFetcherService.getProducts(url, query),
+    {
+      keepPreviousData: true,
+    },
   );
   const { data: products, meta } = data || {};
   return (

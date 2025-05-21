@@ -17,13 +17,24 @@ import {
 export type DataTableProps = {
   columns: ColumnDef<VariantProductModel>[];
   data?: VariantProductModel[];
+  updatedCell: string;
+  setUpdatedCell: (updatedCell: string) => void;
 };
 
-const InventoryVariantTable = ({ columns, data }: DataTableProps) => {
+const InventoryVariantTable = ({
+  columns,
+  data,
+  updatedCell,
+  setUpdatedCell,
+}: DataTableProps) => {
   const table = useReactTable({
     data: data || [],
     columns,
     getCoreRowModel: getCoreRowModel(),
+    meta: {
+      updatedCell,
+      setUpdatedCell,
+    },
   });
   return (
     <Table>

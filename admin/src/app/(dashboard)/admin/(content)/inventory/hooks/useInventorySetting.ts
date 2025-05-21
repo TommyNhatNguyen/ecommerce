@@ -19,14 +19,12 @@ export function useInventorySetting() {
       if (response) {
         notificationApi.success({
           message: "Update low stock threshold successfully",
-          title: "Success",
         });
       }
     } catch (error) {
       setUpdateThresholdError(error as Error);
       notificationApi.error({
         message: "Update low stock threshold failed",
-        title: "Error",
       });
     } finally {
       setUpdateThresholdLoading(false);
@@ -44,14 +42,12 @@ export function useInventorySetting() {
       if (response) {
         notificationApi.success({
           message: "Update high stock threshold successfully",
-          title: "Success",
         });
       }
     } catch (error) {
       setUpdateThresholdError(error as Error);
       notificationApi.error({
         message: "Update high stock threshold failed",
-        title: "Error",
       });
     } finally {
       setUpdateThresholdLoading(false);

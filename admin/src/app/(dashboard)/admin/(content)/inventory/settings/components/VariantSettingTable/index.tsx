@@ -6,14 +6,18 @@ import { VariantProductModel } from "@/app/shared/models/variant/variant.model";
 
 type Props = {
   data: VariantProductModel[];
+  updatedCell: string;
+  setUpdatedCell: (updatedCell: string) => void;
 };
 
-const VariantSettingTable = ({ data }: Props) => {
+const VariantSettingTable = ({ data, updatedCell, setUpdatedCell }: Props) => {
   const intl = useIntl();
   return (
     <InventoryVariantTable
       columns={inventoryVariantColumns(intl)}
       data={data}
+      updatedCell={updatedCell}
+      setUpdatedCell={setUpdatedCell}
     />
   );
 };

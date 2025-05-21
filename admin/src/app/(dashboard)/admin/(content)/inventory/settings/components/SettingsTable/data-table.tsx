@@ -15,7 +15,7 @@ import {
   getGroupedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import React from "react";
+import React, { useState } from "react";
 import VariantSettingTable from "../VariantSettingTable";
 import { cn } from "@/app/shared/utils/utils";
 
@@ -25,6 +25,7 @@ export type DataTableProps = {
 };
 
 const InventorySettingTable = ({ columns, data }: DataTableProps) => {
+  const [updatedCell, setUpdatedCell] = useState<string>("");
   const table = useReactTable({
     data: data || [],
     columns,
@@ -85,7 +86,11 @@ const InventorySettingTable = ({ columns, data }: DataTableProps) => {
                 {row.getIsExpanded() && (
                   <TableRow>
                     <TableCell colSpan={columns.length}>
-                      <VariantSettingTable data={row.original?.variant || []} />
+                      <VariantSettingTable
+                        data={row.original?.variant || []}
+                        updatedCell={updatedCell}
+                        setUpdatedCell={setUpdatedCell}
+                      />
                     </TableCell>
                   </TableRow>
                 )}
